@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-06-09T22:21:51-04:00</updated>
+  <updated>2014-06-09T22:30:56-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,5 +12,92 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[onename.io/jrruethe]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/06/09/onename-dot-io-slash-jrruethe/"/>
+    <updated>2014-06-09T22:23:36-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/06/09/onename-dot-io-slash-jrruethe</id>
+    <content type="html"><![CDATA[<pre><code>-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+#verifymyonename +jrruethe
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTllhvAAoJEOi6VN8lA5Dvp50P/1jxn6fhOoGUhmJIm8ADo0ZB
+9R0nxw4nr8KWOW1GR2t4CHGQcIZvHKAzilw+2SsSuFiib9oscV3NFa3SQA4LvSxP
+Q/HMOAJxLi4AJDpb/heoGhUZizaEzK5/hJHPMNdUqLy3U/ve32YV7VZ0YA6Y6b/W
+/wXz5KUyejEbXETq7DV/3n4VKpj/Z6HpFqkzSJd1wDZQoF2xY8/xVwOj1ErIMB+o
+5jOVjDuVBaPR4ArEUVVu6DXFrOFBqLiqLersDZJhw94gm8HxfMEUb1RnDZg9PFce
+cKFqXfwcRz7OMOYHb7/Q7Z8NSrJ9bQGddj+tzVMmYN38S+cqGN306bxBz4SFUtDg
+TlNfcW8WGE/d037Biq6w3x3ZnBxfVdSNdd4oGnBC2aE58PP/dBtVKU0jG2VfeINS
+yW2ExdB9pa6S3632AqDZuT/svdjeam2+Fo2+px/K3QIs7SZuq7/EKAKymY6+uzUo
+GaPH4nIjWJg3mDRmpb3dLa8+tEQsG56aKzX/7VC29MsJGfsaryxzY0OagZMIyoxa
+j/qBtl1zMU8UkjZaO9Sphd17xtSkymEZUDnTYpw2VUlhVKooDSud/p7zKZgBNrJp
+oFuIVcTe+aQjM17cSN3SabqPd67B6hbD8Btrbrb0308EKza/yEEYl4dpDBg30xFp
+ptVKrpG7VObKeoGKFsya
+=6RCi
+-----END PGP SIGNATURE-----
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[PGP Key]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/06/09/pgp-key/"/>
+    <updated>2014-06-09T22:23:17-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/06/09/pgp-key</id>
+    <content type="html"><![CDATA[<pre><code>-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: SKS 1.1.4
+Comment: Hostname: pgp.mit.edu
+
+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
+=RHYO
+-----END PGP PUBLIC KEY BLOCK-----
+</code></pre>
+]]></content>
+  </entry>
   
 </feed>
