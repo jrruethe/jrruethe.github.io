@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-06-09T22:30:56-04:00</updated>
+  <updated>2014-06-10T23:28:22-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,58 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Docker OS]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/06/10/docker-os/"/>
+    <updated>2014-06-10T22:23:13-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/06/10/docker-os</id>
+    <content type="html"><![CDATA[<p>I have been playing around with Docker and I am really enjoying it, it is an amazing concept.
+In particular, I have been inspired by the following projects:</p>
+
+<ul>
+<li>boot2docker</li>
+<li>debian2docker</li>
+<li>dind</li>
+<li>docker-desktop</li>
+</ul>
+
+
+<p>I began to think, why not try to pull all these together and create a docker based operating system?
+No, I&rsquo;m not thinking along the lines of CoreOS, which is targeted to scalable production environments.
+I&rsquo;m thinking more for a portable modular development environment.</p>
+
+<p>I have a couple unusual requirements I will try to achieve:</p>
+
+<ul>
+<li>Keep the base image under 50MB for fitting on a business card CD</li>
+<li>Keep base image as minimal as possible</li>
+<li>Have a full installation of Docker available for running containers</li>
+<li>Have the created ISO be hybrid; Allow for burning to disk or dd to USB</li>
+<li>Provide an auto-import mechanism from the ISO itself or from a USB drive</li>
+<li>Boot using Grub2</li>
+<li>Support squashfs + aufs + tmpfs for writable read-only media</li>
+<li>Support mounting /var/lib/docker to a persistent partition</li>
+<li>Support a &ldquo;frugal&rdquo; installation</li>
+<li>Support LUKS full-disk encryption on install</li>
+<li>Boot using a customized Kali-linux kernel</li>
+<li>Use Xpra / Xephyr to display GUI applications inside docker containers</li>
+<li>Strip out all unnecessary files from the image</li>
+<li>Use Multistrap and apt-pinning to create the base image</li>
+<li>Support alias scripts in a bin/ directory for running available images</li>
+<li>Keep the entire base system inside an initramfs.gz for easy booting</li>
+</ul>
+
+
+<p>As you can see, I am aiming for a portable modular system that is small, easy to modify, allows for full disk encryption persistence as well as running strictly in ram, and can boot from CD or USB. I&rsquo;m hoping to build everything on it from Docker (more on this in a later post) including the desktop environment. Finally, I want to have a setup that allows me to drop docker images in a folder and have them available to use (auto-import) along with generated bin scripts to run them.</p>
+
+<p>Seems like a lot?
+You can view the project here:</p>
+
+<pre><code>https://github.com/jrruethe/debian2docker
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[onename.io/jrruethe]]></title>
