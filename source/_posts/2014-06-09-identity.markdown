@@ -1,0 +1,14 @@
+---
+layout: post
+title: "Identity"
+date: 2014-06-09 23:32:05 -0400
+comments: true
+categories: 
+---
+
+I'm a big fan of distributed systems. In particular, the concept behind Bitcoin fascinates me; having no central authority, yet maintaining absolute trust through the power of cryptography. It reminded me a lot of the PGP web of trust. There are also some very interesting Bitcoin derivatives out there, such as Namecoin, a key-value store that acts as a distributed database maintained by the proof-of-work protocol. This reminds me of the Distributed Hash Table used in the Bittorrent protocol. Finally, Git and Bittorrent Sync both allow for files to be distributed across machines without requiring any central point of failure.
+
+I wanted to use these systems to secure my place on the internet and create a trusted identity that belongs to me.
+Onename.io is a service that utilizes the Namecoin protocol to create an online identity, and blockchains are forever so this seemed like a good place to start. My PGP is linked to my name, email address, and Bitcoin address. My Onename.io links together my name, Bitcoin address, Github account, Twitter account, and PGP key. My Github and Twitter accounts both link back to my Onename.io address. Therefore, I have created an interconnected web of trust that is distributed and forever in the blockchain, which provides people a way to authenticate my code, messages, and transactions back to me.
+
+While having the distributed nature of something like Git is very nice, it is also advantageous to have a central place to retrieve all that data. This is why I have made Github my starting point; It's concept shares a lot of my own philosophies, and it will likely be around for a long time.
