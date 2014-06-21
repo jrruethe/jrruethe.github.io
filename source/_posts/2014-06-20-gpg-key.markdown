@@ -1,0 +1,14 @@
+---
+layout: post
+title: "GPG Key"
+date: 2014-06-20 21:41:36 -0400
+comments: true
+categories: 
+---
+
+Below you can find a copy of my new GPG key.
+
+    4096R/0x4630BEDC40B935FE 2014-06-14 [expires: 2015-06-14]
+    Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
+
+{% include_code lang:yaml jrruethe-public.asc %}
