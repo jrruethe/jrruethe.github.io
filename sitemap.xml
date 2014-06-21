@@ -2,34 +2,46 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://jrruethe.github.io/blog/2014/06/08/about-me/</loc>
-        <lastmod>2014-06-11T20:29:59-04:00</lastmod>
+        <lastmod>2014-06-20T20:21:12-04:00</lastmod>
     </url>
     <url>
-        <loc>http://jrruethe.github.io/blog/2014/06/09/pgp-key/</loc>
-        <lastmod>2014-06-09T22:25:27-04:00</lastmod>
+        <loc>http://jrruethe.github.io/blog/2014/06/20/transition-statement/</loc>
+        <lastmod>2014-06-20T21:36:27-04:00</lastmod>
     </url>
     <url>
-        <loc>http://jrruethe.github.io/blog/2014/06/09/onename-dot-io-slash-jrruethe/</loc>
-        <lastmod>2014-06-09T22:26:16-04:00</lastmod>
+        <loc>http://jrruethe.github.io/blog/2014/06/20/gpg-key/</loc>
+        <lastmod>2014-06-20T21:57:41-04:00</lastmod>
     </url>
     <url>
-        <loc>http://jrruethe.github.io/blog/2014/06/09/identity/</loc>
-        <lastmod>2014-06-11T20:53:05-04:00</lastmod>
-    </url>
-    <url>
-        <loc>http://jrruethe.github.io/blog/2014/06/10/docker-os/</loc>
-        <lastmod>2014-06-10T23:28:02-04:00</lastmod>
+        <loc>http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/</loc>
+        <lastmod>2014-06-20T22:34:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/archives/</loc>
-        <lastmod>2014-06-11T20:53:05-04:00</lastmod>
-    </url>
-    <url>
-        <loc>http://jrruethe.github.io/</loc>
-        <lastmod>2014-06-11T20:53:05-04:00</lastmod>
+        <lastmod>2014-06-20T22:34:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/robots.txt</loc>
-        <lastmod>2014-06-09T22:07:42-04:00</lastmod>
+        <lastmod>2014-06-20T20:21:12-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/</loc>
+        <lastmod>2014-06-20T22:34:55-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/downloads/code/jrruethe-public.asc</loc>
+        <lastmod>2014-06-20T21:55:17-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/downloads/code/transition_statement.txt.oldkey.asc</loc>
+        <lastmod>2014-06-20T21:11:02-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/downloads/code/transition_statement.txt.newkey.asc</loc>
+        <lastmod>2014-06-20T21:21:17-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/downloads/code/verifymyonename.txt.asc</loc>
+        <lastmod>2014-06-20T22:01:55-04:00</lastmod>
     </url>
 </urlset>

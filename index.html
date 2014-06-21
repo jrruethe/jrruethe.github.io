@@ -9,8 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="I have been playing around with Docker and I am really enjoying it, it is an amazing concept.
-In particular, I have been inspired by the following &hellip;">
+  <meta name="description" content="Onename.io is a decentralized identity system that allows someone to: Claim a unique, global username
+Unify your online presence with one username &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -72,7 +72,7 @@ In particular, I have been inspired by the following &hellip;">
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/06/10/docker-os/">Docker OS</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a></h1>
     
     
       <p class="meta">
@@ -88,57 +88,92 @@ In particular, I have been inspired by the following &hellip;">
   
 
 
-<time datetime="2014-06-10T22:23:13-04:00" pubdate data-updated="true">Jun 10<span>th</span>, 2014</time>
+<time datetime="2014-06-20T21:58:58-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>I have been playing around with Docker and I am really enjoying it, it is an amazing concept.
-In particular, I have been inspired by the following projects:</p>
+  <div class="entry-content"><p>Onename.io is a decentralized identity system that allows someone to:</p>
 
 <ul>
-<li>boot2docker</li>
-<li>debian2docker</li>
-<li>dind</li>
-<li>docker-desktop</li>
+<li>Claim a unique, global username</li>
+<li>Unify your online presence with one username and profile</li>
+<li>Own your online identity &amp; data</li>
+<li>Store your profile in the blockchain</li>
+<li>Allow anyone to easily look up your PGP public key</li>
+<li>Share Bitcoin QR codes</li>
 </ul>
 
 
-<p>I began to think, why not try to pull all these together and create a docker based operating system?
-No, I&rsquo;m not thinking along the lines of CoreOS, which is targeted to scalable production environments.
-I&rsquo;m thinking more for a portable modular development environment.</p>
+<p>It uses Namecoin under the hood. Namecoin is a key-value store that utilizes the blockchain as a decentralized database. All authorization is done via public key cryptography, so an individual is in 100% control of their data in the database.</p>
 
-<p>I have a couple unusual requirements I will try to achieve:</p>
+<p>I am a huge fan of decentralized systems, such as:</p>
 
 <ul>
-<li>Keep the base image under 50MB for fitting on a business card CD</li>
-<li>Keep base image as minimal as possible</li>
-<li>Have a full installation of Docker available for running containers</li>
-<li>Have the created ISO be hybrid; Allow for burning to disk or dd to USB</li>
-<li>Provide an auto-import mechanism from the ISO itself or from a USB drive</li>
-<li>Boot using Grub2</li>
-<li>Support squashfs + aufs + tmpfs for writable read-only media</li>
-<li>Support mounting /var/lib/docker to a persistent partition</li>
-<li>Support a &ldquo;frugal&rdquo; installation</li>
-<li>Support LUKS full-disk encryption on install</li>
-<li>Boot using a customized Kali-linux kernel</li>
-<li>Use Xpra / Xephyr to display GUI applications inside docker containers</li>
-<li>Strip out all unnecessary files from the image</li>
-<li>Use Multistrap and apt-pinning to create the base image</li>
-<li>Support alias scripts in a bin/ directory for running available images</li>
-<li>Keep the entire base system inside an initramfs.gz for easy booting</li>
+<li>Bitcoin</li>
+<li>Namecoin / Onename</li>
+<li>Git</li>
+<li>GPG</li>
 </ul>
 
 
-<p>As you can see, I am aiming for a portable modular system that is small, easy to modify, allows for full disk encryption persistence as well as running strictly in ram, and can boot from CD or USB. I&rsquo;m hoping to build everything on it from Docker (more on this in a later post) including the desktop environment. Finally, I want to have a setup that allows me to drop docker images in a folder and have them available to use (auto-import) along with generated bin scripts to run them.</p>
+<p>Onename.io gives me a way to link all this together into my own little decentralized profile:</p>
 
-<p>Seems like a lot?
-You can view the project here:</p>
+<p><img class="center" src="http://localhost:4000/blog/2014/06/20/onename-dot-io-slash-jrruethe/01.png"></p>
 
-<pre><code>https://github.com/jrruethe/debian2docker
-</code></pre>
+<p>Of course, each of those entities also have their own links, many pointing back at Onename.io for verification. So the web really looks more like this:</p>
+
+<p><img class="center" src="http://localhost:4000/blog/2014/06/20/onename-dot-io-slash-jrruethe/02.png"></p>
+
+<p>The following is proof that I am the owner of my <a href="https://onename.io/jrruethe">Onename.io</a> account:</p>
+
+<figure class='code'><figcaption><span> (verifymyonename.txt.asc)</span> <a href='/downloads/code/verifymyonename.txt.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA512</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#verifymyonename +jrruethe</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQIcBAEBCgAGBQJTpOeMAAoJEInJf5BWENx2TjAP/2LkdSVqiP/xhS03rxCDPBFE</span>
+</span><span class='line'><span class="l-Scalar-Plain">DmsQ1d4r4M3wlBRyp08BQUCS1mAl3sRmkwCnoAB9rpN6hOZusZKF3iStq4u7AQJf</span>
+</span><span class='line'><span class="l-Scalar-Plain">zc5mhfHp878pj+HnNpdBHURTBK6jm+IWxBaGABMawaxMvoPbUZi3IPCy00KFgfWr</span>
+</span><span class='line'><span class="l-Scalar-Plain">bS+VuIe1SN7DTW2/ecdfHJY5BHrsln/dOzSPZAINcfW/p7Xp8aRDRPrX7Anl/YP8</span>
+</span><span class='line'><span class="l-Scalar-Plain">CerrMNwiA6ELHQSd0OW9gdO6xK9z/8u/Le8tXfuSIplu8qomgZOYfnBYzHmqVBvj</span>
+</span><span class='line'><span class="l-Scalar-Plain">sIbQjwQO9i5BsAQC24HC/3er7mJcaSvio1+LLHAXAvB+Dk4xlErDOLurQaWK0cNA</span>
+</span><span class='line'><span class="l-Scalar-Plain">4vbaYvQ/mEIMBrE40g57OyFYDh8/xcFsaXcuZarUJvXhOh9NAMHhweIm/TwOiPda</span>
+</span><span class='line'><span class="l-Scalar-Plain">A2mfPlZfi+jHdv7vnVOrWAjJwWpgbNUeSNk7K311X9cGrKVl3c2y17VIrZT5V4Pt</span>
+</span><span class='line'><span class="l-Scalar-Plain">sx9asMJGSPqYt8+wV6jpw+CRBWDpQgGjLhcStz1JxJb+7rKzNyUFM8RLUd0bAHkb</span>
+</span><span class='line'><span class="l-Scalar-Plain">XlXW4ZOHrN2foMXXE4jQuGQOXJ+Hkx1STCd5LGD4wsGEn8mDMU+AzB4tsmh6YOgt</span>
+</span><span class='line'><span class="l-Scalar-Plain">LwZSpxmJbUX090MRZm8NFsCMn8u4ItdRYqpO3AB9f0Nh1yKtcqIwIW11sIFVoO2u</span>
+</span><span class='line'><span class="l-Scalar-Plain">OENFIIkWuDkpqtlFlS4i</span>
+</span><span class='line'><span class="l-Scalar-Plain">=ZqmE</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
 </div>
   
   
@@ -151,7 +186,7 @@ You can view the project here:</p>
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/06/09/identity/">Identity</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/06/20/gpg-key/">GPG Key</a></h1>
     
     
       <p class="meta">
@@ -167,19 +202,356 @@ You can view the project here:</p>
   
 
 
-<time datetime="2014-06-09T23:32:05-04:00" pubdate data-updated="true">Jun 9<span>th</span>, 2014</time>
+<time datetime="2014-06-20T21:41:36-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>I&rsquo;m a big fan of distributed systems. In particular, the concept behind Bitcoin fascinates me; having no central authority, yet maintaining absolute trust through the power of cryptography. It reminded me a lot of the PGP web of trust. There are also some very interesting Bitcoin derivatives out there, such as Namecoin, a key-value store that acts as a distributed database maintained by the proof-of-work protocol. This reminds me of the Distributed Hash Table used in the Bittorrent protocol. Finally, Git and Bittorrent Sync both allow for files to be distributed across machines without requiring any central point of failure.</p>
+  <div class="entry-content"><p>Below you can find a copy of my new GPG key.</p>
 
-<p>I wanted to use these systems to secure my place on the internet and create a trusted identity that belongs to me.
-Onename.io is a service that utilizes the Namecoin protocol to create an online identity, and blockchains are forever so this seemed like a good place to start. My PGP is linked to my name, email address, and Bitcoin address. My Onename.io links together my name, Bitcoin address, Github account, Twitter account, and PGP key. My Github and Twitter accounts both link back to my Onename.io address. Therefore, I have created an interconnected web of trust that is distributed and forever in the blockchain, which provides people a way to authenticate my code, messages, and transactions back to me.</p>
+<pre><code>4096R/0x4630BEDC40B935FE 2014-06-14 [expires: 2015-06-14]
+Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
+</code></pre>
 
-<p>While having the distributed nature of something like Git is very nice, it is also advantageous to have a central place to retrieve all that data. This is why I have made Github my starting point; It&rsquo;s concept shares a lot of my own philosophies, and it will likely be around for a long time.</p>
+<figure class='code'><figcaption><span> (jrruethe-public.asc)</span> <a href='/downloads/code/jrruethe-public.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP PUBLIC KEY BLOCK-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">mQINBFOceg4BEACzdFQHS6p9xJf6f88Vj5e+I2lchu/mE1md/Yf+lBDxiHKobRQb</span>
+</span><span class='line'><span class="l-Scalar-Plain">h9muVbrtsq6wbwJYAhPXztAIF4u/DCHuR8I3ZAC0boJUTJvjzGQDJS38dB4kJPO8</span>
+</span><span class='line'><span class="l-Scalar-Plain">TA4wIdPLsxroZ6TC7YjxIbEDfLT5kTvq4/MZzOsc48lxp/Etw3KYk+V1gy0Od7Lj</span>
+</span><span class='line'><span class="l-Scalar-Plain">oYG9758uiaTHUYrAFiYKtCEeOvic1zzfKcCD7iRz0acWBXnRQdZhRCoasGW69ZMi</span>
+</span><span class='line'><span class="l-Scalar-Plain">/GpHzrAzjG2QWutWYIkZbp/7QBjO1lC4sN8nUZdZgXt71KJOcKTAnHnYvdLjxqH7</span>
+</span><span class='line'><span class="l-Scalar-Plain">HsxGh9r+huZgEujoTQ89VIsopTNjSzg2A/u+4FqxZf0EJgLK+7AujuRLnCdMZeOl</span>
+</span><span class='line'><span class="l-Scalar-Plain">AUcV/27Ahfyshk9s+IGYwD53Tx3UhyYnXlIjWhKueg7IkuNHnbUysQS8avLYXPSM</span>
+</span><span class='line'><span class="l-Scalar-Plain">y4o1NrOhtmwia1R065zKCtSuCABdFyYbhAUY7euRKTeBS9iMJEy4CgsKk9f/7eAw</span>
+</span><span class='line'><span class="l-Scalar-Plain">ll7nrrNv4/R3hC/njnHjPrO2hdxhGxHLJ+EXHZ9J+Vuk8OsEloXyX3b2vNLMXndu</span>
+</span><span class='line'><span class="l-Scalar-Plain">O/ASIIDQ6YOmREc3b3QOBr4ojItKCwlBAKY/aLGKyz/5+tIhlQzPacHqjIUheoHw</span>
+</span><span class='line'><span class="l-Scalar-Plain">dVMecr7xVOI7ZaBdsIo+9ULGbyFXNuinU9rotCR8+n76PNk1R/260V+/hQARAQAB</span>
+</span><span class='line'><span class="l-Scalar-Plain">tCNKb3NlcGggUnVldGhlciA8anJydWV0aGVAZ21haWwuY29tPokCPgQTAQIAKAUC</span>
+</span><span class='line'><span class="l-Scalar-Plain">U5x6DgIbAwUJAeEzgAYLCQgHAwIGFQgCCQoLBBYCAwECHgECF4AACgkQRjC+3EC5</span>
+</span><span class='line'><span class="l-Scalar-Plain">Nf7YkBAAgNuu2CgC0cGeB9hP+9L++T7vbgtHAQ09R1V7AsYxyuMUPJW2XsbVmHOC</span>
+</span><span class='line'><span class="l-Scalar-Plain">pY/1VxLM6OezJiVF7KCDAxyEEaaxMBQQ7MKwsdVaGN0FB6e0l4uCD7RcgpJN6l5p</span>
+</span><span class='line'><span class="l-Scalar-Plain">yI1sHIL9sfVUs4Akn+ZUJZohPevDjLos9QPtc/f6nLm3L6Fk5J3s8U8qEJq9sHD/</span>
+</span><span class='line'><span class="l-Scalar-Plain">Limrc4ZVPodUtN+tYy8hkqcxXOqntWm6J+Ye7SHgfAp8G/lTu0DgL7EcvP9TxNkV</span>
+</span><span class='line'><span class="l-Scalar-Plain">MgQ/WLwAg3x6PmnSXrpIB4SCkWskXzulsM7oNOzljQAUzLYg0e5EHXKAYq2qn4LH</span>
+</span><span class='line'><span class="l-Scalar-Plain">VbnHI+nnwdZ88QnzbK/0V7aw5CNM69XSd7sszrnLTA2EJCknEFcwvaxJX3tDs63a</span>
+</span><span class='line'><span class="l-Scalar-Plain">nQMDJX21dwZOaDeUWW4l88bcjQs2FmDlFpewXM3jrecSfwEgzmcDi/pWPKdAYLxm</span>
+</span><span class='line'><span class="l-Scalar-Plain">dhWbMsLk4S6At3VCswy/lZTXtf3X8VjNlXxhpZNCNKjLLPHzyN1vgvO2JAFaUpkb</span>
+</span><span class='line'><span class="l-Scalar-Plain">48AAJVZ8JGkiCPiRGCP6UgAP5e02gQTJRIG567hY9dYtpAzAGjul6aLuot3Pgyp4</span>
+</span><span class='line'><span class="l-Scalar-Plain">AaDH+7fbX4E6YpEs/NISHt390WKm14qB6yJl+obpAzjL53n2GPmO0Qkk6mC2PzVC</span>
+</span><span class='line'><span class="l-Scalar-Plain">Rjq1y5KU0ceG8L5OLeWE5sKCVRVPC5TMOzWYZ+HV2v8nydYD3fmJAhwEEAECAAYF</span>
+</span><span class='line'><span class="l-Scalar-Plain">AlOkv4EACgkQ6LpU3yUDkO8MOA/8DT8rskKYwxsfcAamSO5a65hUQpKcJ5d8ec0+</span>
+</span><span class='line'><span class="l-Scalar-Plain">cTmuWQJad8sGtWArIdBPj9ILT0ez8IB2uKFRwSA5PM8OlP8C8+HPUY8v8aC3v9PY</span>
+</span><span class='line'><span class="l-Scalar-Plain">yS2fcjsroWOOIM8gtOL13uSr36dt/6T/hbdjBABi/MobsPVdEDpLPsRl6QIq2+x6</span>
+</span><span class='line'><span class="l-Scalar-Plain">EHFTgSjdfs2QugiPcHNZ5rHxJKlE2kQLGjp26q3EOT7UZb7l25HDxqu9TehH56wY</span>
+</span><span class='line'><span class="l-Scalar-Plain">2EDJNxhrSXrF8GkryuAXF5OY0mi66GHk36B5dbe2u+X7H5s540xz3iaO5JTZxV3T</span>
+</span><span class='line'><span class="l-Scalar-Plain">pcMVSNY0jdBr3i8XmiRwMciTXVkTy8e4DHRqUauNaPZpm4LvDGpj5gRL/0FJs35v</span>
+</span><span class='line'><span class="l-Scalar-Plain">lxqQDLCQInRxMYFXURDBrDSd5d64XnLbEuNC6QsbOuv1gswoW5oR3VzDF+RbPdaY</span>
+</span><span class='line'><span class="l-Scalar-Plain">oz9McXMYPZB4r/zxxhTneVxBpZmFd1yyqytGJakdwNQz8Swf4yaa2YSTPmiGLwdI</span>
+</span><span class='line'><span class="l-Scalar-Plain">8N2di3kEyetypMB2LgUVXUkdfHHbTRBPERhDBRs/a3yQtbk5xkRV6tZCKWyJKvFU</span>
+</span><span class='line'><span class="l-Scalar-Plain">HWwZLeIMMpYIBw7I3dOoG1Sj5j1jyiq6NV6B93HK3ivfqo9YgK283XQwGECMsOXP</span>
+</span><span class='line'><span class="l-Scalar-Plain">MWwzpx9+VKCGgmUb17NQpJw4PbzPAZ169IzLLpMr4EOVX2jr3+s/+t+PIcuiCULk</span>
+</span><span class='line'><span class="l-Scalar-Plain">FHOIFYm5Ag0EU5x6DgEQAMmEIUTVuyKRApKzQEMmmnqiApfoQKjVrBLqFz8DzpuL</span>
+</span><span class='line'><span class="l-Scalar-Plain">lWmYqCN89xJeiBwiuHJKQc6Bp8hSS46JavXivmVGP/WLN3JI5GGY/n6tVLAjnpw6</span>
+</span><span class='line'><span class="l-Scalar-Plain">zUcwDwaJhQApOU8w/jBk78RIWvqYEYhhav4z393jGuM/TKtJeFppieApyD2myOLR</span>
+</span><span class='line'><span class="l-Scalar-Plain">+/IZzVlOYfrpmq5y4RI/fBbPmvVMOPNlELMH2qarww4T5W5g1ih1SVJZwaXbZXgH</span>
+</span><span class='line'><span class="l-Scalar-Plain">sz40H8QpgAyYOo6k3N8vf5pwjArxSicurqYCPSqkfFhZXyZefj2oY6UDWGHbRq5b</span>
+</span><span class='line'><span class="l-Scalar-Plain">yJ+L+vVo2hDcb0v6+xEuLa4DWO2g9bgxxrQuE/dKheRxucza+FwhOHMVdby7UFiI</span>
+</span><span class='line'><span class="l-Scalar-Plain">1qbGY2r/Lbk6fO+qSU+s1kCxLUYcyJtqJXibwxVPm2GxbEVMIKe1yLdFCrV3gzvp</span>
+</span><span class='line'><span class="l-Scalar-Plain">9L1hhGJWw9lKSVjXwrVYFtxOMYXB5vsExcn7XIuLWoS0ra8daTE+ccu6SyBx2FM5</span>
+</span><span class='line'><span class="l-Scalar-Plain">xN2+ogLfVLWgHxA8wpYwQBXkA/iemyMj8+OcGQqKgXvjhMNY1ZQmHz0CPSXY6GRJ</span>
+</span><span class='line'><span class="l-Scalar-Plain">ApAAKSyScC12RgsX+mERli4uzddz24OowXw2cmrcTArMFjnMEweA1eE06ZjJje/1</span>
+</span><span class='line'><span class="l-Scalar-Plain">DLESqZULsv9MUar9XDiAZrQrZ97O6xs6P6We6+WQxov9uLjIM0JbEt2c14pXoWpJ</span>
+</span><span class='line'><span class="l-Scalar-Plain">ABEBAAGJAiUEGAECAA8FAlOceg4CGwwFCQHhM4AACgkQRjC+3EC5Nf5Jxg//Ql4i</span>
+</span><span class='line'><span class="l-Scalar-Plain">deUBAZ+uZizM8Rqx1+XQaLOmuPO+YIkIHqjpvv4Wk4whYa2h7GYj70Gm243hXDdw</span>
+</span><span class='line'><span class="l-Scalar-Plain">UJEGR5lA1UDMkDXni4lxYhZv4mG6NxuGjfsnt3oDhVjP8R+C5W/GQfA8qoo/47bb</span>
+</span><span class='line'><span class="l-Scalar-Plain">82jAPgs6ZajVhD7B+DZXWuTOdRZ7B9Va0oz1NZJIEVOKcG0u9u0iL+T10v7dEShi</span>
+</span><span class='line'><span class="l-Scalar-Plain">JTqBDG/mevT3mBVpsAvKvqdWD1l5zT2xWDre5u9L+nnxx2IpteGkgfFzTekQB5Yq</span>
+</span><span class='line'><span class="l-Scalar-Plain">Id+o/LU+G62EFScTYOFlKx/8TTdRVCwcyZOhvnknljvHTH0+lCi6x5j7UFRL5yNb</span>
+</span><span class='line'><span class="l-Scalar-Plain">o7y4ld6tn/9t0bWiMTtw+LXDObkw9TcKqQNQxWmkPnUB8u/fqkOaAywc09pbMU2t</span>
+</span><span class='line'><span class="l-Scalar-Plain">yOfWrTJDVFmXSWOoe3iU7w3eR8RhYg8ELdSTL6V288SplFAnNSlfreh2cK5Fny4C</span>
+</span><span class='line'><span class="l-Scalar-Plain">bC0GkE+aXFsVMXGZta4hFrZ1IEt/BoAvKRp3zWq2DsCdLvdQk3/7vHbO28Mc/ac8</span>
+</span><span class='line'><span class="l-Scalar-Plain">SDv73PPHC/Gpy52falm9wiy3OSnUFGfc7sU+yaOOSczE78YwsiEUsc4Bdookqzws</span>
+</span><span class='line'><span class="l-Scalar-Plain">tHY0zsAU34mDxFAHcSxs1UgHnFCO6+eG2l5A2sdRcylv+0zLvyi1Pmn19QM9A85W</span>
+</span><span class='line'><span class="l-Scalar-Plain">gY3jFWhOoL7LbmioyLn2yAeEx+brN5tnYmpEb3i5Ag0EU5x79QEQAMCFHgDPjZ4X</span>
+</span><span class='line'><span class="l-Scalar-Plain">smzOJJBVomgl1bOz4Dbd0eIjSkFRIOom3hTXWfsbvhJNtzrPjie/XIHqAMsr5gUe</span>
+</span><span class='line'><span class="l-Scalar-Plain">I3ceDwfklSrsHAsZ6dQTnbMnf8WxCOS6Swka6jLQDf8x4I3vnOKFR1b5h5tU9sxm</span>
+</span><span class='line'><span class="l-Scalar-Plain">l2tWlIzJxO8o0roPhdRZYurwDRgBS60f8wOLfZ6ke3VdkjjpeqBKfq0skMHl1i1t</span>
+</span><span class='line'><span class="l-Scalar-Plain">UTxzBNZPljjRP6vEi5qvHEEZD7/nAE6MptZnppzsDKZVIoxp8pgt8SMwNq35z67g</span>
+</span><span class='line'><span class="l-Scalar-Plain">L1aQHWUFy/TGYP1XSLPKTDk6zgbjuxb7ydpBCFIbaDaSJOq3diPbk91QiPH238S9</span>
+</span><span class='line'><span class="l-Scalar-Plain">/Jpg82EacO9F0KqLCj6r39dfWVKBirBM0KGq+H4w9CjWQyYCKHiUuYp1gVvjULgs</span>
+</span><span class='line'><span class="l-Scalar-Plain">+/sHg0h70CXWL3c4UmNAjKod/WDzyQDrLUJ7wyp7uc/Dlhpd4KqqHq/JHPjIBTyt</span>
+</span><span class='line'><span class="l-Scalar-Plain">q7/a3NZP/uB0ia9Is5MqYNlFwvCu6SldBbGb5zIG6C9j8Jq7Ym+c9jMkkr9xg5VY</span>
+</span><span class='line'><span class="l-Scalar-Plain">LPqwmae2ZjwQhXrRBAMWttZZEwMMSVtw1NQ6pLo+49VaEtXlaywuGm5VSru4N3GF</span>
+</span><span class='line'><span class="l-Scalar-Plain">xTVom8Ycx98ePjvEzDwWy+aRfNa+gErDmmuydRS1xtzOVvcsZpBlK/6lp4crDfl9</span>
+</span><span class='line'><span class="l-Scalar-Plain">bCuzXrlS09vQXbC7V8XGfm9X62Go2KcXABEBAAGJBEQEGAECAA8FAlOce/UCGwIF</span>
+</span><span class='line'><span class="l-Scalar-Plain">CQHhM4ACKQkQRjC+3EC5Nf7BXSAEGQECAAYFAlOce/UACgkQicl/kFYQ3HaVpQ//</span>
+</span><span class='line'><span class="l-Scalar-Plain">RR41unV2TUDozklmC5H09EDzPqWjpIc9PPMrGOCFiMBvXrqPqjAQaBDBBWFilX/T</span>
+</span><span class='line'><span class="l-Scalar-Plain">HgIeVdqZUtPhL+12cPOQDwbtoKCTrbetkVLa4dmb2+GD2O9XyKjMM67obS4GEswP</span>
+</span><span class='line'><span class="l-Scalar-Plain">wmAZQujg0YSSymtmhRlyJ0xN0lu/OtcUyj4+967YEIFHeNEaeYLI973QY0hZVAbS</span>
+</span><span class='line'><span class="l-Scalar-Plain">uln503yoN9lb2CAei2oMWi8IEDRd/KJvjUln9ZQv3AkAPmZAFDp13gCUlaW6EEHd</span>
+</span><span class='line'><span class="l-Scalar-Plain">ZU5XnPCbQkji0MAAF9UhimnImYBOLf8S5T8p21xikHoK2zg736/jKPbh6SwzVY3s</span>
+</span><span class='line'><span class="l-Scalar-Plain">usvZieD4cZw5ZD/C1Mo3NLBRi72ZcwE1j6FUpB3syrhH8Cz3HD5v++0DfJAFovra</span>
+</span><span class='line'><span class="l-Scalar-Plain">/pEEsSxmJJaqR9LF8xBAZBnGmPCXDY8Rk44lQYCwU1PO0J6xGWFO+jBaeI0+HkI/</span>
+</span><span class='line'><span class="l-Scalar-Plain">rRzfKBG8YSukee7FZbXVNtL3HQaf8a4x0AjlHepSEk805Yo9I/NVyEE/xh/I/1Ag</span>
+</span><span class='line'><span class="l-Scalar-Plain">G0yBEptFva7HDdFI1UdlLbSt60QIJ4jbvsmFBmTYOHMJWER4fbCSg67gGiQ3i4/9</span>
+</span><span class='line'><span class="l-Scalar-Plain">0wm7vokqUhQ5NkYpeoa7Ilq6U6TbZx3nM79mXImSusQB8giqYLQxvi9tlld9MY9q</span>
+</span><span class='line'><span class="l-Scalar-Plain">Uiy/5F9HMvx+VZ6u7qGQKg1Za9gYGhbwb95rzq9NrgfovBAAqxXt7EVEC5nyKfIZ</span>
+</span><span class='line'><span class="l-Scalar-Plain">VIwcjZ1tC3fRAd1EnGigXncVS+e4hxt8Atwo1/a2lAo/fUiyZSyoA917YsbbXytk</span>
+</span><span class='line'><span class="l-Scalar-Plain">qvozqx0xTo6CbsVmtCC3EfS/xsl/AqUZ26/thvJQHSWKlEme7J/WlW4W4wqW9imq</span>
+</span><span class='line'><span class="l-Scalar-Plain">+x8Ni1i1sGZkICghDS8WU7w9psnLwDCsoXTsqHMPUUfT/QLGi3mJzdMfn7XobGzb</span>
+</span><span class='line'><span class="l-Scalar-Plain">u0Q9uMUQXbIMqmvI2DxuuT0M6q7xSt2OOpF+iRpfEjo3U/wjxwtOOSB+D6lsq/l7</span>
+</span><span class='line'><span class="l-Scalar-Plain">yp/AQD0fUCf+UVuA6n3hkKf1H4zkjc9YdSHssmkZQDQRYAsUXOpsCpQL/zEQaHIG</span>
+</span><span class='line'><span class="l-Scalar-Plain">vXQOVndBuJ7Ux3NMxZXU28tcpM+MXx0JqMiKzAZCbIAG/0B9n0+JCeK63RXzuCVW</span>
+</span><span class='line'><span class="l-Scalar-Plain">2AeiK8r5YhUofAOG0P134YsJaAK4MFSABMyZYknFTNXOJfBXYZ4Hh1WrXuqGtihj</span>
+</span><span class='line'><span class="l-Scalar-Plain">5lcnmoWuLYtBpIEaSD6qILRzCHJ5Rlt4pFSfjvMub0tFNsoeyqzlbarYLTLGkJFN</span>
+</span><span class='line'><span class="l-Scalar-Plain">MkO+oP3wVnzBITXNN9Q0IKxFga/9RVHnBbm61dhD96uKbhHQ6i6didS9XeRWt+yL</span>
+</span><span class='line'><span class="l-Scalar-Plain">RFOVnivOLa3fKzW0QO4Gd3YGQ4fgJPalmZlxPEqfNuFQI/GA8OnXADFFoRsuoT9T</span>
+</span><span class='line'><span class="l-Scalar-Plain">a9FEGmqarBbarI83kcZtc/GRqqSZAg0EUnbVDAEQAM9EdgIy7CUADnFxvIgO4hU2</span>
+</span><span class='line'><span class="l-Scalar-Plain">J+96Xxw68Tf96C4G5h0Sd7DSna4ivZHXikYGdpPZvM2Y+JiY8pU3zLS9M0IWf/u0</span>
+</span><span class='line'><span class="l-Scalar-Plain">1pU5ZiWecmoxUPhvcjLuz/NYVqHCh/s1EVNX7dj29PW7MRqPXXzuu212koz5wz9M</span>
+</span><span class='line'><span class="l-Scalar-Plain">biQCbU58BDkVx1nQtp2+GLVFc+xLIUPsbbRd60EFu11RxBnJ8LWGyIKiqHVsXPoN</span>
+</span><span class='line'><span class="l-Scalar-Plain">dAiNwYPbugvv53tWUhHZ7QwacQKlYwQI30He1aNauaj4HMe8wJHVCALD1l8DSuNw</span>
+</span><span class='line'><span class="l-Scalar-Plain">micT1dLW6DnZtT6EwD7iNzAcUG/zgmU+FmeEOpUYKckROA43E7qzCXn7Mb2KEXDW</span>
+</span><span class='line'><span class="l-Scalar-Plain">fkp284WIiD09fUcMFaT/MXqtNMV5ceKKu1F61YldZhRf3B+ry/tWeDobuJQnFvyc</span>
+</span><span class='line'><span class="l-Scalar-Plain">KqnQprxyepBB0tjJw5IU+ihp9eLirWaM3/FGVs/raS9jtDZXI4vXs5zVOGkoRl1C</span>
+</span><span class='line'><span class="l-Scalar-Plain">7BhnGUKXiZXKal3DaPVKvJpmwP1kzBfIAtCQSJ8VQli8H0oz9QuRmg2ooEb91vZ9</span>
+</span><span class='line'><span class="l-Scalar-Plain">En8OXSBSxI5u1dY2ro8fliW1rtbdLhFTpSd5Sr8NLYJj3ms7zt+a0UQiFjvS3nZP</span>
+</span><span class='line'><span class="l-Scalar-Plain">3yl6MiU/N+jTLUKMcCm5UE8oHBn45KyfAPijBO8BZrQU9s6OqO9L5NtnQtnp2pET</span>
+</span><span class='line'><span class="l-Scalar-Plain">oO3tZPjuBq6d7MkXQWNnABEBAAGJAjYEIAEKACAFAlOkw7kZHQFOZXcgS2V5OiA0</span>
+</span><span class='line'><span class="l-Scalar-Plain">MDk2Ui80MEI5MzVGRQAKCRDoulTfJQOQ7z00EACQ+Bg8adcTrS/lWKWF5ZNUDmBS</span>
+</span><span class='line'><span class="l-Scalar-Plain">JEZSGJsfXBZX7j7d47uzJL1zbsO8HrN/es6BqkRo9sIWOXIB6yr6SoGm2HJiztBQ</span>
+</span><span class='line'><span class="l-Scalar-Plain">ycfpujV9WoFSdvaJEd+Ilx6MbAEvoMu4AFRcUQt2qcUIFXx07PDJjPRD4OnNY4UE</span>
+</span><span class='line'><span class="l-Scalar-Plain">FET7+ILvtoa34o58WMr7H1hBgNaQdqoazzqZZWjrx2SoOUIvKIpL8ErA+cY2yb+I</span>
+</span><span class='line'><span class="l-Scalar-Plain">jmMHDCjDVPKySLZIZcA5BCHcMVbvdnNIUKOwqqAnU3QG7EJCPAWrEUC7JdQVxDBd</span>
+</span><span class='line'><span class="l-Scalar-Plain">oz7FekMw2l6se4SzktL/BMjqXUev6EtjBT/CnWeK37B6wQQ5aFyKJHr/SP4433Ys</span>
+</span><span class='line'><span class="l-Scalar-Plain">NKNfHxPBhiZVwY74+BkhusZcNGUUxvJfUTsQk4aI39iIfWl1H9Y534lKu05rElk9</span>
+</span><span class='line'><span class="l-Scalar-Plain">qU/Teq+bkn5FPA0e7deIdloznU39lpxg8xtAUniT5oP9KOdPyUFvIAKWGGSL5Au/</span>
+</span><span class='line'><span class="l-Scalar-Plain">tJoxBlANrsvRNFrna0SDJL4NB+cc5SNDehxSdiQy9tS4W1tZV+5I2ZY4EiehUZJt</span>
+</span><span class='line'><span class="l-Scalar-Plain">9tPkPnaP8TDidU51zYeuOYh2Ie+PmqeA6I8Y0/d50q7gv/xH6JjVDIxcJOy9rErr</span>
+</span><span class='line'><span class="l-Scalar-Plain">3Qt9PB6fMOxTK5g2R5a9svgMTZupcrNEqnj7AG95CPaLkx3SM6ERVZvPwrQDsoZi</span>
+</span><span class='line'><span class="l-Scalar-Plain">X//IDOxtcp2haOP1H7RISm9zZXBoIFJ1ZXRoZXIgKDFENFhrcEQ2QkEzOUxaejZj</span>
+</span><span class='line'><span class="l-Scalar-Plain">eXQ1cVR3NVlxVFY0a2FoZGspIDxqcnJ1ZXRoZUBnbWFpbC5jb20+iQIcBBMBAgAG</span>
+</span><span class='line'><span class="l-Scalar-Plain">BQJS6FZdAAoJEOi6VN8lA5Dv57AQAIX5R+HnHlnFypPPIeMgi+mMQY/uTJtADaUB</span>
+</span><span class='line'><span class="l-Scalar-Plain">reOs7MwmG0e9hB3Lwc3UKn5zp38X7txeSQiO6isEx0JB6kun31V6ICpoDOt4xi+3</span>
+</span><span class='line'><span class="l-Scalar-Plain">/ERGB1RCnkwx5CjYrTc/PNovuF8mfFWfQxa/fr6NaNCJ89zR1twpL506lcX2GsTy</span>
+</span><span class='line'><span class="l-Scalar-Plain">9QAm5SRJ9y+d+uGib6anc+ly92CSFWnTdeFHXiwxZNFfuEPgWasqxcQ5WkwkOpDC</span>
+</span><span class='line'><span class="l-Scalar-Plain">m3yqnCw369x4O5SL4xhmOLky4P4JRYAFvqbIqc6Ef4h9DRh7c7hZmaIPv3c0uy/3</span>
+</span><span class='line'><span class="l-Scalar-Plain">p9iUUj8mChCxYVEnPTG5d002CPh7n+hTI+qS+f1mQIeE+a3JooPDkWX/DcnirDN4</span>
+</span><span class='line'><span class="l-Scalar-Plain">+zKxT2r1tTpKSXvB78fcOgMuVmvz7Gzy1sWjwIqTUqqQiWLco0uJSDx/yPGSOvI8</span>
+</span><span class='line'><span class="l-Scalar-Plain">NDJi3TABOqQSNmWg3HNNkm1Kv+vnkAZ7/40hQuRuAog+28dqszGtTTbqhcXmz2zE</span>
+</span><span class='line'><span class="l-Scalar-Plain">FjsEXC2doBMBZA8xiZljCT168uEhKiJbjLmkMo3sE6swu9l+J3lhaCXHTN4MWEDF</span>
+</span><span class='line'><span class="l-Scalar-Plain">Dx0bxSW217Y6h1QUUjZ7hucRhtVGawAFKcxdAEkQjfF/zGkzAV89aklywaMaT8XR</span>
+</span><span class='line'><span class="l-Scalar-Plain">v9/uwt9dOm1R4yiNdeT7QL86ZDt/strfWoVPnExPmfQd+QLa9HetfZCHdRfo+8P3</span>
+</span><span class='line'><span class="l-Scalar-Plain">wmR0po0diQI2BBMBCgAgApsDBosJCAcDAgSVAggDBJYCAwEFAlOkwz0FCQEx4qUA</span>
+</span><span class='line'><span class="l-Scalar-Plain">CgkQ6LpU3yUDkO/AMg/9G31KtV9YkORN0SPx9RrfYi44DCmHa2ov7QAl5dS5Scf5</span>
+</span><span class='line'><span class="l-Scalar-Plain">YED8Hn7xHfuPdDBXur/q7pzYXkQb7eE6ou7tY2z+li1V6OJghBSKacp2V+AMAsAg</span>
+</span><span class='line'><span class="l-Scalar-Plain">k68YjBth+g5ltCebQK9aYSG1qeYvA1oLpE9skYFAaFppVuSNMp2dny7nKwN+kJfm</span>
+</span><span class='line'><span class="l-Scalar-Plain">ErHeUeQvB+AJaIE1AvBmhSTDPonQdkeMwOvQarQ8E/I3uiDPlRGjXI0nGbQfMjuj</span>
+</span><span class='line'><span class="l-Scalar-Plain">DiWxiF2Y2otnHL80uY3qLHergUOG66xE3qgVac+geei4JALVFDERXXPOfMU2clM8</span>
+</span><span class='line'><span class="l-Scalar-Plain">dUIbCg3X09TkUASUeDQJQKzW4F3XMa+WC8zFDiQDsQXbyIwv24SRhfvUsTh5zwpU</span>
+</span><span class='line'><span class="l-Scalar-Plain">3VZUkF9at4qjOIQoifOvTQYvRIyDs22URxySB2UrC/sYazNHUHM2DzGggVeR+jhy</span>
+</span><span class='line'><span class="l-Scalar-Plain">rU1hSvrh2ZV1cmVXdsWXHHWcjI813nBx0Zoej3xi26A7NLQjV1PKUgFk090SFFQc</span>
+</span><span class='line'><span class="l-Scalar-Plain">R3jsnnve5Two/qJGXw9W8/TiDJXfEIQSWk7q4H9jHGp+iy6tw01nHgwz/inW/8RA</span>
+</span><span class='line'><span class="l-Scalar-Plain">C88UdQuLenCBJE5ungTNJh+sYeVJArd+KGBYF6Mb11yWQ9KLprf+zzeM9qsjukrI</span>
+</span><span class='line'><span class="l-Scalar-Plain">0W+qos2XIOrtvg8mT1vjzfu83Q2xuRjlH5uNawV8bgddqbJJ8FxHHMUxLs17Wgi5</span>
+</span><span class='line'><span class="l-Scalar-Plain">Ag0EUnbVDAEQALC35LlqP/qfHHbpx6xozacrg6oFNEA8bnGrRqVfoh9R6nYQa/Yx</span>
+</span><span class='line'><span class="l-Scalar-Plain">/OUD28x7eUtMfkb2Va469l3KJOHaeN3R9xvh6s0uqE5OQGIhMvdMd8u3zo/5im3A</span>
+</span><span class='line'><span class="l-Scalar-Plain">lHLTPzrEqnXriQaKf+90o7U0Z9hxDTTxyONbdfFYw1opEi9tll5zj/jgv/LaBKea</span>
+</span><span class='line'><span class="l-Scalar-Plain">1lzjw4XKRMLghcPwgPhjk8XvegpS9pcUT734kYYLsZQ1/wCyPrQSCQ9uAwknxGQt</span>
+</span><span class='line'><span class="l-Scalar-Plain">h2ffQcKPzYn+nTxoJxR2X68byz7StrB5u1h/p2vaiTDGl3K5VNyFWVJJkAMgnFtI</span>
+</span><span class='line'><span class="l-Scalar-Plain">m3Wq2wDdYEcHQ7gtho4iRUTwDj1KaZ08cY+17N8WJx/RE0Ec7BtzTQ9JTw7veRBR</span>
+</span><span class='line'><span class="l-Scalar-Plain">f0jnqqEgVzRrd84fUyVb5a+wWKyfZEqjng5gdkruKV0CzcQpemPfMCEFopwT0CXF</span>
+</span><span class='line'><span class="l-Scalar-Plain">WdXzXX6u1utI6/Tp31OzwTICWqKgK216pszON8wRVAwV2vgA28LOpaYOuvx3/qOp</span>
+</span><span class='line'><span class="l-Scalar-Plain">KUXMn7W5ZtpCoHLwwCDsMAwwE8pfXKMMPbC+YKZiPO7O54dIjKAlrecaJZpNgahf</span>
+</span><span class='line'><span class="l-Scalar-Plain">xA0b8sc9+t0cBRfWQUTqIF0EGZDbNaMulpNJiy4I5FTok395URtvfzDmd4UMj1Rl</span>
+</span><span class='line'><span class="l-Scalar-Plain">r6uS4IwdcLB95etGhqGXWsms5F3gURu7PZ+yCL2Ft43RgKhXw47SoFTDABEBAAGJ</span>
+</span><span class='line'><span class="l-Scalar-Plain">Ah8EGAECAAkFAlLoVl0CGwwACgkQ6LpU3yUDkO+Q5A//fex448C3zpSXPmtFZoxy</span>
+</span><span class='line'><span class="l-Scalar-Plain">mYSRTTsFqaW6C+D0bqI8Hy2lC1znErnJmokWwi4JWoV8CCDvqvMeKkRZ1LXq4pY6</span>
+</span><span class='line'><span class="l-Scalar-Plain">8Ap9et8P6ywpjmqWIl8JIPzs1aTKAMaDuaGDycCiogNdRbiO70NzbmZ7iHoaM1yR</span>
+</span><span class='line'><span class="l-Scalar-Plain">9C21U3X1enry1JKX4cm9gcIgCjGKlvfnR2xEmg7DGiBrMh17rBZXHueff1Vz/fVE</span>
+</span><span class='line'><span class="l-Scalar-Plain">Cb83fLB5iS8OhrquKzbVOYccIoZrkWeQDwt6f2mYCR6coqslM3HK6rxYFB0NBilY</span>
+</span><span class='line'><span class="l-Scalar-Plain">5B2jYF9InVMHC63QMIuggDm9wqWzdPIwjRrBMA+nUPnQHl4yRQ811dY/d6WJrNO0</span>
+</span><span class='line'><span class="l-Scalar-Plain">+lO3Fn/cxEQr+rk2p6yMYopNx1MbLGakKF3V6QQz/n0Ob5BLHmoboS083wojd8YZ</span>
+</span><span class='line'><span class="l-Scalar-Plain">vrdM7aHmUg9S9ELkEkDz3qxCpH1+uheQq4tR+uWz9McEVfp6N1bv0ZgISPiNWO9k</span>
+</span><span class='line'><span class="l-Scalar-Plain">LWoGRTxBJ+Br6XVLcrKklsXJwoNHhI8b08XPbn/cO4ysEW/1T4EdnjNQjhP7YtpN</span>
+</span><span class='line'><span class="l-Scalar-Plain">FPfRP7zsr5BYt9ifJDlvPA65i3hifYlhYPFJekBG+l7hIJgeM6c8qMOD0i7Z8qzF</span>
+</span><span class='line'><span class="l-Scalar-Plain">tuwUISGc/nQ7BBcUnJJJNvUK+ZE3vN1haw6mt5DswamZ+dLQqAOi7QhuKkVrBnbU</span>
+</span><span class='line'><span class="l-Scalar-Plain">5SMYaSeiVTmARYICvEwDydo=</span>
+</span><span class='line'><span class="l-Scalar-Plain">=SRQT</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP PUBLIC KEY BLOCK-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
 </div>
   
   
@@ -192,7 +564,7 @@ Onename.io is a service that utilizes the Namecoin protocol to create an online 
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/06/09/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/06/20/transition-statement/">Transition Statement</a></h1>
     
     
       <p class="meta">
@@ -208,119 +580,257 @@ Onename.io is a service that utilizes the Namecoin protocol to create an online 
   
 
 
-<time datetime="2014-06-09T22:23:36-04:00" pubdate data-updated="true">Jun 9<span>th</span>, 2014</time>
+<time datetime="2014-06-20T21:24:29-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><pre><code>-----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+  <div class="entry-content"><p>I have decided to transition to a new GPG key. Below you will find the following:</p>
 
-#verifymyonename +jrruethe
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJTllhvAAoJEOi6VN8lA5Dvp50P/1jxn6fhOoGUhmJIm8ADo0ZB
-9R0nxw4nr8KWOW1GR2t4CHGQcIZvHKAzilw+2SsSuFiib9oscV3NFa3SQA4LvSxP
-Q/HMOAJxLi4AJDpb/heoGhUZizaEzK5/hJHPMNdUqLy3U/ve32YV7VZ0YA6Y6b/W
-/wXz5KUyejEbXETq7DV/3n4VKpj/Z6HpFqkzSJd1wDZQoF2xY8/xVwOj1ErIMB+o
-5jOVjDuVBaPR4ArEUVVu6DXFrOFBqLiqLersDZJhw94gm8HxfMEUb1RnDZg9PFce
-cKFqXfwcRz7OMOYHb7/Q7Z8NSrJ9bQGddj+tzVMmYN38S+cqGN306bxBz4SFUtDg
-TlNfcW8WGE/d037Biq6w3x3ZnBxfVdSNdd4oGnBC2aE58PP/dBtVKU0jG2VfeINS
-yW2ExdB9pa6S3632AqDZuT/svdjeam2+Fo2+px/K3QIs7SZuq7/EKAKymY6+uzUo
-GaPH4nIjWJg3mDRmpb3dLa8+tEQsG56aKzX/7VC29MsJGfsaryxzY0OagZMIyoxa
-j/qBtl1zMU8UkjZaO9Sphd17xtSkymEZUDnTYpw2VUlhVKooDSud/p7zKZgBNrJp
-oFuIVcTe+aQjM17cSN3SabqPd67B6hbD8Btrbrb0308EKza/yEEYl4dpDBg30xFp
-ptVKrpG7VObKeoGKFsya
-=6RCi
------END PGP SIGNATURE-----
-</code></pre>
-</div>
-  
-  
+<ul>
+<li>Transition Statement</li>
+<li>Signature of Transition Statement with old key</li>
+<li>Signature of Transition Statement with new key</li>
+</ul>
 
 
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/09/pgp-key/">PGP Key</a></h1>
-    
-    
-      <p class="meta">
-        
+<p>I have put my new public key in a separate post.</p>
+
+<figure class='code'><figcaption><span> (transition_statement.txt)</span> <a href='/downloads/code/transition_statement.txt'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">Date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">June 20th, 2014</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">For a number of reasons, i&#39;ve recently set up a new OpenPGP key,</span>
+</span><span class='line'><span class="l-Scalar-Plain">and will be transitioning away from my old one.</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">The old key will continue to be valid for some time, but i prefer all</span>
+</span><span class='line'><span class="l-Scalar-Plain">future correspondence to come to the new one.  I would also like this</span>
+</span><span class='line'><span class="l-Scalar-Plain">new key to be re-integrated into the web of trust.  This message is</span>
+</span><span class='line'><span class="l-Scalar-Plain">signed by both keys to certify the transition.</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">the old key was</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/250390EF 2013-11-03</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 584B CD6D 1CA2 8A2D 7F1C 9AA6 E8BA 54DF 2503 90EF</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">And the new key is</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/40B935FE 2014-06-14 [expires</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2015-06-14]</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">To fetch the full key from a public key server, you can simply do</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --keyserver pool.sks-keyservers.net --recv-key &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">If you already know my old key, you can now verify that the new key is</span>
+</span><span class='line'><span class="l-Scalar-Plain">signed by the old one</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --check-sigs &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">If you don&#39;t already know my old key, or you just want to be double</span>
+</span><span class='line'><span class="l-Scalar-Plain">extra paranoid, you can check the fingerprint against the one above</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --fingerprint &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">If you are satisfied that you&#39;ve got the right key, and the UIDs match</span>
+</span><span class='line'><span class="l-Scalar-Plain">what you expect, I&#39;d appreciate it if you would sign my key. You can</span>
+</span><span class='line'><span class="l-Scalar-Plain">do that by issuing the following command</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">**</span>
+</span><span class='line'><span class="l-Scalar-Plain">NOTE</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">if you have previously signed my key but did a local-only</span>
+</span><span class='line'><span class="l-Scalar-Plain">signature (lsign), you will not want to issue the following, instead</span>
+</span><span class='line'><span class="l-Scalar-Plain">you will want to use --lsign-key, and not send the signatures to the</span>
+</span><span class='line'><span class="l-Scalar-Plain">keyserver</span>
+</span><span class='line'><span class="err">**</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --sign-key &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">I&#39;d like to receive your signatures on my key. You can either send me</span>
+</span><span class='line'><span class="l-Scalar-Plain">an e-mail with the new signatures (if you have a functional MTA on</span>
+</span><span class='line'><span class="l-Scalar-Plain">your system)</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --export &#39;4630BEDC40B935FE&#39; | gpg --encrypt -r &#39;4630BEDC40B935FE&#39; --armor | mail -s &#39;OpenPGP Signatures&#39; jrruethe@gmail.com</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Additionally, I highly recommend that you implement a mechanism to keep your key</span>
+</span><span class='line'><span class="l-Scalar-Plain">material up-to-date so that you obtain the latest revocations, and other updates</span>
+</span><span class='line'><span class="l-Scalar-Plain">in a timely manner. You can do regular key updates by using parcimonie[0] to</span>
+</span><span class='line'><span class="l-Scalar-Plain">refresh your keyring. Parcimonie is a daemon that slowly refreshes your keyring</span>
+</span><span class='line'><span class="l-Scalar-Plain">from a keyserver over Tor. It uses a randomized sleep, and fresh tor circuits</span>
+</span><span class='line'><span class="l-Scalar-Plain">for each key. The purpose is to make it hard for an attacker to correlate the</span>
+</span><span class='line'><span class="l-Scalar-Plain">key updates with your keyring.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">I also highly recommend checking out the excellent Riseup GPG best</span>
+</span><span class='line'><span class="l-Scalar-Plain">practices doc, from which I stole most of the text for this transition</span>
+</span><span class='line'><span class="l-Scalar-Plain">message ;-)</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">https://we.riseup.net/debian/openpgp-best-practices</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Please let me know if you have any questions, or problems, and sorry</span>
+</span><span class='line'><span class="l-Scalar-Plain">for the inconvenience.</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Joseph Ruether</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">0. https://gaffer.ptitcanardnoir.org/intrigeri/code/parcimonie/</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 
 
+<figure class='code'><figcaption><span> (transition_statement.txt.oldkey.asc)</span> <a href='/downloads/code/transition_statement.txt.oldkey.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1.4.12 (GNU/Linux)</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABAgAGBQJTpNubAAoJEOi6VN8lA5DvJpIQAKeb/PrZMIMquikQyeFYfMfw</span>
+</span><span class='line'><span class="l-Scalar-Plain">5M4OlALtDN1sJaDSsfODwPzgqu9vjNNkWznifaUnt/AAHWIh0mJGQ+ePetbdaK7C</span>
+</span><span class='line'><span class="l-Scalar-Plain">yW5Xc3idE6ElByiZa2NuSq6RMSRFYcBPtJWmrdlLlfv1gf5WFwkRGDUHrRbKGdKf</span>
+</span><span class='line'><span class="l-Scalar-Plain">mU4PIJPNgug8XjlSMNw8P8IEmG6nuxpaEcQSfsmjF+BuYyhPuNS+ZFBMTfG4j16t</span>
+</span><span class='line'><span class="l-Scalar-Plain">B8UrTAPD6FFRVC0mtE6lunveTeXMgFK6GtFN1vrKTcSSgHUarPIHgoOw7w9WNxde</span>
+</span><span class='line'><span class="l-Scalar-Plain">9gkfTLbxseFzfo4u/ng9xupgomguf+jP6dv3d8OQZg5Yvu624RhoPvKkVt5K8by3</span>
+</span><span class='line'><span class="l-Scalar-Plain">E8BvqnOz0fUK6rSmNoSmKimkQ/zPPb4UJ70BdqXgRm1N6WQjrzhuuFW3cJbIYEyf</span>
+</span><span class='line'><span class="l-Scalar-Plain">+59qYkIgMYGk/jpKacEVsUwpEa2Rm7r7+Gj/TTS7APh3Lh88YBNPdjJQMx+fkV9J</span>
+</span><span class='line'><span class="l-Scalar-Plain">CloWfSl5c9dntBpGhxeo03dY8fs6UxisIMZqpgntp2gTzJ6fZi501hdBzGbCUU08</span>
+</span><span class='line'><span class="l-Scalar-Plain">BBMZmOzB2hElsXEeNy1A/kjVgZuazGJViTiKtx+E3JsULv86DTXUwtC/HmaRsREF</span>
+</span><span class='line'><span class="l-Scalar-Plain">88ng/df3XITr1YJVXJALaICAhhR0Vhbn9m0Dwqm/FIudSsdPyD6tBHn5JbfT3fX1</span>
+</span><span class='line'><span class="l-Scalar-Plain">YzfWiLkqHwRxhjQ9TD51</span>
+</span><span class='line'><span class="l-Scalar-Plain">=u6TC</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
 
 
 
 
-  
+<figure class='code'><figcaption><span> (transition_statement.txt.newkey.asc)</span> <a href='/downloads/code/transition_statement.txt.newkey.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABCgAGBQJTpN4CAAoJEInJf5BWENx2D+EP/0aK6kSa5grA/9wM2UlWe/kT</span>
+</span><span class='line'><span class="l-Scalar-Plain">t4PsugJHixYOeHn75Q3YX5CvMTnw6WSxy5hb4FpJrIaTwZshw5L8oiftUWhda1v0</span>
+</span><span class='line'><span class="l-Scalar-Plain">8DfRpm2sw2edtUgarNVwl+hLxbo41V8N6zyJiSjri9LLd+LD2PXM+/cURK696xbk</span>
+</span><span class='line'><span class="l-Scalar-Plain">Ylpl5n1+PyxrhdiFeTui9QTHr0BKk1ShkaLqSQEsVHgC8AEviGv+jr70PX5roOZC</span>
+</span><span class='line'><span class="l-Scalar-Plain">EN9FfbqWRKleEqqZ/ROIQTsEQMN+QhxQxCwMZshgybqIbmGuSdHj0cJqYaz6EJDR</span>
+</span><span class='line'><span class="l-Scalar-Plain">NFKLQ5sETwqo1QCwfzXp2Fy42yEh+FbOYEWAUS3F7MDWJP2ZeuaNsSlf26iMWWN5</span>
+</span><span class='line'><span class="l-Scalar-Plain">dFeYaf28xRb8GMoc92q3n+S+M1STEX9V2fyitUq747yWrdbzgOQcblYS9lLtSEzo</span>
+</span><span class='line'><span class="l-Scalar-Plain">Jgf8MR0d3ZvWI2OtUnyyO/nVS5WYD4w09ItheNwf+02gKVPImOvT7TCC6aPxKzUr</span>
+</span><span class='line'><span class="l-Scalar-Plain">YPmJMncXFkES4TAH4vgVZpSYC1WAHoQoLFBBgbDFActb1Pp/6q4iGjv4pv0quSZl</span>
+</span><span class='line'><span class="l-Scalar-Plain">Dgy4T6U8W/NdmRXDTG05RqjMuQdV2/QPeredHkozpaGO4a0sIgEj5UkxfsburgE3</span>
+</span><span class='line'><span class="l-Scalar-Plain">H/RjbHVxfuTU1MtNvnBQHMNZS2swmgCfG4Ct9W4MAS5qeE4GhZZQSwtqvoOUVNqr</span>
+</span><span class='line'><span class="l-Scalar-Plain">6DAdB/qFc0Iavgvb9TK1</span>
+</span><span class='line'><span class="l-Scalar-Plain">=NiZp</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
 
-
-<time datetime="2014-06-09T22:23:17-04:00" pubdate data-updated="true">Jun 9<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><pre><code>-----BEGIN PGP PUBLIC KEY BLOCK-----
-Version: SKS 1.1.4
-Comment: Hostname: pgp.mit.edu
-
-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
-=RHYO
------END PGP PUBLIC KEY BLOCK-----
-</code></pre>
 </div>
   
   
@@ -383,23 +893,22 @@ uXvnR0MAlP3eniLXz1kjCOBFBybQdzdza0R8BUrLLdilqraazdaTSEQkMhoSD8Q4iUVYM/oC
 <aside class="sidebar">
   
     <section>
+<h1>QR Code</h1>
+<a href="http://jrruethe.github.io/index.html"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/index.html" alt="post-qrcode"></a></section>
+<section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2014/06/10/docker-os/">Docker OS</a>
+        <a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/06/09/identity/">Identity</a>
+        <a href="/blog/2014/06/20/gpg-key/">GPG Key</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/06/09/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/06/09/pgp-key/">PGP Key</a>
+        <a href="/blog/2014/06/20/transition-statement/">Transition Statement</a>
       </li>
     
       <li class="post">
@@ -438,9 +947,11 @@ uXvnR0MAlP3eniLXz1kjCOBFBybQdzdza0R8BUrLLdilqraazdaTSEQkMhoSD8Q4iUVYM/oC
   <script src="/javascripts/github.js" type="text/javascript"> </script>
 </section>
 
-
-
-
+<section>
+	<h1>Bitcoin</h1>
+	<a href="bitcoin:1NqnUwuZemCijugYbfEkv3sBoZ8aobhcFA"><img src="http://blockchain.info/qr?data=1NqnUwuZemCijugYbfEkv3sBoZ8aobhcFA&size=150" alt="Bitcoin"></a>
+	<a href="bitcoin:1NqnUwuZemCijugYbfEkv3sBoZ8aobhcFA">1NqnUwuZemCijugYbfEkv3sBoZ8aobhcFA</a>
+</section>
 
   
 </aside>
