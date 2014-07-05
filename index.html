@@ -9,8 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Onename.io is a decentralized identity system that allows someone to: Claim a unique, global username
-Unify your online presence with one username &hellip;">
+  <meta name="description" content="When I do a new installation of Debian, I always choose to do an expert install.
+This gives me finer control of how the system turns out. The goals &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,175 @@ Unify your online presence with one username &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-04T19:54:30-04:00" pubdate data-updated="true">Jul 4<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When I do a new installation of Debian, I always choose to do an expert install.<br/>
+This gives me finer control of how the system turns out.</p>
+
+<p>The goals of this are simple:</p>
+
+<ul>
+<li>Minimal base image to build off of</li>
+<li>Full disk encryption with LUKS + LVM</li>
+</ul>
+
+
+<p>So lets begin!</p>
+
+<p><em>TODO: Add pictures of each step. I&rsquo;ll do this next time I install on a Virtual Machine</em></p>
+
+<h3>Step 1</h3>
+
+<p>Download the latest stable Debian Netinst ISO.<br/>
+Either burn it to a disk or load it into a VM.<br/>
+Getting the ISO to boot is out of the scope of this document.</p>
+
+<h3>Step 2</h3>
+
+<p>At the boot screen, scroll down to &ldquo;Advanced Options&rdquo;.<br/>
+On the following menu, select &ldquo;54 bit expert install&rdquo;.</p>
+
+<h3>Step 3</h3>
+
+<p>Get through all the language questions and keyboard layout.<br/>
+Select English for everything.<br/>
+Make sure the CD gets detected and mounted.</p>
+
+<h3>Step 4</h3>
+
+<p>Next you will be given the option to load installer components from the CD.<br/>
+On this screen, enable &ldquo;crypto-dm-modules&rdquo;.</p>
+
+<h3>Step 5</h3>
+
+<p>Next we need to connect to the network.<br/>
+I usually end up installing over wireless so these instructions will do just that.<br/>
+Select &ldquo;Detect network hardware&rdquo; followed by &ldquo;Configure the network&rdquo;.<br/>
+Then, select &ldquo;wlan0&rdquo; from the list of network interfaces.</p>
+
+<p>Select the SSID of your network, the encryption type (WPA2 PSK) and enter the passphrase.<br/>
+Let it auto-configure using DHCP.</p>
+
+<h3>Step 6</h3>
+
+<p>Select a hostname. I try to stick to names that describe what the system will be used for.<br/>
+Leave the domain name blank.</p>
+
+<h3>Step 7</h3>
+
+<p>When setting up users and passwords, be sure to enable shadow passwords.<br/>
+Also, disallow login as root. To gain root access you will need to use <code>sudo su</code> from your user account.<br/>
+Enter your full name, followed by your username.<br/>
+Finally, choose a strong password. This will be the password for your user account, and also the password you need to access the root account.<br/>
+It will NOT be the password you use to mount the encrypted volume at boot time.</p>
+
+<h3>Step 8</h3>
+
+<p>Configure the clock for NTP using the default server.<br/>
+Then select your time zone.</p>
+
+<h3>Step 9</h3>
+
+<p>Next, you will detect disks, and partition them.<br/>
+For this step, we are going to select &ldquo;Guided &ndash; use entire disk and set up encrypted LVM&#8221;<br/>
+Be very sure to select the correct disk!<br/>
+Choose to keep &rdquo;/home&#8221; on a separate partition.<br/>
+Review the information and if everything looks good, commit it to the disk.<br/>
+Erasing the disk and setting up the partitions will take some time, so just wait it out.</p>
+
+<hr />
+
+<h3>Step 10</h3>
+
+<p>You will be asked for an encryption passphrase. Be sure to choose a long one, and don&rsquo;t forget it!<br/>
+Without this key, your files are gone forever.</p>
+
+<h3>Step 11</h3>
+
+<p>Set the name of your LVM volume group, I usually set it the same as the hostname.<br/>
+It will ask you to verify the LVM volumes, after which it will perform the partitioning.</p>
+
+<h3>Step 12</h3>
+
+<p>You are finally ready to install the base system.<br/>
+The core packages will be downloaded. Sit back and wait.<br/>
+You will be asked to select a kernel, choose the generic one without a version number.</p>
+
+<hr />
+
+<h3>Step 13</h3>
+
+<p>Next, you will be asked which drivers to include in the initramfs.<br/>
+Be sure to choose generic here, it will come in handy later.</p>
+
+<h3>Step 14</h3>
+
+<p>Now you get to configure the package mananger.<br/>
+Be sure to enable the network mirror to get the most up to date packages.<br/>
+Select the default mirror.<br/>
+When asked, enable non-free software if you wish.<br/>
+Finally, enable the two update options from the security and release repositories.<br/>
+There will be a long wait while the installer prepares to initate the base system.</p>
+
+<hr />
+
+<h3>Step 15</h3>
+
+<p>When asked, choose to opt out of package statistics.<br/>
+Also, choose to disable man page setuid.</p>
+
+<h3>Step 16</h3>
+
+<p>It is time to install the software.<br/>
+We are going to do the minimal installation, so uncheck all the boxes.<br/>
+Select the bottom option: &ldquo;Standard system utilities&rdquo;.<br/>
+Also select &ldquo;Laptop&rdquo; if applicable.<br/>
+There will be another long wait while the base system is set up.</p>
+
+<hr />
+
+<h3>Step 17</h3>
+
+<p>Install the Grub bootloader onto the MBR of the disk.</p>
+
+<h3>Step 18</h3>
+
+<p>Set the clock to UTC time<br/>
+Finish the installation and reboot.<br/>
+Enter your LUKS password and enjoy your new minimal Debian installation!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -898,6 +1067,10 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a>

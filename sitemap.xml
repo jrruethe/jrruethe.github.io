@@ -17,24 +17,16 @@
         <lastmod>2014-06-20T22:34:55-04:00</lastmod>
     </url>
     <url>
-        <loc>http://jrruethe.github.io/blog/archives/</loc>
-        <lastmod>2014-06-20T22:34:55-04:00</lastmod>
+        <loc>http://jrruethe.github.io/blog/2014/07/04/debian-expert-install/</loc>
+        <lastmod>2014-07-04T19:55:25-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/robots.txt</loc>
         <lastmod>2014-06-20T20:21:12-04:00</lastmod>
     </url>
     <url>
-        <loc>http://jrruethe.github.io/</loc>
-        <lastmod>2014-06-20T22:34:55-04:00</lastmod>
-    </url>
-    <url>
         <loc>http://jrruethe.github.io/downloads/code/jrruethe-public.asc</loc>
         <lastmod>2014-06-20T21:55:17-04:00</lastmod>
-    </url>
-    <url>
-        <loc>http://jrruethe.github.io/downloads/code/transition_statement.txt.oldkey.asc</loc>
-        <lastmod>2014-06-20T21:11:02-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/downloads/code/transition_statement.txt.newkey.asc</loc>
@@ -43,5 +35,17 @@
     <url>
         <loc>http://jrruethe.github.io/downloads/code/verifymyonename.txt.asc</loc>
         <lastmod>2014-06-20T22:01:55-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/downloads/code/transition_statement.txt.oldkey.asc</loc>
+        <lastmod>2014-06-20T21:11:02-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/</loc>
+        <lastmod>2014-07-04T19:55:25-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/blog/archives/</loc>
+        <lastmod>2014-07-04T19:55:25-04:00</lastmod>
     </url>
 </urlset>
