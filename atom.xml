@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-07-04T19:56:59-04:00</updated>
+  <updated>2014-07-04T22:56:15-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,60 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Installing Packages on a Fresh System]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system/"/>
+    <updated>2014-07-04T22:49:53-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system</id>
+    <content type="html"><![CDATA[<p>When I do a fresh Debian installation, I always have a set number of packages I use for various tasks.<br/>
+This post is more of a reminder to myself for when I need a package list for a task. It also means I don&rsquo;t have to remember the name of that one package I needed to make something work.</p>
+
+<p>These lists are useful for creating a single purpose system:</p>
+
+<ul>
+<li>Bare Metal machines</li>
+<li>Virtual machines</li>
+<li>Docker containers</li>
+</ul>
+
+
+<p>Typically for a development machine I install all the packages in my list.<br/>
+But it is very easy to comment out a line to prevent the installation of a group.<br/>
+Since some groups might be enabled while others are disabled, there are some duplicate packages across groups.
+This can be useful for creating minimal systems, coldboot machines, backup machines, or development machines.</p>
+
+<p>The script is organized into the following package groups, designed to handle specific tasks:</p>
+
+<ul>
+<li>Common CLI packages</li>
+<li>Minimal Desktop Environment</li>
+<li>LVM / LUKS support</li>
+<li>System Optimization</li>
+<li>Networking</li>
+<li>Printing</li>
+<li>Audio</li>
+<li>Bluetooth</li>
+<li>Virtual Machines</li>
+<li>Development</li>
+<li>Documents</li>
+<li>Ruby</li>
+<li>Java</li>
+<li>Blogging</li>
+<li>Dropbox</li>
+<li>GPG</li>
+<li>Yubikey</li>
+<li>Tor</li>
+<li>Bitcoin</li>
+<li>Python</li>
+</ul>
+
+
+<p>As my workflow evolves, this script will be updated with additional packages and groups.</p>
+
+<p>The script can be found <a href="https://github.com/jrruethe/install-packages">here</a>.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Debian Expert Install]]></title>

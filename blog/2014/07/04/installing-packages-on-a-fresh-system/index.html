@@ -5,15 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Blog Archive - Morning Musings</title>
+  <title>Installing Packages on a Fresh System - Morning Musings</title>
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Blog Archive 2014 Installing Packages on a Fresh System
-Jul 04 2014 Debian Expert Install
-Jul 04 2014 onename.io/jrruethe
-Jun 20 2014 GPG Key
-Jun 20 &hellip;">
+  <meta name="description" content="When I do a fresh Debian installation, I always have a set number of packages I use for various tasks.
+This post is more of a reminder to myself for &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -22,7 +19,7 @@ Jun 20 &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jrruethe.github.io/blog/archives">
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
@@ -68,81 +65,123 @@ Jun 20 &hellip;">
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Blog Archive</h1>
+    
+      <h1 class="entry-title">Installing Packages on a Fresh System</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-04T22:49:53-04:00" pubdate data-updated="true">Jul 4<span>th</span>, 2014</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives">
 
 
+<div class="entry-content"><p>When I do a fresh Debian installation, I always have a set number of packages I use for various tasks.<br/>
+This post is more of a reminder to myself for when I need a package list for a task. It also means I don&rsquo;t have to remember the name of that one package I needed to make something work.</p>
 
-  
-  <h2>2014</h2>
+<p>These lists are useful for creating a single purpose system:</p>
 
-<article>
-  
-<h1><a href="/blog/2014/07/04/installing-packages-on-a-fresh-system/">Installing Packages on a Fresh System</a></h1>
-<time datetime="2014-07-04T22:49:53-04:00" pubdate><span class='month'>Jul</span> <span class='day'>04</span> <span class='year'>2014</span></time>
-
-
-</article>
-
+<ul>
+<li>Bare Metal machines</li>
+<li>Virtual machines</li>
+<li>Docker containers</li>
+</ul>
 
 
-<article>
-  
-<h1><a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a></h1>
-<time datetime="2014-07-04T19:54:30-04:00" pubdate><span class='month'>Jul</span> <span class='day'>04</span> <span class='year'>2014</span></time>
+<p>Typically for a development machine I install all the packages in my list.<br/>
+But it is very easy to comment out a line to prevent the installation of a group.<br/>
+Since some groups might be enabled while others are disabled, there are some duplicate packages across groups.
+This can be useful for creating minimal systems, coldboot machines, backup machines, or development machines.</p>
+
+<p>The script is organized into the following package groups, designed to handle specific tasks:</p>
+
+<ul>
+<li>Common CLI packages</li>
+<li>Minimal Desktop Environment</li>
+<li>LVM / LUKS support</li>
+<li>System Optimization</li>
+<li>Networking</li>
+<li>Printing</li>
+<li>Audio</li>
+<li>Bluetooth</li>
+<li>Virtual Machines</li>
+<li>Development</li>
+<li>Documents</li>
+<li>Ruby</li>
+<li>Java</li>
+<li>Blogging</li>
+<li>Dropbox</li>
+<li>GPG</li>
+<li>Yubikey</li>
+<li>Tor</li>
+<li>Bitcoin</li>
+<li>Python</li>
+</ul>
 
 
-</article>
+<p>As my workflow evolves, this script will be updated with additional packages and groups.</p>
 
-
-
-<article>
-  
-<h1><a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a></h1>
-<time datetime="2014-06-20T21:58:58-04:00" pubdate><span class='month'>Jun</span> <span class='day'>20</span> <span class='year'>2014</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/06/20/gpg-key/">GPG Key</a></h1>
-<time datetime="2014-06-20T21:41:36-04:00" pubdate><span class='month'>Jun</span> <span class='day'>20</span> <span class='year'>2014</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/06/20/transition-statement/">Transition Statement</a></h1>
-<time datetime="2014-06-20T21:24:29-04:00" pubdate><span class='month'>Jun</span> <span class='day'>20</span> <span class='year'>2014</span></time>
-
-
-</article>
-
-
-
-<article>
-  
-<h1><a href="/blog/2014/06/08/about-me/">About Me</a></h1>
-<time datetime="2014-06-08T07:06:48-04:00" pubdate><span class='month'>Jun</span> <span class='day'>08</span> <span class='year'>2014</span></time>
-
-
-</article>
-
+<p>The script can be found <a href="https://github.com/jrruethe/install-packages">here</a>.</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-04T22:49:53-04:00" pubdate data-updated="true">Jul 4<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/04/debian-expert-install/" title="Previous Post: Debian Expert Install">&laquo; Debian Expert Install</a>
+      
+      
+    </p>
+  </footer>
 </article>
 
 </div>
@@ -151,7 +190,7 @@ Jun 20 &hellip;">
   
     <section>
 <h1>QR Code</h1>
-<a href="http://jrruethe.github.io/blog/archives/index.html"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/archives/index.html" alt="post-qrcode"></a></section>
+<a href="http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system/" alt="post-qrcode"></a></section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
