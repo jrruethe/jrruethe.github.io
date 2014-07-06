@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-07-05T20:07:27-04:00</updated>
+  <updated>2014-07-05T20:23:17-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,42 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Connecting to Wireless From the Command Line]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/"/>
+    <updated>2014-07-05T20:22:15-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line</id>
+    <content type="html"><![CDATA[<p>It can be tricky to figure out how to connect to a wireless network via the command line.<br/>
+However, the steps are simple. Below is a script to do all the work for you.</p>
+
+<pre><code>#!/bin/bash
+# Connect to a wireless network secured with WPA2
+# Usage: ./connect.sh &lt;SSID&gt;
+# Run this as root
+
+# Parse command line arguments
+SSID=$1
+
+# Ensure the interface is up
+ifconfig wlan0 up
+
+# Create a configuration file
+echo Enter the passphrase for $SSID:
+wpa_passphrase $SSID &gt; ./wpa.conf
+
+# Connect to the access point
+wpa_supplicant -Dwext -iwlan0 -c./wpa.conf -B
+
+# Obtain an IP address
+dhclient -r
+dhclient wlan0
+
+# Test the connection
+ping -c 1 www.google.com
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Debian on the Lenovo Thinkpad Yoga]]></title>
@@ -319,11 +355,11 @@ Enter your LUKS password and enjoy your new minimal Debian installation!</p>
 
 <p>Onename.io gives me a way to link all this together into my own little decentralized profile:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/01.png"></p>
+<p><img class="center" src="http://localhost:4000/blog/2014/06/20/onename-dot-io-slash-jrruethe/01.png"></p>
 
 <p>Of course, each of those entities also have their own links, many pointing back at Onename.io for verification. So the web really looks more like this:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/02.png"></p>
+<p><img class="center" src="http://localhost:4000/blog/2014/06/20/onename-dot-io-slash-jrruethe/02.png"></p>
 
 <p>The following is proof that I am the owner of my <a href="https://onename.io/jrruethe">Onename.io</a> account:</p>
 
