@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Starting Fresh Use these instructions if you are creating a blog for the first time. Install dependencies sudo apt-get install ruby bundler rake git &hellip;">
+  <meta name="description" content="This is just a little trick to get the ability to open a Terminator terminal at any location from Nautilus by right clicking on a folder. First &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,63 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/06/open-terminator-from-nautilus/">Open Terminator From Nautilus</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-06T14:22:25-04:00" pubdate data-updated="true">Jul 6<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/06/open-terminator-from-nautilus/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/06/open-terminator-from-nautilus/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This is just a little trick to get the ability to open a Terminator terminal at any location from Nautilus by right clicking on a folder.</p>
+
+<p>First install the dependencies:</p>
+
+<pre><code>sudo apt-get install nautilus-open-terminal terminator
+</code></pre>
+
+<p>Next, <em>uninstall</em> <code>gnome-terminal</code>:</p>
+
+<pre><code>sudo apt-get remove gnome-terminal
+</code></pre>
+
+<p>Finally, create a symlink to <code>terminator</code> from <code>gnome-terminal</code>:</p>
+
+<pre><code>sudo ln -s /usr/bin/terminator /usr/bin/gnome-terminal
+</code></pre>
+
+<p>All done! Now you can right click on any folder in Nautilus and open a terminator window.<br/>
+The reason the symlink is needed is because <code>nautilus-open-terminal</code> is hardcoded to use <code>gnome-terminal</code> by default, but <code>terminator</code> is much better.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1509,6 +1566,10 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/06/open-terminator-from-nautilus/">Open Terminator From Nautilus</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/05/blogging-with-octopress/">Blogging With Octopress</a>
       </li>
     
@@ -1522,10 +1583,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
     
       <li class="post">
         <a href="/blog/2014/07/04/installing-packages-on-a-fresh-system/">Installing Packages on a Fresh System</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a>
       </li>
     
   </ul>

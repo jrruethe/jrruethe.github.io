@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-07-05T20:53:26-04:00</updated>
+  <updated>2014-07-06T14:38:36-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,33 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Open Terminator From Nautilus]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/07/06/open-terminator-from-nautilus/"/>
+    <updated>2014-07-06T14:22:25-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/07/06/open-terminator-from-nautilus</id>
+    <content type="html"><![CDATA[<p>This is just a little trick to get the ability to open a Terminator terminal at any location from Nautilus by right clicking on a folder.</p>
+
+<p>First install the dependencies:</p>
+
+<pre><code>sudo apt-get install nautilus-open-terminal terminator
+</code></pre>
+
+<p>Next, <em>uninstall</em> <code>gnome-terminal</code>:</p>
+
+<pre><code>sudo apt-get remove gnome-terminal
+</code></pre>
+
+<p>Finally, create a symlink to <code>terminator</code> from <code>gnome-terminal</code>:</p>
+
+<pre><code>sudo ln -s /usr/bin/terminator /usr/bin/gnome-terminal
+</code></pre>
+
+<p>All done! Now you can right click on any folder in Nautilus and open a terminator window.<br/>
+The reason the symlink is needed is because <code>nautilus-open-terminal</code> is hardcoded to use <code>gnome-terminal</code> by default, but <code>terminator</code> is much better.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Blogging With Octopress]]></title>
