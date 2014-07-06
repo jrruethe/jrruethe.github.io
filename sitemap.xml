@@ -37,6 +37,10 @@
         <lastmod>2014-07-05T20:22:57-04:00</lastmod>
     </url>
     <url>
+        <loc>http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/</loc>
+        <lastmod>2014-07-05T20:51:47-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://jrruethe.github.io/robots.txt</loc>
         <lastmod>2014-06-20T20:21:12-04:00</lastmod>
     </url>
@@ -58,10 +62,10 @@
     </url>
     <url>
         <loc>http://jrruethe.github.io/</loc>
-        <lastmod>2014-07-05T20:22:57-04:00</lastmod>
+        <lastmod>2014-07-05T20:51:47-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/archives/</loc>
-        <lastmod>2014-07-05T20:22:57-04:00</lastmod>
+        <lastmod>2014-07-05T20:51:47-04:00</lastmod>
     </url>
 </urlset>
