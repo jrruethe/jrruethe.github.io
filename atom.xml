@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-07-04T23:11:42-04:00</updated>
+  <updated>2014-07-05T20:07:27-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,85 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Debian on the Lenovo Thinkpad Yoga]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/"/>
+    <updated>2014-07-05T20:03:39-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga</id>
+    <content type="html"><![CDATA[<p>Many of the features of the Lenovo Thinkpad Yoga work out of the box with a fresh install of Debian Testing.
+Keep in mind that I am using Kernel 3.14.1-amd64</p>
+
+<h3>Wireless</h3>
+
+<p>Wireless does work well, but you need to install the firmware package from the repositories.</p>
+
+<pre><code>apt-get install firmware-iwlwifi
+</code></pre>
+
+<p>Getting this was tricky, because there are no ethernet ports on the system, and the wireless is not recognised at install time.<br/>
+I had to use a usb-ethernet adapter and plug it into my router.<br/>
+After installing the package and rebooting, wireless works great.</p>
+
+<h3>Touchscreen</h3>
+
+<p>Touchscreen works out of the box for left clicking and dragging.<br/>
+Multitouch does not seem to work out of the box, I am unable to two-finger-scroll nor pinch-zoom in Chromium.
+Also, holding down your finger for right click does not work.</p>
+
+<h3>Wacom Stylus</h3>
+
+<p>The stylus works out of the box, including clicking and dragging. There is a little button on the stylus, and if you hold it down while you touch the screen it does a right-click.<br/>
+By installing <code>gnome-control-center</code> you can calibrate the touchscreen with the stylus.</p>
+
+<h3>Touchpad</h3>
+
+<p>The Synaptics Touchpad works out of the box for the most part. However, tap-to-click doesn&rsquo;t work.
+Clicking the entire touchpad down with one finger is a left-click, while clicking the entire touchpad down with two fingers is a right click.<br/>
+Dragging while holding the touchpad down works for multiple selection and moving files around.<br/>
+Two-finger scroll works out of the box.<br/>
+I haven&rsquo;t figured out how to do a middle-click.</p>
+
+<p>I tried using <code>gnome-control-center</code> to enable tap-to-click, but was unsuccessful. I don&rsquo;t think the lack of this feature hinders usability in any way.</p>
+
+<p>Also, the little red pointer nub works as well. You need to click the touchpad with your thumb, and there is no real way to do a right click while using the red pointer nub.</p>
+
+<h3>Sound</h3>
+
+<p>Sound works out of the box, however it is muted at installation.<br/>
+I found the easiest way to fix this is to install PulseAudio Volume Control (<code>pavucontrol</code>) and unmute the speakers.</p>
+
+<h3>Bluetooth</h3>
+
+<p>Bluetooth seemed to work out of the box as well. I did install the <code>bluetooth</code> and <code>blueman</code> packages to use it.</p>
+
+<h3>Webcam</h3>
+
+<p>The webcam works out of the box.</p>
+
+<h3>Function Keys</h3>
+
+<p>The brightness keys (F5 / F6) work out of the box, but there is no OSD / HUD.<br/>
+The wireless key (F8) also works without any configuration needed.</p>
+
+<p>The webcam buttom (F7) seems to work, but there is a caveat:</p>
+
+<ol>
+<li>Start webcam with QtQr</li>
+<li>See webcam active</li>
+<li>Press F7</li>
+<li>See webcam get immediately disabled</li>
+<li>Without pressing F7 again, start the webcam</li>
+<li>The webcam is active again</li>
+</ol>
+
+
+<p>So the button can &ldquo;kill&rdquo; an active webcam, but it cannot prevent the webcam from activating again.</p>
+
+<p>The sound control buttons (F1 / F2 / F3) do not seem to do anything out of the box.
+Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Installing Packages on a Fresh System]]></title>
