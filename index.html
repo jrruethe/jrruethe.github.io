@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="This is just a little trick to get the ability to open a Terminator terminal at any location from Nautilus by right clicking on a folder. First &hellip;">
+  <meta name="description" content="Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,107 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Installing Bittorrent Sync on Debian</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-06T14:51:39-04:00" pubdate data-updated="true">Jul 6<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of all, the files are only ever stored on machines <em>you</em> choose; there is no &ldquo;cloud&rdquo; or third party servers.</p>
+
+<p>I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. Unfortunately, it is not open source, however I am still a fan of this software.</p>
+
+<p>There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.<br/>
+First you need to go get the software:</p>
+
+<ul>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/i386">32 Bit</a></li>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/x64">64 Bit</a></li>
+</ul>
+
+
+<p>I suggest unpacking it to /opt/btsync:</p>
+
+<pre><code>mkdir /opt/btsync
+mv btsync_x64.tar.gz /opt/btsync
+cd /opt/btsync
+tar xzvf ./btsync_x64.tar.gz
+</code></pre>
+
+<p>Next, create a configuration file:</p>
+
+<pre><code>./btsync --dump-sample-config &gt; btsync.conf
+</code></pre>
+
+<p>You need to make one change to the config file, and that is the storage path.<br/>
+Look for where it says <code>/home/user/.sync</code> and change <code>user</code> to your username.<br/>
+You might be interested in adding a password to the Web UI, which is where you will do all your folder management from. You can find thhat setting near the bottom of the config file.</p>
+
+<p>Next, you want to create an init script. Copy the following to <code>/etc/init.d/btsync</code>:</p>
+
+<pre><code>#! /bin/sh
+# /etc/init.d/btsync
+#
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+start)
+    /opt/btsync/btsync --config /opt/btsync/btsync.conf
+    ;;
+stop)
+    killall btsync
+    ;;
+*)
+    echo "Usage: /etc/init.d/btsync {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
+</code></pre>
+
+<p>Finally, run the following commands to finish the installation:</p>
+
+<pre><code>chmod 755 /etc/init.d/btsync
+update-rc.d btsync defaults
+mkdir ~/.sync
+/etc/init.d/btsync start
+</code></pre>
+
+<p>Thats it! Bittorrent Sync is installed, and will automatically run every time your machine boots.<br/>
+You can access the Web UI at 127.0.0.1:8888</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1501,56 +1602,9 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/08/about-me/">About Me</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-08T07:06:48-04:00" pubdate data-updated="true">Jun 8<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/06/08/about-me/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/06/08/about-me/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>My name is Joe Ruether. I graduated from Michigan Technological University with a bachelors in Computer Engineering and Electrical Engineering. Currently I am a full time Software Engineer at a company that designs radar systems. I am working towards my masters in Computer Science at Drexel University.</p>
-
-<p>I&rsquo;m a programmer at heart, I love being able to express my thoughts in the form of code and have the machine act it out. Programming allows me to bring my ideas to life, to build a world that I can share. I feel that programming is an art form that combines the creativity of writing with the logic of mathematics.</p>
-
-<p>I am fluent at C++ and would consider myself an advanced user, I frequently use templates and metaprogramming, and I am very familiar with many of the Boost libraries. C++ is the main language I use and work with. I very much enjoy C++. As for Python, the only real reason I use it is for the workplace; I don&rsquo;t really prefer it as a language, although I do recognize its usefulness and the fact that it is available on every Linux machine. My favorite language so far is Ruby, and I have been trying to teach myself Ruby in my spare time. Not Rails, I haven&rsquo;t gotten to that yet, I am primarily focusing on desktop applications. Unfortunately, I do not know too much Java.</p>
-
-<p>I am a Linux user and am a fan of open source software. As such the projects I create will be released under the GPLv3 license. You can find them all on GitHub. I use Debian as my main OS, particularly because it really is the &ldquo;Universal Operating System&rdquo;; it is stable, mature, flexible, and has a massive package collection as well as a strong community.</p>
-
-<p>Personality-wise, the Myers-Briggs test classifies me as an INTP, and I think the description of that describes me well:</p>
-
-<blockquote><p>Seek to develop logical explanations for everything that interests them. Theoretical and abstract, interested more in ideas than in social interaction. Quiet, contained, flexible, and adaptable. Have unusual ability to focus in depth to solve problems in their area of interest. Skeptical, sometimes critical, always analytical.</p></blockquote>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -1566,6 +1620,10 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Installing Bittorrent Sync on Debian</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/06/open-terminator-from-nautilus/">Open Terminator From Nautilus</a>
       </li>
     
@@ -1579,10 +1637,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
     
       <li class="post">
         <a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Debian on the Lenovo Thinkpad Yoga</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/07/04/installing-packages-on-a-fresh-system/">Installing Packages on a Fresh System</a>
       </li>
     
   </ul>

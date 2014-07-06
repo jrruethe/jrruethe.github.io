@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-07-06T14:38:36-04:00</updated>
+  <updated>2014-07-06T15:22:32-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,77 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Installing Bittorrent Sync on Debian]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/"/>
+    <updated>2014-07-06T14:51:39-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian</id>
+    <content type="html"><![CDATA[<p>Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of all, the files are only ever stored on machines <em>you</em> choose; there is no &ldquo;cloud&rdquo; or third party servers.</p>
+
+<p>I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. Unfortunately, it is not open source, however I am still a fan of this software.</p>
+
+<p>There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.<br/>
+First you need to go get the software:</p>
+
+<ul>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/i386">32 Bit</a></li>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/x64">64 Bit</a></li>
+</ul>
+
+
+<p>I suggest unpacking it to /opt/btsync:</p>
+
+<pre><code>mkdir /opt/btsync
+mv btsync_x64.tar.gz /opt/btsync
+cd /opt/btsync
+tar xzvf ./btsync_x64.tar.gz
+</code></pre>
+
+<p>Next, create a configuration file:</p>
+
+<pre><code>./btsync --dump-sample-config &gt; btsync.conf
+</code></pre>
+
+<p>You need to make one change to the config file, and that is the storage path.<br/>
+Look for where it says <code>/home/user/.sync</code> and change <code>user</code> to your username.<br/>
+You might be interested in adding a password to the Web UI, which is where you will do all your folder management from. You can find thhat setting near the bottom of the config file.</p>
+
+<p>Next, you want to create an init script. Copy the following to <code>/etc/init.d/btsync</code>:</p>
+
+<pre><code>#! /bin/sh
+# /etc/init.d/btsync
+#
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+start)
+    /opt/btsync/btsync --config /opt/btsync/btsync.conf
+    ;;
+stop)
+    killall btsync
+    ;;
+*)
+    echo "Usage: /etc/init.d/btsync {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
+</code></pre>
+
+<p>Finally, run the following commands to finish the installation:</p>
+
+<pre><code>chmod 755 /etc/init.d/btsync
+update-rc.d btsync defaults
+mkdir ~/.sync
+/etc/init.d/btsync start
+</code></pre>
+
+<p>Thats it! Bittorrent Sync is installed, and will automatically run every time your machine boots.<br/>
+You can access the Web UI at 127.0.0.1:8888</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Open Terminator From Nautilus]]></title>
