@@ -1,0 +1,122 @@
+---
+layout: post
+title: "Blogging with Octopress"
+date: 2014-07-05 20:51:27 -0400
+comments: true
+categories: 
+---
+
+### Starting Fresh
+
+Use these instructions if you are creating a blog for the first time.
+
+ 1. Install dependencies
+ 
+        sudo apt-get install ruby bundler rake git  
+        git clone git://github.com/imathis/octopress.git octopress  
+        cd octopress  
+        bundle install  
+        rake install  
+ 
+ 2. Create the Github repository
+ 
+    Go to [Github](https://github.com/repositories/new), create a new repository of the format `username.github.io`
+    
+ 3. Set up deployment to Github Pages
+ 
+        rake setup_github_pages
+        rake generate
+        rake deploy
+        
+ 4. Commit the source
+ 
+        git add .
+        git commit -m 'your message'
+        git push origin source
+        
+ 5. Add some customizations
+ 
+    I personally use the following third party plugins:
+    
+    - [Bitcoin](https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside) : Add a QR code for Bitcoin Donations
+    - [File Binder](https://github.com/aycabta/octopress-file-binder) : Easily attach an image to a post
+    - [QR Codes](https://github.com/sailor79/Octopress-dynamic-QR-Code-aside) : Add QR codes for mobile navigation and sharing
+    
+ 6. Sign up for [Disqus](https://disqus.com)
+ 
+ 7. Configure your _config.yml file
+ 
+    Set the following options:
+    
+    - URL
+    - Title
+    - Subtitle
+    - Author
+    
+    Also scroll down to the bottom and set up the following sections:
+    
+    - Github
+    - Twitter
+    - Disqus
+    
+ 8. Set up Github Pages
+ 
+        rake _0.9.2.2_ setup_github_pages
+
+
+Ready to go. Jump down to "Creating a post"
+        
+---
+
+### Continuing from an existing repository
+
+Use these instructions if you are continuing a blog that has already been created.
+
+ 1. Install the dependencies
+ 
+        sudo apt-get install ruby bundler rake git 
+
+ 1. Clone the repository
+ 
+        git clone git@github.com:username/username.github.io.git
+    
+ 2. Install the octopress dependencies
+ 
+        bundle install
+        
+ 3. Ready to go. Jump down to "Creating a post"
+        
+---
+        
+### Creating a post
+
+You may have a newer `rake` installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.
+
+    alias rake="rake _0.9.2.2_"
+    
+Now you can create a new post:
+
+    rake new_post["title"]
+    
+Then you can preview your work:
+
+    rake generate
+    rake preview
+    
+Open your browser to `127.0.0.1:4000` and make sure your page looks the way you want.  
+To finalize your changes:
+
+    git add source/_posts/date-title.markdown
+    git commit -m 'Message'
+    git push origin source
+    rake deploy
+    
+Next, you want to make sure that you re-pull after the deployment is complete, or you will run into problems when creating your next post:
+
+    git pull
+    cd _deploy/
+    git pull
+    cd -
+    
+Go to `username.github.com` and check out your page.
+    
