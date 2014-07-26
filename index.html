@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of &hellip;">
+  <meta name="description" content="At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. It hooks into the kernel&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,83 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/25/enhanced-corefile-metadata/">Enhanced Corefile Metadata</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-25T22:26:50-04:00" pubdate data-updated="true">Jul 25<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/25/enhanced-corefile-metadata/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. <br/>
+It hooks into the kernel&rsquo;s corepattern mechanism to accept the core dump via stdin and extract information from the process before it is killed. It then runs GDB to produce a backtrace and grab the register contents.</p>
+
+<p><a href="https://github.com/jrruethe/corefile">Enhanced Corefile Metadata</a></p>
+
+<p>Here is a list of metadata that is written out on every core dump:</p>
+
+<ul>
+<li>Binary that crashed</li>
+<li>Corefile from the crash</li>
+<li>Signal causing the crash</li>
+<li>Original filepath</li>
+<li>Original file size</li>
+<li>MD5 checksum of the binary</li>
+<li>MD5 checksum of the corefile</li>
+<li>Creation, modification, and access times of the binary</li>
+<li>Hostname and PID of the crashed process</li>
+<li>User, group, and permissions of the crashed process</li>
+<li>The setuid bit</li>
+<li>Working directory of the process</li>
+<li>Invoked command line parameters</li>
+<li>Stack trace</li>
+<li>Memory Map</li>
+<li>Environment variables</li>
+<li>Frame information</li>
+<li>Register states</li>
+</ul>
+
+
+<p>This script is very useful for bug reports as well as devloping buffer overflow exploits.
+To install, save <code>corefile.rb</code> somewhere. Edit <code>/etc/sysctl.conf</code> and set the <code>kernel.core_pattern</code> parameter as follows:</p>
+
+<pre><code>kernel.core_pattern=|/path/to/corefile.rb %e %p %u %g %h %s
+</code></pre>
+
+<p><em>Take note of the pipe character!</em></p>
+
+<p>If you want to test it out, simply crash something.<br/>
+Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in <code>sysctl.conf</code>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1320,288 +1397,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/20/transition-statement/">Transition Statement</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-20T21:24:29-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/06/20/transition-statement/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/06/20/transition-statement/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I have decided to transition to a new GPG key. Below you will find the following:</p>
-
-<ul>
-<li>Transition Statement</li>
-<li>Signature of Transition Statement with old key</li>
-<li>Signature of Transition Statement with new key</li>
-</ul>
-
-
-<p>I have put my new public key in a separate post.</p>
-
-<figure class='code'><figcaption><span> (transition_statement.txt)</span> <a href='/downloads/code/transition_statement.txt'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">Date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">June 20th, 2014</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">For a number of reasons, i&#39;ve recently set up a new OpenPGP key,</span>
-</span><span class='line'><span class="l-Scalar-Plain">and will be transitioning away from my old one.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">The old key will continue to be valid for some time, but i prefer all</span>
-</span><span class='line'><span class="l-Scalar-Plain">future correspondence to come to the new one.  I would also like this</span>
-</span><span class='line'><span class="l-Scalar-Plain">new key to be re-integrated into the web of trust.  This message is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by both keys to certify the transition.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">the old key was</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/250390EF 2013-11-03</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 584B CD6D 1CA2 8A2D 7F1C 9AA6 E8BA 54DF 2503 90EF</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">And the new key is</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/40B935FE 2014-06-14 [expires</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2015-06-14]</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">To fetch the full key from a public key server, you can simply do</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --keyserver pool.sks-keyservers.net --recv-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you already know my old key, you can now verify that the new key is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by the old one</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --check-sigs &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you don&#39;t already know my old key, or you just want to be double</span>
-</span><span class='line'><span class="l-Scalar-Plain">extra paranoid, you can check the fingerprint against the one above</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --fingerprint &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you are satisfied that you&#39;ve got the right key, and the UIDs match</span>
-</span><span class='line'><span class="l-Scalar-Plain">what you expect, I&#39;d appreciate it if you would sign my key. You can</span>
-</span><span class='line'><span class="l-Scalar-Plain">do that by issuing the following command</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'><span class="l-Scalar-Plain">NOTE</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">if you have previously signed my key but did a local-only</span>
-</span><span class='line'><span class="l-Scalar-Plain">signature (lsign), you will not want to issue the following, instead</span>
-</span><span class='line'><span class="l-Scalar-Plain">you will want to use --lsign-key, and not send the signatures to the</span>
-</span><span class='line'><span class="l-Scalar-Plain">keyserver</span>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --sign-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I&#39;d like to receive your signatures on my key. You can either send me</span>
-</span><span class='line'><span class="l-Scalar-Plain">an e-mail with the new signatures (if you have a functional MTA on</span>
-</span><span class='line'><span class="l-Scalar-Plain">your system)</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --export &#39;4630BEDC40B935FE&#39; | gpg --encrypt -r &#39;4630BEDC40B935FE&#39; --armor | mail -s &#39;OpenPGP Signatures&#39; jrruethe@gmail.com</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Additionally, I highly recommend that you implement a mechanism to keep your key</span>
-</span><span class='line'><span class="l-Scalar-Plain">material up-to-date so that you obtain the latest revocations, and other updates</span>
-</span><span class='line'><span class="l-Scalar-Plain">in a timely manner. You can do regular key updates by using parcimonie[0] to</span>
-</span><span class='line'><span class="l-Scalar-Plain">refresh your keyring. Parcimonie is a daemon that slowly refreshes your keyring</span>
-</span><span class='line'><span class="l-Scalar-Plain">from a keyserver over Tor. It uses a randomized sleep, and fresh tor circuits</span>
-</span><span class='line'><span class="l-Scalar-Plain">for each key. The purpose is to make it hard for an attacker to correlate the</span>
-</span><span class='line'><span class="l-Scalar-Plain">key updates with your keyring.</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I also highly recommend checking out the excellent Riseup GPG best</span>
-</span><span class='line'><span class="l-Scalar-Plain">practices doc, from which I stole most of the text for this transition</span>
-</span><span class='line'><span class="l-Scalar-Plain">message ;-)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">https://we.riseup.net/debian/openpgp-best-practices</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Please let me know if you have any questions, or problems, and sorry</span>
-</span><span class='line'><span class="l-Scalar-Plain">for the inconvenience.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Joseph Ruether</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">0. https://gaffer.ptitcanardnoir.org/intrigeri/code/parcimonie/</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.oldkey.asc)</span> <a href='/downloads/code/transition_statement.txt.oldkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1.4.12 (GNU/Linux)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABAgAGBQJTpNubAAoJEOi6VN8lA5DvJpIQAKeb/PrZMIMquikQyeFYfMfw</span>
-</span><span class='line'><span class="l-Scalar-Plain">5M4OlALtDN1sJaDSsfODwPzgqu9vjNNkWznifaUnt/AAHWIh0mJGQ+ePetbdaK7C</span>
-</span><span class='line'><span class="l-Scalar-Plain">yW5Xc3idE6ElByiZa2NuSq6RMSRFYcBPtJWmrdlLlfv1gf5WFwkRGDUHrRbKGdKf</span>
-</span><span class='line'><span class="l-Scalar-Plain">mU4PIJPNgug8XjlSMNw8P8IEmG6nuxpaEcQSfsmjF+BuYyhPuNS+ZFBMTfG4j16t</span>
-</span><span class='line'><span class="l-Scalar-Plain">B8UrTAPD6FFRVC0mtE6lunveTeXMgFK6GtFN1vrKTcSSgHUarPIHgoOw7w9WNxde</span>
-</span><span class='line'><span class="l-Scalar-Plain">9gkfTLbxseFzfo4u/ng9xupgomguf+jP6dv3d8OQZg5Yvu624RhoPvKkVt5K8by3</span>
-</span><span class='line'><span class="l-Scalar-Plain">E8BvqnOz0fUK6rSmNoSmKimkQ/zPPb4UJ70BdqXgRm1N6WQjrzhuuFW3cJbIYEyf</span>
-</span><span class='line'><span class="l-Scalar-Plain">+59qYkIgMYGk/jpKacEVsUwpEa2Rm7r7+Gj/TTS7APh3Lh88YBNPdjJQMx+fkV9J</span>
-</span><span class='line'><span class="l-Scalar-Plain">CloWfSl5c9dntBpGhxeo03dY8fs6UxisIMZqpgntp2gTzJ6fZi501hdBzGbCUU08</span>
-</span><span class='line'><span class="l-Scalar-Plain">BBMZmOzB2hElsXEeNy1A/kjVgZuazGJViTiKtx+E3JsULv86DTXUwtC/HmaRsREF</span>
-</span><span class='line'><span class="l-Scalar-Plain">88ng/df3XITr1YJVXJALaICAhhR0Vhbn9m0Dwqm/FIudSsdPyD6tBHn5JbfT3fX1</span>
-</span><span class='line'><span class="l-Scalar-Plain">YzfWiLkqHwRxhjQ9TD51</span>
-</span><span class='line'><span class="l-Scalar-Plain">=u6TC</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.newkey.asc)</span> <a href='/downloads/code/transition_statement.txt.newkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABCgAGBQJTpN4CAAoJEInJf5BWENx2D+EP/0aK6kSa5grA/9wM2UlWe/kT</span>
-</span><span class='line'><span class="l-Scalar-Plain">t4PsugJHixYOeHn75Q3YX5CvMTnw6WSxy5hb4FpJrIaTwZshw5L8oiftUWhda1v0</span>
-</span><span class='line'><span class="l-Scalar-Plain">8DfRpm2sw2edtUgarNVwl+hLxbo41V8N6zyJiSjri9LLd+LD2PXM+/cURK696xbk</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ylpl5n1+PyxrhdiFeTui9QTHr0BKk1ShkaLqSQEsVHgC8AEviGv+jr70PX5roOZC</span>
-</span><span class='line'><span class="l-Scalar-Plain">EN9FfbqWRKleEqqZ/ROIQTsEQMN+QhxQxCwMZshgybqIbmGuSdHj0cJqYaz6EJDR</span>
-</span><span class='line'><span class="l-Scalar-Plain">NFKLQ5sETwqo1QCwfzXp2Fy42yEh+FbOYEWAUS3F7MDWJP2ZeuaNsSlf26iMWWN5</span>
-</span><span class='line'><span class="l-Scalar-Plain">dFeYaf28xRb8GMoc92q3n+S+M1STEX9V2fyitUq747yWrdbzgOQcblYS9lLtSEzo</span>
-</span><span class='line'><span class="l-Scalar-Plain">Jgf8MR0d3ZvWI2OtUnyyO/nVS5WYD4w09ItheNwf+02gKVPImOvT7TCC6aPxKzUr</span>
-</span><span class='line'><span class="l-Scalar-Plain">YPmJMncXFkES4TAH4vgVZpSYC1WAHoQoLFBBgbDFActb1Pp/6q4iGjv4pv0quSZl</span>
-</span><span class='line'><span class="l-Scalar-Plain">Dgy4T6U8W/NdmRXDTG05RqjMuQdV2/QPeredHkozpaGO4a0sIgEj5UkxfsburgE3</span>
-</span><span class='line'><span class="l-Scalar-Plain">H/RjbHVxfuTU1MtNvnBQHMNZS2swmgCfG4Ct9W4MAS5qeE4GhZZQSwtqvoOUVNqr</span>
-</span><span class='line'><span class="l-Scalar-Plain">6DAdB/qFc0Iavgvb9TK1</span>
-</span><span class='line'><span class="l-Scalar-Plain">=NiZp</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1620,6 +1415,10 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/25/enhanced-corefile-metadata/">Enhanced Corefile Metadata</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Installing Bittorrent Sync on Debian</a>
       </li>
     
@@ -1633,10 +1432,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
     
       <li class="post">
         <a href="/blog/2014/07/05/connecting-to-wireless-from-the-command-line/">Connecting to Wireless From the Command Line</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Debian on the Lenovo Thinkpad Yoga</a>
       </li>
     
   </ul>
