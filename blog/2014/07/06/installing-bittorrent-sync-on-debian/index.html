@@ -133,7 +133,8 @@ You might be interested in adding a password to the Web UI, which is where you w
 # Carry out specific functions when asked to by the system
 case "$1" in
 start)
-    /opt/btsync/btsync --config /opt/btsync/btsync.conf
+    # /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root
+    /bin/su user -c '/opt/btsync/btsync --config /opt/btsync/btsync.conf' # Run as user
     ;;
 stop)
     killall btsync

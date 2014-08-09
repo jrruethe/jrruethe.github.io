@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-07-25T22:34:32-04:00</updated>
+  <updated>2014-08-09T17:58:36-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -104,7 +104,8 @@ You might be interested in adding a password to the Web UI, which is where you w
 # Carry out specific functions when asked to by the system
 case "$1" in
 start)
-    /opt/btsync/btsync --config /opt/btsync/btsync.conf
+    # /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root
+    /bin/su user -c '/opt/btsync/btsync --config /opt/btsync/btsync.conf' # Run as user
     ;;
 stop)
     killall btsync
