@@ -40,7 +40,8 @@ Next, you want to create an init script. Copy the following to `/etc/init.d/btsy
     # Carry out specific functions when asked to by the system
     case "$1" in
     start)
-        /opt/btsync/btsync --config /opt/btsync/btsync.conf
+        # /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root
+        /bin/su user -c '/opt/btsync/btsync --config /opt/btsync/btsync.conf' # Run as user
         ;;
     stop)
         killall btsync
@@ -52,6 +53,7 @@ Next, you want to create an init script. Copy the following to `/etc/init.d/btsy
     esac
     
     exit 0
+    
     
 Finally, run the following commands to finish the installation:
 
