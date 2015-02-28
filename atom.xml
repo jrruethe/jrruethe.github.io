@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2014-10-25T14:53:55-04:00</updated>
+  <updated>2015-02-28T15:54:51-05:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,361 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Blockchain Identity]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/"/>
+    <updated>2015-02-28T15:24:25-05:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/02/28/blockchain-identity</id>
+    <content type="html"><![CDATA[<p>I stumbled upon Christopher Ellis&#8217; <a href="https://github.com/MrChrisJ/World-Citizenship">&ldquo;World Citizenship&rdquo; Blockchain ID</a> concept and was immediately intrigued. His idea is to create proof of an individual&rsquo;s existence by storing their PGP identity in the blockchain.</p>
+
+<p>The trick is that the blockchain acts as an immutable database that includes full history tracking, meaning that a record can be proven to exist in some state at some time. These services are similar to this concept:</p>
+
+<ul>
+<li><a href="http://www.proofofexistence.com/about">Proof of Existence</a></li>
+<li><a href="http://www.cryptograffiti.info/">Cryptograffiti</a></li>
+<li><a href="https://www.btproof.com/">BTProof</a></li>
+</ul>
+
+
+<p>This post will detail how to create a Blockchain Identity.</p>
+
+<h2>Requirements</h2>
+
+<p>To begin, you will need:</p>
+
+<ul>
+<li>GPG key with signing abilities</li>
+<li>Bitcoin wallet with a small balance</li>
+<li>Keybase.io account</li>
+</ul>
+
+
+<p>Keybase.io is currently alpha, and you need an invite to get an account, but you can probably snag an invite from Reddit (that&rsquo;s where I got mine).</p>
+
+<p>I will be using Debian Linux for this tutorial. I recommend the following packages:</p>
+
+<ul>
+<li>gpg : For signing files</li>
+<li>electrum : For managing bitcoins</li>
+<li>ruby : For running the scripts below</li>
+</ul>
+
+
+<p>First you need to create a GPG key and an Electrum Bitcoin wallet. I won&rsquo;t dive into the details of how to create these in this post. The reason we are using Electrum is because it has the ability to choose the address to send funds from, unlike some other wallets. We will need to know this sending address later.</p>
+
+<p>You also need to get a small amount of Bitcoin into your Electrum wallet (at least 0.0003 BTC)</p>
+
+<h2>Gathering the Data</h2>
+
+<p>Time to collect the data. Open up a text editor and create a Yaml file named key.yml</p>
+
+<p>First, lets get the GPG key details. Run the following, substituting your UID:</p>
+
+<pre><code>gpg --fingerprint jrruethe
+pub   4096R/40B935FE 2014-06-14 [expires: 2015-06-14]
+      Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
+uid                  Joseph Ruether &lt;jrruethe@gmail.com&gt;
+</code></pre>
+
+<p>Fill out your key.yml file like so:</p>
+
+<pre><code>Name: Joseph Ruether
+Email: jrruethe@gmail.com
+Type: RSA
+Size: 4096
+Created: 2014-06-14
+Fingerprint: 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE
+</code></pre>
+
+<p>Next, go to your Electrum wallet and pick an address that contains a small amount of funds. You will need at least 0.0003 BTC. Add this address to your yaml file:</p>
+
+<pre><code>Address: 1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q
+</code></pre>
+
+<p>Go to <a href="https://blockchain.info">Blockchain.info</a> and find the latest block that has been added to the main chain. Add the block number and Merkle Root to your yaml file:</p>
+
+<pre><code>Block: 345546
+Merkle Root: ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9
+</code></pre>
+
+<p>At this point, your yaml file has all of your GPG key metadata, the address you will use to store the data in the blockchain, and a random number that proves this entry could not have been created earlier in time.</p>
+
+<h2>Preparing the Data</h2>
+
+<p>Now we need to put this data into a standard, machine readable format and sign it. First, use the following script to convert your yaml file into a normalized json file:</p>
+
+<figure class='code'><figcaption><span> (yaml-to-normalized-json.rb)</span> <a href='http://jrruethe.github.io/downloads/code/yaml-to-normalized-json.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;yaml&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">String</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Add a snakecase function to the String class</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">snakecase</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[:\-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Strip spaces and downcase</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">normalize</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[: \-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Check if a string is a hex value</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">is_hex?</span>
+</span><span class='line'>      <span class="sr">/^[0-9A-F]+$/i</span> <span class="o">===</span> <span class="nb">self</span><span class="o">.</span><span class="n">normalize</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Load the yaml file</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Convert all keys to snakecase</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[</span><span class="n">h</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span> <span class="o">[</span><span class="n">k</span><span class="o">.</span><span class="n">snakecase</span><span class="p">,</span> <span class="n">v</span><span class="o">]</span> <span class="p">}</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Normalize all hex values</span>
+</span><span class='line'><span class="n">h</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span>
+</span><span class='line'>   <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">String</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">v</span><span class="o">.</span><span class="n">is_hex?</span>
+</span><span class='line'>      <span class="n">h</span><span class="o">[</span><span class="n">k</span><span class="o">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">normalize</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Sort the keys</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[*</span><span class="n">h</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">flatten</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Pretty print</span>
+</span><span class='line'><span class="nb">puts</span> <span class="no">JSON</span><span class="o">.</span><span class="n">pretty_generate</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run it like so:</p>
+
+<pre><code>./yaml-to-normalized-json.rb key.yml &gt; key.json
+</code></pre>
+
+<p>Then use GPG to clearsign this file:</p>
+
+<pre><code>gpg --clearsign key.json
+</code></pre>
+
+<p>The result should look something like this:</p>
+
+<figure class='code'><figcaption><span> (key.json.asc)</span> <a href='http://jrruethe.github.io/downloads/code/key.json.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA256</span>
+</span><span class='line'>
+</span><span class='line'><span class="p-Indicator">{</span>
+</span><span class='line'>  <span class="s">&quot;address&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;block&quot;</span><span class="p-Indicator">:</span> <span class="nv">345546</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;created&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;2014-06-14&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;email&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;jrruethe@gmail.com&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;fingerprint&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;4f4099f8276bdba5475a84464630bedc40b935fe&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;merkle_root&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;name&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;Joseph</span><span class="nv"> </span><span class="s">Ruether&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;size&quot;</span><span class="p-Indicator">:</span> <span class="nv">4096</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;type&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;RSA&quot;</span>
+</span><span class='line'><span class="p-Indicator">}</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQEcBAEBCAAGBQJU8dS0AAoJEB7MsgHDevApMCEH/3yFMcNErb92AtEdwShsvb1v</span>
+</span><span class='line'><span class="l-Scalar-Plain">IVWxL4aTqrs8AD7CxHEUNhxcZ56C2AyFW/8HkOMSCpbq9wG4Jxk8pohIiyQKYfTl</span>
+</span><span class='line'><span class="l-Scalar-Plain">TGGEYGELNDPgx/Pvlhb0jLBh8McnE8XdYseH2OXa3lfq4xOCqYKNiBOIcUmNZSar</span>
+</span><span class='line'><span class="l-Scalar-Plain">9fk4i3/Z47oN1Nwg7NohsCkoqNo9JBKH3Dc3ec2mlLktl83TQ7OcOfBCazdOaHOR</span>
+</span><span class='line'><span class="l-Scalar-Plain">+kk3WZb0wTyG+B6u5Kl8e0VJh+inDB83ol96hli/Ofhuvf29280VP3n784nDpLwY</span>
+</span><span class='line'><span class="l-Scalar-Plain">vg6pukSc3STD3em4hYOYU7OuBydbRe27I5w//E6IwntPoOG+dahzNPJcpFfvD4A=</span>
+</span><span class='line'><span class="l-Scalar-Plain">=/daq</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Sending the Data to the Blockchain</h2>
+
+<p>Now that we have our signed data file, we want to send it to the blockchain. It is important to note that the blockchain will only contain the sha256 hash of your key.json.asc, therefore you need to keep the original data around for validation. Later on, we will create an identification card with a QR code containing the original data.</p>
+
+<p>There is a clever trick we are going to use. If you look at the <a href="https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses">Technical Background of Bitcoin Addresses</a>, you will see that the address is generated from the hash of the public key. We can replace that hash (at step 3) with the hash of our file before continuing to generate the address. By sending Bitcoins to the address we create, we store the file&rsquo;s hash in the blockchain. Of course, those coins will be lost forever, because the private key for that address does not exist. That is why we only send a small amount.</p>
+
+<p>Now, use the following script to obtain the Bitcoin address that is associated with the hash of your signed key.json:</p>
+
+<figure class='code'><figcaption><span> (file-to-address.rb)</span> <a href='http://jrruethe.github.io/downloads/code/file-to-address.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;digest&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the filename</span>
+</span><span class='line'><span class="n">filename</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Hash the file</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span> <span class="n">filename</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Take only the first 20 bytes</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">39</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Prepend 0x00 to the hash</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="nb">hash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Calculate the checksum</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="nb">hash</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="n">checksum</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Pull out the first 4 bytes</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="n">checksum</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">7</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">encode_base58</span><span class="p">(</span><span class="n">hex</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">int_val</span> <span class="o">=</span> <span class="n">hex</span><span class="o">.</span><span class="n">to_i</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="k">while</span> <span class="n">int_val</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">int_val</span><span class="p">,</span> <span class="n">remainder</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">base58_val</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">[</span><span class="n">remainder</span><span class="o">]</span> <span class="o">+</span> <span class="n">base58_val</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span>  <span class="o">=</span> <span class="p">(</span><span class="n">hex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([0]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
+</span><span class='line'>   <span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">base58_val</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Generate the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="n">encode_base58</span><span class="p">(</span><span class="nb">hash</span> <span class="o">+</span> <span class="n">checksum</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">address</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run it like this:</p>
+
+<pre><code>./file-to-address.rb key.json.asc
+1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
+</code></pre>
+
+<p>For some basic sanity checks, visit this website: <a href="http://lenschulwitz.com/base58">Base58 Decoder</a><br/>
+Here you can validate that the Bitcoin address is legitimate, as well as decode the address to hex. Here is what I get:</p>
+
+<pre><code>00703BF01D7DF0A110C9B2CE1E8984F545831BFFAA5556057E
+</code></pre>
+
+<p>Next, get the sha256 hash of key.json.asc:</p>
+
+<pre><code>sha256sum key_2048.json.asc 
+703bf01d7df0a110c9b2ce1e8984f545831bffaa08042e78b470b3b1464faada  key.json.asc
+</code></pre>
+
+<p>Compare the two outputs to make sure they match:</p>
+
+<pre><code>00 703BF01D7DF0A110C9B2CE1E8984F545831BFFAA 5556057E
+   703bf01d7df0a110c9b2ce1e8984f545831bffaa 08042e78b470b3b1464faada
+</code></pre>
+
+<p>All that is left to do is send some bitcoin to that address. Use <a href="https://blockchain.info/">Blockchain.info</a> to capture the transaction details as proof of the file&rsquo;s existence:</p>
+
+<p><a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">Transaction: 68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cryptography Primer]]></title>
@@ -1188,32 +1543,8 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 <span class='line-number'>141</span>
 <span class='line-number'>142</span>
 <span class='line-number'>143</span>
-<span class='line-number'>144</span>
-<span class='line-number'>145</span>
-<span class='line-number'>146</span>
-<span class='line-number'>147</span>
-<span class='line-number'>148</span>
-<span class='line-number'>149</span>
-<span class='line-number'>150</span>
-<span class='line-number'>151</span>
-<span class='line-number'>152</span>
-<span class='line-number'>153</span>
-<span class='line-number'>154</span>
-<span class='line-number'>155</span>
-<span class='line-number'>156</span>
-<span class='line-number'>157</span>
-<span class='line-number'>158</span>
-<span class='line-number'>159</span>
-<span class='line-number'>160</span>
-<span class='line-number'>161</span>
-<span class='line-number'>162</span>
-<span class='line-number'>163</span>
-<span class='line-number'>164</span>
-<span class='line-number'>165</span>
-<span class='line-number'>166</span>
-<span class='line-number'>167</span>
 </pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP PUBLIC KEY BLOCK-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
 </span><span class='line'>
 </span><span class='line'><span class="l-Scalar-Plain">mQINBFOceg4BEACzdFQHS6p9xJf6f88Vj5e+I2lchu/mE1md/Yf+lBDxiHKobRQb</span>
 </span><span class='line'><span class="l-Scalar-Plain">h9muVbrtsq6wbwJYAhPXztAIF4u/DCHuR8I3ZAC0boJUTJvjzGQDJS38dB4kJPO8</span>
@@ -1238,146 +1569,122 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 </span><span class='line'><span class="l-Scalar-Plain">dhWbMsLk4S6At3VCswy/lZTXtf3X8VjNlXxhpZNCNKjLLPHzyN1vgvO2JAFaUpkb</span>
 </span><span class='line'><span class="l-Scalar-Plain">48AAJVZ8JGkiCPiRGCP6UgAP5e02gQTJRIG567hY9dYtpAzAGjul6aLuot3Pgyp4</span>
 </span><span class='line'><span class="l-Scalar-Plain">AaDH+7fbX4E6YpEs/NISHt390WKm14qB6yJl+obpAzjL53n2GPmO0Qkk6mC2PzVC</span>
-</span><span class='line'><span class="l-Scalar-Plain">Rjq1y5KU0ceG8L5OLeWE5sKCVRVPC5TMOzWYZ+HV2v8nydYD3fmJAhwEEAECAAYF</span>
-</span><span class='line'><span class="l-Scalar-Plain">AlOkv4EACgkQ6LpU3yUDkO8MOA/8DT8rskKYwxsfcAamSO5a65hUQpKcJ5d8ec0+</span>
-</span><span class='line'><span class="l-Scalar-Plain">cTmuWQJad8sGtWArIdBPj9ILT0ez8IB2uKFRwSA5PM8OlP8C8+HPUY8v8aC3v9PY</span>
-</span><span class='line'><span class="l-Scalar-Plain">yS2fcjsroWOOIM8gtOL13uSr36dt/6T/hbdjBABi/MobsPVdEDpLPsRl6QIq2+x6</span>
-</span><span class='line'><span class="l-Scalar-Plain">EHFTgSjdfs2QugiPcHNZ5rHxJKlE2kQLGjp26q3EOT7UZb7l25HDxqu9TehH56wY</span>
-</span><span class='line'><span class="l-Scalar-Plain">2EDJNxhrSXrF8GkryuAXF5OY0mi66GHk36B5dbe2u+X7H5s540xz3iaO5JTZxV3T</span>
-</span><span class='line'><span class="l-Scalar-Plain">pcMVSNY0jdBr3i8XmiRwMciTXVkTy8e4DHRqUauNaPZpm4LvDGpj5gRL/0FJs35v</span>
-</span><span class='line'><span class="l-Scalar-Plain">lxqQDLCQInRxMYFXURDBrDSd5d64XnLbEuNC6QsbOuv1gswoW5oR3VzDF+RbPdaY</span>
-</span><span class='line'><span class="l-Scalar-Plain">oz9McXMYPZB4r/zxxhTneVxBpZmFd1yyqytGJakdwNQz8Swf4yaa2YSTPmiGLwdI</span>
-</span><span class='line'><span class="l-Scalar-Plain">8N2di3kEyetypMB2LgUVXUkdfHHbTRBPERhDBRs/a3yQtbk5xkRV6tZCKWyJKvFU</span>
-</span><span class='line'><span class="l-Scalar-Plain">HWwZLeIMMpYIBw7I3dOoG1Sj5j1jyiq6NV6B93HK3ivfqo9YgK283XQwGECMsOXP</span>
-</span><span class='line'><span class="l-Scalar-Plain">MWwzpx9+VKCGgmUb17NQpJw4PbzPAZ169IzLLpMr4EOVX2jr3+s/+t+PIcuiCULk</span>
-</span><span class='line'><span class="l-Scalar-Plain">FHOIFYm5Ag0EU5x6DgEQAMmEIUTVuyKRApKzQEMmmnqiApfoQKjVrBLqFz8DzpuL</span>
-</span><span class='line'><span class="l-Scalar-Plain">lWmYqCN89xJeiBwiuHJKQc6Bp8hSS46JavXivmVGP/WLN3JI5GGY/n6tVLAjnpw6</span>
-</span><span class='line'><span class="l-Scalar-Plain">zUcwDwaJhQApOU8w/jBk78RIWvqYEYhhav4z393jGuM/TKtJeFppieApyD2myOLR</span>
-</span><span class='line'><span class="l-Scalar-Plain">+/IZzVlOYfrpmq5y4RI/fBbPmvVMOPNlELMH2qarww4T5W5g1ih1SVJZwaXbZXgH</span>
-</span><span class='line'><span class="l-Scalar-Plain">sz40H8QpgAyYOo6k3N8vf5pwjArxSicurqYCPSqkfFhZXyZefj2oY6UDWGHbRq5b</span>
-</span><span class='line'><span class="l-Scalar-Plain">yJ+L+vVo2hDcb0v6+xEuLa4DWO2g9bgxxrQuE/dKheRxucza+FwhOHMVdby7UFiI</span>
-</span><span class='line'><span class="l-Scalar-Plain">1qbGY2r/Lbk6fO+qSU+s1kCxLUYcyJtqJXibwxVPm2GxbEVMIKe1yLdFCrV3gzvp</span>
-</span><span class='line'><span class="l-Scalar-Plain">9L1hhGJWw9lKSVjXwrVYFtxOMYXB5vsExcn7XIuLWoS0ra8daTE+ccu6SyBx2FM5</span>
-</span><span class='line'><span class="l-Scalar-Plain">xN2+ogLfVLWgHxA8wpYwQBXkA/iemyMj8+OcGQqKgXvjhMNY1ZQmHz0CPSXY6GRJ</span>
-</span><span class='line'><span class="l-Scalar-Plain">ApAAKSyScC12RgsX+mERli4uzddz24OowXw2cmrcTArMFjnMEweA1eE06ZjJje/1</span>
-</span><span class='line'><span class="l-Scalar-Plain">DLESqZULsv9MUar9XDiAZrQrZ97O6xs6P6We6+WQxov9uLjIM0JbEt2c14pXoWpJ</span>
-</span><span class='line'><span class="l-Scalar-Plain">ABEBAAGJAiUEGAECAA8FAlOceg4CGwwFCQHhM4AACgkQRjC+3EC5Nf5Jxg//Ql4i</span>
-</span><span class='line'><span class="l-Scalar-Plain">deUBAZ+uZizM8Rqx1+XQaLOmuPO+YIkIHqjpvv4Wk4whYa2h7GYj70Gm243hXDdw</span>
-</span><span class='line'><span class="l-Scalar-Plain">UJEGR5lA1UDMkDXni4lxYhZv4mG6NxuGjfsnt3oDhVjP8R+C5W/GQfA8qoo/47bb</span>
-</span><span class='line'><span class="l-Scalar-Plain">82jAPgs6ZajVhD7B+DZXWuTOdRZ7B9Va0oz1NZJIEVOKcG0u9u0iL+T10v7dEShi</span>
-</span><span class='line'><span class="l-Scalar-Plain">JTqBDG/mevT3mBVpsAvKvqdWD1l5zT2xWDre5u9L+nnxx2IpteGkgfFzTekQB5Yq</span>
-</span><span class='line'><span class="l-Scalar-Plain">Id+o/LU+G62EFScTYOFlKx/8TTdRVCwcyZOhvnknljvHTH0+lCi6x5j7UFRL5yNb</span>
-</span><span class='line'><span class="l-Scalar-Plain">o7y4ld6tn/9t0bWiMTtw+LXDObkw9TcKqQNQxWmkPnUB8u/fqkOaAywc09pbMU2t</span>
-</span><span class='line'><span class="l-Scalar-Plain">yOfWrTJDVFmXSWOoe3iU7w3eR8RhYg8ELdSTL6V288SplFAnNSlfreh2cK5Fny4C</span>
-</span><span class='line'><span class="l-Scalar-Plain">bC0GkE+aXFsVMXGZta4hFrZ1IEt/BoAvKRp3zWq2DsCdLvdQk3/7vHbO28Mc/ac8</span>
-</span><span class='line'><span class="l-Scalar-Plain">SDv73PPHC/Gpy52falm9wiy3OSnUFGfc7sU+yaOOSczE78YwsiEUsc4Bdookqzws</span>
-</span><span class='line'><span class="l-Scalar-Plain">tHY0zsAU34mDxFAHcSxs1UgHnFCO6+eG2l5A2sdRcylv+0zLvyi1Pmn19QM9A85W</span>
-</span><span class='line'><span class="l-Scalar-Plain">gY3jFWhOoL7LbmioyLn2yAeEx+brN5tnYmpEb3i5Ag0EU5x79QEQAMCFHgDPjZ4X</span>
-</span><span class='line'><span class="l-Scalar-Plain">smzOJJBVomgl1bOz4Dbd0eIjSkFRIOom3hTXWfsbvhJNtzrPjie/XIHqAMsr5gUe</span>
-</span><span class='line'><span class="l-Scalar-Plain">I3ceDwfklSrsHAsZ6dQTnbMnf8WxCOS6Swka6jLQDf8x4I3vnOKFR1b5h5tU9sxm</span>
-</span><span class='line'><span class="l-Scalar-Plain">l2tWlIzJxO8o0roPhdRZYurwDRgBS60f8wOLfZ6ke3VdkjjpeqBKfq0skMHl1i1t</span>
-</span><span class='line'><span class="l-Scalar-Plain">UTxzBNZPljjRP6vEi5qvHEEZD7/nAE6MptZnppzsDKZVIoxp8pgt8SMwNq35z67g</span>
-</span><span class='line'><span class="l-Scalar-Plain">L1aQHWUFy/TGYP1XSLPKTDk6zgbjuxb7ydpBCFIbaDaSJOq3diPbk91QiPH238S9</span>
-</span><span class='line'><span class="l-Scalar-Plain">/Jpg82EacO9F0KqLCj6r39dfWVKBirBM0KGq+H4w9CjWQyYCKHiUuYp1gVvjULgs</span>
-</span><span class='line'><span class="l-Scalar-Plain">+/sHg0h70CXWL3c4UmNAjKod/WDzyQDrLUJ7wyp7uc/Dlhpd4KqqHq/JHPjIBTyt</span>
-</span><span class='line'><span class="l-Scalar-Plain">q7/a3NZP/uB0ia9Is5MqYNlFwvCu6SldBbGb5zIG6C9j8Jq7Ym+c9jMkkr9xg5VY</span>
-</span><span class='line'><span class="l-Scalar-Plain">LPqwmae2ZjwQhXrRBAMWttZZEwMMSVtw1NQ6pLo+49VaEtXlaywuGm5VSru4N3GF</span>
-</span><span class='line'><span class="l-Scalar-Plain">xTVom8Ycx98ePjvEzDwWy+aRfNa+gErDmmuydRS1xtzOVvcsZpBlK/6lp4crDfl9</span>
-</span><span class='line'><span class="l-Scalar-Plain">bCuzXrlS09vQXbC7V8XGfm9X62Go2KcXABEBAAGJBEQEGAECAA8FAlOce/UCGwIF</span>
-</span><span class='line'><span class="l-Scalar-Plain">CQHhM4ACKQkQRjC+3EC5Nf7BXSAEGQECAAYFAlOce/UACgkQicl/kFYQ3HaVpQ//</span>
-</span><span class='line'><span class="l-Scalar-Plain">RR41unV2TUDozklmC5H09EDzPqWjpIc9PPMrGOCFiMBvXrqPqjAQaBDBBWFilX/T</span>
-</span><span class='line'><span class="l-Scalar-Plain">HgIeVdqZUtPhL+12cPOQDwbtoKCTrbetkVLa4dmb2+GD2O9XyKjMM67obS4GEswP</span>
-</span><span class='line'><span class="l-Scalar-Plain">wmAZQujg0YSSymtmhRlyJ0xN0lu/OtcUyj4+967YEIFHeNEaeYLI973QY0hZVAbS</span>
-</span><span class='line'><span class="l-Scalar-Plain">uln503yoN9lb2CAei2oMWi8IEDRd/KJvjUln9ZQv3AkAPmZAFDp13gCUlaW6EEHd</span>
-</span><span class='line'><span class="l-Scalar-Plain">ZU5XnPCbQkji0MAAF9UhimnImYBOLf8S5T8p21xikHoK2zg736/jKPbh6SwzVY3s</span>
-</span><span class='line'><span class="l-Scalar-Plain">usvZieD4cZw5ZD/C1Mo3NLBRi72ZcwE1j6FUpB3syrhH8Cz3HD5v++0DfJAFovra</span>
-</span><span class='line'><span class="l-Scalar-Plain">/pEEsSxmJJaqR9LF8xBAZBnGmPCXDY8Rk44lQYCwU1PO0J6xGWFO+jBaeI0+HkI/</span>
-</span><span class='line'><span class="l-Scalar-Plain">rRzfKBG8YSukee7FZbXVNtL3HQaf8a4x0AjlHepSEk805Yo9I/NVyEE/xh/I/1Ag</span>
-</span><span class='line'><span class="l-Scalar-Plain">G0yBEptFva7HDdFI1UdlLbSt60QIJ4jbvsmFBmTYOHMJWER4fbCSg67gGiQ3i4/9</span>
-</span><span class='line'><span class="l-Scalar-Plain">0wm7vokqUhQ5NkYpeoa7Ilq6U6TbZx3nM79mXImSusQB8giqYLQxvi9tlld9MY9q</span>
-</span><span class='line'><span class="l-Scalar-Plain">Uiy/5F9HMvx+VZ6u7qGQKg1Za9gYGhbwb95rzq9NrgfovBAAqxXt7EVEC5nyKfIZ</span>
-</span><span class='line'><span class="l-Scalar-Plain">VIwcjZ1tC3fRAd1EnGigXncVS+e4hxt8Atwo1/a2lAo/fUiyZSyoA917YsbbXytk</span>
-</span><span class='line'><span class="l-Scalar-Plain">qvozqx0xTo6CbsVmtCC3EfS/xsl/AqUZ26/thvJQHSWKlEme7J/WlW4W4wqW9imq</span>
-</span><span class='line'><span class="l-Scalar-Plain">+x8Ni1i1sGZkICghDS8WU7w9psnLwDCsoXTsqHMPUUfT/QLGi3mJzdMfn7XobGzb</span>
-</span><span class='line'><span class="l-Scalar-Plain">u0Q9uMUQXbIMqmvI2DxuuT0M6q7xSt2OOpF+iRpfEjo3U/wjxwtOOSB+D6lsq/l7</span>
-</span><span class='line'><span class="l-Scalar-Plain">yp/AQD0fUCf+UVuA6n3hkKf1H4zkjc9YdSHssmkZQDQRYAsUXOpsCpQL/zEQaHIG</span>
-</span><span class='line'><span class="l-Scalar-Plain">vXQOVndBuJ7Ux3NMxZXU28tcpM+MXx0JqMiKzAZCbIAG/0B9n0+JCeK63RXzuCVW</span>
-</span><span class='line'><span class="l-Scalar-Plain">2AeiK8r5YhUofAOG0P134YsJaAK4MFSABMyZYknFTNXOJfBXYZ4Hh1WrXuqGtihj</span>
-</span><span class='line'><span class="l-Scalar-Plain">5lcnmoWuLYtBpIEaSD6qILRzCHJ5Rlt4pFSfjvMub0tFNsoeyqzlbarYLTLGkJFN</span>
-</span><span class='line'><span class="l-Scalar-Plain">MkO+oP3wVnzBITXNN9Q0IKxFga/9RVHnBbm61dhD96uKbhHQ6i6didS9XeRWt+yL</span>
-</span><span class='line'><span class="l-Scalar-Plain">RFOVnivOLa3fKzW0QO4Gd3YGQ4fgJPalmZlxPEqfNuFQI/GA8OnXADFFoRsuoT9T</span>
-</span><span class='line'><span class="l-Scalar-Plain">a9FEGmqarBbarI83kcZtc/GRqqSZAg0EUnbVDAEQAM9EdgIy7CUADnFxvIgO4hU2</span>
-</span><span class='line'><span class="l-Scalar-Plain">J+96Xxw68Tf96C4G5h0Sd7DSna4ivZHXikYGdpPZvM2Y+JiY8pU3zLS9M0IWf/u0</span>
-</span><span class='line'><span class="l-Scalar-Plain">1pU5ZiWecmoxUPhvcjLuz/NYVqHCh/s1EVNX7dj29PW7MRqPXXzuu212koz5wz9M</span>
-</span><span class='line'><span class="l-Scalar-Plain">biQCbU58BDkVx1nQtp2+GLVFc+xLIUPsbbRd60EFu11RxBnJ8LWGyIKiqHVsXPoN</span>
-</span><span class='line'><span class="l-Scalar-Plain">dAiNwYPbugvv53tWUhHZ7QwacQKlYwQI30He1aNauaj4HMe8wJHVCALD1l8DSuNw</span>
-</span><span class='line'><span class="l-Scalar-Plain">micT1dLW6DnZtT6EwD7iNzAcUG/zgmU+FmeEOpUYKckROA43E7qzCXn7Mb2KEXDW</span>
-</span><span class='line'><span class="l-Scalar-Plain">fkp284WIiD09fUcMFaT/MXqtNMV5ceKKu1F61YldZhRf3B+ry/tWeDobuJQnFvyc</span>
-</span><span class='line'><span class="l-Scalar-Plain">KqnQprxyepBB0tjJw5IU+ihp9eLirWaM3/FGVs/raS9jtDZXI4vXs5zVOGkoRl1C</span>
-</span><span class='line'><span class="l-Scalar-Plain">7BhnGUKXiZXKal3DaPVKvJpmwP1kzBfIAtCQSJ8VQli8H0oz9QuRmg2ooEb91vZ9</span>
-</span><span class='line'><span class="l-Scalar-Plain">En8OXSBSxI5u1dY2ro8fliW1rtbdLhFTpSd5Sr8NLYJj3ms7zt+a0UQiFjvS3nZP</span>
-</span><span class='line'><span class="l-Scalar-Plain">3yl6MiU/N+jTLUKMcCm5UE8oHBn45KyfAPijBO8BZrQU9s6OqO9L5NtnQtnp2pET</span>
-</span><span class='line'><span class="l-Scalar-Plain">oO3tZPjuBq6d7MkXQWNnABEBAAGJAjYEIAEKACAFAlOkw7kZHQFOZXcgS2V5OiA0</span>
-</span><span class='line'><span class="l-Scalar-Plain">MDk2Ui80MEI5MzVGRQAKCRDoulTfJQOQ7z00EACQ+Bg8adcTrS/lWKWF5ZNUDmBS</span>
-</span><span class='line'><span class="l-Scalar-Plain">JEZSGJsfXBZX7j7d47uzJL1zbsO8HrN/es6BqkRo9sIWOXIB6yr6SoGm2HJiztBQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">ycfpujV9WoFSdvaJEd+Ilx6MbAEvoMu4AFRcUQt2qcUIFXx07PDJjPRD4OnNY4UE</span>
-</span><span class='line'><span class="l-Scalar-Plain">FET7+ILvtoa34o58WMr7H1hBgNaQdqoazzqZZWjrx2SoOUIvKIpL8ErA+cY2yb+I</span>
-</span><span class='line'><span class="l-Scalar-Plain">jmMHDCjDVPKySLZIZcA5BCHcMVbvdnNIUKOwqqAnU3QG7EJCPAWrEUC7JdQVxDBd</span>
-</span><span class='line'><span class="l-Scalar-Plain">oz7FekMw2l6se4SzktL/BMjqXUev6EtjBT/CnWeK37B6wQQ5aFyKJHr/SP4433Ys</span>
-</span><span class='line'><span class="l-Scalar-Plain">NKNfHxPBhiZVwY74+BkhusZcNGUUxvJfUTsQk4aI39iIfWl1H9Y534lKu05rElk9</span>
-</span><span class='line'><span class="l-Scalar-Plain">qU/Teq+bkn5FPA0e7deIdloznU39lpxg8xtAUniT5oP9KOdPyUFvIAKWGGSL5Au/</span>
-</span><span class='line'><span class="l-Scalar-Plain">tJoxBlANrsvRNFrna0SDJL4NB+cc5SNDehxSdiQy9tS4W1tZV+5I2ZY4EiehUZJt</span>
-</span><span class='line'><span class="l-Scalar-Plain">9tPkPnaP8TDidU51zYeuOYh2Ie+PmqeA6I8Y0/d50q7gv/xH6JjVDIxcJOy9rErr</span>
-</span><span class='line'><span class="l-Scalar-Plain">3Qt9PB6fMOxTK5g2R5a9svgMTZupcrNEqnj7AG95CPaLkx3SM6ERVZvPwrQDsoZi</span>
-</span><span class='line'><span class="l-Scalar-Plain">X//IDOxtcp2haOP1H7RISm9zZXBoIFJ1ZXRoZXIgKDFENFhrcEQ2QkEzOUxaejZj</span>
-</span><span class='line'><span class="l-Scalar-Plain">eXQ1cVR3NVlxVFY0a2FoZGspIDxqcnJ1ZXRoZUBnbWFpbC5jb20+iQIcBBMBAgAG</span>
-</span><span class='line'><span class="l-Scalar-Plain">BQJS6FZdAAoJEOi6VN8lA5Dv57AQAIX5R+HnHlnFypPPIeMgi+mMQY/uTJtADaUB</span>
-</span><span class='line'><span class="l-Scalar-Plain">reOs7MwmG0e9hB3Lwc3UKn5zp38X7txeSQiO6isEx0JB6kun31V6ICpoDOt4xi+3</span>
-</span><span class='line'><span class="l-Scalar-Plain">/ERGB1RCnkwx5CjYrTc/PNovuF8mfFWfQxa/fr6NaNCJ89zR1twpL506lcX2GsTy</span>
-</span><span class='line'><span class="l-Scalar-Plain">9QAm5SRJ9y+d+uGib6anc+ly92CSFWnTdeFHXiwxZNFfuEPgWasqxcQ5WkwkOpDC</span>
-</span><span class='line'><span class="l-Scalar-Plain">m3yqnCw369x4O5SL4xhmOLky4P4JRYAFvqbIqc6Ef4h9DRh7c7hZmaIPv3c0uy/3</span>
-</span><span class='line'><span class="l-Scalar-Plain">p9iUUj8mChCxYVEnPTG5d002CPh7n+hTI+qS+f1mQIeE+a3JooPDkWX/DcnirDN4</span>
-</span><span class='line'><span class="l-Scalar-Plain">+zKxT2r1tTpKSXvB78fcOgMuVmvz7Gzy1sWjwIqTUqqQiWLco0uJSDx/yPGSOvI8</span>
-</span><span class='line'><span class="l-Scalar-Plain">NDJi3TABOqQSNmWg3HNNkm1Kv+vnkAZ7/40hQuRuAog+28dqszGtTTbqhcXmz2zE</span>
-</span><span class='line'><span class="l-Scalar-Plain">FjsEXC2doBMBZA8xiZljCT168uEhKiJbjLmkMo3sE6swu9l+J3lhaCXHTN4MWEDF</span>
-</span><span class='line'><span class="l-Scalar-Plain">Dx0bxSW217Y6h1QUUjZ7hucRhtVGawAFKcxdAEkQjfF/zGkzAV89aklywaMaT8XR</span>
-</span><span class='line'><span class="l-Scalar-Plain">v9/uwt9dOm1R4yiNdeT7QL86ZDt/strfWoVPnExPmfQd+QLa9HetfZCHdRfo+8P3</span>
-</span><span class='line'><span class="l-Scalar-Plain">wmR0po0diQI2BBMBCgAgApsDBosJCAcDAgSVAggDBJYCAwEFAlOkwz0FCQEx4qUA</span>
-</span><span class='line'><span class="l-Scalar-Plain">CgkQ6LpU3yUDkO/AMg/9G31KtV9YkORN0SPx9RrfYi44DCmHa2ov7QAl5dS5Scf5</span>
-</span><span class='line'><span class="l-Scalar-Plain">YED8Hn7xHfuPdDBXur/q7pzYXkQb7eE6ou7tY2z+li1V6OJghBSKacp2V+AMAsAg</span>
-</span><span class='line'><span class="l-Scalar-Plain">k68YjBth+g5ltCebQK9aYSG1qeYvA1oLpE9skYFAaFppVuSNMp2dny7nKwN+kJfm</span>
-</span><span class='line'><span class="l-Scalar-Plain">ErHeUeQvB+AJaIE1AvBmhSTDPonQdkeMwOvQarQ8E/I3uiDPlRGjXI0nGbQfMjuj</span>
-</span><span class='line'><span class="l-Scalar-Plain">DiWxiF2Y2otnHL80uY3qLHergUOG66xE3qgVac+geei4JALVFDERXXPOfMU2clM8</span>
-</span><span class='line'><span class="l-Scalar-Plain">dUIbCg3X09TkUASUeDQJQKzW4F3XMa+WC8zFDiQDsQXbyIwv24SRhfvUsTh5zwpU</span>
-</span><span class='line'><span class="l-Scalar-Plain">3VZUkF9at4qjOIQoifOvTQYvRIyDs22URxySB2UrC/sYazNHUHM2DzGggVeR+jhy</span>
-</span><span class='line'><span class="l-Scalar-Plain">rU1hSvrh2ZV1cmVXdsWXHHWcjI813nBx0Zoej3xi26A7NLQjV1PKUgFk090SFFQc</span>
-</span><span class='line'><span class="l-Scalar-Plain">R3jsnnve5Two/qJGXw9W8/TiDJXfEIQSWk7q4H9jHGp+iy6tw01nHgwz/inW/8RA</span>
-</span><span class='line'><span class="l-Scalar-Plain">C88UdQuLenCBJE5ungTNJh+sYeVJArd+KGBYF6Mb11yWQ9KLprf+zzeM9qsjukrI</span>
-</span><span class='line'><span class="l-Scalar-Plain">0W+qos2XIOrtvg8mT1vjzfu83Q2xuRjlH5uNawV8bgddqbJJ8FxHHMUxLs17Wgi5</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ag0EUnbVDAEQALC35LlqP/qfHHbpx6xozacrg6oFNEA8bnGrRqVfoh9R6nYQa/Yx</span>
-</span><span class='line'><span class="l-Scalar-Plain">/OUD28x7eUtMfkb2Va469l3KJOHaeN3R9xvh6s0uqE5OQGIhMvdMd8u3zo/5im3A</span>
-</span><span class='line'><span class="l-Scalar-Plain">lHLTPzrEqnXriQaKf+90o7U0Z9hxDTTxyONbdfFYw1opEi9tll5zj/jgv/LaBKea</span>
-</span><span class='line'><span class="l-Scalar-Plain">1lzjw4XKRMLghcPwgPhjk8XvegpS9pcUT734kYYLsZQ1/wCyPrQSCQ9uAwknxGQt</span>
-</span><span class='line'><span class="l-Scalar-Plain">h2ffQcKPzYn+nTxoJxR2X68byz7StrB5u1h/p2vaiTDGl3K5VNyFWVJJkAMgnFtI</span>
-</span><span class='line'><span class="l-Scalar-Plain">m3Wq2wDdYEcHQ7gtho4iRUTwDj1KaZ08cY+17N8WJx/RE0Ec7BtzTQ9JTw7veRBR</span>
-</span><span class='line'><span class="l-Scalar-Plain">f0jnqqEgVzRrd84fUyVb5a+wWKyfZEqjng5gdkruKV0CzcQpemPfMCEFopwT0CXF</span>
-</span><span class='line'><span class="l-Scalar-Plain">WdXzXX6u1utI6/Tp31OzwTICWqKgK216pszON8wRVAwV2vgA28LOpaYOuvx3/qOp</span>
-</span><span class='line'><span class="l-Scalar-Plain">KUXMn7W5ZtpCoHLwwCDsMAwwE8pfXKMMPbC+YKZiPO7O54dIjKAlrecaJZpNgahf</span>
-</span><span class='line'><span class="l-Scalar-Plain">xA0b8sc9+t0cBRfWQUTqIF0EGZDbNaMulpNJiy4I5FTok395URtvfzDmd4UMj1Rl</span>
-</span><span class='line'><span class="l-Scalar-Plain">r6uS4IwdcLB95etGhqGXWsms5F3gURu7PZ+yCL2Ft43RgKhXw47SoFTDABEBAAGJ</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ah8EGAECAAkFAlLoVl0CGwwACgkQ6LpU3yUDkO+Q5A//fex448C3zpSXPmtFZoxy</span>
-</span><span class='line'><span class="l-Scalar-Plain">mYSRTTsFqaW6C+D0bqI8Hy2lC1znErnJmokWwi4JWoV8CCDvqvMeKkRZ1LXq4pY6</span>
-</span><span class='line'><span class="l-Scalar-Plain">8Ap9et8P6ywpjmqWIl8JIPzs1aTKAMaDuaGDycCiogNdRbiO70NzbmZ7iHoaM1yR</span>
-</span><span class='line'><span class="l-Scalar-Plain">9C21U3X1enry1JKX4cm9gcIgCjGKlvfnR2xEmg7DGiBrMh17rBZXHueff1Vz/fVE</span>
-</span><span class='line'><span class="l-Scalar-Plain">Cb83fLB5iS8OhrquKzbVOYccIoZrkWeQDwt6f2mYCR6coqslM3HK6rxYFB0NBilY</span>
-</span><span class='line'><span class="l-Scalar-Plain">5B2jYF9InVMHC63QMIuggDm9wqWzdPIwjRrBMA+nUPnQHl4yRQ811dY/d6WJrNO0</span>
-</span><span class='line'><span class="l-Scalar-Plain">+lO3Fn/cxEQr+rk2p6yMYopNx1MbLGakKF3V6QQz/n0Ob5BLHmoboS083wojd8YZ</span>
-</span><span class='line'><span class="l-Scalar-Plain">vrdM7aHmUg9S9ELkEkDz3qxCpH1+uheQq4tR+uWz9McEVfp6N1bv0ZgISPiNWO9k</span>
-</span><span class='line'><span class="l-Scalar-Plain">LWoGRTxBJ+Br6XVLcrKklsXJwoNHhI8b08XPbn/cO4ysEW/1T4EdnjNQjhP7YtpN</span>
-</span><span class='line'><span class="l-Scalar-Plain">FPfRP7zsr5BYt9ifJDlvPA65i3hifYlhYPFJekBG+l7hIJgeM6c8qMOD0i7Z8qzF</span>
-</span><span class='line'><span class="l-Scalar-Plain">tuwUISGc/nQ7BBcUnJJJNvUK+ZE3vN1haw6mt5DswamZ+dLQqAOi7QhuKkVrBnbU</span>
-</span><span class='line'><span class="l-Scalar-Plain">5SMYaSeiVTmARYICvEwDydo=</span>
-</span><span class='line'><span class="l-Scalar-Plain">=SRQT</span>
+</span><span class='line'><span class="l-Scalar-Plain">Rjq1y5KU0ceG8L5OLeWE5sKCVRVPC5TMOzWYZ+HV2v8nydYD3fm5Ag0EU5x6DgEQ</span>
+</span><span class='line'><span class="l-Scalar-Plain">AMmEIUTVuyKRApKzQEMmmnqiApfoQKjVrBLqFz8DzpuLlWmYqCN89xJeiBwiuHJK</span>
+</span><span class='line'><span class="l-Scalar-Plain">Qc6Bp8hSS46JavXivmVGP/WLN3JI5GGY/n6tVLAjnpw6zUcwDwaJhQApOU8w/jBk</span>
+</span><span class='line'><span class="l-Scalar-Plain">78RIWvqYEYhhav4z393jGuM/TKtJeFppieApyD2myOLR+/IZzVlOYfrpmq5y4RI/</span>
+</span><span class='line'><span class="l-Scalar-Plain">fBbPmvVMOPNlELMH2qarww4T5W5g1ih1SVJZwaXbZXgHsz40H8QpgAyYOo6k3N8v</span>
+</span><span class='line'><span class="l-Scalar-Plain">f5pwjArxSicurqYCPSqkfFhZXyZefj2oY6UDWGHbRq5byJ+L+vVo2hDcb0v6+xEu</span>
+</span><span class='line'><span class="l-Scalar-Plain">La4DWO2g9bgxxrQuE/dKheRxucza+FwhOHMVdby7UFiI1qbGY2r/Lbk6fO+qSU+s</span>
+</span><span class='line'><span class="l-Scalar-Plain">1kCxLUYcyJtqJXibwxVPm2GxbEVMIKe1yLdFCrV3gzvp9L1hhGJWw9lKSVjXwrVY</span>
+</span><span class='line'><span class="l-Scalar-Plain">FtxOMYXB5vsExcn7XIuLWoS0ra8daTE+ccu6SyBx2FM5xN2+ogLfVLWgHxA8wpYw</span>
+</span><span class='line'><span class="l-Scalar-Plain">QBXkA/iemyMj8+OcGQqKgXvjhMNY1ZQmHz0CPSXY6GRJApAAKSyScC12RgsX+mER</span>
+</span><span class='line'><span class="l-Scalar-Plain">li4uzddz24OowXw2cmrcTArMFjnMEweA1eE06ZjJje/1DLESqZULsv9MUar9XDiA</span>
+</span><span class='line'><span class="l-Scalar-Plain">ZrQrZ97O6xs6P6We6+WQxov9uLjIM0JbEt2c14pXoWpJABEBAAGJAiUEGAECAA8F</span>
+</span><span class='line'><span class="l-Scalar-Plain">AlOceg4CGwwFCQHhM4AACgkQRjC+3EC5Nf5Jxg//Ql4ideUBAZ+uZizM8Rqx1+XQ</span>
+</span><span class='line'><span class="l-Scalar-Plain">aLOmuPO+YIkIHqjpvv4Wk4whYa2h7GYj70Gm243hXDdwUJEGR5lA1UDMkDXni4lx</span>
+</span><span class='line'><span class="l-Scalar-Plain">YhZv4mG6NxuGjfsnt3oDhVjP8R+C5W/GQfA8qoo/47bb82jAPgs6ZajVhD7B+DZX</span>
+</span><span class='line'><span class="l-Scalar-Plain">WuTOdRZ7B9Va0oz1NZJIEVOKcG0u9u0iL+T10v7dEShiJTqBDG/mevT3mBVpsAvK</span>
+</span><span class='line'><span class="l-Scalar-Plain">vqdWD1l5zT2xWDre5u9L+nnxx2IpteGkgfFzTekQB5YqId+o/LU+G62EFScTYOFl</span>
+</span><span class='line'><span class="l-Scalar-Plain">Kx/8TTdRVCwcyZOhvnknljvHTH0+lCi6x5j7UFRL5yNbo7y4ld6tn/9t0bWiMTtw</span>
+</span><span class='line'><span class="l-Scalar-Plain">+LXDObkw9TcKqQNQxWmkPnUB8u/fqkOaAywc09pbMU2tyOfWrTJDVFmXSWOoe3iU</span>
+</span><span class='line'><span class="l-Scalar-Plain">7w3eR8RhYg8ELdSTL6V288SplFAnNSlfreh2cK5Fny4CbC0GkE+aXFsVMXGZta4h</span>
+</span><span class='line'><span class="l-Scalar-Plain">FrZ1IEt/BoAvKRp3zWq2DsCdLvdQk3/7vHbO28Mc/ac8SDv73PPHC/Gpy52falm9</span>
+</span><span class='line'><span class="l-Scalar-Plain">wiy3OSnUFGfc7sU+yaOOSczE78YwsiEUsc4BdookqzwstHY0zsAU34mDxFAHcSxs</span>
+</span><span class='line'><span class="l-Scalar-Plain">1UgHnFCO6+eG2l5A2sdRcylv+0zLvyi1Pmn19QM9A85WgY3jFWhOoL7LbmioyLn2</span>
+</span><span class='line'><span class="l-Scalar-Plain">yAeEx+brN5tnYmpEb3i5Ag0EU5x79QEQAMCFHgDPjZ4XsmzOJJBVomgl1bOz4Dbd</span>
+</span><span class='line'><span class="l-Scalar-Plain">0eIjSkFRIOom3hTXWfsbvhJNtzrPjie/XIHqAMsr5gUeI3ceDwfklSrsHAsZ6dQT</span>
+</span><span class='line'><span class="l-Scalar-Plain">nbMnf8WxCOS6Swka6jLQDf8x4I3vnOKFR1b5h5tU9sxml2tWlIzJxO8o0roPhdRZ</span>
+</span><span class='line'><span class="l-Scalar-Plain">YurwDRgBS60f8wOLfZ6ke3VdkjjpeqBKfq0skMHl1i1tUTxzBNZPljjRP6vEi5qv</span>
+</span><span class='line'><span class="l-Scalar-Plain">HEEZD7/nAE6MptZnppzsDKZVIoxp8pgt8SMwNq35z67gL1aQHWUFy/TGYP1XSLPK</span>
+</span><span class='line'><span class="l-Scalar-Plain">TDk6zgbjuxb7ydpBCFIbaDaSJOq3diPbk91QiPH238S9/Jpg82EacO9F0KqLCj6r</span>
+</span><span class='line'><span class="l-Scalar-Plain">39dfWVKBirBM0KGq+H4w9CjWQyYCKHiUuYp1gVvjULgs+/sHg0h70CXWL3c4UmNA</span>
+</span><span class='line'><span class="l-Scalar-Plain">jKod/WDzyQDrLUJ7wyp7uc/Dlhpd4KqqHq/JHPjIBTytq7/a3NZP/uB0ia9Is5Mq</span>
+</span><span class='line'><span class="l-Scalar-Plain">YNlFwvCu6SldBbGb5zIG6C9j8Jq7Ym+c9jMkkr9xg5VYLPqwmae2ZjwQhXrRBAMW</span>
+</span><span class='line'><span class="l-Scalar-Plain">ttZZEwMMSVtw1NQ6pLo+49VaEtXlaywuGm5VSru4N3GFxTVom8Ycx98ePjvEzDwW</span>
+</span><span class='line'><span class="l-Scalar-Plain">y+aRfNa+gErDmmuydRS1xtzOVvcsZpBlK/6lp4crDfl9bCuzXrlS09vQXbC7V8XG</span>
+</span><span class='line'><span class="l-Scalar-Plain">fm9X62Go2KcXABEBAAGJBEQEGAECAA8FAlOce/UCGwIFCQHhM4ACKQkQRjC+3EC5</span>
+</span><span class='line'><span class="l-Scalar-Plain">Nf7BXSAEGQECAAYFAlOce/UACgkQicl/kFYQ3HaVpQ//RR41unV2TUDozklmC5H0</span>
+</span><span class='line'><span class="l-Scalar-Plain">9EDzPqWjpIc9PPMrGOCFiMBvXrqPqjAQaBDBBWFilX/THgIeVdqZUtPhL+12cPOQ</span>
+</span><span class='line'><span class="l-Scalar-Plain">DwbtoKCTrbetkVLa4dmb2+GD2O9XyKjMM67obS4GEswPwmAZQujg0YSSymtmhRly</span>
+</span><span class='line'><span class="l-Scalar-Plain">J0xN0lu/OtcUyj4+967YEIFHeNEaeYLI973QY0hZVAbSuln503yoN9lb2CAei2oM</span>
+</span><span class='line'><span class="l-Scalar-Plain">Wi8IEDRd/KJvjUln9ZQv3AkAPmZAFDp13gCUlaW6EEHdZU5XnPCbQkji0MAAF9Uh</span>
+</span><span class='line'><span class="l-Scalar-Plain">imnImYBOLf8S5T8p21xikHoK2zg736/jKPbh6SwzVY3susvZieD4cZw5ZD/C1Mo3</span>
+</span><span class='line'><span class="l-Scalar-Plain">NLBRi72ZcwE1j6FUpB3syrhH8Cz3HD5v++0DfJAFovra/pEEsSxmJJaqR9LF8xBA</span>
+</span><span class='line'><span class="l-Scalar-Plain">ZBnGmPCXDY8Rk44lQYCwU1PO0J6xGWFO+jBaeI0+HkI/rRzfKBG8YSukee7FZbXV</span>
+</span><span class='line'><span class="l-Scalar-Plain">NtL3HQaf8a4x0AjlHepSEk805Yo9I/NVyEE/xh/I/1AgG0yBEptFva7HDdFI1Udl</span>
+</span><span class='line'><span class="l-Scalar-Plain">LbSt60QIJ4jbvsmFBmTYOHMJWER4fbCSg67gGiQ3i4/90wm7vokqUhQ5NkYpeoa7</span>
+</span><span class='line'><span class="l-Scalar-Plain">Ilq6U6TbZx3nM79mXImSusQB8giqYLQxvi9tlld9MY9qUiy/5F9HMvx+VZ6u7qGQ</span>
+</span><span class='line'><span class="l-Scalar-Plain">Kg1Za9gYGhbwb95rzq9NrgfovBAAqxXt7EVEC5nyKfIZVIwcjZ1tC3fRAd1EnGig</span>
+</span><span class='line'><span class="l-Scalar-Plain">XncVS+e4hxt8Atwo1/a2lAo/fUiyZSyoA917YsbbXytkqvozqx0xTo6CbsVmtCC3</span>
+</span><span class='line'><span class="l-Scalar-Plain">EfS/xsl/AqUZ26/thvJQHSWKlEme7J/WlW4W4wqW9imq+x8Ni1i1sGZkICghDS8W</span>
+</span><span class='line'><span class="l-Scalar-Plain">U7w9psnLwDCsoXTsqHMPUUfT/QLGi3mJzdMfn7XobGzbu0Q9uMUQXbIMqmvI2Dxu</span>
+</span><span class='line'><span class="l-Scalar-Plain">uT0M6q7xSt2OOpF+iRpfEjo3U/wjxwtOOSB+D6lsq/l7yp/AQD0fUCf+UVuA6n3h</span>
+</span><span class='line'><span class="l-Scalar-Plain">kKf1H4zkjc9YdSHssmkZQDQRYAsUXOpsCpQL/zEQaHIGvXQOVndBuJ7Ux3NMxZXU</span>
+</span><span class='line'><span class="l-Scalar-Plain">28tcpM+MXx0JqMiKzAZCbIAG/0B9n0+JCeK63RXzuCVW2AeiK8r5YhUofAOG0P13</span>
+</span><span class='line'><span class="l-Scalar-Plain">4YsJaAK4MFSABMyZYknFTNXOJfBXYZ4Hh1WrXuqGtihj5lcnmoWuLYtBpIEaSD6q</span>
+</span><span class='line'><span class="l-Scalar-Plain">ILRzCHJ5Rlt4pFSfjvMub0tFNsoeyqzlbarYLTLGkJFNMkO+oP3wVnzBITXNN9Q0</span>
+</span><span class='line'><span class="l-Scalar-Plain">IKxFga/9RVHnBbm61dhD96uKbhHQ6i6didS9XeRWt+yLRFOVnivOLa3fKzW0QO4G</span>
+</span><span class='line'><span class="l-Scalar-Plain">d3YGQ4fgJPalmZlxPEqfNuFQI/GA8OnXADFFoRsuoT9Ta9FEGmqarBbarI83kcZt</span>
+</span><span class='line'><span class="l-Scalar-Plain">c/GRqqS5AQ0EVL2YagEIAK0QjBAcz+bPk0P09JMRdwusyhqAgDabuQSuT7KPUxNe</span>
+</span><span class='line'><span class="l-Scalar-Plain">P6rR2VQwhKaxueG5czlttYyTFYd64g4V2EQiuxbu7B+MYoOcnr6nt6bOafoxpa2s</span>
+</span><span class='line'><span class="l-Scalar-Plain">cDsYZxLeXj4dNc/xxT8AsZ29Nrn1G292CNjWhypEyv3AFrfn2WF6YTYXia+Jau3o</span>
+</span><span class='line'><span class="l-Scalar-Plain">3n5qHEzBhfwQzI2ejrBcWoqd3iJoFnMX39jt1j9dnIvXzb9SEDpbJrYteKTAHNkg</span>
+</span><span class='line'><span class="l-Scalar-Plain">cGL0YMqdz0MZIrvJfgQK4zQq2nnhjisc0KaNaF0AcsvGwVKjFFH4mI9GGbD9WJZU</span>
+</span><span class='line'><span class="l-Scalar-Plain">YeVcvZ5JOQgjrJOyOAJVmn1yPq+hw6n5wMa2nIEluJkAEQEAAYkDQwQYAQIADwUC</span>
+</span><span class='line'><span class="l-Scalar-Plain">VL2YagIbAgUJAeEzgAEpCRBGML7cQLk1/sBdIAQZAQIABgUCVL2YagAKCRAezLIB</span>
+</span><span class='line'><span class="l-Scalar-Plain">w3rwKd6zB/oDu2mUZVLhsEcjLKF3W8hcVE4Vu9AGfIz+j0FpUE79dZDThXl6eULF</span>
+</span><span class='line'><span class="l-Scalar-Plain">3MqkX16Ep/pD2KE/8TcjyyhyE+W+M4s+TlvGoDyLCYJ5xjTjdptgWQWZMBQ9Te8l</span>
+</span><span class='line'><span class="l-Scalar-Plain">G+rBsUPUXvnzTFalFfpvdqAaC32RQoiq1ixqstyxYWNvDrexYgzs76Nm/KibozY4</span>
+</span><span class='line'><span class="l-Scalar-Plain">95QdWdC1U2dCfi2B6Am9su0N3/K6/jowXbu3sRcmP+9GMzd45IK/5hDwoyk2mbFg</span>
+</span><span class='line'><span class="l-Scalar-Plain">RF3LySDAjItWleRIvrnVhGXAD1IQut1hzdlb6Vsf6LF6CrWJ/0idkTGl2vZMkqUP</span>
+</span><span class='line'><span class="l-Scalar-Plain">6VHq1VaSQXjZdTTWztSSoXe05jz+ylfsIoYP+LGfF07XZGLeljBNMFm1U03NoKpd</span>
+</span><span class='line'><span class="l-Scalar-Plain">gQCBa913dQ42FVvOGZ5+1skjjaWudEayKC731gTu749306lDrQkxI92nh/99j8Cq</span>
+</span><span class='line'><span class="l-Scalar-Plain">SBDqtwl2RhI+Se3qqjsRCfZnstJ14V1kmOk0LinTLBz8V/V8chDTHTsFxLtZB8ds</span>
+</span><span class='line'><span class="l-Scalar-Plain">H242DviuaHGk3wXXVDhtlEZdth1RbFTmTs8A0adMOj1uoVlX1rzkHGZqtChEzJRj</span>
+</span><span class='line'><span class="l-Scalar-Plain">ZGvhpZytPZlmzrCf0jL3rkB91t3iEdPU3M8qaHmF4LVgWLdfh6hxymmtAuDgFpdt</span>
+</span><span class='line'><span class="l-Scalar-Plain">g+Ca231syeveVO7bMLZdQuD5Lpj2dIynYodEQy8ajiKZJpjOUuPUgciyevXzf2Cm</span>
+</span><span class='line'><span class="l-Scalar-Plain">kXEzZq0XAF59VD6YEJGJdLXfw7uZqLSdZ1+nPJ6iZMZ4JxRksw4LR8oalCDrMQ8U</span>
+</span><span class='line'><span class="l-Scalar-Plain">hQ706onnJglHTHZq5F1faW+Q6BdSowZflLehTbPrI85O/GlQUobst2puNnAW9NdU</span>
+</span><span class='line'><span class="l-Scalar-Plain">7qlW7yvpbbkoXOCkCgfIqmLbaoEbeQfcGfWnuJmiU3LE1kUUvCGf51KZ7tWowqpd</span>
+</span><span class='line'><span class="l-Scalar-Plain">LDXhE5DdMs6ag8nv/AVKik6F9jMXjhCLFxtH7MVd4WLmnoUSEguTzeZaP3qyabuk</span>
+</span><span class='line'><span class="l-Scalar-Plain">OFA+IDTfBDwhVclbgr0mOx6+G3E2AIiewbrXT/gXUHAR3VGcUlIoKRQSwbUkYaZc</span>
+</span><span class='line'><span class="l-Scalar-Plain">lXP+Po6Fm3MTdqO5AQ0EVL2ZNQEIAN4qry4CsnUbitbEv3kkxk9AnXp5vx3RvhMz</span>
+</span><span class='line'><span class="l-Scalar-Plain">xudXwrGU+gnVjB8JLh7YN+f7WsBiaBJa2l8nZmHbnQbUpGiEER+2NwResqy7tgHv</span>
+</span><span class='line'><span class="l-Scalar-Plain">6fZ9rLWP1Qg7/zcGWQ5e9u0dAnjZfsgjq5ix5eUzfFe4iQK9wIHolQ4dHjIpCMJZ</span>
+</span><span class='line'><span class="l-Scalar-Plain">NEtR+GeFui90M7w+zviUV+ezTgCZ7uswAkwZUWXNIEyKL7hXpp+PHuQnJ2XwHE8m</span>
+</span><span class='line'><span class="l-Scalar-Plain">fciyw2sjoYiSAyfSP8dJnVK8yLPE6qJ07u9JR8KC9M6DvwjBtYsgKD47mYeD1HUe</span>
+</span><span class='line'><span class="l-Scalar-Plain">HBGUgdXr1sg2pSfBgNS+Nzd3jdgCNMSMQsKJ/h8OkVuriODdH/MAEQEAAYkCJQQY</span>
+</span><span class='line'><span class="l-Scalar-Plain">AQIADwUCVL2ZNQIbDAUJAeEzgAAKCRBGML7cQLk1/qt6D/41cKgDR+4shKrypn1w</span>
+</span><span class='line'><span class="l-Scalar-Plain">LsrWFaLynTXDwzX7saSIt6AD09hZJFRo1cS6NaFwe5xwJtqA9cSeuTnP7NTR7MHv</span>
+</span><span class='line'><span class="l-Scalar-Plain">lGO9Otpj6/EahRNY659rP9m8JpRufdRqKC6iFVhcbYzVMQ7Kj+lTsuPZ+mvCfHXk</span>
+</span><span class='line'><span class="l-Scalar-Plain">VbCQqzUIxw99muVBBoHBqgQso6GWwhu4VNcWXJWMwksKPcBq3LGSinXFA8GVoi1a</span>
+</span><span class='line'><span class="l-Scalar-Plain">2W4kC5qHYwInfFMj+O/2FEg1A8vW8TXlZLQ6SQBhtJ6/UjsTAgNwKRZdOeAplvAE</span>
+</span><span class='line'><span class="l-Scalar-Plain">WY/V2xNPQqOMkp+QoO67MDUkg8OVju5DmFzI0pgIGRcaUOq6iXJBT5EHPAgo0WTR</span>
+</span><span class='line'><span class="l-Scalar-Plain">h945lydXpIvqqr9qEunkZVHOYP8rNqj7WTl7jRAJ2iVe5yrPq4JTGpeQQeYH21Gt</span>
+</span><span class='line'><span class="l-Scalar-Plain">Qs9zNJ+dcDm6wtzEI+h+A/wn6VzS5U0nZH5gAZP7cIRAbKrVA7mtn4pLDo5HY6RJ</span>
+</span><span class='line'><span class="l-Scalar-Plain">Nt1323pXYckMGJV4tpZdWNXECsjmLszAZN8FHe7AI8BDYGnuvEBlX2G4/NnpAwlq</span>
+</span><span class='line'><span class="l-Scalar-Plain">wa5aqVPMzjasS7hnwH985ACkpQa44RnFfjaNQtQYFxt8eDuoCdx0V/14imBP2VX5</span>
+</span><span class='line'><span class="l-Scalar-Plain">xVKiQbWrzQgEQJ0grRcdJbCKDqM2YnlHpG4YsihA11h5RdgxlPQEqiOav+6Wcuqj</span>
+</span><span class='line'><span class="l-Scalar-Plain">Xl6oYqFSZT8n3f3JCesl+x05sLkBDQRUvZnnAQgA0gn3SK4TtgCKtJzutMde7mlK</span>
+</span><span class='line'><span class="l-Scalar-Plain">COrsmMtR7d+Zi9rqUlPkurCo21vrcGI9VkgaFc4xXpmH1TF2MMhuAmEEx0ME4Guk</span>
+</span><span class='line'><span class="l-Scalar-Plain">zw5I34oLbqVJZkT2XVj73sy3Zic2jiayuYJtPdBvJL5XocCO+zrBWcUPW3af4aKa</span>
+</span><span class='line'><span class="l-Scalar-Plain">QarIZwAiYveCPmswJ/GxaeYVIGtfFkdoXczYCMcRyUcacDmAzn//o3XvRLXCFgE2</span>
+</span><span class='line'><span class="l-Scalar-Plain">NXZvqLUdXdMo0acX+DjwMkecivZ0ZEob7mUiDy4lgXXt9g2Atcsoiwqx2xAXB03x</span>
+</span><span class='line'><span class="l-Scalar-Plain">w28+vhTUwcB+wznnwStGddYoc4szd8Od9U00JusgbyTzm9D3+9pMuZuw4X1bywAR</span>
+</span><span class='line'><span class="l-Scalar-Plain">AQABiQIlBBgBAgAPBQJUvZnnAhsgBQkB4TOAAAoJEEYwvtxAuTX+g9gP/iNjPG1H</span>
+</span><span class='line'><span class="l-Scalar-Plain">QZuLH/T+5mB/24IkJA8jymbCgyYR5C4d4aPkLmbmG4T0Gbh0GP0jk2bclbmPuFT6</span>
+</span><span class='line'><span class="l-Scalar-Plain">6FvrKLdKappD+1rqog9WkUOojCKBNTEJmq94qwCDD4yaUwMbxHc7Bz98Cz+gsaBa</span>
+</span><span class='line'><span class="l-Scalar-Plain">/LalKdkG77DYKHpQFZh6z7RSGZp0xa50af+X2DL73seDJlChfx5eTXlPeta3z1Qv</span>
+</span><span class='line'><span class="l-Scalar-Plain">qib1rHdF2nvXIkYQbM1qgtrw5aeGarYHcwxjTn4bnLfQiubTnvyy+Rx+Isp7qTW5</span>
+</span><span class='line'><span class="l-Scalar-Plain">uF6bggHay21162G7/gm4QK/NuKSMPmLRj+vRmbq/ZPy002ZcD549HipU6DFiZgq4</span>
+</span><span class='line'><span class="l-Scalar-Plain">fnPtyDW583P3+xuaiFwt1kRKrCmR70M/+mYUDCuDgUQEmc6Hi7WLyHlhSAnwBzuR</span>
+</span><span class='line'><span class="l-Scalar-Plain">Mzys9cDYFXkz8rAkFnG30gXvFFxQFGcucixZkU4vgwBh/byMF7KOMgSujFfjUAss</span>
+</span><span class='line'><span class="l-Scalar-Plain">0jkToLv8mSQNEshHAcKCmJWg7OOys4Iwkaou+54tN/MVjQaCcXLHbSbRg+TxrDIp</span>
+</span><span class='line'><span class="l-Scalar-Plain">JMFPROiKU3Bk0rjIDXTdsMZLg5RWv3OeM06NKTBbNVCShYCn0pZac0p3Bbz8N7/x</span>
+</span><span class='line'><span class="l-Scalar-Plain">UtQXBDGeMkRCq20eSCHzc9am5HjEly4GQvHtJR97D/pRegDuhJqrbyuCK+kD3/de</span>
+</span><span class='line'><span class="l-Scalar-Plain">ewB6rgu7pPnOa3eGk52czyArCIsgYeVp/jlQ</span>
+</span><span class='line'><span class="l-Scalar-Plain">=MDtX</span>
 </span><span class='line'><span class="l-Scalar-Plain">-----END PGP PUBLIC KEY BLOCK-----</span>
 </span></code></pre></td></tr></table></div></figure>
 
