@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="I stumbled upon Christopher Ellis&#8217; &ldquo;World Citizenship&rdquo; Blockchain ID concept and was immediately intrigued. His idea is to create &hellip;">
+  <meta name="description" content="In the previous post, I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,114 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-27T13:40:20-04:00" pubdate data-updated="true">Mar 27<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/03/27/bitcoin-address-to-hash/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In the <a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">previous post</a>, I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a small amount of bitcoin to it. I neglected to include a script that goes the other way.</p>
+
+<p>Below is a script that will take a valid Bitcoin address and convert it back to the hash it came from. This can be used to validate Blockchain Identities.</p>
+
+<figure class='code'><figcaption><span> (address-to-hash.rb)</span> <a href='/downloads/code/address-to-hash.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>   <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the hex payload</span>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Grab the sending address from the <a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">transaction</a>:</p>
+
+<pre><code>1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
+</code></pre>
+
+<p>Run the script using this address:</p>
+
+<pre><code>./address-to-hash.rb 1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K 
+703bf01d7df0a110c9b2ce1e8984f545831bffaa
+</code></pre>
+
+<p>As you can see, the resulting hash matches the sha256 hash of key.json.asc generated in the previous post.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1349,115 +1457,6 @@ ping -c 1 www.google.com
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Debian on the Lenovo Thinkpad Yoga</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-05T20:03:39-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Many of the features of the Lenovo Thinkpad Yoga work out of the box with a fresh install of Debian Testing.
-Keep in mind that I am using Kernel 3.14.1-amd64</p>
-
-<h3>Wireless</h3>
-
-<p>Wireless does work well, but you need to install the firmware package from the repositories.</p>
-
-<pre><code>apt-get install firmware-iwlwifi
-</code></pre>
-
-<p>Getting this was tricky, because there are no ethernet ports on the system, and the wireless is not recognised at install time.<br/>
-I had to use a usb-ethernet adapter and plug it into my router.<br/>
-After installing the package and rebooting, wireless works great.</p>
-
-<h3>Touchscreen</h3>
-
-<p>Touchscreen works out of the box for left clicking and dragging.<br/>
-Multitouch does not seem to work out of the box, I am unable to two-finger-scroll nor pinch-zoom in Chromium.
-Also, holding down your finger for right click does not work.</p>
-
-<h3>Wacom Stylus</h3>
-
-<p>The stylus works out of the box, including clicking and dragging. There is a little button on the stylus, and if you hold it down while you touch the screen it does a right-click.<br/>
-By installing <code>gnome-control-center</code> you can calibrate the touchscreen with the stylus.</p>
-
-<h3>Touchpad</h3>
-
-<p>The Synaptics Touchpad works out of the box for the most part. However, tap-to-click doesn&rsquo;t work.
-Clicking the entire touchpad down with one finger is a left-click, while clicking the entire touchpad down with two fingers is a right click.<br/>
-Dragging while holding the touchpad down works for multiple selection and moving files around.<br/>
-Two-finger scroll works out of the box.<br/>
-I haven&rsquo;t figured out how to do a middle-click.</p>
-
-<p>I tried using <code>gnome-control-center</code> to enable tap-to-click, but was unsuccessful. I don&rsquo;t think the lack of this feature hinders usability in any way.</p>
-
-<p>Also, the little red pointer nub works as well. You need to click the touchpad with your thumb, and there is no real way to do a right click while using the red pointer nub.</p>
-
-<h3>Sound</h3>
-
-<p>Sound works out of the box, however it is muted at installation.<br/>
-I found the easiest way to fix this is to install PulseAudio Volume Control (<code>pavucontrol</code>) and unmute the speakers.</p>
-
-<h3>Bluetooth</h3>
-
-<p>Bluetooth seemed to work out of the box as well. I did install the <code>bluetooth</code> and <code>blueman</code> packages to use it.</p>
-
-<h3>Webcam</h3>
-
-<p>The webcam works out of the box.</p>
-
-<h3>Function Keys</h3>
-
-<p>The brightness keys (F5 / F6) work out of the box, but there is no OSD / HUD.<br/>
-The wireless key (F8) also works without any configuration needed.</p>
-
-<p>The webcam buttom (F7) seems to work, but there is a caveat:</p>
-
-<ol>
-<li>Start webcam with QtQr</li>
-<li>See webcam active</li>
-<li>Press F7</li>
-<li>See webcam get immediately disabled</li>
-<li>Without pressing F7 again, start the webcam</li>
-<li>The webcam is active again</li>
-</ol>
-
-
-<p>So the button can &ldquo;kill&rdquo; an active webcam, but it cannot prevent the webcam from activating again.</p>
-
-<p>The sound control buttons (F1 / F2 / F3) do not seem to do anything out of the box.
-Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1476,6 +1475,10 @@ Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
       </li>
     
@@ -1489,10 +1492,6 @@ Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
     
       <li class="post">
         <a href="/blog/2014/08/09/graphical-bookmarks-in-chrome/">Graphical Bookmarks in Chrome</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/07/25/enhanced-corefile-metadata/">Enhanced Corefile Metadata</a>
       </li>
     
   </ul>

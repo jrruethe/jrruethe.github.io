@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Bitcoin Address to Hash - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="In the previous post, I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Bitcoin Address to Hash</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-27T13:40:20-04:00" pubdate data-updated="true">Mar 27<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In the <a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">previous post</a>, I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a small amount of bitcoin to it. I neglected to include a script that goes the other way.</p>
+
+<p>Below is a script that will take a valid Bitcoin address and convert it back to the hash it came from. This can be used to validate Blockchain Identities.</p>
+
+<figure class='code'><figcaption><span> (address-to-hash.rb)</span> <a href='/downloads/code/address-to-hash.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>   <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the hex payload</span>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Grab the sending address from the <a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">transaction</a>:</p>
+
+<pre><code>1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
+</code></pre>
+
+<p>Run the script using this address:</p>
+
+<pre><code>./address-to-hash.rb 1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K 
+703bf01d7df0a110c9b2ce1e8984f545831bffaa
+</code></pre>
+
+<p>As you can see, the resulting hash matches the sha256 hash of key.json.asc generated in the previous post.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-27T13:40:20-04:00" pubdate data-updated="true">Mar 27<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/02/28/blockchain-identity/" title="Previous Post: Blockchain Identity">&laquo; Blockchain Identity</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+<h1>QR Code</h1>
+<a href="http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/" alt="post-qrcode"></a></section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/">PDF Generation With Ruby and Pocket</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/09/graphical-bookmarks-in-chrome/">Graphical Bookmarks in Chrome</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Joe Ruether -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
