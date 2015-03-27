@@ -111,7 +111,7 @@ Here you can validate that the Bitcoin address is legitimate, as well as decode 
     
 Next, get the sha256 hash of key.json.asc:
 
-    sha256sum key_2048.json.asc 
+    sha256sum key.json.asc 
     703bf01d7df0a110c9b2ce1e8984f545831bffaa08042e78b470b3b1464faada  key.json.asc
     
 Compare the two outputs to make sure they match:
