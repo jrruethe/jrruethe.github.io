@@ -9,8 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Many of the features of the Lenovo Thinkpad Yoga work out of the box with a fresh install of Debian Testing.
-Keep in mind that I am using Kernel 3.14 &hellip;">
+  <meta name="description" content="It can be tricky to figure out how to connect to a wireless network via the command line.
+However, the steps are simple. Below is a script to do all &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,72 @@ Keep in mind that I am using Kernel 3.14 &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/05/connecting-to-wireless-from-the-command-line/">Connecting to Wireless From the Command Line</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T20:22:15-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/05/connecting-to-wireless-from-the-command-line/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>It can be tricky to figure out how to connect to a wireless network via the command line.<br/>
+However, the steps are simple. Below is a script to do all the work for you.</p>
+
+<pre><code>#!/bin/bash
+# Connect to a wireless network secured with WPA2
+# Usage: ./connect.sh &lt;SSID&gt;
+# Run this as root
+
+# Parse command line arguments
+SSID=$1
+
+# Ensure the interface is up
+ifconfig wlan0 up
+
+# Create a configuration file
+echo Enter the passphrase for $SSID:
+wpa_passphrase $SSID &gt; ./wpa.conf
+
+# Connect to the access point
+wpa_supplicant -Dwext -iwlan0 -c./wpa.conf -B
+
+# Obtain an IP address
+dhclient -r
+dhclient wlan0
+
+# Test the connection
+ping -c 1 www.google.com
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1231,6 +1297,10 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/27/hex-to-mnemonics/">Hex to Mnemonics</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a>
       </li>
     
@@ -1244,10 +1314,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
     
       <li class="post">
         <a href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/">PDF Generation With Ruby and Pocket</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/09/graphical-bookmarks-in-chrome/">Graphical Bookmarks in Chrome</a>
       </li>
     
   </ul>

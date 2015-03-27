@@ -1,28 +1,104 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Morning Musings]]></title>
-  <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
-  <link href="http://jrruethe.github.io/"/>
-  <updated>2015-03-27T17:19:57-04:00</updated>
-  <id>http://jrruethe.github.io/</id>
-  <author>
-    <name><![CDATA[Joe Ruether]]></name>
-    
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Hex to Mnemonics - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
 
   
-  <entry>
-    <title type="html"><![CDATA[Hex to Mnemonics]]></title>
-    <link href="http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/"/>
-    <updated>2015-03-27T17:03:46-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics</id>
-    <content type="html"><![CDATA[<p>Hex values are the common representation for things like hashes, fingerprints, and uuids. They are great for machines,  but clumsy for humans. In this post, you will find two scripts used to convert a hex string to english words. This is useful for memorization or sharing by voice.</p>
+  <meta name="description" content="Hex values are the common representation for things like hashes, fingerprints, and uuids. They are great for machines, but clumsy for humans. In this &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Hex to Mnemonics</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-27T17:03:46-04:00" pubdate data-updated="true">Mar 27<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Hex values are the common representation for things like hashes, fingerprints, and uuids. They are great for machines,  but clumsy for humans. In this post, you will find two scripts used to convert a hex string to english words. This is useful for memorization or sharing by voice.</p>
 
 <p>The first script comes straight from the Electrum Bitcoin wallet source code. I heard about this idea <a href="http://www.reddit.com/r/Bitcoin/comments/2xggow/where_can_i_turn_my_random_phrase_into_a_12_word/">here</a>. It is used to store the random seed that unlocks a deterministic Bitcoin wallet. Of course, it works nicely for any hex string as well.</p>
 
-<figure class='code'><figcaption><span> (mnemonic.py)</span> <a href='http://jrruethe.github.io/downloads/code/mnemonic.py'>download</a></figcaption>
+<figure class='code'><figcaption><span> (mnemonic.py)</span> <a href='/downloads/code/mnemonic.py'>download</a></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -431,7 +507,7 @@ a1b2c3d4
 
 <p>The second script generates words using the official <a href="http://en.wikipedia.org/wiki/PGP_word_list">PGP Wordlist</a> and all of its rules. This is commonly used to communicate a PGP key fingerprint over a voice channel, and is set up such that even bytes are two syllable words, while odd bytes are three syllable words. Again, this can be used for more than just PGP keys.</p>
 
-<figure class='code'><figcaption><span> (pgp-words.py)</span> <a href='http://jrruethe.github.io/downloads/code/pgp-words.py'>download</a></figcaption>
+<figure class='code'><figcaption><span> (pgp-words.py)</span> <a href='/downloads/code/pgp-words.py'>download</a></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -721,2034 +797,176 @@ pioneer
 snowcap
 souvenir
 </code></pre>
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-  <entry>
-    <title type="html"><![CDATA[Bitcoin Address to Hash]]></title>
-    <link href="http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/"/>
-    <updated>2015-03-27T13:40:20-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash</id>
-    <content type="html"><![CDATA[<p>In the <a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">previous post</a>, I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a small amount of bitcoin to it. I neglected to include a script that goes the other way.</p>
 
-<p>Below is a script that will take a valid Bitcoin address and convert it back to the hash it came from. This can be used to validate Blockchain Identities.</p>
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
 
-<figure class='code'><figcaption><span> (address-to-hash.rb)</span> <a href='http://jrruethe.github.io/downloads/code/address-to-hash.rb'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Get the address</span>
-</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
-</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
-</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
-</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
-</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
-</span><span class='line'>   <span class="n">s</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Get the hex payload</span>
-</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
-</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
+      
 
 
-<p>Grab the sending address from the <a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">transaction</a>:</p>
 
-<pre><code>1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
-</code></pre>
 
-<p>Run the script using this address:</p>
 
-<pre><code>./address-to-hash.rb 1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K 
-703bf01d7df0a110c9b2ce1e8984f545831bffaa
-</code></pre>
 
-<p>As you can see, the resulting hash matches the sha256 hash of key.json.asc generated in the previous post.</p>
-]]></content>
-  </entry>
+
+
   
-  <entry>
-    <title type="html"><![CDATA[Blockchain Identity]]></title>
-    <link href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/"/>
-    <updated>2015-02-28T15:24:25-05:00</updated>
-    <id>http://jrruethe.github.io/blog/2015/02/28/blockchain-identity</id>
-    <content type="html"><![CDATA[<p>I stumbled upon Christopher Ellis&#8217; <a href="https://github.com/MrChrisJ/World-Citizenship">&ldquo;World Citizenship&rdquo; Blockchain ID</a> concept and was immediately intrigued. His idea is to create proof of an individual&rsquo;s existence by storing their PGP identity in the blockchain.</p>
-
-<p>The trick is that the blockchain acts as an immutable database that includes full history tracking, meaning that a record can be proven to exist in some state at some time. These services are similar to this concept:</p>
-
-<ul>
-<li><a href="http://www.proofofexistence.com/about">Proof of Existence</a></li>
-<li><a href="http://www.cryptograffiti.info/">Cryptograffiti</a></li>
-<li><a href="https://www.btproof.com/">BTProof</a></li>
-</ul>
 
 
-<p>This post will detail how to create a Blockchain Identity.</p>
-
-<h2>Requirements</h2>
-
-<p>To begin, you will need:</p>
-
-<ul>
-<li>GPG key with signing abilities</li>
-<li>Bitcoin wallet with a small balance</li>
-<li>Keybase.io account</li>
-</ul>
+<time datetime="2015-03-27T17:03:46-04:00" pubdate data-updated="true">Mar 27<span>th</span>, 2015</time>
+      
 
 
-<p>Keybase.io is currently alpha, and you need an invite to get an account, but you can probably snag an invite from Reddit (that&rsquo;s where I got mine).</p>
-
-<p>I will be using Debian Linux for this tutorial. I recommend the following packages:</p>
-
-<ul>
-<li>gpg : For signing files</li>
-<li>electrum : For managing bitcoins</li>
-<li>ruby : For running the scripts below</li>
-</ul>
-
-
-<p>First you need to create a GPG key and an Electrum Bitcoin wallet. I won&rsquo;t dive into the details of how to create these in this post. The reason we are using Electrum is because it has the ability to choose the address to send funds from, unlike some other wallets. We will need to know this sending address later.</p>
-
-<p>You also need to get a small amount of Bitcoin into your Electrum wallet (at least 0.0003 BTC)</p>
-
-<h2>Gathering the Data</h2>
-
-<p>Time to collect the data. Open up a text editor and create a Yaml file named key.yml</p>
-
-<p>First, lets get the GPG key details. Run the following, substituting your UID:</p>
-
-<pre><code>gpg --fingerprint jrruethe
-pub   4096R/40B935FE 2014-06-14 [expires: 2015-06-14]
-      Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
-uid                  Joseph Ruether &lt;jrruethe@gmail.com&gt;
-</code></pre>
-
-<p>Fill out your key.yml file like so:</p>
-
-<pre><code>Name: Joseph Ruether
-Email: jrruethe@gmail.com
-Type: RSA
-Size: 4096
-Created: 2014-06-14
-Fingerprint: 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE
-</code></pre>
-
-<p>Next, go to your Electrum wallet and pick an address that contains a small amount of funds. You will need at least 0.0003 BTC. Add this address to your yaml file:</p>
-
-<pre><code>Address: 1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q
-</code></pre>
-
-<p>Go to <a href="https://blockchain.info">Blockchain.info</a> and find the latest block that has been added to the main chain. Add the block number and Merkle Root to your yaml file:</p>
-
-<pre><code>Block: 345546
-Merkle Root: ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9
-</code></pre>
-
-<p>At this point, your yaml file has all of your GPG key metadata, the address you will use to store the data in the blockchain, and a random number that proves this entry could not have been created earlier in time.</p>
-
-<h2>Preparing the Data</h2>
-
-<p>Now we need to put this data into a standard, machine readable format and sign it. First, use the following script to convert your yaml file into a normalized json file:</p>
-
-<figure class='code'><figcaption><span> (yaml-to-normalized-json.rb)</span> <a href='http://jrruethe.github.io/downloads/code/yaml-to-normalized-json.rb'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;yaml&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">String</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="c1"># Add a snakecase function to the String class</span>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">snakecase</span>
-</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[:\-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="c1"># Strip spaces and downcase</span>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">normalize</span>
-</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[: \-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="c1"># Check if a string is a hex value</span>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">is_hex?</span>
-</span><span class='line'>      <span class="sr">/^[0-9A-F]+$/i</span> <span class="o">===</span> <span class="nb">self</span><span class="o">.</span><span class="n">normalize</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Load the yaml file</span>
-</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Convert all keys to snakecase</span>
-</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[</span><span class="n">h</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span> <span class="o">[</span><span class="n">k</span><span class="o">.</span><span class="n">snakecase</span><span class="p">,</span> <span class="n">v</span><span class="o">]</span> <span class="p">}</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Normalize all hex values</span>
-</span><span class='line'><span class="n">h</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span>
-</span><span class='line'>   <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">String</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">v</span><span class="o">.</span><span class="n">is_hex?</span>
-</span><span class='line'>      <span class="n">h</span><span class="o">[</span><span class="n">k</span><span class="o">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">normalize</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Sort the keys</span>
-</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[*</span><span class="n">h</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">flatten</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Pretty print</span>
-</span><span class='line'><span class="nb">puts</span> <span class="no">JSON</span><span class="o">.</span><span class="n">pretty_generate</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Run it like so:</p>
-
-<pre><code>./yaml-to-normalized-json.rb key.yml &gt; key.json
-</code></pre>
-
-<p>Then use GPG to clearsign this file:</p>
-
-<pre><code>gpg --clearsign key.json
-</code></pre>
-
-<p>The result should look something like this:</p>
-
-<figure class='code'><figcaption><span> (key.json.asc)</span> <a href='http://jrruethe.github.io/downloads/code/key.json.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA256</span>
-</span><span class='line'>
-</span><span class='line'><span class="p-Indicator">{</span>
-</span><span class='line'>  <span class="s">&quot;address&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;block&quot;</span><span class="p-Indicator">:</span> <span class="nv">345546</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;created&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;2014-06-14&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;email&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;jrruethe@gmail.com&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;fingerprint&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;4f4099f8276bdba5475a84464630bedc40b935fe&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;merkle_root&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;name&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;Joseph</span><span class="nv"> </span><span class="s">Ruether&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;size&quot;</span><span class="p-Indicator">:</span> <span class="nv">4096</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;type&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;RSA&quot;</span>
-</span><span class='line'><span class="p-Indicator">}</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQEcBAEBCAAGBQJU8dS0AAoJEB7MsgHDevApMCEH/3yFMcNErb92AtEdwShsvb1v</span>
-</span><span class='line'><span class="l-Scalar-Plain">IVWxL4aTqrs8AD7CxHEUNhxcZ56C2AyFW/8HkOMSCpbq9wG4Jxk8pohIiyQKYfTl</span>
-</span><span class='line'><span class="l-Scalar-Plain">TGGEYGELNDPgx/Pvlhb0jLBh8McnE8XdYseH2OXa3lfq4xOCqYKNiBOIcUmNZSar</span>
-</span><span class='line'><span class="l-Scalar-Plain">9fk4i3/Z47oN1Nwg7NohsCkoqNo9JBKH3Dc3ec2mlLktl83TQ7OcOfBCazdOaHOR</span>
-</span><span class='line'><span class="l-Scalar-Plain">+kk3WZb0wTyG+B6u5Kl8e0VJh+inDB83ol96hli/Ofhuvf29280VP3n784nDpLwY</span>
-</span><span class='line'><span class="l-Scalar-Plain">vg6pukSc3STD3em4hYOYU7OuBydbRe27I5w//E6IwntPoOG+dahzNPJcpFfvD4A=</span>
-</span><span class='line'><span class="l-Scalar-Plain">=/daq</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>Sending the Data to the Blockchain</h2>
-
-<p>Now that we have our signed data file, we want to send it to the blockchain. It is important to note that the blockchain will only contain the sha256 hash of your key.json.asc, therefore you need to keep the original data around for validation. Later on, we will create an identification card with a QR code containing the original data.</p>
-
-<p>There is a clever trick we are going to use. If you look at the <a href="https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses">Technical Background of Bitcoin Addresses</a>, you will see that the address is generated from the hash of the public key. We can replace that hash (at step 3) with the hash of our file before continuing to generate the address. By sending Bitcoins to the address we create, we store the file&rsquo;s hash in the blockchain. Of course, those coins will be lost forever, because the private key for that address does not exist. That is why we only send a small amount.</p>
-
-<p>Now, use the following script to obtain the Bitcoin address that is associated with the hash of your signed key.json:</p>
-
-<figure class='code'><figcaption><span> (file-to-address.rb)</span> <a href='http://jrruethe.github.io/downloads/code/file-to-address.rb'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;digest&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Get the filename</span>
-</span><span class='line'><span class="n">filename</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Hash the file</span>
-</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span> <span class="n">filename</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Take only the first 20 bytes</span>
-</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">39</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Prepend 0x00 to the hash</span>
-</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="nb">hash</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Calculate the checksum</span>
-</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="nb">hash</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="n">checksum</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Pull out the first 4 bytes</span>
-</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="n">checksum</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">7</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">encode_base58</span><span class="p">(</span><span class="n">hex</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">int_val</span> <span class="o">=</span> <span class="n">hex</span><span class="o">.</span><span class="n">to_i</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
-</span><span class='line'>   <span class="n">base58_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
-</span><span class='line'>   <span class="k">while</span> <span class="n">int_val</span> <span class="o">&gt;</span> <span class="mi">0</span>
-</span><span class='line'>      <span class="n">int_val</span><span class="p">,</span> <span class="n">remainder</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">base58_val</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">[</span><span class="n">remainder</span><span class="o">]</span> <span class="o">+</span> <span class="n">base58_val</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>   <span class="n">leading_zero_bytes</span>  <span class="o">=</span> <span class="p">(</span><span class="n">hex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([0]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
-</span><span class='line'>   <span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">base58_val</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Generate the address</span>
-</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="n">encode_base58</span><span class="p">(</span><span class="nb">hash</span> <span class="o">+</span> <span class="n">checksum</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">puts</span> <span class="n">address</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Run it like this:</p>
-
-<pre><code>./file-to-address.rb key.json.asc
-1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
-</code></pre>
-
-<p>For some basic sanity checks, visit this website: <a href="http://lenschulwitz.com/base58">Base58 Decoder</a><br/>
-Here you can validate that the Bitcoin address is legitimate, as well as decode the address to hex. Here is what I get:</p>
-
-<pre><code>00703BF01D7DF0A110C9B2CE1E8984F545831BFFAA5556057E
-</code></pre>
-
-<p>Next, get the sha256 hash of key.json.asc:</p>
-
-<pre><code>sha256sum key.json.asc 
-703bf01d7df0a110c9b2ce1e8984f545831bffaa08042e78b470b3b1464faada  key.json.asc
-</code></pre>
-
-<p>Compare the two outputs to make sure they match:</p>
-
-<pre><code>00 703BF01D7DF0A110C9B2CE1E8984F545831BFFAA 5556057E
-   703bf01d7df0a110c9b2ce1e8984f545831bffaa 08042e78b470b3b1464faada
-</code></pre>
-
-<p>All that is left to do is send some bitcoin to that address. Use <a href="https://blockchain.info/">Blockchain.info</a> to capture the transaction details as proof of the file&rsquo;s existence:</p>
-
-<p><a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">Transaction: 68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d</a></p>
-]]></content>
-  </entry>
+    </p>
+    
+      <div class="sharing">
   
-  <entry>
-    <title type="html"><![CDATA[Cryptography Primer]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/"/>
-    <updated>2014-10-25T14:48:28-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/10/25/cryptography-primer</id>
-    <content type="html"><![CDATA[<p>Digital cryptography is used everywhere on your computer, both online and offline, to keep your secrets safe.
-This is a simplified explanation of how cryptography accomplishes this task.</p>
-
-<p>The three fundamental building blocks to modern cryptography are:</p>
-
-<ul>
-<li>Symmetric Encryption</li>
-<li>Asymmetric Encryption</li>
-<li>Hashes</li>
-</ul>
-
-
-<h2>Symmetric Encryption</h2>
-
-<p>Symmetric encryption is the most intuitive form of encryption. The basic analogy is a lock and key. Keys are used together with an encryption algorithm to encrypt, or lock, a file. The resulting file is unreadable, and indistinguishable from random garbage data.</p>
-
-<p>A key is just a long string of bits. Passwords supplied by a user are either used as a key directly, or are used to derive a key. With symmetric encryption, the same key is used to both encrypt and decrypt a file.</p>
-
-<blockquote><p>All data is represented in binary, a string of 0&rsquo;s and 1&rsquo;s. Data alone is meaningless without structure; it all depends on how you interpret it. For example, the number <code>65</code> in binary can be represented like this: <code>01000001</code>, but if you interpret that value using the ASCII system, it becomes the letter <code>A</code>. The text <code>Hi</code> is encoded in ASCII as <code>0100100001101001</code>. If it were interpreted as two 8 bit numbers, it would be <code>(72, 105)</code>. If it were interpreted as one large number, it would be <code>18537</code>. Entire files containing text can also be interpreted as one very large number.</p></blockquote>
-
-<p>An example of a symmetric encryption algorithm is AES: Advanced Encryption Standard. It is certified by the US government to secure secret documents.</p>
-
-<p>Here is how symmetric encryption is performed via the GPG program on Linux, using a password of &lsquo;ABC&rsquo;:</p>
-
-<pre><code>echo This is a secret | gpg --cipher-algo AES256 --symmetric | base64
-
-jA0ECQMCjJkl5YwkaXFg0kQBjrmXBnt3sajSix4eihU/l+273UBtRabS7LFZ7Ln3R8ux0wzU
-bm9IZUuAunUNnF2RYG3HC2qa7bNtlefb/Hbp+xtYjw==
-</code></pre>
-
-<p>To decrypt, simply repeat the same command, but backwards, using the same password of &lsquo;ABC&rsquo;:</p>
-
-<pre><code>echo jA0ECQMCjJkl5YwkaXFg0kQBjrmXBnt3sajSix4eihU/l+273UBtRabS7LFZ7Ln3R8ux0wzU\
-bm9IZUuAunUNnF2RYG3HC2qa7bNtlefb/Hbp+xtYjw== | base64 -d | gpg --cipher-algo AES256
-
-gpg: AES256 encrypted data
-gpg: encrypted with 1 passphrase
-This is a secret
-</code></pre>
-
-<p>Symmetric encryption algorithms are fast and secure, even with a relatively small key size (128 &ndash; 256 bits). For this reason, they play an important role in secure communications. Their downfall, however, is key distribution; they are prone to a man-in-the-middle attack unless the keys are distributed on a separate medium.</p>
-
-<h2>Man in the Middle attacks</h2>
-
-<p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves inbetween you and the other person. This is different than just sniffing or evesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.</p>
-
-<p>To combat this attack, encryption can be used. If Alice and Bob had the same key, they could communicate securely by encrypting their messages before sending them to the other, and decrypting them upon receipt. This prevents Eve from reading the actual message. However, in order to communicate, they need to have the same key. Either Alice or Bob can generate the key, but the difficulty is transferring the key to the other without Eve intercepting it. The only secure solution is for them to pre-share the key across some other medium, such as a phone call or in person. This exchange is cumbersome, as it must be done before each session. In addition, the key cannot be reused across different sessions; If Eve were to ever obtain the key to a single session, she could also infiltrate all the other sessions, including recordings of past sessions.</p>
-
-<h2>Asymmetric Encryption</h2>
-
-<p>Asymmetric encryption is different from symmetric encryption in that it utilizes two keys; one key performs the encryption while the other performs the decryption. The key that performs the encryption cannot be used to perform the decryption; the paired key must be used. It is important to note that either key can perform the encryption step, and the other key will undo it.</p>
-
-<p>This behavior has some very useful implications. One of the keys can be selected to be the <code>private</code> key, which must be kept secure such that no one else knows it. The remaining key will become the <code>public</code> key, which can be posted online, sent to others, etc. This method is known as <code>public key cryptography</code>, and it solves the key distribution problem encountered with symmetric encryption.</p>
-
-<p>Alice will generate a key-pair and keep the private key to herself, while sending her public key to Bob. Likewise, Bob will generate his key-pair and send his public key to Alice while keeping his private key to himself. When Alice wants to talk to Bob, she can use Bob&rsquo;s public key to perform the encryption. Only Bob will be able to decrypt the message, since he is the only one who has the private key. Bob can then respond to Alice by using her public key to encrypt his response.</p>
-
-<p>Asymmetric encryption algorithms, such as RSA, are slow and require much larger keys to achieve the same security that AES provides (2048 &ndash; 4096 bits). This means that using asymmetric encryption for an entire conversation is inefficient. For this reason, a hybrid approach is used. A user will generate a random symmetirc key intended for one time use, called a session key, and encrypt it using the public asymmetric key of the recipient. The receiver will use their private asymmetric key to obtain the symmetric session key. Now that both users have the same symmetric key, they can use symmetric encryption to communicate.</p>
-
-<p>But how does Bob know that the key actually came from Alice? What if Eve was the one who actually sent him the session key? Afterall, Bob&rsquo;s public key is public; anyone can use it. We need to introduce the 3rd fundamental technology first.</p>
-
-<h2>Hashes</h2>
-
-<p>Unlike the other two, a hash is not an encryption method. Hashes are also known as message digests or fingerprints. They are one-way functions, meaning that they cannot be reversed or undone; given the output, it is impossible to derive the input.</p>
-
-<p>Any two messages that contain the exact same data will produce the exact same hash, or fingerprint. Similarly, if even a single bit is different, the hash will be completely different. Hash algorithms employ an avalanche technique such that a small change to the input produces a large change in the output. Finally, hash algorithms always produce the same size output regardless of the size of the input.</p>
-
-<p>Here are some examples, using the SHA-256 algorithm (Secure Hash Algorithm):</p>
-
-<pre><code>echo This is a message | sha256sum
-
-6afa89a2ed3ff1f33150c8c897c3c49775b4fb91fa923b790533a0f26c956a88
-
-# Notice that a single letter difference completely changes the output
-echo This is b message | sha256sum
-
-0c9bf9d4f05d174783676acbdd50ffde59bffa5f17eaf0557500c3070678ff5b
-</code></pre>
-
-<p>Hashes are very useful. They are often used as checksums to ensure that a message was transferred without getting corrupted. For example, a website offering a download may also list its hash. After the user downloads the file, they can recalculate the hash. If their result matches the website&rsquo;s listing, they can be assured that they have the exact same file that the website served; there was no corruption during the download.</p>
-
-<p>Hashes are also used to hide passwords. When you sign up for a website and enter a password, the website will take the hash of your password and store the hash. Later on when you want to log in, you enter your password again. The website takes the hash again and compares it to their stored hash. If the two hashes match, you are allowed to log in. If the website gets hacked and their database of hashes is retrieved, the attacker cannot get your password (because hashes cannot be reversed).</p>
-
-<p>It is important to choose a strong password, however. Attackers can still attempt to retrieve your password by performing a dictionary attack. An attacker will take a large dictionary of words and calculate their hashes. They then compare their list of hashes to the list of hashes retrieved from the website. If they find a match, they can look back at their input list to determine which word produced the hash. This is a brute force method for obtaining your password. It is important to see that it isn&rsquo;t that the hash was reversed, rather that multiple inputs were tried until the desired output was found. There are protections against this type of attack, such as salting, but that is out of the scope of this primer.</p>
-
-<h2>Digital Signatures</h2>
-
-<p>Now, back to our previous question; How can Bob be assured that a message came from Alice? Because of the way asymmetric encryption works, Alice can also encrypt a message using her own private key. The resulting cyphertext can be decrypted by anyone, since the corresponding public key is publicly available. However, the cyphertext could only have been created by Alice, because she is the only one who has the private key. This is called a digital signature; Alice <em>signs</em> a message by encrypting it with her private key.</p>
-
-<p>Because asymmetric encryption keys are so large (which causes the resulting cyphertext to be large), it is not practical to encrypt an entire message, especially if that message is large. Instead, the hash of the message is encrypted, and the message itself is sent in plaintext (unencrypted). Anyone can read the message and compute it&rsquo;s hash. Then, they use Alice&rsquo;s public key to decrypt the signature connected to the message to obtain the hash that Alice encrypted. If the two hashes match, then the message was not tampered with, and the user can be certain that the message originated from Alice.</p>
-
-<h2>Secure Communication</h2>
-
-<p>Putting these concepts togther, here is how secure communication can be established:</p>
-
-<p>Alice and Bob each generate asymmetric key pairs. They take a hash of their public key and encrypt it with their private key. They then attach the result to the public key itself. This is called self-signing their public key.</p>
-
-<p>Alice and Bob share their public keys with each other. One of them generates a random session key and encrypts it with their private key. They take the result and encrypt it with the public key of the recipient.</p>
-
-<p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any evesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.</p>
-
-<p>However, there is still one thing missing which makes this communication vulnerable to a man in the middle attack. If Eve is able to tamper with the initial handshake, where the public keys are exchanged, she could pass fake public keys to each side. Alice would think that she received Bob&rsquo;s public key, when in fact she received Eve&rsquo;s public key. Her entire communication would be with Eve directly, who is impersonating Bob, but is also passing the messages to Bob after reading them. Neither is aware that this is happening.</p>
-
-<p>In other words, you can securely communicate with someone and be assurred that no one else can evesdrop, but you cannot be certain about who you are actually communicating with.</p>
-
-<p>The signatures on the keys don&rsquo;t give any additional information on their own; they only claim that the holder of the private key trusts the public key. The missing piece to the security is linking an identity to the public key, so you know which key belongs to who. Once you can trust that you are securely communicating with the correct person, you win!</p>
-
-<h2>Digital Certificates</h2>
-
-<p>A digital certificate is an identity linked to a public key, and signed by someone trustworthy. An identity in this case can be something as simple as a name or email address, or it can be as complicated as a photo of a license / passport or fingerprints. It is a means of uniquely identifying and verifying an individual or organization.</p>
-
-<p>A digital certificate links an identity to a public key. Certificates can be signed with many different signatures, as well as a self-signature (the owner of the public key). Certificates play an important role in creating a network of trust. Remember, anyone can create an identity and public key, and they can sign their own certificate. This means that while the link between the public key and identity is real, the identity itself could be fabricated. Trust in a certificate is established by obtaining signatures from trustworthy entities.</p>
-
-<p>There are currently two models for establishing trust in digital certificates. One of them is a hierarchial centralized method which uses a <code>root certificate authority</code> that must be completely trusted, while the other is a decentralized <code>web of trust</code> that gives each person full control of their trust.</p>
-
-<h2>Root Certificate Authority</h2>
-
-<p>This is a centralized system that focuses completely around the root authority. The root authority is responsible for performing background checks to verify an identity, and signs off on the certificate if the identity is legitimate. Root authorities can sign the certificates of sub-authorities, which in turn are granted the same responsibilities and signing powers. Anyone can request that an authority sign their certificate, which usually involves payment of a fee, to grant the trust of the root authority to their certificate.</p>
-
-<p>If you can find a chain of signatures from a certificate back to the root authority, and you trust the root authority, then you can trust the certificate. This trust model is all or nothing, meaning that as long as the root authority is trusted, every chain originating at the root authority is trusted regardless of the number of links.</p>
-
-<p>Most of the internet works using this model. Your web browser comes with preinstalled certificates for the major root authorities, which sign the certificates of all the websites you interact with. There are flaws with this model, however. Security is a &ldquo;weakest link&rdquo; type of problem; A chain ending at the root authority doesn&rsquo;t mean that the entire chain is solid. It could be that a sub-authority does not properly perform its background checks, resulting in that sub-authority being the weakest link. If that sub-authority signs a fabricated certificate, there is no way for you to know not to trust it. The owner of the certificate could masquerade as their false identity and impersonate a target.</p>
-
-<p>In addition to this, well funded organizations such as the NSA can take control of a root authority and sign whichever certificates they want, essentially breaking the entire model.</p>
-
-<h2>Web of Trust</h2>
-
-<p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convienient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.</p>
-
-<p>In the web of trust model, you are responsible for verifying that the identity of the certificate matches the identity of the certificate holder. This is typically done in person or over some other medium besides the one being used with the certificate (such as the phone). You would ask the person to present their certificate as well as some reputable identification, such as a passport or drivers license, and sign the certificate if the identities match. Chains are formed transitively by signing a certificate when someone has signed your own certificate.</p>
-
-<p>For example, if Alice signs Bob&rsquo;s certificate, and Bob sign&rsquo;s Carol&rsquo;s certificate, then Alice can reasonably trust that Carol&rsquo;s certificate is authentic. Even though she hasn&rsquo;t necessarily met Carol, Alice trusts that Bob performed the necessary identity checks. Alice&rsquo;s trust in Carol can be increased if there are other chains that linkt he two together. If Alice also signed Dave&rsquo;s certificate, and Dave also signed Carol&rsquo;s certificate, then Carol has two signatures from people that Alice trusts, further increasing the odds that Carol really is who she says she is (from Alice&rsquo;s point of view).</p>
-
-<p>It is important to note that it isn&rsquo;t the number of signatures that determines trust, it is the number of chains. For example, Eve can create 100 fake identites and have them all sign her certificate, but that doesn&rsquo;t mean that Eve can be trusted.</p>
-
-<p>In this model, each additional link degrades trust; A certificate 2 steps away can typically be trusted more than a certificate 5 steps away. If everyone is creating chains from themselves to everyone else, a web of trust is formed, hence the name.</p>
-
-<h2>Where to next?</h2>
-
-<p>Using the fundamental technologies of modern cryptography, we have learned how to establish secure communications with a trusted identity. How can we apply these techniques in practice? What else can we apply these methods to? Stay tuned, I will cover this and more in a future blog post.</p>
-]]></content>
-  </entry>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/" >Tweet</a>
   
-  <entry>
-    <title type="html"><![CDATA[PDF Generation With Ruby and Pocket]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/"/>
-    <updated>2014-08-16T23:14:33-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/08/16/pdf-generation-with-ruby-and-pocket</id>
-    <content type="html"><![CDATA[<p>One thing I like to do when I&rsquo;m browsing the internet is save each interesting page I come across. I do this by printing the page to a PDF. This is better than saving a bookmark because articles on the internet have a tendency to go down when you need them most. In addition, I use <a href="http://getpocket.com/a/queue/list/">Pocket</a> to save articles while browsing with my phone or work computer, where I cannot print to PDF. It is easy to export your Pocket articles to an HTML file, and it is easy to parse that file to extract the links.</p>
-
-<p>First, we need some things.</p>
-
-<pre><code>sudo apt-get install ruby cups-pdf wkhtmltopdf xdg-utils pcmanfm recoll
-gem install pdfkit nokogiri
-</code></pre>
-
-<p>I use LXDE, and <code>xdg-open</code> forwards requests though <code>pcmanfm</code>, so it needs to be installed. For indexing the PDFs, <code>recoll</code> is very useful and allows for quickly searching for content.</p>
-
-<p>I wrote a small ruby script to take a URL and generate a PDF. It uses PDFKit under the hood, which in turn uses <code>wkhtmltopdf</code> to do the PDF generation. <code>wkhtmltopdf</code> has a tendency to get hung up on some pages, especially if Java is involved, and the normal ruby call to PDFKit will freeze until <code>wkhtmltopdf</code> is killed. I found out the hard way that the standard <code>Timeout</code> module in ruby isn&rsquo;t enough; the <code>wkhtmltopdf</code> process needs to be killed directly. I do this by using a timer thread and a small <code>killall</code> function:</p>
-
-<pre><code># Kill a process by name
-def killall(name)
-
-   # For each process
-   Dir['/proc/[0-9]*/cmdline'].each do |p|
-
-      # Check to see if the command line invocation matches the given name
-      if File.read(p).match name
-
-         # Grab the PID
-         pid = p.split('/')[2].to_i
-
-         # Kill the process
-         Process.kill("SIGKILL", pid)
-      end
-   end
-end
-</code></pre>
-
-<p>Note that this will only work on Linux, since it is crawling the Kernel&rsquo;s <code>proc</code> filesystem.<br/>
-With that function available, here is a small PDF generation class as a wrapper around PDFKit:</p>
-
-<pre><code>require 'pdfkit'
-
-# A wrapper around PDFKit that generates PDFs from URLs
-# It uses wkhtmltopdf under the hood.
-# wkhtmltopdf can sometimes hang, this wrapper takes care of that
-# so PDF generation can be autmomated
-class PdfGenerator
-
-   def initialize
-      PDFKit.configure do |config|
-         config.default_options[:load_error_handling] = 'ignore'
-         config.default_options[:load_media_error_handling] = 'ignore'
-      end
-   end
-
-   # Convert a webpage to a PDF file
-   # Returns true if successful, false if there was an error or a timeout
-   def from_url(url, output_filename)
-
-      retval = true
-
-      # Run the PDF generation in a thread
-      # so we can kill it after some amount of time
-      process_thread = Thread.new do
-         begin
-            puts "Processing " + url
-            kit = PDFKit.new(url)
-            kit.to_file(output_filename)
-         rescue
-            puts "Failed to process " + url
-            retval = false
-         end
-      end
-
-      # Start a timer to kill the process thread
-      # if it takes too long
-      timeout_thread = Thread.new do
-         sleep 60
-         if process_thread.alive?
-            killall "wkhtmltopdf"
-            process_thread.kill
-            puts "Timed out"
-            retval = false
-         end
-      end
-
-      # Wait for the process thread to end
-      process_thread.join
-      timeout_thread.kill
-
-      if retval
-         puts "Successfully processed " + url
-      end
-
-      return retval
-
-   end
-
-end
-</code></pre>
-
-<p>The next step is to parse out the Pocket export file to get the title and links. Here is some code for that:</p>
-
-<pre><code>require 'nokogiri'
-
-# Create a PDF generator
-pdf_generator = PdfGenerator.new
-
-# Open the pocket export file
-page = Nokogiri::HTML(open("ril_export.html"))
-
-# Parse out the links
-links = page.css('a')
-
-# For each link
-links.each do |link|
-
-   title = link.text
-   url = link['href']
-
-   # Sanitize the title to be a valid filename
-   title.gsub!(/[^0-9A-Za-z.\-]/, '_')
-   title.downcase!
-
-   # Specify the output filename using the title
-   output_filename = title + '.pdf'
-
-   # Skip any files that have already been processed
-   if File.exist?(output_filename)
-      next
-   end
-
-   # Generate the PDF
-   result = pdf_generator.from_url(url, output_filename)
-
-end
-</code></pre>
-
-<p>The end result will be that all your Pocket articles will be printed to PDF! Very nice and easy to automate.</p>
-
-<p>But what to do with all these PDFs? Recoll is a simple indexer that can quickly search them for the content you are looking for. After a large collection of links have been built up, you will have your own little offline internet database at your fingertips.</p>
-]]></content>
-  </entry>
   
-  <entry>
-    <title type="html"><![CDATA[Graphical Bookmarks in Chrome]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/08/09/graphical-bookmarks-in-chrome/"/>
-    <updated>2014-08-09T18:25:50-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/08/09/graphical-bookmarks-in-chrome</id>
-    <content type="html"><![CDATA[<p>I have a large amount of bookmarks, and I find that even with good organization, I tend to lose them in the bookmark bar. For me it is much easier to find that bookmark I am looking for if I can see a thumbnail of the page. These graphical bookmarks are known as &ldquo;speed dials&rdquo;, and there is a Chrome extension that implements it very well: Speed Dial 2</p>
-
-<p>One of the things I did not like about Speed Dial 2 was manually entering each bookmark, then selecting a thumbnail for it. The import / export format was very confusing to figure out, and I decided that automating the whole thing would be a big timesaver in the end. So I wrote a Ruby script to do just that.</p>
-
-<p>Requirements:</p>
-
-<ul>
-<li>Google Chrome / Chromium</li>
-<li>Ruby</li>
-<li>Speed Dial 2 extension <a href="https://chrome.google.com/webstore/detail/speed-dial-2/jpfpebmajhhopeonhlcgidhclcccjcik">here</a></li>
-<li>Speed Dial conversion script <a href="https://github.com/jrruethe/speeddial">here</a></li>
-<li>A bookmarks.yml file, as described below</li>
-</ul>
-
-
-<p>The format of the file is pretty simple. There can be multiple groups that represent tabs on the Chrome home screen. Each group can have multiple bookmarks that represent dials on the home screen. The dial thumbnail will be automatically generated from a screenshot of that URL, but it can be manually changed later. It should be noted that whichever group appears first in the file will be the default group that is selected when a new Chrome home page is opened.</p>
-
-<pre><code>---
-Group:
- - Title : URL
- - Title : URL
-...
-</code></pre>
-
-<p>Included in the repository is my bookmarks.yml file, which includes multiple useful bookmarks for various tasks.</p>
-
-<h2>Put it all together</h2>
-
-<p>Run the conversion script:</p>
-
-<pre><code>./speeddial.rb --input bookmarks.yml --output bookmarks.json
-</code></pre>
-
-<p>On the Chrome home page, which is now Speed Dial 2, select Options &ndash;> More Options &ndash;> Import / Export &ndash;> Import Settings. Copy the contents of <code>bookmarks.json</code> and paste it into the box. Click &ldquo;Import these settings&rdquo; and save. The initial load will take a moment, and you will see an error like the following:</p>
-
-<pre><code>Something unexpected happened: could not execute statement due to a constraint failure (19 constraint failed)
-</code></pre>
-
-<p>The error can be safely ignored (it may appear a few times). Once the initial load is complete (you may need to refresh), subsequent loads will be much faster, and will not throw errors.</p>
-
-<p>Sometimes the thumbnails are not generated correctly. For those, you can simply right click and edit to change the thumbnail. If you see &ldquo;Generating thumbnail&hellip;&rdquo;, then simply refresh the screen at a later time. The thumbnail generation is done using a third-party web service, which queues up requests, so thumbnails should appear at a later time.</p>
-]]></content>
-  </entry>
   
-  <entry>
-    <title type="html"><![CDATA[Enhanced Corefile Metadata]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/"/>
-    <updated>2014-07-25T22:26:50-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata</id>
-    <content type="html"><![CDATA[<p>At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. <br/>
-It hooks into the kernel&rsquo;s corepattern mechanism to accept the core dump via stdin and extract information from the process before it is killed. It then runs GDB to produce a backtrace and grab the register contents.</p>
+</div>
 
-<p><a href="https://github.com/jrruethe/corefile">Enhanced Corefile Metadata</a></p>
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/03/27/bitcoin-address-to-hash/" title="Previous Post: Bitcoin Address to Hash">&laquo; Bitcoin Address to Hash</a>
+      
+      
+    </p>
+  </footer>
+</article>
 
-<p>Here is a list of metadata that is written out on every core dump:</p>
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
-<ul>
-<li>Binary that crashed</li>
-<li>Corefile from the crash</li>
-<li>Signal causing the crash</li>
-<li>Original filepath</li>
-<li>Original file size</li>
-<li>MD5 checksum of the binary</li>
-<li>MD5 checksum of the corefile</li>
-<li>Creation, modification, and access times of the binary</li>
-<li>Hostname and PID of the crashed process</li>
-<li>User, group, and permissions of the crashed process</li>
-<li>The setuid bit</li>
-<li>Working directory of the process</li>
-<li>Invoked command line parameters</li>
-<li>Stack trace</li>
-<li>Memory Map</li>
-<li>Environment variables</li>
-<li>Frame information</li>
-<li>Register states</li>
-</ul>
+</div>
 
-
-<p>This script is very useful for bug reports as well as devloping buffer overflow exploits.
-To install, save <code>corefile.rb</code> somewhere. Edit <code>/etc/sysctl.conf</code> and set the <code>kernel.core_pattern</code> parameter as follows:</p>
-
-<pre><code>kernel.core_pattern=|/path/to/corefile.rb %e %p %u %g %h %s
-</code></pre>
-
-<p><em>Take note of the pipe character!</em></p>
-
-<p>If you want to test it out, simply crash something.<br/>
-Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in <code>sysctl.conf</code>.</p>
-]]></content>
-  </entry>
+<aside class="sidebar">
   
-  <entry>
-    <title type="html"><![CDATA[Installing Bittorrent Sync on Debian]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/"/>
-    <updated>2014-07-06T14:51:39-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian</id>
-    <content type="html"><![CDATA[<p>Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of all, the files are only ever stored on machines <em>you</em> choose; there is no &ldquo;cloud&rdquo; or third party servers.</p>
+    <section>
+<h1>QR Code</h1>
+<a href="http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/" alt="post-qrcode"></a></section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/03/27/hex-to-mnemonics/">Hex to Mnemonics</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/">PDF Generation With Ruby and Pocket</a>
+      </li>
+    
+  </ul>
+</section>
 
-<p>I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. Unfortunately, it is not open source, however I am still a fan of this software.</p>
-
-<p>There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.<br/>
-First you need to go get the software:</p>
-
-<ul>
-<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/i386">32 Bit</a></li>
-<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/x64">64 Bit</a></li>
-</ul>
-
-
-<p>I suggest unpacking it to /opt/btsync:</p>
-
-<pre><code>mkdir /opt/btsync
-mv btsync_x64.tar.gz /opt/btsync
-cd /opt/btsync
-tar xzvf ./btsync_x64.tar.gz
-</code></pre>
-
-<p>Next, create a configuration file:</p>
-
-<pre><code>./btsync --dump-sample-config &gt; btsync.conf
-</code></pre>
-
-<p>You need to make one change to the config file, and that is the storage path.<br/>
-Look for where it says <code>/home/user/.sync</code> and change <code>user</code> to your username.<br/>
-You might be interested in adding a password to the Web UI, which is where you will do all your folder management from. You can find thhat setting near the bottom of the config file.</p>
-
-<p>Next, you want to create an init script. Copy the following to <code>/etc/init.d/btsync</code>:</p>
-
-<pre><code>#! /bin/sh
-# /etc/init.d/btsync
-#
-
-# Carry out specific functions when asked to by the system
-case "$1" in
-start)
-    # /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root
-    /bin/su user -c '/opt/btsync/btsync --config /opt/btsync/btsync.conf' # Run as user
-    ;;
-stop)
-    killall btsync
-    ;;
-*)
-    echo "Usage: /etc/init.d/btsync {start|stop}"
-    exit 1
-    ;;
-esac
-
-exit 0
-</code></pre>
-
-<p>Finally, run the following commands to finish the installation:</p>
-
-<pre><code>chmod 755 /etc/init.d/btsync
-update-rc.d btsync defaults
-mkdir ~/.sync
-/etc/init.d/btsync start
-</code></pre>
-
-<p>Thats it! Bittorrent Sync is installed, and will automatically run every time your machine boots.<br/>
-You can access the Web UI at 127.0.0.1:8888</p>
-]]></content>
-  </entry>
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
   
-  <entry>
-    <title type="html"><![CDATA[Open Terminator From Nautilus]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/06/open-terminator-from-nautilus/"/>
-    <updated>2014-07-06T14:22:25-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/06/open-terminator-from-nautilus</id>
-    <content type="html"><![CDATA[<p>This is just a little trick to get the ability to open a Terminator terminal at any location from Nautilus by right clicking on a folder.</p>
-
-<p>First install the dependencies:</p>
-
-<pre><code>sudo apt-get install nautilus-open-terminal terminator
-</code></pre>
-
-<p>Next, <em>uninstall</em> <code>gnome-terminal</code>:</p>
-
-<pre><code>sudo apt-get remove gnome-terminal
-</code></pre>
-
-<p>Finally, create a symlink to <code>terminator</code> from <code>gnome-terminal</code>:</p>
-
-<pre><code>sudo ln -s /usr/bin/terminator /usr/bin/gnome-terminal
-</code></pre>
-
-<p>All done! Now you can right click on any folder in Nautilus and open a terminator window.<br/>
-The reason the symlink is needed is because <code>nautilus-open-terminal</code> is hardcoded to use <code>gnome-terminal</code> by default, but <code>terminator</code> is much better.</p>
-]]></content>
-  </entry>
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
   
-  <entry>
-    <title type="html"><![CDATA[Blogging With Octopress]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/"/>
-    <updated>2014-07-05T20:51:27-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress</id>
-    <content type="html"><![CDATA[<h3>Starting Fresh</h3>
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
 
-<p>Use these instructions if you are creating a blog for the first time.</p>
+        github.showRepos({
+            user: 'jrruethe',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
 
-<ol>
-<li><p>Install dependencies</p>
+<section>
+	<h1>Bitcoin</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+</section>
 
-<pre><code>sudo apt-get install ruby bundler rake git  
-git clone git://github.com/imathis/octopress.git octopress  
-cd octopress  
-bundle install  
-rake install  
-</code></pre></li>
-<li><p>Create the Github repository</p>
-
-<p>Go to <a href="https://github.com/repositories/new">Github</a>, create a new repository of the format <code>username.github.io</code></p></li>
-<li><p>Set up deployment to Github Pages</p>
-
-<pre><code>rake setup_github_pages
-rake generate
-rake deploy
-</code></pre></li>
-<li><p>Commit the source</p>
-
-<pre><code>git add .
-git commit -m 'your message'
-git push origin source
-</code></pre></li>
-<li><p>Add some customizations</p>
-
-<p>I personally use the following third party plugins:</p>
-
-<ul>
-<li><a href="https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside">Bitcoin</a> : Add a QR code for Bitcoin Donations</li>
-<li><a href="https://github.com/aycabta/octopress-file-binder">File Binder</a> : Easily attach an image to a post</li>
-<li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
-</ul>
-</li>
-<li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
-<li><p>Configure your _config.yml file</p>
-
-<p>Set the following options:</p>
-
-<ul>
-<li>URL</li>
-<li>Title</li>
-<li>Subtitle</li>
-<li>Author</li>
-</ul>
-
-
-<p>Also scroll down to the bottom and set up the following sections:</p>
-
-<ul>
-<li>Github</li>
-<li>Twitter</li>
-<li>Disqus</li>
-</ul>
-</li>
-<li><p>Set up Github Pages</p>
-
-<pre><code>rake _0.9.2.2_ setup_github_pages
-</code></pre></li>
-</ol>
-
-
-<p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p>
-
-<hr />
-
-<h3>Continuing from an existing repository</h3>
-
-<p>Use these instructions if you are continuing a blog that has already been created.</p>
-
-<ol>
-<li><p>Install the dependencies</p>
-
-<pre><code>sudo apt-get install ruby bundler rake git 
-</code></pre></li>
-<li><p>Clone the repository</p>
-
-<pre><code>git clone git@github.com:username/username.github.io.git
-</code></pre></li>
-<li><p>Install the octopress dependencies</p>
-
-<pre><code>bundle install
-</code></pre></li>
-<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
-</ol>
-
-
-<hr />
-
-<h3>Creating a post</h3>
-
-<p>You may have a newer <code>rake</code> installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.</p>
-
-<pre><code>alias rake="rake _0.9.2.2_"
-</code></pre>
-
-<p>Now you can create a new post:</p>
-
-<pre><code>rake new_post["title"]
-</code></pre>
-
-<p>Then you can preview your work:</p>
-
-<pre><code>rake generate
-rake preview
-</code></pre>
-
-<p>Open your browser to <code>127.0.0.1:4000</code> and make sure your page looks the way you want.<br/>
-To finalize your changes:</p>
-
-<pre><code>git add source/_posts/date-title.markdown
-git commit -m 'Message'
-git push origin source
-rake deploy
-</code></pre>
-
-<p>Next, you want to make sure that you re-pull after the deployment is complete, or you will run into problems when creating your next post:</p>
-
-<pre><code>git pull
-cd _deploy/
-git pull
-cd -
-</code></pre>
-
-<p>Go to <code>username.github.com</code> and check out your page.</p>
-]]></content>
-  </entry>
   
-  <entry>
-    <title type="html"><![CDATA[Connecting to Wireless From the Command Line]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/"/>
-    <updated>2014-07-05T20:22:15-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line</id>
-    <content type="html"><![CDATA[<p>It can be tricky to figure out how to connect to a wireless network via the command line.<br/>
-However, the steps are simple. Below is a script to do all the work for you.</p>
+</aside>
 
-<pre><code>#!/bin/bash
-# Connect to a wireless network secured with WPA2
-# Usage: ./connect.sh &lt;SSID&gt;
-# Run this as root
 
-# Parse command line arguments
-SSID=$1
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Joe Ruether -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
 
-# Ensure the interface is up
-ifconfig wlan0 up
-
-# Create a configuration file
-echo Enter the passphrase for $SSID:
-wpa_passphrase $SSID &gt; ./wpa.conf
-
-# Connect to the access point
-wpa_supplicant -Dwext -iwlan0 -c./wpa.conf -B
-
-# Obtain an IP address
-dhclient -r
-dhclient wlan0
-
-# Test the connection
-ping -c 1 www.google.com
-</code></pre>
-]]></content>
-  </entry>
+</footer>
   
-  <entry>
-    <title type="html"><![CDATA[Debian on the Lenovo Thinkpad Yoga]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/"/>
-    <updated>2014-07-05T20:03:39-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga</id>
-    <content type="html"><![CDATA[<p>Many of the features of the Lenovo Thinkpad Yoga work out of the box with a fresh install of Debian Testing.
-Keep in mind that I am using Kernel 3.14.1-amd64</p>
 
-<h3>Wireless</h3>
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
 
-<p>Wireless does work well, but you need to install the firmware package from the repositories.</p>
 
-<pre><code>apt-get install firmware-iwlwifi
-</code></pre>
 
-<p>Getting this was tricky, because there are no ethernet ports on the system, and the wireless is not recognised at install time.<br/>
-I had to use a usb-ethernet adapter and plug it into my router.<br/>
-After installing the package and rebooting, wireless works great.</p>
 
-<h3>Touchscreen</h3>
 
-<p>Touchscreen works out of the box for left clicking and dragging.<br/>
-Multitouch does not seem to work out of the box, I am unable to two-finger-scroll nor pinch-zoom in Chromium.
-Also, holding down your finger for right click does not work.</p>
 
-<h3>Wacom Stylus</h3>
 
-<p>The stylus works out of the box, including clicking and dragging. There is a little button on the stylus, and if you hold it down while you touch the screen it does a right-click.<br/>
-By installing <code>gnome-control-center</code> you can calibrate the touchscreen with the stylus.</p>
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
 
-<h3>Touchpad</h3>
 
-<p>The Synaptics Touchpad works out of the box for the most part. However, tap-to-click doesn&rsquo;t work.
-Clicking the entire touchpad down with one finger is a left-click, while clicking the entire touchpad down with two fingers is a right click.<br/>
-Dragging while holding the touchpad down works for multiple selection and moving files around.<br/>
-Two-finger scroll works out of the box.<br/>
-I haven&rsquo;t figured out how to do a middle-click.</p>
 
-<p>I tried using <code>gnome-control-center</code> to enable tap-to-click, but was unsuccessful. I don&rsquo;t think the lack of this feature hinders usability in any way.</p>
 
-<p>Also, the little red pointer nub works as well. You need to click the touchpad with your thumb, and there is no real way to do a right click while using the red pointer nub.</p>
 
-<h3>Sound</h3>
-
-<p>Sound works out of the box, however it is muted at installation.<br/>
-I found the easiest way to fix this is to install PulseAudio Volume Control (<code>pavucontrol</code>) and unmute the speakers.</p>
-
-<h3>Bluetooth</h3>
-
-<p>Bluetooth seemed to work out of the box as well. I did install the <code>bluetooth</code> and <code>blueman</code> packages to use it.</p>
-
-<h3>Webcam</h3>
-
-<p>The webcam works out of the box.</p>
-
-<h3>Function Keys</h3>
-
-<p>The brightness keys (F5 / F6) work out of the box, but there is no OSD / HUD.<br/>
-The wireless key (F8) also works without any configuration needed.</p>
-
-<p>The webcam buttom (F7) seems to work, but there is a caveat:</p>
-
-<ol>
-<li>Start webcam with QtQr</li>
-<li>See webcam active</li>
-<li>Press F7</li>
-<li>See webcam get immediately disabled</li>
-<li>Without pressing F7 again, start the webcam</li>
-<li>The webcam is active again</li>
-</ol>
-
-
-<p>So the button can &ldquo;kill&rdquo; an active webcam, but it cannot prevent the webcam from activating again.</p>
-
-<p>The sound control buttons (F1 / F2 / F3) do not seem to do anything out of the box.
-Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Installing Packages on a Fresh System]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system/"/>
-    <updated>2014-07-04T22:49:53-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system</id>
-    <content type="html"><![CDATA[<p>When I do a fresh Debian installation, I always have a set number of packages I use for various tasks.<br/>
-This post is more of a reminder to myself for when I need a package list for a task. It also means I don&rsquo;t have to remember the name of that one package I needed to make something work.</p>
-
-<p>These lists are useful for creating a single purpose system:</p>
-
-<ul>
-<li>Bare Metal machines</li>
-<li>Virtual machines</li>
-<li>Docker containers</li>
-</ul>
-
-
-<p>Typically for a development machine I install all the packages in my list.<br/>
-But it is very easy to comment out a line to prevent the installation of a group.<br/>
-Since some groups might be enabled while others are disabled, there are some duplicate packages across groups.
-This can be useful for creating minimal systems, coldboot machines, backup machines, or development machines.</p>
-
-<p>The script is organized into the following package groups, designed to handle specific tasks:</p>
-
-<ul>
-<li>Common CLI packages</li>
-<li>Minimal Desktop Environment</li>
-<li>LVM / LUKS support</li>
-<li>System Optimization</li>
-<li>Networking</li>
-<li>Printing</li>
-<li>Audio</li>
-<li>Bluetooth</li>
-<li>Virtual Machines</li>
-<li>Development</li>
-<li>Documents</li>
-<li>Ruby</li>
-<li>Java</li>
-<li>Blogging</li>
-<li>Dropbox</li>
-<li>GPG</li>
-<li>Yubikey</li>
-<li>Tor</li>
-<li>Bitcoin</li>
-<li>Python</li>
-</ul>
-
-
-<p>As my workflow evolves, this script will be updated with additional packages and groups.</p>
-
-<p>The script can be found <a href="https://github.com/jrruethe/install-packages">here</a>.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Debian Expert Install]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/04/debian-expert-install/"/>
-    <updated>2014-07-04T19:54:30-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/04/debian-expert-install</id>
-    <content type="html"><![CDATA[<p>When I do a new installation of Debian, I always choose to do an expert install.<br/>
-This gives me finer control of how the system turns out.</p>
-
-<p>The goals of this are simple:</p>
-
-<ul>
-<li>Minimal base image to build off of</li>
-<li>Full disk encryption with LUKS + LVM</li>
-</ul>
-
-
-<p>So lets begin!</p>
-
-<p><em>TODO: Add pictures of each step. I&rsquo;ll do this next time I install on a Virtual Machine</em></p>
-
-<h3>Step 1</h3>
-
-<p>Download the latest stable Debian Netinst ISO.<br/>
-Either burn it to a disk or load it into a VM.<br/>
-Getting the ISO to boot is out of the scope of this document.</p>
-
-<h3>Step 2</h3>
-
-<p>At the boot screen, scroll down to &ldquo;Advanced Options&rdquo;.<br/>
-On the following menu, select &ldquo;54 bit expert install&rdquo;.</p>
-
-<h3>Step 3</h3>
-
-<p>Get through all the language questions and keyboard layout.<br/>
-Select English for everything.<br/>
-Make sure the CD gets detected and mounted.</p>
-
-<h3>Step 4</h3>
-
-<p>Next you will be given the option to load installer components from the CD.<br/>
-On this screen, enable &ldquo;crypto-dm-modules&rdquo;.</p>
-
-<h3>Step 5</h3>
-
-<p>Next we need to connect to the network.<br/>
-I usually end up installing over wireless so these instructions will do just that.<br/>
-Select &ldquo;Detect network hardware&rdquo; followed by &ldquo;Configure the network&rdquo;.<br/>
-Then, select &ldquo;wlan0&rdquo; from the list of network interfaces.</p>
-
-<p>Select the SSID of your network, the encryption type (WPA2 PSK) and enter the passphrase.<br/>
-Let it auto-configure using DHCP.</p>
-
-<h3>Step 6</h3>
-
-<p>Select a hostname. I try to stick to names that describe what the system will be used for.<br/>
-Leave the domain name blank.</p>
-
-<h3>Step 7</h3>
-
-<p>When setting up users and passwords, be sure to enable shadow passwords.<br/>
-Also, disallow login as root. To gain root access you will need to use <code>sudo su</code> from your user account.<br/>
-Enter your full name, followed by your username.<br/>
-Finally, choose a strong password. This will be the password for your user account, and also the password you need to access the root account.<br/>
-It will NOT be the password you use to mount the encrypted volume at boot time.</p>
-
-<h3>Step 8</h3>
-
-<p>Configure the clock for NTP using the default server.<br/>
-Then select your time zone.</p>
-
-<h3>Step 9</h3>
-
-<p>Next, you will detect disks, and partition them.<br/>
-For this step, we are going to select &ldquo;Guided &ndash; use entire disk and set up encrypted LVM&#8221;<br/>
-Be very sure to select the correct disk!<br/>
-Choose to keep &rdquo;/home&#8221; on a separate partition.<br/>
-Review the information and if everything looks good, commit it to the disk.<br/>
-Erasing the disk and setting up the partitions will take some time, so just wait it out.</p>
-
-<hr />
-
-<h3>Step 10</h3>
-
-<p>You will be asked for an encryption passphrase. Be sure to choose a long one, and don&rsquo;t forget it!<br/>
-Without this key, your files are gone forever.</p>
-
-<h3>Step 11</h3>
-
-<p>Set the name of your LVM volume group, I usually set it the same as the hostname.<br/>
-It will ask you to verify the LVM volumes, after which it will perform the partitioning.</p>
-
-<h3>Step 12</h3>
-
-<p>You are finally ready to install the base system.<br/>
-The core packages will be downloaded. Sit back and wait.<br/>
-You will be asked to select a kernel, choose the generic one without a version number.</p>
-
-<hr />
-
-<h3>Step 13</h3>
-
-<p>Next, you will be asked which drivers to include in the initramfs.<br/>
-Be sure to choose generic here, it will come in handy later.</p>
-
-<h3>Step 14</h3>
-
-<p>Now you get to configure the package mananger.<br/>
-Be sure to enable the network mirror to get the most up to date packages.<br/>
-Select the default mirror.<br/>
-When asked, enable non-free software if you wish.<br/>
-Finally, enable the two update options from the security and release repositories.<br/>
-There will be a long wait while the installer prepares to initate the base system.</p>
-
-<hr />
-
-<h3>Step 15</h3>
-
-<p>When asked, choose to opt out of package statistics.<br/>
-Also, choose to disable man page setuid.</p>
-
-<h3>Step 16</h3>
-
-<p>It is time to install the software.<br/>
-We are going to do the minimal installation, so uncheck all the boxes.<br/>
-Select the bottom option: &ldquo;Standard system utilities&rdquo;.<br/>
-Also select &ldquo;Laptop&rdquo; if applicable.<br/>
-There will be another long wait while the base system is set up.</p>
-
-<hr />
-
-<h3>Step 17</h3>
-
-<p>Install the Grub bootloader onto the MBR of the disk.</p>
-
-<h3>Step 18</h3>
-
-<p>Set the clock to UTC time<br/>
-Finish the installation and reboot.<br/>
-Enter your LUKS password and enjoy your new minimal Debian installation!</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[onename.io/jrruethe]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/"/>
-    <updated>2014-06-20T21:58:58-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe</id>
-    <content type="html"><![CDATA[<p>Onename.io is a decentralized identity system that allows someone to:</p>
-
-<ul>
-<li>Claim a unique, global username</li>
-<li>Unify your online presence with one username and profile</li>
-<li>Own your online identity &amp; data</li>
-<li>Store your profile in the blockchain</li>
-<li>Allow anyone to easily look up your PGP public key</li>
-<li>Share Bitcoin QR codes</li>
-</ul>
-
-
-<p>It uses Namecoin under the hood. Namecoin is a key-value store that utilizes the blockchain as a decentralized database. All authorization is done via public key cryptography, so an individual is in 100% control of their data in the database.</p>
-
-<p>I am a huge fan of decentralized systems, such as:</p>
-
-<ul>
-<li>Bitcoin</li>
-<li>Namecoin / Onename</li>
-<li>Git</li>
-<li>GPG</li>
-</ul>
-
-
-<p>Onename.io gives me a way to link all this together into my own little decentralized profile:</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/01.png"></p>
-
-<p>Of course, each of those entities also have their own links, many pointing back at Onename.io for verification. So the web really looks more like this:</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/02.png"></p>
-
-<p>The following is proof that I am the owner of my <a href="https://onename.io/jrruethe">Onename.io</a> account:</p>
-
-<figure class='code'><figcaption><span> (verifymyonename.txt.asc)</span> <a href='http://jrruethe.github.io/downloads/code/verifymyonename.txt.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA512</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">#verifymyonename +jrruethe</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAEBCgAGBQJTpOeMAAoJEInJf5BWENx2TjAP/2LkdSVqiP/xhS03rxCDPBFE</span>
-</span><span class='line'><span class="l-Scalar-Plain">DmsQ1d4r4M3wlBRyp08BQUCS1mAl3sRmkwCnoAB9rpN6hOZusZKF3iStq4u7AQJf</span>
-</span><span class='line'><span class="l-Scalar-Plain">zc5mhfHp878pj+HnNpdBHURTBK6jm+IWxBaGABMawaxMvoPbUZi3IPCy00KFgfWr</span>
-</span><span class='line'><span class="l-Scalar-Plain">bS+VuIe1SN7DTW2/ecdfHJY5BHrsln/dOzSPZAINcfW/p7Xp8aRDRPrX7Anl/YP8</span>
-</span><span class='line'><span class="l-Scalar-Plain">CerrMNwiA6ELHQSd0OW9gdO6xK9z/8u/Le8tXfuSIplu8qomgZOYfnBYzHmqVBvj</span>
-</span><span class='line'><span class="l-Scalar-Plain">sIbQjwQO9i5BsAQC24HC/3er7mJcaSvio1+LLHAXAvB+Dk4xlErDOLurQaWK0cNA</span>
-</span><span class='line'><span class="l-Scalar-Plain">4vbaYvQ/mEIMBrE40g57OyFYDh8/xcFsaXcuZarUJvXhOh9NAMHhweIm/TwOiPda</span>
-</span><span class='line'><span class="l-Scalar-Plain">A2mfPlZfi+jHdv7vnVOrWAjJwWpgbNUeSNk7K311X9cGrKVl3c2y17VIrZT5V4Pt</span>
-</span><span class='line'><span class="l-Scalar-Plain">sx9asMJGSPqYt8+wV6jpw+CRBWDpQgGjLhcStz1JxJb+7rKzNyUFM8RLUd0bAHkb</span>
-</span><span class='line'><span class="l-Scalar-Plain">XlXW4ZOHrN2foMXXE4jQuGQOXJ+Hkx1STCd5LGD4wsGEn8mDMU+AzB4tsmh6YOgt</span>
-</span><span class='line'><span class="l-Scalar-Plain">LwZSpxmJbUX090MRZm8NFsCMn8u4ItdRYqpO3AB9f0Nh1yKtcqIwIW11sIFVoO2u</span>
-</span><span class='line'><span class="l-Scalar-Plain">OENFIIkWuDkpqtlFlS4i</span>
-</span><span class='line'><span class="l-Scalar-Plain">=ZqmE</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[GPG Key]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/20/gpg-key/"/>
-    <updated>2014-06-20T21:41:36-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/20/gpg-key</id>
-    <content type="html"><![CDATA[<p>Below you can find a copy of my new GPG key.</p>
-
-<pre><code>4096R/0x4630BEDC40B935FE 2014-06-14 [expires: 2015-06-14]
-Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
-</code></pre>
-
-<figure class='code'><figcaption><span> (jrruethe-public.asc)</span> <a href='http://jrruethe.github.io/downloads/code/jrruethe-public.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-<span class='line-number'>131</span>
-<span class='line-number'>132</span>
-<span class='line-number'>133</span>
-<span class='line-number'>134</span>
-<span class='line-number'>135</span>
-<span class='line-number'>136</span>
-<span class='line-number'>137</span>
-<span class='line-number'>138</span>
-<span class='line-number'>139</span>
-<span class='line-number'>140</span>
-<span class='line-number'>141</span>
-<span class='line-number'>142</span>
-<span class='line-number'>143</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP PUBLIC KEY BLOCK-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">mQINBFOceg4BEACzdFQHS6p9xJf6f88Vj5e+I2lchu/mE1md/Yf+lBDxiHKobRQb</span>
-</span><span class='line'><span class="l-Scalar-Plain">h9muVbrtsq6wbwJYAhPXztAIF4u/DCHuR8I3ZAC0boJUTJvjzGQDJS38dB4kJPO8</span>
-</span><span class='line'><span class="l-Scalar-Plain">TA4wIdPLsxroZ6TC7YjxIbEDfLT5kTvq4/MZzOsc48lxp/Etw3KYk+V1gy0Od7Lj</span>
-</span><span class='line'><span class="l-Scalar-Plain">oYG9758uiaTHUYrAFiYKtCEeOvic1zzfKcCD7iRz0acWBXnRQdZhRCoasGW69ZMi</span>
-</span><span class='line'><span class="l-Scalar-Plain">/GpHzrAzjG2QWutWYIkZbp/7QBjO1lC4sN8nUZdZgXt71KJOcKTAnHnYvdLjxqH7</span>
-</span><span class='line'><span class="l-Scalar-Plain">HsxGh9r+huZgEujoTQ89VIsopTNjSzg2A/u+4FqxZf0EJgLK+7AujuRLnCdMZeOl</span>
-</span><span class='line'><span class="l-Scalar-Plain">AUcV/27Ahfyshk9s+IGYwD53Tx3UhyYnXlIjWhKueg7IkuNHnbUysQS8avLYXPSM</span>
-</span><span class='line'><span class="l-Scalar-Plain">y4o1NrOhtmwia1R065zKCtSuCABdFyYbhAUY7euRKTeBS9iMJEy4CgsKk9f/7eAw</span>
-</span><span class='line'><span class="l-Scalar-Plain">ll7nrrNv4/R3hC/njnHjPrO2hdxhGxHLJ+EXHZ9J+Vuk8OsEloXyX3b2vNLMXndu</span>
-</span><span class='line'><span class="l-Scalar-Plain">O/ASIIDQ6YOmREc3b3QOBr4ojItKCwlBAKY/aLGKyz/5+tIhlQzPacHqjIUheoHw</span>
-</span><span class='line'><span class="l-Scalar-Plain">dVMecr7xVOI7ZaBdsIo+9ULGbyFXNuinU9rotCR8+n76PNk1R/260V+/hQARAQAB</span>
-</span><span class='line'><span class="l-Scalar-Plain">tCNKb3NlcGggUnVldGhlciA8anJydWV0aGVAZ21haWwuY29tPokCPgQTAQIAKAUC</span>
-</span><span class='line'><span class="l-Scalar-Plain">U5x6DgIbAwUJAeEzgAYLCQgHAwIGFQgCCQoLBBYCAwECHgECF4AACgkQRjC+3EC5</span>
-</span><span class='line'><span class="l-Scalar-Plain">Nf7YkBAAgNuu2CgC0cGeB9hP+9L++T7vbgtHAQ09R1V7AsYxyuMUPJW2XsbVmHOC</span>
-</span><span class='line'><span class="l-Scalar-Plain">pY/1VxLM6OezJiVF7KCDAxyEEaaxMBQQ7MKwsdVaGN0FB6e0l4uCD7RcgpJN6l5p</span>
-</span><span class='line'><span class="l-Scalar-Plain">yI1sHIL9sfVUs4Akn+ZUJZohPevDjLos9QPtc/f6nLm3L6Fk5J3s8U8qEJq9sHD/</span>
-</span><span class='line'><span class="l-Scalar-Plain">Limrc4ZVPodUtN+tYy8hkqcxXOqntWm6J+Ye7SHgfAp8G/lTu0DgL7EcvP9TxNkV</span>
-</span><span class='line'><span class="l-Scalar-Plain">MgQ/WLwAg3x6PmnSXrpIB4SCkWskXzulsM7oNOzljQAUzLYg0e5EHXKAYq2qn4LH</span>
-</span><span class='line'><span class="l-Scalar-Plain">VbnHI+nnwdZ88QnzbK/0V7aw5CNM69XSd7sszrnLTA2EJCknEFcwvaxJX3tDs63a</span>
-</span><span class='line'><span class="l-Scalar-Plain">nQMDJX21dwZOaDeUWW4l88bcjQs2FmDlFpewXM3jrecSfwEgzmcDi/pWPKdAYLxm</span>
-</span><span class='line'><span class="l-Scalar-Plain">dhWbMsLk4S6At3VCswy/lZTXtf3X8VjNlXxhpZNCNKjLLPHzyN1vgvO2JAFaUpkb</span>
-</span><span class='line'><span class="l-Scalar-Plain">48AAJVZ8JGkiCPiRGCP6UgAP5e02gQTJRIG567hY9dYtpAzAGjul6aLuot3Pgyp4</span>
-</span><span class='line'><span class="l-Scalar-Plain">AaDH+7fbX4E6YpEs/NISHt390WKm14qB6yJl+obpAzjL53n2GPmO0Qkk6mC2PzVC</span>
-</span><span class='line'><span class="l-Scalar-Plain">Rjq1y5KU0ceG8L5OLeWE5sKCVRVPC5TMOzWYZ+HV2v8nydYD3fm5Ag0EU5x6DgEQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">AMmEIUTVuyKRApKzQEMmmnqiApfoQKjVrBLqFz8DzpuLlWmYqCN89xJeiBwiuHJK</span>
-</span><span class='line'><span class="l-Scalar-Plain">Qc6Bp8hSS46JavXivmVGP/WLN3JI5GGY/n6tVLAjnpw6zUcwDwaJhQApOU8w/jBk</span>
-</span><span class='line'><span class="l-Scalar-Plain">78RIWvqYEYhhav4z393jGuM/TKtJeFppieApyD2myOLR+/IZzVlOYfrpmq5y4RI/</span>
-</span><span class='line'><span class="l-Scalar-Plain">fBbPmvVMOPNlELMH2qarww4T5W5g1ih1SVJZwaXbZXgHsz40H8QpgAyYOo6k3N8v</span>
-</span><span class='line'><span class="l-Scalar-Plain">f5pwjArxSicurqYCPSqkfFhZXyZefj2oY6UDWGHbRq5byJ+L+vVo2hDcb0v6+xEu</span>
-</span><span class='line'><span class="l-Scalar-Plain">La4DWO2g9bgxxrQuE/dKheRxucza+FwhOHMVdby7UFiI1qbGY2r/Lbk6fO+qSU+s</span>
-</span><span class='line'><span class="l-Scalar-Plain">1kCxLUYcyJtqJXibwxVPm2GxbEVMIKe1yLdFCrV3gzvp9L1hhGJWw9lKSVjXwrVY</span>
-</span><span class='line'><span class="l-Scalar-Plain">FtxOMYXB5vsExcn7XIuLWoS0ra8daTE+ccu6SyBx2FM5xN2+ogLfVLWgHxA8wpYw</span>
-</span><span class='line'><span class="l-Scalar-Plain">QBXkA/iemyMj8+OcGQqKgXvjhMNY1ZQmHz0CPSXY6GRJApAAKSyScC12RgsX+mER</span>
-</span><span class='line'><span class="l-Scalar-Plain">li4uzddz24OowXw2cmrcTArMFjnMEweA1eE06ZjJje/1DLESqZULsv9MUar9XDiA</span>
-</span><span class='line'><span class="l-Scalar-Plain">ZrQrZ97O6xs6P6We6+WQxov9uLjIM0JbEt2c14pXoWpJABEBAAGJAiUEGAECAA8F</span>
-</span><span class='line'><span class="l-Scalar-Plain">AlOceg4CGwwFCQHhM4AACgkQRjC+3EC5Nf5Jxg//Ql4ideUBAZ+uZizM8Rqx1+XQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">aLOmuPO+YIkIHqjpvv4Wk4whYa2h7GYj70Gm243hXDdwUJEGR5lA1UDMkDXni4lx</span>
-</span><span class='line'><span class="l-Scalar-Plain">YhZv4mG6NxuGjfsnt3oDhVjP8R+C5W/GQfA8qoo/47bb82jAPgs6ZajVhD7B+DZX</span>
-</span><span class='line'><span class="l-Scalar-Plain">WuTOdRZ7B9Va0oz1NZJIEVOKcG0u9u0iL+T10v7dEShiJTqBDG/mevT3mBVpsAvK</span>
-</span><span class='line'><span class="l-Scalar-Plain">vqdWD1l5zT2xWDre5u9L+nnxx2IpteGkgfFzTekQB5YqId+o/LU+G62EFScTYOFl</span>
-</span><span class='line'><span class="l-Scalar-Plain">Kx/8TTdRVCwcyZOhvnknljvHTH0+lCi6x5j7UFRL5yNbo7y4ld6tn/9t0bWiMTtw</span>
-</span><span class='line'><span class="l-Scalar-Plain">+LXDObkw9TcKqQNQxWmkPnUB8u/fqkOaAywc09pbMU2tyOfWrTJDVFmXSWOoe3iU</span>
-</span><span class='line'><span class="l-Scalar-Plain">7w3eR8RhYg8ELdSTL6V288SplFAnNSlfreh2cK5Fny4CbC0GkE+aXFsVMXGZta4h</span>
-</span><span class='line'><span class="l-Scalar-Plain">FrZ1IEt/BoAvKRp3zWq2DsCdLvdQk3/7vHbO28Mc/ac8SDv73PPHC/Gpy52falm9</span>
-</span><span class='line'><span class="l-Scalar-Plain">wiy3OSnUFGfc7sU+yaOOSczE78YwsiEUsc4BdookqzwstHY0zsAU34mDxFAHcSxs</span>
-</span><span class='line'><span class="l-Scalar-Plain">1UgHnFCO6+eG2l5A2sdRcylv+0zLvyi1Pmn19QM9A85WgY3jFWhOoL7LbmioyLn2</span>
-</span><span class='line'><span class="l-Scalar-Plain">yAeEx+brN5tnYmpEb3i5Ag0EU5x79QEQAMCFHgDPjZ4XsmzOJJBVomgl1bOz4Dbd</span>
-</span><span class='line'><span class="l-Scalar-Plain">0eIjSkFRIOom3hTXWfsbvhJNtzrPjie/XIHqAMsr5gUeI3ceDwfklSrsHAsZ6dQT</span>
-</span><span class='line'><span class="l-Scalar-Plain">nbMnf8WxCOS6Swka6jLQDf8x4I3vnOKFR1b5h5tU9sxml2tWlIzJxO8o0roPhdRZ</span>
-</span><span class='line'><span class="l-Scalar-Plain">YurwDRgBS60f8wOLfZ6ke3VdkjjpeqBKfq0skMHl1i1tUTxzBNZPljjRP6vEi5qv</span>
-</span><span class='line'><span class="l-Scalar-Plain">HEEZD7/nAE6MptZnppzsDKZVIoxp8pgt8SMwNq35z67gL1aQHWUFy/TGYP1XSLPK</span>
-</span><span class='line'><span class="l-Scalar-Plain">TDk6zgbjuxb7ydpBCFIbaDaSJOq3diPbk91QiPH238S9/Jpg82EacO9F0KqLCj6r</span>
-</span><span class='line'><span class="l-Scalar-Plain">39dfWVKBirBM0KGq+H4w9CjWQyYCKHiUuYp1gVvjULgs+/sHg0h70CXWL3c4UmNA</span>
-</span><span class='line'><span class="l-Scalar-Plain">jKod/WDzyQDrLUJ7wyp7uc/Dlhpd4KqqHq/JHPjIBTytq7/a3NZP/uB0ia9Is5Mq</span>
-</span><span class='line'><span class="l-Scalar-Plain">YNlFwvCu6SldBbGb5zIG6C9j8Jq7Ym+c9jMkkr9xg5VYLPqwmae2ZjwQhXrRBAMW</span>
-</span><span class='line'><span class="l-Scalar-Plain">ttZZEwMMSVtw1NQ6pLo+49VaEtXlaywuGm5VSru4N3GFxTVom8Ycx98ePjvEzDwW</span>
-</span><span class='line'><span class="l-Scalar-Plain">y+aRfNa+gErDmmuydRS1xtzOVvcsZpBlK/6lp4crDfl9bCuzXrlS09vQXbC7V8XG</span>
-</span><span class='line'><span class="l-Scalar-Plain">fm9X62Go2KcXABEBAAGJBEQEGAECAA8FAlOce/UCGwIFCQHhM4ACKQkQRjC+3EC5</span>
-</span><span class='line'><span class="l-Scalar-Plain">Nf7BXSAEGQECAAYFAlOce/UACgkQicl/kFYQ3HaVpQ//RR41unV2TUDozklmC5H0</span>
-</span><span class='line'><span class="l-Scalar-Plain">9EDzPqWjpIc9PPMrGOCFiMBvXrqPqjAQaBDBBWFilX/THgIeVdqZUtPhL+12cPOQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">DwbtoKCTrbetkVLa4dmb2+GD2O9XyKjMM67obS4GEswPwmAZQujg0YSSymtmhRly</span>
-</span><span class='line'><span class="l-Scalar-Plain">J0xN0lu/OtcUyj4+967YEIFHeNEaeYLI973QY0hZVAbSuln503yoN9lb2CAei2oM</span>
-</span><span class='line'><span class="l-Scalar-Plain">Wi8IEDRd/KJvjUln9ZQv3AkAPmZAFDp13gCUlaW6EEHdZU5XnPCbQkji0MAAF9Uh</span>
-</span><span class='line'><span class="l-Scalar-Plain">imnImYBOLf8S5T8p21xikHoK2zg736/jKPbh6SwzVY3susvZieD4cZw5ZD/C1Mo3</span>
-</span><span class='line'><span class="l-Scalar-Plain">NLBRi72ZcwE1j6FUpB3syrhH8Cz3HD5v++0DfJAFovra/pEEsSxmJJaqR9LF8xBA</span>
-</span><span class='line'><span class="l-Scalar-Plain">ZBnGmPCXDY8Rk44lQYCwU1PO0J6xGWFO+jBaeI0+HkI/rRzfKBG8YSukee7FZbXV</span>
-</span><span class='line'><span class="l-Scalar-Plain">NtL3HQaf8a4x0AjlHepSEk805Yo9I/NVyEE/xh/I/1AgG0yBEptFva7HDdFI1Udl</span>
-</span><span class='line'><span class="l-Scalar-Plain">LbSt60QIJ4jbvsmFBmTYOHMJWER4fbCSg67gGiQ3i4/90wm7vokqUhQ5NkYpeoa7</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ilq6U6TbZx3nM79mXImSusQB8giqYLQxvi9tlld9MY9qUiy/5F9HMvx+VZ6u7qGQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">Kg1Za9gYGhbwb95rzq9NrgfovBAAqxXt7EVEC5nyKfIZVIwcjZ1tC3fRAd1EnGig</span>
-</span><span class='line'><span class="l-Scalar-Plain">XncVS+e4hxt8Atwo1/a2lAo/fUiyZSyoA917YsbbXytkqvozqx0xTo6CbsVmtCC3</span>
-</span><span class='line'><span class="l-Scalar-Plain">EfS/xsl/AqUZ26/thvJQHSWKlEme7J/WlW4W4wqW9imq+x8Ni1i1sGZkICghDS8W</span>
-</span><span class='line'><span class="l-Scalar-Plain">U7w9psnLwDCsoXTsqHMPUUfT/QLGi3mJzdMfn7XobGzbu0Q9uMUQXbIMqmvI2Dxu</span>
-</span><span class='line'><span class="l-Scalar-Plain">uT0M6q7xSt2OOpF+iRpfEjo3U/wjxwtOOSB+D6lsq/l7yp/AQD0fUCf+UVuA6n3h</span>
-</span><span class='line'><span class="l-Scalar-Plain">kKf1H4zkjc9YdSHssmkZQDQRYAsUXOpsCpQL/zEQaHIGvXQOVndBuJ7Ux3NMxZXU</span>
-</span><span class='line'><span class="l-Scalar-Plain">28tcpM+MXx0JqMiKzAZCbIAG/0B9n0+JCeK63RXzuCVW2AeiK8r5YhUofAOG0P13</span>
-</span><span class='line'><span class="l-Scalar-Plain">4YsJaAK4MFSABMyZYknFTNXOJfBXYZ4Hh1WrXuqGtihj5lcnmoWuLYtBpIEaSD6q</span>
-</span><span class='line'><span class="l-Scalar-Plain">ILRzCHJ5Rlt4pFSfjvMub0tFNsoeyqzlbarYLTLGkJFNMkO+oP3wVnzBITXNN9Q0</span>
-</span><span class='line'><span class="l-Scalar-Plain">IKxFga/9RVHnBbm61dhD96uKbhHQ6i6didS9XeRWt+yLRFOVnivOLa3fKzW0QO4G</span>
-</span><span class='line'><span class="l-Scalar-Plain">d3YGQ4fgJPalmZlxPEqfNuFQI/GA8OnXADFFoRsuoT9Ta9FEGmqarBbarI83kcZt</span>
-</span><span class='line'><span class="l-Scalar-Plain">c/GRqqS5AQ0EVL2YagEIAK0QjBAcz+bPk0P09JMRdwusyhqAgDabuQSuT7KPUxNe</span>
-</span><span class='line'><span class="l-Scalar-Plain">P6rR2VQwhKaxueG5czlttYyTFYd64g4V2EQiuxbu7B+MYoOcnr6nt6bOafoxpa2s</span>
-</span><span class='line'><span class="l-Scalar-Plain">cDsYZxLeXj4dNc/xxT8AsZ29Nrn1G292CNjWhypEyv3AFrfn2WF6YTYXia+Jau3o</span>
-</span><span class='line'><span class="l-Scalar-Plain">3n5qHEzBhfwQzI2ejrBcWoqd3iJoFnMX39jt1j9dnIvXzb9SEDpbJrYteKTAHNkg</span>
-</span><span class='line'><span class="l-Scalar-Plain">cGL0YMqdz0MZIrvJfgQK4zQq2nnhjisc0KaNaF0AcsvGwVKjFFH4mI9GGbD9WJZU</span>
-</span><span class='line'><span class="l-Scalar-Plain">YeVcvZ5JOQgjrJOyOAJVmn1yPq+hw6n5wMa2nIEluJkAEQEAAYkDQwQYAQIADwUC</span>
-</span><span class='line'><span class="l-Scalar-Plain">VL2YagIbAgUJAeEzgAEpCRBGML7cQLk1/sBdIAQZAQIABgUCVL2YagAKCRAezLIB</span>
-</span><span class='line'><span class="l-Scalar-Plain">w3rwKd6zB/oDu2mUZVLhsEcjLKF3W8hcVE4Vu9AGfIz+j0FpUE79dZDThXl6eULF</span>
-</span><span class='line'><span class="l-Scalar-Plain">3MqkX16Ep/pD2KE/8TcjyyhyE+W+M4s+TlvGoDyLCYJ5xjTjdptgWQWZMBQ9Te8l</span>
-</span><span class='line'><span class="l-Scalar-Plain">G+rBsUPUXvnzTFalFfpvdqAaC32RQoiq1ixqstyxYWNvDrexYgzs76Nm/KibozY4</span>
-</span><span class='line'><span class="l-Scalar-Plain">95QdWdC1U2dCfi2B6Am9su0N3/K6/jowXbu3sRcmP+9GMzd45IK/5hDwoyk2mbFg</span>
-</span><span class='line'><span class="l-Scalar-Plain">RF3LySDAjItWleRIvrnVhGXAD1IQut1hzdlb6Vsf6LF6CrWJ/0idkTGl2vZMkqUP</span>
-</span><span class='line'><span class="l-Scalar-Plain">6VHq1VaSQXjZdTTWztSSoXe05jz+ylfsIoYP+LGfF07XZGLeljBNMFm1U03NoKpd</span>
-</span><span class='line'><span class="l-Scalar-Plain">gQCBa913dQ42FVvOGZ5+1skjjaWudEayKC731gTu749306lDrQkxI92nh/99j8Cq</span>
-</span><span class='line'><span class="l-Scalar-Plain">SBDqtwl2RhI+Se3qqjsRCfZnstJ14V1kmOk0LinTLBz8V/V8chDTHTsFxLtZB8ds</span>
-</span><span class='line'><span class="l-Scalar-Plain">H242DviuaHGk3wXXVDhtlEZdth1RbFTmTs8A0adMOj1uoVlX1rzkHGZqtChEzJRj</span>
-</span><span class='line'><span class="l-Scalar-Plain">ZGvhpZytPZlmzrCf0jL3rkB91t3iEdPU3M8qaHmF4LVgWLdfh6hxymmtAuDgFpdt</span>
-</span><span class='line'><span class="l-Scalar-Plain">g+Ca231syeveVO7bMLZdQuD5Lpj2dIynYodEQy8ajiKZJpjOUuPUgciyevXzf2Cm</span>
-</span><span class='line'><span class="l-Scalar-Plain">kXEzZq0XAF59VD6YEJGJdLXfw7uZqLSdZ1+nPJ6iZMZ4JxRksw4LR8oalCDrMQ8U</span>
-</span><span class='line'><span class="l-Scalar-Plain">hQ706onnJglHTHZq5F1faW+Q6BdSowZflLehTbPrI85O/GlQUobst2puNnAW9NdU</span>
-</span><span class='line'><span class="l-Scalar-Plain">7qlW7yvpbbkoXOCkCgfIqmLbaoEbeQfcGfWnuJmiU3LE1kUUvCGf51KZ7tWowqpd</span>
-</span><span class='line'><span class="l-Scalar-Plain">LDXhE5DdMs6ag8nv/AVKik6F9jMXjhCLFxtH7MVd4WLmnoUSEguTzeZaP3qyabuk</span>
-</span><span class='line'><span class="l-Scalar-Plain">OFA+IDTfBDwhVclbgr0mOx6+G3E2AIiewbrXT/gXUHAR3VGcUlIoKRQSwbUkYaZc</span>
-</span><span class='line'><span class="l-Scalar-Plain">lXP+Po6Fm3MTdqO5AQ0EVL2ZNQEIAN4qry4CsnUbitbEv3kkxk9AnXp5vx3RvhMz</span>
-</span><span class='line'><span class="l-Scalar-Plain">xudXwrGU+gnVjB8JLh7YN+f7WsBiaBJa2l8nZmHbnQbUpGiEER+2NwResqy7tgHv</span>
-</span><span class='line'><span class="l-Scalar-Plain">6fZ9rLWP1Qg7/zcGWQ5e9u0dAnjZfsgjq5ix5eUzfFe4iQK9wIHolQ4dHjIpCMJZ</span>
-</span><span class='line'><span class="l-Scalar-Plain">NEtR+GeFui90M7w+zviUV+ezTgCZ7uswAkwZUWXNIEyKL7hXpp+PHuQnJ2XwHE8m</span>
-</span><span class='line'><span class="l-Scalar-Plain">fciyw2sjoYiSAyfSP8dJnVK8yLPE6qJ07u9JR8KC9M6DvwjBtYsgKD47mYeD1HUe</span>
-</span><span class='line'><span class="l-Scalar-Plain">HBGUgdXr1sg2pSfBgNS+Nzd3jdgCNMSMQsKJ/h8OkVuriODdH/MAEQEAAYkCJQQY</span>
-</span><span class='line'><span class="l-Scalar-Plain">AQIADwUCVL2ZNQIbDAUJAeEzgAAKCRBGML7cQLk1/qt6D/41cKgDR+4shKrypn1w</span>
-</span><span class='line'><span class="l-Scalar-Plain">LsrWFaLynTXDwzX7saSIt6AD09hZJFRo1cS6NaFwe5xwJtqA9cSeuTnP7NTR7MHv</span>
-</span><span class='line'><span class="l-Scalar-Plain">lGO9Otpj6/EahRNY659rP9m8JpRufdRqKC6iFVhcbYzVMQ7Kj+lTsuPZ+mvCfHXk</span>
-</span><span class='line'><span class="l-Scalar-Plain">VbCQqzUIxw99muVBBoHBqgQso6GWwhu4VNcWXJWMwksKPcBq3LGSinXFA8GVoi1a</span>
-</span><span class='line'><span class="l-Scalar-Plain">2W4kC5qHYwInfFMj+O/2FEg1A8vW8TXlZLQ6SQBhtJ6/UjsTAgNwKRZdOeAplvAE</span>
-</span><span class='line'><span class="l-Scalar-Plain">WY/V2xNPQqOMkp+QoO67MDUkg8OVju5DmFzI0pgIGRcaUOq6iXJBT5EHPAgo0WTR</span>
-</span><span class='line'><span class="l-Scalar-Plain">h945lydXpIvqqr9qEunkZVHOYP8rNqj7WTl7jRAJ2iVe5yrPq4JTGpeQQeYH21Gt</span>
-</span><span class='line'><span class="l-Scalar-Plain">Qs9zNJ+dcDm6wtzEI+h+A/wn6VzS5U0nZH5gAZP7cIRAbKrVA7mtn4pLDo5HY6RJ</span>
-</span><span class='line'><span class="l-Scalar-Plain">Nt1323pXYckMGJV4tpZdWNXECsjmLszAZN8FHe7AI8BDYGnuvEBlX2G4/NnpAwlq</span>
-</span><span class='line'><span class="l-Scalar-Plain">wa5aqVPMzjasS7hnwH985ACkpQa44RnFfjaNQtQYFxt8eDuoCdx0V/14imBP2VX5</span>
-</span><span class='line'><span class="l-Scalar-Plain">xVKiQbWrzQgEQJ0grRcdJbCKDqM2YnlHpG4YsihA11h5RdgxlPQEqiOav+6Wcuqj</span>
-</span><span class='line'><span class="l-Scalar-Plain">Xl6oYqFSZT8n3f3JCesl+x05sLkBDQRUvZnnAQgA0gn3SK4TtgCKtJzutMde7mlK</span>
-</span><span class='line'><span class="l-Scalar-Plain">COrsmMtR7d+Zi9rqUlPkurCo21vrcGI9VkgaFc4xXpmH1TF2MMhuAmEEx0ME4Guk</span>
-</span><span class='line'><span class="l-Scalar-Plain">zw5I34oLbqVJZkT2XVj73sy3Zic2jiayuYJtPdBvJL5XocCO+zrBWcUPW3af4aKa</span>
-</span><span class='line'><span class="l-Scalar-Plain">QarIZwAiYveCPmswJ/GxaeYVIGtfFkdoXczYCMcRyUcacDmAzn//o3XvRLXCFgE2</span>
-</span><span class='line'><span class="l-Scalar-Plain">NXZvqLUdXdMo0acX+DjwMkecivZ0ZEob7mUiDy4lgXXt9g2Atcsoiwqx2xAXB03x</span>
-</span><span class='line'><span class="l-Scalar-Plain">w28+vhTUwcB+wznnwStGddYoc4szd8Od9U00JusgbyTzm9D3+9pMuZuw4X1bywAR</span>
-</span><span class='line'><span class="l-Scalar-Plain">AQABiQIlBBgBAgAPBQJUvZnnAhsgBQkB4TOAAAoJEEYwvtxAuTX+g9gP/iNjPG1H</span>
-</span><span class='line'><span class="l-Scalar-Plain">QZuLH/T+5mB/24IkJA8jymbCgyYR5C4d4aPkLmbmG4T0Gbh0GP0jk2bclbmPuFT6</span>
-</span><span class='line'><span class="l-Scalar-Plain">6FvrKLdKappD+1rqog9WkUOojCKBNTEJmq94qwCDD4yaUwMbxHc7Bz98Cz+gsaBa</span>
-</span><span class='line'><span class="l-Scalar-Plain">/LalKdkG77DYKHpQFZh6z7RSGZp0xa50af+X2DL73seDJlChfx5eTXlPeta3z1Qv</span>
-</span><span class='line'><span class="l-Scalar-Plain">qib1rHdF2nvXIkYQbM1qgtrw5aeGarYHcwxjTn4bnLfQiubTnvyy+Rx+Isp7qTW5</span>
-</span><span class='line'><span class="l-Scalar-Plain">uF6bggHay21162G7/gm4QK/NuKSMPmLRj+vRmbq/ZPy002ZcD549HipU6DFiZgq4</span>
-</span><span class='line'><span class="l-Scalar-Plain">fnPtyDW583P3+xuaiFwt1kRKrCmR70M/+mYUDCuDgUQEmc6Hi7WLyHlhSAnwBzuR</span>
-</span><span class='line'><span class="l-Scalar-Plain">Mzys9cDYFXkz8rAkFnG30gXvFFxQFGcucixZkU4vgwBh/byMF7KOMgSujFfjUAss</span>
-</span><span class='line'><span class="l-Scalar-Plain">0jkToLv8mSQNEshHAcKCmJWg7OOys4Iwkaou+54tN/MVjQaCcXLHbSbRg+TxrDIp</span>
-</span><span class='line'><span class="l-Scalar-Plain">JMFPROiKU3Bk0rjIDXTdsMZLg5RWv3OeM06NKTBbNVCShYCn0pZac0p3Bbz8N7/x</span>
-</span><span class='line'><span class="l-Scalar-Plain">UtQXBDGeMkRCq20eSCHzc9am5HjEly4GQvHtJR97D/pRegDuhJqrbyuCK+kD3/de</span>
-</span><span class='line'><span class="l-Scalar-Plain">ewB6rgu7pPnOa3eGk52czyArCIsgYeVp/jlQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">=MDtX</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP PUBLIC KEY BLOCK-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Transition Statement]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/20/transition-statement/"/>
-    <updated>2014-06-20T21:24:29-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/20/transition-statement</id>
-    <content type="html"><![CDATA[<p>I have decided to transition to a new GPG key. Below you will find the following:</p>
-
-<ul>
-<li>Transition Statement</li>
-<li>Signature of Transition Statement with old key</li>
-<li>Signature of Transition Statement with new key</li>
-</ul>
-
-
-<p>I have put my new public key in a separate post.</p>
-
-<figure class='code'><figcaption><span> (transition_statement.txt)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">Date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">June 20th, 2014</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">For a number of reasons, i&#39;ve recently set up a new OpenPGP key,</span>
-</span><span class='line'><span class="l-Scalar-Plain">and will be transitioning away from my old one.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">The old key will continue to be valid for some time, but i prefer all</span>
-</span><span class='line'><span class="l-Scalar-Plain">future correspondence to come to the new one.  I would also like this</span>
-</span><span class='line'><span class="l-Scalar-Plain">new key to be re-integrated into the web of trust.  This message is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by both keys to certify the transition.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">the old key was</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/250390EF 2013-11-03</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 584B CD6D 1CA2 8A2D 7F1C 9AA6 E8BA 54DF 2503 90EF</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">And the new key is</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/40B935FE 2014-06-14 [expires</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2015-06-14]</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">To fetch the full key from a public key server, you can simply do</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --keyserver pool.sks-keyservers.net --recv-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you already know my old key, you can now verify that the new key is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by the old one</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --check-sigs &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you don&#39;t already know my old key, or you just want to be double</span>
-</span><span class='line'><span class="l-Scalar-Plain">extra paranoid, you can check the fingerprint against the one above</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --fingerprint &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you are satisfied that you&#39;ve got the right key, and the UIDs match</span>
-</span><span class='line'><span class="l-Scalar-Plain">what you expect, I&#39;d appreciate it if you would sign my key. You can</span>
-</span><span class='line'><span class="l-Scalar-Plain">do that by issuing the following command</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'><span class="l-Scalar-Plain">NOTE</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">if you have previously signed my key but did a local-only</span>
-</span><span class='line'><span class="l-Scalar-Plain">signature (lsign), you will not want to issue the following, instead</span>
-</span><span class='line'><span class="l-Scalar-Plain">you will want to use --lsign-key, and not send the signatures to the</span>
-</span><span class='line'><span class="l-Scalar-Plain">keyserver</span>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --sign-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I&#39;d like to receive your signatures on my key. You can either send me</span>
-</span><span class='line'><span class="l-Scalar-Plain">an e-mail with the new signatures (if you have a functional MTA on</span>
-</span><span class='line'><span class="l-Scalar-Plain">your system)</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --export &#39;4630BEDC40B935FE&#39; | gpg --encrypt -r &#39;4630BEDC40B935FE&#39; --armor | mail -s &#39;OpenPGP Signatures&#39; jrruethe@gmail.com</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Additionally, I highly recommend that you implement a mechanism to keep your key</span>
-</span><span class='line'><span class="l-Scalar-Plain">material up-to-date so that you obtain the latest revocations, and other updates</span>
-</span><span class='line'><span class="l-Scalar-Plain">in a timely manner. You can do regular key updates by using parcimonie[0] to</span>
-</span><span class='line'><span class="l-Scalar-Plain">refresh your keyring. Parcimonie is a daemon that slowly refreshes your keyring</span>
-</span><span class='line'><span class="l-Scalar-Plain">from a keyserver over Tor. It uses a randomized sleep, and fresh tor circuits</span>
-</span><span class='line'><span class="l-Scalar-Plain">for each key. The purpose is to make it hard for an attacker to correlate the</span>
-</span><span class='line'><span class="l-Scalar-Plain">key updates with your keyring.</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I also highly recommend checking out the excellent Riseup GPG best</span>
-</span><span class='line'><span class="l-Scalar-Plain">practices doc, from which I stole most of the text for this transition</span>
-</span><span class='line'><span class="l-Scalar-Plain">message ;-)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">https://we.riseup.net/debian/openpgp-best-practices</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Please let me know if you have any questions, or problems, and sorry</span>
-</span><span class='line'><span class="l-Scalar-Plain">for the inconvenience.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Joseph Ruether</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">0. https://gaffer.ptitcanardnoir.org/intrigeri/code/parcimonie/</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.oldkey.asc)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt.oldkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1.4.12 (GNU/Linux)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABAgAGBQJTpNubAAoJEOi6VN8lA5DvJpIQAKeb/PrZMIMquikQyeFYfMfw</span>
-</span><span class='line'><span class="l-Scalar-Plain">5M4OlALtDN1sJaDSsfODwPzgqu9vjNNkWznifaUnt/AAHWIh0mJGQ+ePetbdaK7C</span>
-</span><span class='line'><span class="l-Scalar-Plain">yW5Xc3idE6ElByiZa2NuSq6RMSRFYcBPtJWmrdlLlfv1gf5WFwkRGDUHrRbKGdKf</span>
-</span><span class='line'><span class="l-Scalar-Plain">mU4PIJPNgug8XjlSMNw8P8IEmG6nuxpaEcQSfsmjF+BuYyhPuNS+ZFBMTfG4j16t</span>
-</span><span class='line'><span class="l-Scalar-Plain">B8UrTAPD6FFRVC0mtE6lunveTeXMgFK6GtFN1vrKTcSSgHUarPIHgoOw7w9WNxde</span>
-</span><span class='line'><span class="l-Scalar-Plain">9gkfTLbxseFzfo4u/ng9xupgomguf+jP6dv3d8OQZg5Yvu624RhoPvKkVt5K8by3</span>
-</span><span class='line'><span class="l-Scalar-Plain">E8BvqnOz0fUK6rSmNoSmKimkQ/zPPb4UJ70BdqXgRm1N6WQjrzhuuFW3cJbIYEyf</span>
-</span><span class='line'><span class="l-Scalar-Plain">+59qYkIgMYGk/jpKacEVsUwpEa2Rm7r7+Gj/TTS7APh3Lh88YBNPdjJQMx+fkV9J</span>
-</span><span class='line'><span class="l-Scalar-Plain">CloWfSl5c9dntBpGhxeo03dY8fs6UxisIMZqpgntp2gTzJ6fZi501hdBzGbCUU08</span>
-</span><span class='line'><span class="l-Scalar-Plain">BBMZmOzB2hElsXEeNy1A/kjVgZuazGJViTiKtx+E3JsULv86DTXUwtC/HmaRsREF</span>
-</span><span class='line'><span class="l-Scalar-Plain">88ng/df3XITr1YJVXJALaICAhhR0Vhbn9m0Dwqm/FIudSsdPyD6tBHn5JbfT3fX1</span>
-</span><span class='line'><span class="l-Scalar-Plain">YzfWiLkqHwRxhjQ9TD51</span>
-</span><span class='line'><span class="l-Scalar-Plain">=u6TC</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.newkey.asc)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt.newkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABCgAGBQJTpN4CAAoJEInJf5BWENx2D+EP/0aK6kSa5grA/9wM2UlWe/kT</span>
-</span><span class='line'><span class="l-Scalar-Plain">t4PsugJHixYOeHn75Q3YX5CvMTnw6WSxy5hb4FpJrIaTwZshw5L8oiftUWhda1v0</span>
-</span><span class='line'><span class="l-Scalar-Plain">8DfRpm2sw2edtUgarNVwl+hLxbo41V8N6zyJiSjri9LLd+LD2PXM+/cURK696xbk</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ylpl5n1+PyxrhdiFeTui9QTHr0BKk1ShkaLqSQEsVHgC8AEviGv+jr70PX5roOZC</span>
-</span><span class='line'><span class="l-Scalar-Plain">EN9FfbqWRKleEqqZ/ROIQTsEQMN+QhxQxCwMZshgybqIbmGuSdHj0cJqYaz6EJDR</span>
-</span><span class='line'><span class="l-Scalar-Plain">NFKLQ5sETwqo1QCwfzXp2Fy42yEh+FbOYEWAUS3F7MDWJP2ZeuaNsSlf26iMWWN5</span>
-</span><span class='line'><span class="l-Scalar-Plain">dFeYaf28xRb8GMoc92q3n+S+M1STEX9V2fyitUq747yWrdbzgOQcblYS9lLtSEzo</span>
-</span><span class='line'><span class="l-Scalar-Plain">Jgf8MR0d3ZvWI2OtUnyyO/nVS5WYD4w09ItheNwf+02gKVPImOvT7TCC6aPxKzUr</span>
-</span><span class='line'><span class="l-Scalar-Plain">YPmJMncXFkES4TAH4vgVZpSYC1WAHoQoLFBBgbDFActb1Pp/6q4iGjv4pv0quSZl</span>
-</span><span class='line'><span class="l-Scalar-Plain">Dgy4T6U8W/NdmRXDTG05RqjMuQdV2/QPeredHkozpaGO4a0sIgEj5UkxfsburgE3</span>
-</span><span class='line'><span class="l-Scalar-Plain">H/RjbHVxfuTU1MtNvnBQHMNZS2swmgCfG4Ct9W4MAS5qeE4GhZZQSwtqvoOUVNqr</span>
-</span><span class='line'><span class="l-Scalar-Plain">6DAdB/qFc0Iavgvb9TK1</span>
-</span><span class='line'><span class="l-Scalar-Plain">=NiZp</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[About Me]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/08/about-me/"/>
-    <updated>2014-06-08T07:06:48-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/08/about-me</id>
-    <content type="html"><![CDATA[<p>My name is Joe Ruether. I graduated from Michigan Technological University with a bachelors in Computer Engineering and Electrical Engineering. Currently I am a full time Software Engineer at a company that designs radar systems. I am working towards my masters in Computer Science at Drexel University.</p>
-
-<p>I&rsquo;m a programmer at heart, I love being able to express my thoughts in the form of code and have the machine act it out. Programming allows me to bring my ideas to life, to build a world that I can share. I feel that programming is an art form that combines the creativity of writing with the logic of mathematics.</p>
-
-<p>I am fluent at C++ and would consider myself an advanced user, I frequently use templates and metaprogramming, and I am very familiar with many of the Boost libraries. C++ is the main language I use and work with. I very much enjoy C++. As for Python, the only real reason I use it is for the workplace; I don&rsquo;t really prefer it as a language, although I do recognize its usefulness and the fact that it is available on every Linux machine. My favorite language so far is Ruby, and I have been trying to teach myself Ruby in my spare time. Not Rails, I haven&rsquo;t gotten to that yet, I am primarily focusing on desktop applications. Unfortunately, I do not know too much Java.</p>
-
-<p>I am a Linux user and am a fan of open source software. As such the projects I create will be released under the GPLv3 license. You can find them all on GitHub. I use Debian as my main OS, particularly because it really is the &ldquo;Universal Operating System&rdquo;; it is stable, mature, flexible, and has a massive package collection as well as a strong community.</p>
-
-<p>Personality-wise, the Myers-Briggs test classifies me as an INTP, and I think the description of that describes me well:</p>
-
-<blockquote><p>Seek to develop logical explanations for everything that interests them. Theoretical and abstract, interested more in ideas than in social interaction. Quiet, contained, flexible, and adaptable. Have unusual ability to focus in depth to solve problems in their area of interest. Skeptical, sometimes critical, always analytical.</p></blockquote>
-]]></content>
-  </entry>
-  
-</feed>
+</body>
+</html>
