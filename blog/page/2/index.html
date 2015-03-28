@@ -9,8 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="It can be tricky to figure out how to connect to a wireless network via the command line.
-However, the steps are simple. Below is a script to do all &hellip;">
+  <meta name="description" content="Starting Fresh Use these instructions if you are creating a blog for the first time. Install dependencies sudo apt-get install ruby bundler rake git &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,173 @@ However, the steps are simple. Below is a script to do all &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/05/blogging-with-octopress/">Blogging With Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T20:51:27-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/05/blogging-with-octopress/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Starting Fresh</h3>
+
+<p>Use these instructions if you are creating a blog for the first time.</p>
+
+<ol>
+<li><p>Install dependencies</p>
+
+<pre><code>sudo apt-get install ruby bundler rake git  
+git clone git://github.com/imathis/octopress.git octopress  
+cd octopress  
+bundle install  
+rake install  
+</code></pre></li>
+<li><p>Create the Github repository</p>
+
+<p>Go to <a href="https://github.com/repositories/new">Github</a>, create a new repository of the format <code>username.github.io</code></p></li>
+<li><p>Set up deployment to Github Pages</p>
+
+<pre><code>rake setup_github_pages
+rake generate
+rake deploy
+</code></pre></li>
+<li><p>Commit the source</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre></li>
+<li><p>Add some customizations</p>
+
+<p>I personally use the following third party plugins:</p>
+
+<ul>
+<li><a href="https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside">Bitcoin</a> : Add a QR code for Bitcoin Donations</li>
+<li><a href="https://github.com/aycabta/octopress-file-binder">File Binder</a> : Easily attach an image to a post</li>
+<li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
+</ul>
+</li>
+<li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
+<li><p>Configure your _config.yml file</p>
+
+<p>Set the following options:</p>
+
+<ul>
+<li>URL</li>
+<li>Title</li>
+<li>Subtitle</li>
+<li>Author</li>
+</ul>
+
+
+<p>Also scroll down to the bottom and set up the following sections:</p>
+
+<ul>
+<li>Github</li>
+<li>Twitter</li>
+<li>Disqus</li>
+</ul>
+</li>
+<li><p>Set up Github Pages</p>
+
+<pre><code>rake _0.9.2.2_ setup_github_pages
+</code></pre></li>
+</ol>
+
+
+<p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p>
+
+<hr />
+
+<h3>Continuing from an existing repository</h3>
+
+<p>Use these instructions if you are continuing a blog that has already been created.</p>
+
+<ol>
+<li><p>Install the dependencies</p>
+
+<pre><code>sudo apt-get install ruby bundler rake git 
+</code></pre></li>
+<li><p>Clone the repository</p>
+
+<pre><code>git clone git@github.com:username/username.github.io.git
+</code></pre></li>
+<li><p>Install the octopress dependencies</p>
+
+<pre><code>bundle install
+</code></pre></li>
+<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
+</ol>
+
+
+<hr />
+
+<h3>Creating a post</h3>
+
+<p>You may have a newer <code>rake</code> installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.</p>
+
+<pre><code>alias rake="rake _0.9.2.2_"
+</code></pre>
+
+<p>Now you can create a new post:</p>
+
+<pre><code>rake new_post["title"]
+</code></pre>
+
+<p>Then you can preview your work:</p>
+
+<pre><code>rake generate
+rake preview
+</code></pre>
+
+<p>Open your browser to <code>127.0.0.1:4000</code> and make sure your page looks the way you want.<br/>
+To finalize your changes:</p>
+
+<pre><code>git add source/_posts/date-title.markdown
+git commit -m 'Message'
+git push origin source
+rake deploy
+</code></pre>
+
+<p>Next, you want to make sure that you re-pull after the deployment is complete, or you will run into problems when creating your next post:</p>
+
+<pre><code>git pull
+cd _deploy/
+git pull
+cd -
+</code></pre>
+
+<p>Go to <code>username.github.com</code> and check out your page.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1297,6 +1463,10 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/27/physical-blockchain-identity-card/">Physical Blockchain Identity Card</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/03/27/hex-to-mnemonics/">Hex to Mnemonics</a>
       </li>
     
@@ -1310,10 +1480,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
     
       <li class="post">
         <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/">PDF Generation With Ruby and Pocket</a>
       </li>
     
   </ul>

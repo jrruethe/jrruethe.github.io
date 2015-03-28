@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-03-27T17:19:57-04:00</updated>
+  <updated>2015-03-27T20:43:59-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,104 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Physical Blockchain Identity Card]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/"/>
+    <updated>2015-03-27T18:28:47-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card</id>
+    <content type="html"><![CDATA[<p>In a <a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">previous post</a>, I walked through the steps to create a digitial Blockchain Identity. Now, it is time to turn that into an physical identity card.</p>
+
+<p>You will need the following:</p>
+
+<ul>
+<li><a href="http://www.amazon.com/gp/product/B0010JEJPC/ref=od_aui_detailpages00?ie=UTF8&amp;psc=1">Laminator</a></li>
+<li><a href="http://www.amazon.com/gp/product/B004XJC1UQ/ref=od_aui_detailpages00?ie=UTF8&amp;psc=1">10 mil Teslin Paper</a></li>
+<li><a href="http://www.amazon.com/gp/product/B004UJC730/ref=ox_sc_act_title_2?ie=UTF8&amp;psc=1&amp;smid=A1GYMVIZIMSYWM">10 mil Butterfly Pouch Laminates</a></li>
+<li>A color inkjet printer</li>
+</ul>
+
+
+<p>You will also need the following software:</p>
+
+<ul>
+<li>Inkscape</li>
+<li>QtQr</li>
+<li>gLabels</li>
+</ul>
+
+
+<p>There is no standard template for your ID card; you can design it however you wish. The general idea is that it displays the necessary information to be a link between your government issued identification document and your GPG key. It is also a convienient place to put some contact information.</p>
+
+<p>The most important item it must contain is the QR code containing your key.json.asc information. Remember, only the hash of this file is stored in the blockchain, so you need to make the data available for verification. For this reason, it is also recommended to include the hash and the Bitcoin transaction ID on your card. Finally, a link to your Keybase.io account is recommended.</p>
+
+<p>To prove your identity, one would scan the QR code containing your key.json.asc information to obtain the ASCII text, and use your Keybase.io account to verify it&rsquo;s authenticity. Then, the hash of that data can be calculated and compared against the Bitcoin transaction. All the information needed (besides keybase.io and blockchain.info) are stored on your physical card; no need for your personal computer. Furthermore, the information can be validated with a smart phone; no full PC is needed.</p>
+
+<p>Below you will find the template I designed using Inkscape. It isn&rsquo;t very flashy, but it does it&rsquo;s job well.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/01.png"></p>
+
+<p>Do note that I let the edges overlap a little bit to ensure the color covers the entire border.<br/>
+Here is the back, and containing the most important part of the document:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/02.png"></p>
+
+<p>Scanning that will reveal the key.json.asc data.</p>
+
+<p>Next, this card needs to be layed out on the Teslin paper properly. For this, I used gLabels and created a custom template. It took some trial and error to get everything lined up correctly, but here are the settings I ended up using:</p>
+
+<ol>
+<li>Width: 87.6 mm</li>
+<li>Height: 56.0 mm</li>
+<li>Round: 3.0 mm</li>
+<li>Horizontal Waste: 1.0 mm</li>
+<li>Vertical Waste: 1.0 mm</li>
+<li>Margin: 1.0 mm</li>
+</ol>
+
+
+<p>and:</p>
+
+<ul>
+<li>nx: 2</li>
+<li>ny: 4</li>
+<li>x0: 15.9 mm</li>
+<li>y0: 15.9 mm</li>
+<li>dx: 97.0 mm</li>
+<li>dy: 64.0 mm</li>
+</ul>
+
+
+<p>Here are the steps:</p>
+
+<ol>
+<li>Once you create your card in Inkscape, export it to a png.</li>
+<li>Open gLabels and use your png to create a card.</li>
+<li>Print it onto the Teslin paper at the highest quality your printer allows.</li>
+<li>Let it dry, then pop the card out and place it inside of a butterfly pouch.
+
+<ul>
+<li>Do note that the glossy side goes out, the matte side is glue that should be up against the Teslin paper.</li>
+<li>Also, the folded edge should be at the bottom of the card.</li>
+<li>Be careful not to get fingerprints on the inside of the pouch.</li>
+</ul>
+</li>
+<li>Warm up the laminator and feed the butterfly pouch containing the card folded edge first into the laminator.</li>
+<li>When it comes out, flip it over and run it through again (on the other side).
+
+<ul>
+<li>You may need to run it through each side twice, for a total of four times.</li>
+</ul>
+</li>
+<li>Let it cool, and enjoy your finished product!</li>
+</ol>
+
+
+<p>The result will look and feel like a real ID card. Below is an image of mine, with some stuff blurred out.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/03.jpg"></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Hex to Mnemonics]]></title>
