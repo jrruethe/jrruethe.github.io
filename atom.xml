@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-03-29T16:56:52-04:00</updated>
+  <updated>2015-03-29T20:30:23-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -19,16 +19,6 @@
     <updated>2015-03-29T11:33:58-04:00</updated>
     <id>http://jrruethe.github.io/blog/2015/03/29/protect-yourself-online</id>
     <content type="html"><![CDATA[<p>This is a quick guide to staying secure on the internet.</p>
-
-<h2>The Basics</h2>
-
-<p>The first two pages you should read carefully are:</p>
-
-<ul>
-<li><a href="https://freedom.press/encryption-works">https://freedom.press/encryption-works</a></li>
-<li><a href="https://pack.resetthenet.org/">https://pack.resetthenet.org/</a></li>
-</ul>
-
 
 <h2>Hashes and Signatures</h2>
 
@@ -167,6 +157,16 @@ Android also supports full disk encryption with LUKS.</p>
 <p>Debian can also be installed to a USB drive and act as a &ldquo;cold boot&rdquo; system.<br/>
 Cold boot means that it is never allowed to touch the network; all data transfer to the cold boot system is done with a second USB drive.<br/>
 This practice is good for storing GPG private keys and Bitcoin wallets securely.</p>
+
+<h2>More Information</h2>
+
+<p>I highly recommend you read the following pages carefully:</p>
+
+<ul>
+<li><a href="https://freedom.press/encryption-works">https://freedom.press/encryption-works</a></li>
+<li><a href="https://pack.resetthenet.org/">https://pack.resetthenet.org/</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
