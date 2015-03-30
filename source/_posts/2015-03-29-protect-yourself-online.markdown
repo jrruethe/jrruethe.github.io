@@ -8,14 +8,6 @@ categories:
 
 This is a quick guide to staying secure on the internet.
 
-The Basics
-----------
-
-The first two pages you should read carefully are:
-
- - https://freedom.press/encryption-works
- - https://pack.resetthenet.org/
-
 Hashes and Signatures
 ---------------------
 Hashes and signatures are your primary tool for verifying data and detecting any form of tampering.  
@@ -145,3 +137,12 @@ Android also supports full disk encryption with LUKS.
 Debian can also be installed to a USB drive and act as a "cold boot" system.  
 Cold boot means that it is never allowed to touch the network; all data transfer to the cold boot system is done with a second USB drive.  
 This practice is good for storing GPG private keys and Bitcoin wallets securely.
+
+
+More Information
+----------------
+
+I highly recommend you read the following pages carefully:
+
+ - https://freedom.press/encryption-works
+ - https://pack.resetthenet.org/
