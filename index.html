@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="This is a quick guide to staying secure on the internet. Hashes and Signatures Hashes and signatures are your primary tool for verifying data and &hellip;">
+  <meta name="description" content="What is Bitcoin? Why is it better than Paypal / Credit Cards? How does it work? Bitcoins live in little houses. Each house has an address and a key &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,821 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/06/bitcoin-starter-guide/">Bitcoin Starter Guide</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-06T11:43:13-04:00" pubdate data-updated="true">Apr 6<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/04/06/bitcoin-starter-guide/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>What is Bitcoin?</h2>
+
+<h2>Why is it better than Paypal / Credit Cards?</h2>
+
+<h2>How does it work?</h2>
+
+<p>Bitcoins live in little houses. Each house has an address and a key to the front door. The front door is strange in that it is one-way; it allows Bitcoins to enter freely, but Bitcoins are not allowed to leave unless someone unlocks the door.</p>
+
+<p>All the houses are located in the city of Blockchainville. Like all cities, Blockchainville has a directory people can use to see which Bitcoins live at which address. It also has a mayor as an elected official.</p>
+
+<p>Users own the houses in Blockchainville (and consequently, the keys to the front door). A user may own many houses simultaneously; some may have Bitcoins living in them, some may be empty. A user&rsquo;s net worth is determined by the number of Bitcoins living in all their houses combined.</p>
+
+<p>A user may build any empty unused house for free, upon which they get the only key to the front door. They can do this at any time without the mayor&rsquo;s consent, however the address will not be listed in the directory until the first time that Bitcoins move in.</p>
+
+<p>When a user (Bill) wants to transfer some of their wealth to another user (Jack), Bill instructs his Bitcoins the vacate their house and move to a house that Jack owns. This is done by unlocking the door and sending them to another address. The Bitcoins will call up the mayor of Blockchainville to tell him their moving plans, and if the mayor approves, they will move out.</p>
+
+<p>Bitcoins hate being locked up in the house, so once the door is unlocked, they all leave at the same time. Some bitcoins will move into Jack&rsquo;s house, while others may take up residence in another house that Bill owns. Bill gets to choose which of his Bitcoins move where, therefore he gets to control how his net worth changes. After all the Bitcoins leave the house, Bill locks the door again, and other Bitcoins are allowed to move into that house again.</p>
+
+<p>Since houses are free to build, it is more common to build a new house than it is to reuse an existing house.</p>
+
+<p>Bitcoins</p>
+
+<h2>How do I use Bitcoin?</h2>
+
+<p>First, lets go over some terminology.</p>
+
+<p>Bitcoin works using a blockchain. A blockchain is a distributed public ledger that contains every transaction ever made. It allows anyone to verify a transaction, and keeps a record of the rightful owner of any Bitcoin.</p>
+
+<p>Users do not actually possess Bitcoins, they only control the rights to spend them. All Bitcoins are located inside the blockchain at specific addresses. Users have keys that allow them to unlock the bitcoins.</p>
+
+<p>Bitcoins are stored inside the Blockchain at specific Addresses.
+The Blockchain is a distributed public ledger of every transaction ever made.
+You can look up the current location of any Bitcoin in the Blockchain.</p>
+
+<p>Users manage their Bitcoins by using a wallet.</p>
+
+<ul>
+<li>Desktop applications</li>
+<li>Mobile apps</li>
+<li>Web wallets</li>
+</ul>
+
+
+<h2>How do I convert to / from Dollars?</h2>
+
+<h2>How does it work?</h2>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-30T20:32:22-04:00" pubdate data-updated="true">Mar 30<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/03/30/squashed-truecrypt-archive/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This post presents a script that can create a squashfs filesystem inside of a truecrypt container.<br/>
+This has many benefits over encrypted zip files as well as normal truecrypt containers:</p>
+
+<ul>
+<li>Resulting file can be mounted and accessed directly
+
+<ul>
+<li>No need to &ldquo;unzip&rdquo; to the hard drive</li>
+<li>No chance for leaking unencrypted data to the hard drive</li>
+</ul>
+</li>
+<li>Achieve both good compression as well as strong encryption
+
+<ul>
+<li>Better compression ratio than NTFS, BTRFS, GZIP, BZIP2</li>
+</ul>
+</li>
+<li>Truecrypt container is only as large as it needs to be
+
+<ul>
+<li>No need to guess the approximate size of the compressed result before compressing</li>
+</ul>
+</li>
+<li>Resulting file is immutable
+
+<ul>
+<li>Making changes is still possible with an easy workaround, described below</li>
+</ul>
+</li>
+</ul>
+
+
+<p>First, the script. It is named <code>star</code>, for &ldquo;<strong>S</strong>quashed <strong>T</strong>ruecrypt <strong>AR</strong>chive&rdquo;. You will need the following to run it:</p>
+
+<ul>
+<li>squashfs-tools</li>
+<li>truecrypt</li>
+<li>aufs-tools</li>
+</ul>
+
+
+<figure class='code'><figcaption><span> (star)</span> <a href='/downloads/code/star'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Creates a squashed truecrypt archive (star)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Directory to star</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;directory&gt; [name]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing directory</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">directory</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
+</span><span class='line'><span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="p">-</span><span class="nv">$directory</span><span class="k">}</span>
+</span><span class='line'><span class="nv">sfs</span><span class="o">=</span><span class="nv">$name</span>.sfs
+</span><span class='line'><span class="nv">star</span><span class="o">=</span><span class="nv">$name</span>.star
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the password</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Enter the password to use:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Repeat the password:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password_repeat
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Check that the passwords match</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$password&quot;</span> !<span class="o">=</span> <span class="s2">&quot;$password_repeat&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s1">&#39;Passwords do not match&#39;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Squash the directory</span>
+</span><span class='line'>mksquashfs <span class="nv">$directory</span> <span class="nv">$sfs</span> -noappend -b 1048576 &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Clean this file up on exit</span>
+</span><span class='line'>add_on_exit shred -f <span class="nv">$sfs</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the size of the squashfs, add 512 blocks of size 512</span>
+</span><span class='line'><span class="nv">sfssize</span><span class="o">=</span><span class="sb">`</span>stat --printf<span class="o">=</span><span class="s2">&quot;%s&quot;</span> <span class="nv">$sfs</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">starsize</span><span class="o">=</span><span class="sb">`</span>expr <span class="nv">$sfssize</span> + 262144<span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make a truecrypt volume</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive -c <span class="nv">$star</span> --size<span class="o">=</span><span class="nv">$starsize</span> --filesystem<span class="o">=</span>none --encryption<span class="o">=</span>AES --hash<span class="o">=</span>SHA-512 --password<span class="o">=</span><span class="nv">$password</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the truecrypt volume</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --filesystem<span class="o">=</span>none --password<span class="o">=</span><span class="nv">$password</span> <span class="nv">$star</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the truecrypt device name</span>
+</span><span class='line'><span class="nv">starloc</span><span class="o">=</span><span class="sb">`</span>readlink -f <span class="nv">$star</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">devname</span><span class="o">=</span><span class="sb">`</span>truecrypt -t --non-interactive -l | grep <span class="nv">$starloc</span> | awk <span class="s1">&#39;{print $3}&#39;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unmount the volume on exit</span>
+</span><span class='line'>add_on_exit sudo truecrypt -t --non-interactive -d <span class="nv">$starloc</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Copy the squashfs into the truecrypt volume</span>
+</span><span class='line'>sudo dd <span class="k">if</span><span class="o">=</span><span class="nv">$sfs</span> <span class="nv">of</span><span class="o">=</span><span class="nv">$devname</span> <span class="nv">bs</span><span class="o">=</span>64K &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Set permissions</span>
+</span><span class='line'>sudo chmod 755 <span class="nv">$star</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Synchronize the filesystem</span>
+</span><span class='line'>sync
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s1">&#39;Success&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is an example of how to use it:</p>
+
+<pre><code>$ mkdir secret_stuff
+$ dd if=/dev/urandom bs=1MB count=10 &gt; secret_stuff/secret_data.bin
+10+0 records in
+10+0 records out
+10000000 bytes (10 MB) copied, 0.741577 s, 13.5 MB/s
+
+$ ls
+secret_stuff  star
+
+$ ./star 
+Usage: ./star &lt;directory&gt; [name]
+
+$ ./star secret_stuff
+Enter the password to use:
+Repeat the password:
+Success
+
+$ ls
+secret_stuff  secret_stuff.star  star
+
+$ mkdir mnt
+$ sudo truecrypt -t secret_stuff.star 
+Enter mount directory [default]: mnt
+Enter password for /home/joe/Downloads/temp/secret_stuff.star: 
+Enter keyfile [none]: 
+Protect hidden volume (if any)? (y=Yes/n=No) [No]: 
+
+$ ls mnt/
+secret_data.bin
+
+$ sha256sum secret_stuff/secret_data.bin 
+5342d4e85a221df35c5beda80e7b93b609fca732b908b6fd43febfcc89c324ea  secret_stuff/secret_data.bin
+$ sha256sum mnt/secret_data.bin 
+5342d4e85a221df35c5beda80e7b93b609fca732b908b6fd43febfcc89c324ea  mnt/secret_data.bin
+</code></pre>
+
+<p>The resulting file is immutable. This may seem like a downside at first, but it can be beneficial. For example, it can be mounted by multiple users simultaneously when shared via Dropbox or Bittorrent Sync, and it is easy to version control.</p>
+
+<p>Making secure modifications to the archive is possible because the archive allows direct access via mounting. This is something that cannot be easily done with a normal zip file or tarball. By using a tmpfs filesystem as a writable aufs layer on top of the archive, edits can be made in memory that never touch the hard drive, so your encrypted data stays secure. Then, a new archive can be created from that tmpfs layer.</p>
+
+<p>Layers can be kept separate and treated as diffs (similar to how Docker containers operate), or they can be &ldquo;resquashed&rdquo; together for maximum compression. It all depends on the user&rsquo;s needs.</p>
+
+<p>Here is a script that mounts a tmpfs aufs layer on top of the archive to allow edits.</p>
+
+<figure class='code'><figcaption><span> (mount_star.sh)</span> <a href='/downloads/code/mount_star.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mounts a squashed truecrypt archive</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Star to mount</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;*.star&gt;&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">star_file</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">star_name</span><span class="o">=</span><span class="k">${</span><span class="nv">star_file</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'><span class="nv">star_old</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_old
+</span><span class='line'><span class="nv">star_changes</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_changes
+</span><span class='line'><span class="nv">star_new</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_new
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the password</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Enter the password:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make the directories</span>
+</span><span class='line'>mkdir -p <span class="nv">$star_old</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_old</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$star_changes</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_changes</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$star_new</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_new</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the star file</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$password</span> <span class="nv">$star_file</span> <span class="nv">$star_old</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$star_old</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the tmpfs</span>
+</span><span class='line'>sudo mount -t tmpfs tmpfs <span class="nv">$star_changes</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$star_changes</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the aufs</span>
+</span><span class='line'>sudo mount -t aufs -o <span class="nb">dirs</span><span class="o">=</span><span class="nv">$star_changes</span><span class="o">=</span>rw:<span class="nv">$star_old</span><span class="o">=</span>ro aufs <span class="nv">$star_new</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$star_new</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for user to continue</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Star is now mounted. Press Enter to unmount and exit&quot;</span>
+</span><span class='line'><span class="nb">read</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Use it like so:</p>
+
+<pre><code>$ ./mount_star.sh 
+Usage: ./mount_star.sh &lt;*.star&gt;
+
+$ ./mount_star.sh ./secret_stuff.star 
+Enter the password:
+Star is now mounted. Press Enter to unmount and exit
+</code></pre>
+
+<p>Now in another terminal, you can interact with the mounted volumes:</p>
+
+<pre><code>$ ls
+mount_star.sh  secret_stuff_changes  secret_stuff_old  starsecret_stuff_new  secret_stuff.star
+
+$ touch secret_stuff_old/lala
+touch: cannot touch ‘secret_stuff_old/lala’: Read-only file system
+
+$ touch secret_stuff_new/lala
+
+$ ls secret_stuff_new
+lala  secret_data.bin
+
+$ ls secret_stuff_changes/
+lala
+</code></pre>
+
+<p>Creating a new archive is as simple as star&#8217;ing the name_new branch. Creating a &ldquo;patch&rdquo; is as simple as star&#8217;ing the name_changes branch:</p>
+
+<pre><code>$ dd if=/dev/urandom bs=1MB count=10 &gt; secret_stuff_new/new_secret_data.bin10+0 records in
+10+0 records out
+10000000 bytes (10 MB) copied, 0.756202 s, 13.2 MB/s
+$ ls secret_stuff*
+secret_stuff.star
+
+secret_stuff_changes:
+lala  new_secret_data.bin
+
+secret_stuff_new:
+lala  new_secret_data.bin  secret_data.bin
+
+secret_stuff_old:
+secret_data.bin
+
+$ ./star secret_stuff_changes/
+Enter the password to use:
+Repeat the password:
+Success
+
+$ ls
+mount_star.sh  secret_stuff_changes.star  secret_stuff.star  star
+</code></pre>
+
+<p>Patch archives can be applied using aufs layers with the following script:</p>
+
+<figure class='code'><figcaption><span> (patch_star.sh)</span> <a href='/downloads/code/patch_star.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mounts a squashed truecrypt archive</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Star to mount</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;base *.star&gt; &lt;patch *.star&gt;&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the second argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$2</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $2&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">base_star</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">base_name</span><span class="o">=</span><span class="k">${</span><span class="nv">base_star</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Patch directory will be hidden</span>
+</span><span class='line'><span class="nv">patch_star</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">patch_name</span><span class="o">=</span>.<span class="k">${</span><span class="nv">patch_star</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the passwords</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s2">&quot;Enter the password for $1 :&quot;</span>
+</span><span class='line'><span class="nb">read</span> -s base_password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s2">&quot;Enter the password for $2 :&quot;</span>
+</span><span class='line'><span class="nb">read</span> -s patch_password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make the directories</span>
+</span><span class='line'>mkdir -p <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$base_name</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$patch_name</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$patch_name</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the base</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$base_password</span> <span class="nv">$base_star</span> <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$base_name</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the patch</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$patch_password</span> <span class="nv">$patch_star</span> <span class="nv">$patch_name</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$patch_name</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Apply the patch</span>
+</span><span class='line'>sudo mount -t aufs -o <span class="nb">dirs</span><span class="o">=</span><span class="nv">$patch_name</span><span class="o">=</span>ro:<span class="nv">$base_name</span><span class="o">=</span>ro aufs <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$base_name</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for user to continue</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Star is now mounted and patched. Press Enter to unmount and exit&quot;</span>
+</span><span class='line'><span class="nb">read</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is how it works:</p>
+
+<pre><code>$ ./patch_star.sh 
+Usage: ./patch_star.sh &lt;base *.star&gt; &lt;patch *.star&gt;
+
+$ ./patch_star.sh secret_stuff.star secret_stuff_changes.star 
+Enter the password for secret_stuff.star :
+Enter the password for secret_stuff_changes.star :
+Star is now mounted and patched. Press Enter to unmount and exit
+
+ls
+mount_star.sh  patch_star.sh  secret_stuff  secret_stuff_changes.star  secret_stuff.star  star
+$ ls secret_stuff
+lala  new_secret_data.bin  secret_data.bin
+</code></pre>
+
+<p>This can be very handy for transferring small edits to a large archive across the network in a secure manner, without needing to retransfer the whole archive. The layering effect also acts as a poor man&rsquo;s version control. In the future, I would like to expand on this idea and write a script to manage the layers more convieniently and effectively, perhaps in a manner similar to Git or Docker.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -2044,185 +2859,6 @@ Group:
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/25/enhanced-corefile-metadata/">Enhanced Corefile Metadata</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-25T22:26:50-04:00" pubdate data-updated="true">Jul 25<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/25/enhanced-corefile-metadata/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. <br/>
-It hooks into the kernel&rsquo;s corepattern mechanism to accept the core dump via stdin and extract information from the process before it is killed. It then runs GDB to produce a backtrace and grab the register contents.</p>
-
-<p><a href="https://github.com/jrruethe/corefile">Enhanced Corefile Metadata</a></p>
-
-<p>Here is a list of metadata that is written out on every core dump:</p>
-
-<ul>
-<li>Binary that crashed</li>
-<li>Corefile from the crash</li>
-<li>Signal causing the crash</li>
-<li>Original filepath</li>
-<li>Original file size</li>
-<li>MD5 checksum of the binary</li>
-<li>MD5 checksum of the corefile</li>
-<li>Creation, modification, and access times of the binary</li>
-<li>Hostname and PID of the crashed process</li>
-<li>User, group, and permissions of the crashed process</li>
-<li>The setuid bit</li>
-<li>Working directory of the process</li>
-<li>Invoked command line parameters</li>
-<li>Stack trace</li>
-<li>Memory Map</li>
-<li>Environment variables</li>
-<li>Frame information</li>
-<li>Register states</li>
-</ul>
-
-
-<p>This script is very useful for bug reports as well as devloping buffer overflow exploits.
-To install, save <code>corefile.rb</code> somewhere. Edit <code>/etc/sysctl.conf</code> and set the <code>kernel.core_pattern</code> parameter as follows:</p>
-
-<pre><code>kernel.core_pattern=|/path/to/corefile.rb %e %p %u %g %h %s
-</code></pre>
-
-<p><em>Take note of the pipe character!</em></p>
-
-<p>If you want to test it out, simply crash something.<br/>
-Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in <code>sysctl.conf</code>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Installing Bittorrent Sync on Debian</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-06T14:51:39-04:00" pubdate data-updated="true">Jul 6<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of all, the files are only ever stored on machines <em>you</em> choose; there is no &ldquo;cloud&rdquo; or third party servers.</p>
-
-<p>I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. Unfortunately, it is not open source, however I am still a fan of this software.</p>
-
-<p>There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.<br/>
-First you need to go get the software:</p>
-
-<ul>
-<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/i386">32 Bit</a></li>
-<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/x64">64 Bit</a></li>
-</ul>
-
-
-<p>I suggest unpacking it to /opt/btsync:</p>
-
-<pre><code>mkdir /opt/btsync
-mv btsync_x64.tar.gz /opt/btsync
-cd /opt/btsync
-tar xzvf ./btsync_x64.tar.gz
-</code></pre>
-
-<p>Next, create a configuration file:</p>
-
-<pre><code>./btsync --dump-sample-config &gt; btsync.conf
-</code></pre>
-
-<p>You need to make one change to the config file, and that is the storage path.<br/>
-Look for where it says <code>/home/user/.sync</code> and change <code>user</code> to your username.<br/>
-You might be interested in adding a password to the Web UI, which is where you will do all your folder management from. You can find thhat setting near the bottom of the config file.</p>
-
-<p>Next, you want to create an init script. Copy the following to <code>/etc/init.d/btsync</code>:</p>
-
-<pre><code>#! /bin/sh
-# /etc/init.d/btsync
-#
-
-# Carry out specific functions when asked to by the system
-case "$1" in
-start)
-    # /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root
-    /bin/su user -c '/opt/btsync/btsync --config /opt/btsync/btsync.conf' # Run as user
-    ;;
-stop)
-    killall btsync
-    ;;
-*)
-    echo "Usage: /etc/init.d/btsync {start|stop}"
-    exit 1
-    ;;
-esac
-
-exit 0
-</code></pre>
-
-<p>Finally, run the following commands to finish the installation:</p>
-
-<pre><code>chmod 755 /etc/init.d/btsync
-update-rc.d btsync defaults
-mkdir ~/.sync
-/etc/init.d/btsync start
-</code></pre>
-
-<p>Thats it! Bittorrent Sync is installed, and will automatically run every time your machine boots.<br/>
-You can access the Web UI at 127.0.0.1:8888</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2246,6 +2882,14 @@ You can access the Web UI at 127.0.0.1:8888</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/04/06/bitcoin-starter-guide/">Bitcoin Starter Guide</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
       </li>
     
@@ -2255,14 +2899,6 @@ You can access the Web UI at 127.0.0.1:8888</p>
     
       <li class="post">
         <a href="/blog/2015/03/27/hex-to-mnemonics/">Hex to Mnemonics</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
       </li>
     
   </ul>

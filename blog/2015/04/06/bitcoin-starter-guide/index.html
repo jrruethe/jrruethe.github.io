@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Installing Bittorrent Sync on Debian - Morning Musings</title>
+  <title>Bitcoin Starter Guide - Morning Musings</title>
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of &hellip;">
+  <meta name="description" content="What is Bitcoin? Why is it better than Paypal / Credit Cards? How does it work? Bitcoins live in little houses. Each house has an address and a key &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian">
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
@@ -68,7 +68,7 @@
   
   <header>
     
-      <h1 class="entry-title">Installing Bittorrent Sync on Debian</h1>
+      <h1 class="entry-title">Bitcoin Starter Guide</h1>
     
     
       <p class="meta">
@@ -84,7 +84,7 @@
   
 
 
-<time datetime="2014-07-06T14:51:39-04:00" pubdate data-updated="true">Jul 6<span>th</span>, 2014</time>
+<time datetime="2015-04-06T11:43:13-04:00" pubdate data-updated="true">Apr 6<span>th</span>, 2015</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://jrruethe.github.io">Comments</a>
@@ -94,70 +94,52 @@
   </header>
 
 
-<div class="entry-content"><p>Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of all, the files are only ever stored on machines <em>you</em> choose; there is no &ldquo;cloud&rdquo; or third party servers.</p>
+<div class="entry-content"><h2>What is Bitcoin?</h2>
 
-<p>I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. Unfortunately, it is not open source, however I am still a fan of this software.</p>
+<h2>Why is it better than Paypal / Credit Cards?</h2>
 
-<p>There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.<br/>
-First you need to go get the software:</p>
+<h2>How does it work?</h2>
+
+<p>Bitcoins live in little houses. Each house has an address and a key to the front door. The front door is strange in that it is one-way; it allows Bitcoins to enter freely, but Bitcoins are not allowed to leave unless someone unlocks the door.</p>
+
+<p>All the houses are located in the city of Blockchainville. Like all cities, Blockchainville has a directory people can use to see which Bitcoins live at which address. It also has a mayor as an elected official.</p>
+
+<p>Users own the houses in Blockchainville (and consequently, the keys to the front door). A user may own many houses simultaneously; some may have Bitcoins living in them, some may be empty. A user&rsquo;s net worth is determined by the number of Bitcoins living in all their houses combined.</p>
+
+<p>A user may build any empty unused house for free, upon which they get the only key to the front door. They can do this at any time without the mayor&rsquo;s consent, however the address will not be listed in the directory until the first time that Bitcoins move in.</p>
+
+<p>When a user (Bill) wants to transfer some of their wealth to another user (Jack), Bill instructs his Bitcoins the vacate their house and move to a house that Jack owns. This is done by unlocking the door and sending them to another address. The Bitcoins will call up the mayor of Blockchainville to tell him their moving plans, and if the mayor approves, they will move out.</p>
+
+<p>Bitcoins hate being locked up in the house, so once the door is unlocked, they all leave at the same time. Some bitcoins will move into Jack&rsquo;s house, while others may take up residence in another house that Bill owns. Bill gets to choose which of his Bitcoins move where, therefore he gets to control how his net worth changes. After all the Bitcoins leave the house, Bill locks the door again, and other Bitcoins are allowed to move into that house again.</p>
+
+<p>Since houses are free to build, it is more common to build a new house than it is to reuse an existing house.</p>
+
+<p>Bitcoins</p>
+
+<h2>How do I use Bitcoin?</h2>
+
+<p>First, lets go over some terminology.</p>
+
+<p>Bitcoin works using a blockchain. A blockchain is a distributed public ledger that contains every transaction ever made. It allows anyone to verify a transaction, and keeps a record of the rightful owner of any Bitcoin.</p>
+
+<p>Users do not actually possess Bitcoins, they only control the rights to spend them. All Bitcoins are located inside the blockchain at specific addresses. Users have keys that allow them to unlock the bitcoins.</p>
+
+<p>Bitcoins are stored inside the Blockchain at specific Addresses.
+The Blockchain is a distributed public ledger of every transaction ever made.
+You can look up the current location of any Bitcoin in the Blockchain.</p>
+
+<p>Users manage their Bitcoins by using a wallet.</p>
 
 <ul>
-<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/i386">32 Bit</a></li>
-<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/x64">64 Bit</a></li>
+<li>Desktop applications</li>
+<li>Mobile apps</li>
+<li>Web wallets</li>
 </ul>
 
 
-<p>I suggest unpacking it to /opt/btsync:</p>
+<h2>How do I convert to / from Dollars?</h2>
 
-<pre><code>mkdir /opt/btsync
-mv btsync_x64.tar.gz /opt/btsync
-cd /opt/btsync
-tar xzvf ./btsync_x64.tar.gz
-</code></pre>
-
-<p>Next, create a configuration file:</p>
-
-<pre><code>./btsync --dump-sample-config &gt; btsync.conf
-</code></pre>
-
-<p>You need to make one change to the config file, and that is the storage path.<br/>
-Look for where it says <code>/home/user/.sync</code> and change <code>user</code> to your username.<br/>
-You might be interested in adding a password to the Web UI, which is where you will do all your folder management from. You can find thhat setting near the bottom of the config file.</p>
-
-<p>Next, you want to create an init script. Copy the following to <code>/etc/init.d/btsync</code>:</p>
-
-<pre><code>#! /bin/sh
-# /etc/init.d/btsync
-#
-
-# Carry out specific functions when asked to by the system
-case "$1" in
-start)
-    # /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root
-    /bin/su user -c '/opt/btsync/btsync --config /opt/btsync/btsync.conf' # Run as user
-    ;;
-stop)
-    killall btsync
-    ;;
-*)
-    echo "Usage: /etc/init.d/btsync {start|stop}"
-    exit 1
-    ;;
-esac
-
-exit 0
-</code></pre>
-
-<p>Finally, run the following commands to finish the installation:</p>
-
-<pre><code>chmod 755 /etc/init.d/btsync
-update-rc.d btsync defaults
-mkdir ~/.sync
-/etc/init.d/btsync start
-</code></pre>
-
-<p>Thats it! Bittorrent Sync is installed, and will automatically run every time your machine boots.<br/>
-You can access the Web UI at 127.0.0.1:8888</p>
+<h2>How does it work?</h2>
 </div>
 
 
@@ -180,7 +162,7 @@ You can access the Web UI at 127.0.0.1:8888</p>
   
 
 
-<time datetime="2014-07-06T14:51:39-04:00" pubdate data-updated="true">Jul 6<span>th</span>, 2014</time>
+<time datetime="2015-04-06T11:43:13-04:00" pubdate data-updated="true">Apr 6<span>th</span>, 2015</time>
       
 
 
@@ -188,7 +170,7 @@ You can access the Web UI at 127.0.0.1:8888</p>
     
       <div class="sharing">
   
-  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/" >Tweet</a>
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/" >Tweet</a>
   
   
   
@@ -202,10 +184,8 @@ You can access the Web UI at 127.0.0.1:8888</p>
 
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/07/06/open-terminator-from-nautilus/" title="Previous Post: Open Terminator from Nautilus">&laquo; Open Terminator from Nautilus</a>
+        <a class="basic-alignment left" href="/blog/2015/03/30/squashed-truecrypt-archive/" title="Previous Post: Squashed Truecrypt Archive">&laquo; Squashed Truecrypt Archive</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2014/07/25/enhanced-corefile-metadata/" title="Next Post: Enhanced Corefile Metadata">Enhanced Corefile Metadata &raquo;</a>
       
     </p>
   </footer>
@@ -223,10 +203,10 @@ You can access the Web UI at 127.0.0.1:8888</p>
   
     <section>
 <h1>Link to this page</h1>
-<a href="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/" alt="post-qrcode"></a>
+<a href="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/" alt="post-qrcode"></a>
 </section>
 <section>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/" >Tweet</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/" >Tweet</a>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
 </section>
 <section>
@@ -264,10 +244,6 @@ You can access the Web UI at 127.0.0.1:8888</p>
       </li>
    
       <li class="related">
-      <a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a>
-      </li>
-   
-      <li class="related">
       <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
       </li>
    
@@ -276,7 +252,11 @@ You can access the Web UI at 127.0.0.1:8888</p>
       </li>
    
       <li class="related">
-      <a href="/blog/2014/07/05/blogging-with-octopress/">Blogging with Octopress</a>
+      <a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/27/physical-blockchain-identity-card/">Physical Blockchain Identity Card</a>
       </li>
    
    </ul>
@@ -338,8 +318,8 @@ You can access the Web UI at 127.0.0.1:8888</p>
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/';
-        var disqus_url = 'http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/';
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/';
         var disqus_script = 'embed.js';
       
     (function () {
