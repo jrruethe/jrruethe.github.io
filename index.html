@@ -9,7 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="What is Bitcoin? Why is it better than Paypal / Credit Cards? How does it work? Bitcoins live in little houses. Each house has an address and a key &hellip;">
+  <meta name="description" content="This post presents a script that can create a squashfs filesystem inside of a truecrypt container.
+This has many benefits over encrypted zip files as &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,90 +66,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/06/bitcoin-starter-guide/">Bitcoin Starter Guide</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-04-06T11:43:13-04:00" pubdate data-updated="true">Apr 6<span>th</span>, 2015</time>
-        
-           | <a href="/blog/2015/04/06/bitcoin-starter-guide/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2015/04/06/bitcoin-starter-guide/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>What is Bitcoin?</h2>
-
-<h2>Why is it better than Paypal / Credit Cards?</h2>
-
-<h2>How does it work?</h2>
-
-<p>Bitcoins live in little houses. Each house has an address and a key to the front door. The front door is strange in that it is one-way; it allows Bitcoins to enter freely, but Bitcoins are not allowed to leave unless someone unlocks the door.</p>
-
-<p>All the houses are located in the city of Blockchainville. Like all cities, Blockchainville has a directory people can use to see which Bitcoins live at which address. It also has a mayor as an elected official.</p>
-
-<p>Users own the houses in Blockchainville (and consequently, the keys to the front door). A user may own many houses simultaneously; some may have Bitcoins living in them, some may be empty. A user&rsquo;s net worth is determined by the number of Bitcoins living in all their houses combined.</p>
-
-<p>A user may build any empty unused house for free, upon which they get the only key to the front door. They can do this at any time without the mayor&rsquo;s consent, however the address will not be listed in the directory until the first time that Bitcoins move in.</p>
-
-<p>When a user (Bill) wants to transfer some of their wealth to another user (Jack), Bill instructs his Bitcoins the vacate their house and move to a house that Jack owns. This is done by unlocking the door and sending them to another address. The Bitcoins will call up the mayor of Blockchainville to tell him their moving plans, and if the mayor approves, they will move out.</p>
-
-<p>Bitcoins hate being locked up in the house, so once the door is unlocked, they all leave at the same time. Some bitcoins will move into Jack&rsquo;s house, while others may take up residence in another house that Bill owns. Bill gets to choose which of his Bitcoins move where, therefore he gets to control how his net worth changes. After all the Bitcoins leave the house, Bill locks the door again, and other Bitcoins are allowed to move into that house again.</p>
-
-<p>Since houses are free to build, it is more common to build a new house than it is to reuse an existing house.</p>
-
-<p>Bitcoins</p>
-
-<h2>How do I use Bitcoin?</h2>
-
-<p>First, lets go over some terminology.</p>
-
-<p>Bitcoin works using a blockchain. A blockchain is a distributed public ledger that contains every transaction ever made. It allows anyone to verify a transaction, and keeps a record of the rightful owner of any Bitcoin.</p>
-
-<p>Users do not actually possess Bitcoins, they only control the rights to spend them. All Bitcoins are located inside the blockchain at specific addresses. Users have keys that allow them to unlock the bitcoins.</p>
-
-<p>Bitcoins are stored inside the Blockchain at specific Addresses.
-The Blockchain is a distributed public ledger of every transaction ever made.
-You can look up the current location of any Bitcoin in the Blockchain.</p>
-
-<p>Users manage their Bitcoins by using a wallet.</p>
-
-<ul>
-<li>Desktop applications</li>
-<li>Mobile apps</li>
-<li>Web wallets</li>
-</ul>
-
-
-<h2>How do I convert to / from Dollars?</h2>
-
-<h2>How does it work?</h2>
-</div>
-  
-  
-
-
-    </article>
   
   
     <article>
@@ -2859,6 +2776,83 @@ Group:
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/25/enhanced-corefile-metadata/">Enhanced Corefile Metadata</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-25T22:26:50-04:00" pubdate data-updated="true">Jul 25<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/25/enhanced-corefile-metadata/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. <br/>
+It hooks into the kernel&rsquo;s corepattern mechanism to accept the core dump via stdin and extract information from the process before it is killed. It then runs GDB to produce a backtrace and grab the register contents.</p>
+
+<p><a href="https://github.com/jrruethe/corefile">Enhanced Corefile Metadata</a></p>
+
+<p>Here is a list of metadata that is written out on every core dump:</p>
+
+<ul>
+<li>Binary that crashed</li>
+<li>Corefile from the crash</li>
+<li>Signal causing the crash</li>
+<li>Original filepath</li>
+<li>Original file size</li>
+<li>MD5 checksum of the binary</li>
+<li>MD5 checksum of the corefile</li>
+<li>Creation, modification, and access times of the binary</li>
+<li>Hostname and PID of the crashed process</li>
+<li>User, group, and permissions of the crashed process</li>
+<li>The setuid bit</li>
+<li>Working directory of the process</li>
+<li>Invoked command line parameters</li>
+<li>Stack trace</li>
+<li>Memory Map</li>
+<li>Environment variables</li>
+<li>Frame information</li>
+<li>Register states</li>
+</ul>
+
+
+<p>This script is very useful for bug reports as well as devloping buffer overflow exploits.
+To install, save <code>corefile.rb</code> somewhere. Edit <code>/etc/sysctl.conf</code> and set the <code>kernel.core_pattern</code> parameter as follows:</p>
+
+<pre><code>kernel.core_pattern=|/path/to/corefile.rb %e %p %u %g %h %s
+</code></pre>
+
+<p><em>Take note of the pipe character!</em></p>
+
+<p>If you want to test it out, simply crash something.<br/>
+Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in <code>sysctl.conf</code>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -2882,10 +2876,6 @@ Group:
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2015/04/06/bitcoin-starter-guide/">Bitcoin Starter Guide</a>
-      </li>
-    
-      <li class="post">
         <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
       </li>
     
@@ -2899,6 +2889,10 @@ Group:
     
       <li class="post">
         <a href="/blog/2015/03/27/hex-to-mnemonics/">Hex to Mnemonics</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a>
       </li>
     
   </ul>
