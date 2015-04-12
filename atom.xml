@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-04-11T18:38:40-04:00</updated>
+  <updated>2015-04-11T21:33:22-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,346 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Verified Addresses]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/11/verified-addresses/"/>
+    <updated>2015-04-11T18:48:27-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/11/verified-addresses</id>
+    <content type="html"><![CDATA[<p>This is a curated list of important websites and services with verified certificates and onion addresses:</p>
+
+<figure class='code'><figcaption><span> (verified_addresses.txt.asc)</span> <a href='http://jrruethe.github.io/downloads/code/verified_addresses.txt.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA1</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'> <span class="l-Scalar-Plain">- Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">cert-002.blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">94:10:81:EB:E4:62:B5:BD:7B:03:DE:79:C7:A6:4D:91:30:13:7B:E0</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://blockchainbdgpzk.onion/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://blockchain.info/wallet/anonymity</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://blog.blockchain.com/tag/digicert/</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://lists.torproject.org/pipermail/tor-talk/2014-December/035841.html</span>
+</span><span class='line'><span class="-Error">   </span><span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">support@blockchain.zendesk.com</span>
+</span><span class='line'>
+</span><span class='line'><span class="-Error"> </span><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Duck Duck Go</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://duckduckgo.com/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">duckduckgo.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.duckduckgo.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">AF:81:DA:50:2D:E7:B8:4E:92:F5:A9:36:1F:A5:89:6F:FE:AC:0F:6F</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://3g2upl4pq6kufc4m.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://duck.co/forum/thread/1762/is-the-duckduckgo-hidden-service-legitimate</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">duckduckgo</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Electronic Frontier Foundation</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://www.eff.org/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.eff.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.eff.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1E:F9:6F:18:02:22:26:F6:63:3C:C3:E8:75:FB:8E:7C:31:67:91:DE</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">F2F2 1BB8 531E 9DC3 0D40  F68B 11A1 A9C8 4B18 732F</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info@eff.org</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Freedom of the Press Foundation</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://freedom.press/</span>
+</span><span class='line'>   <span class="c1"># Domain: freedom.press</span>
+</span><span class='line'>   <span class="c1"># Certificate: ssl7272.cloudflare.com</span>
+</span><span class='line'>   <span class="c1"># SHA1: 2A:92:0A:71:AE:66:13:4A:D6:E7:FD:40:A8:54:3C:67:82:D7:E1:EB</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">freepress3xxs3hk.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://freedom.press/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">B89A 29DB 2128 160B 8E4B  1B4C BADD E0C7 FC9F 6818</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">734F 6E70 7434 ECA6 C007  E1AE 82BD 6C96 16DA BB79</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info@freedom.press</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">FreedomofPress</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Gibson Research Corporation</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://www.grc.com/fingerprints.htm</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.grc.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">grc.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">01:56:D3:AC:CF:5A:3F:B8:8F:0F:B4:30:88:2D:F6:72:4E:8C:F2:E0</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">GibsonResearch</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">The Original Hidden Wiki</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://www.kpvz7ki2v5agwt35.onion/wiki/index.php/Main_Page</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">kpvz7ki2v5agwt35.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://web.archive.org/web/20090923122959/http://www.reddit.com/r/onions</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">The New Hidden Wiki</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://zqktlwi4fecvo6ri.onion/wiki/Main_Page</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">zqktlwi4fecvo6ri.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">http://www.reddit.com/r/onions/comments/24uq96/zqktlw_hidden_wiki_admin_here_trying_to_clear_up/</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://bitcointalk.org/index.php?topic=511139.0</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Internet Archive</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://archive.org/index.php</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">archive.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.archive.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">98:8C:12:12:BB:E5:4A:3A:8A:CE:3C:E6:2C:C2:0C:CC:D5:1A:C5:C5</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info@archive.org</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Keybase.io</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://keybase.io/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">keybase.io</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">keybase.io</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">15:03:31:EA:85:6B:C9:76:8D:98:82:AD:01:16:D4:62:85:5F:47:7E</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://fncuwbiisyh6ak3i.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://keybase.io/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">222B 85B0 F90B E2D2 4CFE  B93F 4748 4E50 656D 16C7</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">03E1 46CD AF81 3668 0AD5  6691 2A32 340C EC8C 9492</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">8EFB E2E4 DD56 B352 7363  4E8F 6052 B2AD 31A6 631C</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">94AA 3A5B DBD4 0EA5 49CA  BAF9 FBC0 7D6A 9701 6CB3</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="err">@</span><span class="l-Scalar-Plain">maxtaco</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="err">@</span><span class="l-Scalar-Plain">malgorithms</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">OneName</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://onename.com/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">onename.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.onename.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">E2:C7:66:9A:A7:69:0E:F3:57:22:EA:E5:5D:23:0A:C4:55:41:89:67</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">onename</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Reddit</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://www.reddit.com/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.reddit.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.reddit.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">DB:90:0C:4A:F5:A2:1C:85:CB:DD:3B:2E:11:8C:93:CD:4C:DA:5C:CA</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">contact@reddit.com</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Riseup</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://help.riseup.net/en</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">help.riseup.net</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">riseup.net</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">F4:6A:41:B5:0D:59:3E:57:2C:5A:E2:9B:17:6A:54:93:10:8A:26:90</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">nzh3fv6jc6jskki3.onion</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://5jp7xtmox6jyoqd5.onion/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://help.riseup.net/en/security/network-security/tor</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4E07 9126 8F7C 67EA BE88  F1B0 3043 E2B7 139A 768E</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">collective@riseup.net</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">riseupnet</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Tails</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://tails.boum.org/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">tails.boum.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.boum.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2E:0F:60:F9:68:9B:B5:CE:D1:5C:82:A0:9D:D9:55:A0:8F:41:EC:70</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">A490 D0F4 D311 A415 3E2B  B7CA DBB8 02B2 58AC D84F</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">0D24 B36A A9A2 A651 7878  7645 1202 821C BE2C D9C1</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">1F56 EDD3 0741 0480 35DA  C1C5 EC57 B56E F0C4 3132</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">tails-support-private@boum.org</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">TorBox Email</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">torbox3uiot6wchz.onion</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Tor Check</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://check.torproject.org/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">check.torproject.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.torproject.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">84:24:56:56:8E:D7:90:43:47:AA:89:AB:77:7D:A4:94:3B:A1:A7:D5</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">EF6E 286D DA85 EA2A 4BA7  DE68 4E2C 6E87 9329 8290</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">help@rt.torproject.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">TorProject</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">WTFIsMyIP Jabber</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://wtfismyip.com/jabber/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">wtfismyip.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.wtfismyip.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">C2:C5:C1:7F:30:0E:C9:C8:72:1D:9D:ED:D0:CB:52:A1:F2:12:DB:15</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">ofkztxcohimx34la.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://wtfismyip.com/jabber/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">support@wtfismyip.com</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQEcBAEBAgAGBQJVKaWRAAoJEB7MsgHDevAp2tAIAIHgMAL8tVji6iNzOSTYd1SO</span>
+</span><span class='line'><span class="l-Scalar-Plain">ySL9gnG2v6o5sEhYUgYjdX2lmKjrff8EkeUpmKU/CSPMekjYvFzVaMBhJkgUotap</span>
+</span><span class='line'><span class="l-Scalar-Plain">B3e3LVLyFvz9NdcpTLcLr7xHzzbI0VHb+zfNfmjxS3a/vw8/pnzjad8NoFveJO8l</span>
+</span><span class='line'><span class="l-Scalar-Plain">/pTqu/wRXR+pRe4ypILSGtfRpvoZYpuI70luF1GPmAu4zsIbKenerI4O7vYGy0cq</span>
+</span><span class='line'><span class="l-Scalar-Plain">dYmZHI938095XLtAOmTm24Q9rfRfUT47+ipm61Bx4WCJrlg3cR4rzipTGiIX5/Z/</span>
+</span><span class='line'><span class="l-Scalar-Plain">mzhJAC7gDhnjK+LJPCLb8Ne1WFYbx1lABflis1xflWO8/sCwNjRKOXNPNgA+wkM=</span>
+</span><span class='line'><span class="l-Scalar-Plain">=Uo1F</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To extract all the GPG keys and import them:</p>
+
+<pre><code>for i in `egrep -o '([0-F]{4} ){5} ([0-F]{4} ){4}[0-F]{4}' verified_addresses.txt.asc | tr -d ' '`;  
+do
+   gpg --keyserver pool.sks-keyservers.net --recv-keys $i;
+
+   # Sleep needed to prevent spamming the server, it will respond with "connection refused" otherwise       
+   sleep 30;
+done;
+</code></pre>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Squashed Truecrypt Archive]]></title>
@@ -3431,258 +3771,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 </span><span class='line'><span class="l-Scalar-Plain">ewB6rgu7pPnOa3eGk52czyArCIsgYeVp/jlQ</span>
 </span><span class='line'><span class="l-Scalar-Plain">=MDtX</span>
 </span><span class='line'><span class="l-Scalar-Plain">-----END PGP PUBLIC KEY BLOCK-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Transition Statement]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/20/transition-statement/"/>
-    <updated>2014-06-20T21:24:29-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/20/transition-statement</id>
-    <content type="html"><![CDATA[<p>I have decided to transition to a new GPG key. Below you will find the following:</p>
-
-<ul>
-<li>Transition Statement</li>
-<li>Signature of Transition Statement with old key</li>
-<li>Signature of Transition Statement with new key</li>
-</ul>
-
-
-<p>I have put my new public key in a separate post.</p>
-
-<figure class='code'><figcaption><span> (transition_statement.txt)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">Date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">June 20th, 2014</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">For a number of reasons, i&#39;ve recently set up a new OpenPGP key,</span>
-</span><span class='line'><span class="l-Scalar-Plain">and will be transitioning away from my old one.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">The old key will continue to be valid for some time, but i prefer all</span>
-</span><span class='line'><span class="l-Scalar-Plain">future correspondence to come to the new one.  I would also like this</span>
-</span><span class='line'><span class="l-Scalar-Plain">new key to be re-integrated into the web of trust.  This message is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by both keys to certify the transition.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">the old key was</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/250390EF 2013-11-03</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 584B CD6D 1CA2 8A2D 7F1C 9AA6 E8BA 54DF 2503 90EF</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">And the new key is</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/40B935FE 2014-06-14 [expires</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2015-06-14]</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">To fetch the full key from a public key server, you can simply do</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --keyserver pool.sks-keyservers.net --recv-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you already know my old key, you can now verify that the new key is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by the old one</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --check-sigs &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you don&#39;t already know my old key, or you just want to be double</span>
-</span><span class='line'><span class="l-Scalar-Plain">extra paranoid, you can check the fingerprint against the one above</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --fingerprint &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you are satisfied that you&#39;ve got the right key, and the UIDs match</span>
-</span><span class='line'><span class="l-Scalar-Plain">what you expect, I&#39;d appreciate it if you would sign my key. You can</span>
-</span><span class='line'><span class="l-Scalar-Plain">do that by issuing the following command</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'><span class="l-Scalar-Plain">NOTE</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">if you have previously signed my key but did a local-only</span>
-</span><span class='line'><span class="l-Scalar-Plain">signature (lsign), you will not want to issue the following, instead</span>
-</span><span class='line'><span class="l-Scalar-Plain">you will want to use --lsign-key, and not send the signatures to the</span>
-</span><span class='line'><span class="l-Scalar-Plain">keyserver</span>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --sign-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I&#39;d like to receive your signatures on my key. You can either send me</span>
-</span><span class='line'><span class="l-Scalar-Plain">an e-mail with the new signatures (if you have a functional MTA on</span>
-</span><span class='line'><span class="l-Scalar-Plain">your system)</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --export &#39;4630BEDC40B935FE&#39; | gpg --encrypt -r &#39;4630BEDC40B935FE&#39; --armor | mail -s &#39;OpenPGP Signatures&#39; jrruethe@gmail.com</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Additionally, I highly recommend that you implement a mechanism to keep your key</span>
-</span><span class='line'><span class="l-Scalar-Plain">material up-to-date so that you obtain the latest revocations, and other updates</span>
-</span><span class='line'><span class="l-Scalar-Plain">in a timely manner. You can do regular key updates by using parcimonie[0] to</span>
-</span><span class='line'><span class="l-Scalar-Plain">refresh your keyring. Parcimonie is a daemon that slowly refreshes your keyring</span>
-</span><span class='line'><span class="l-Scalar-Plain">from a keyserver over Tor. It uses a randomized sleep, and fresh tor circuits</span>
-</span><span class='line'><span class="l-Scalar-Plain">for each key. The purpose is to make it hard for an attacker to correlate the</span>
-</span><span class='line'><span class="l-Scalar-Plain">key updates with your keyring.</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I also highly recommend checking out the excellent Riseup GPG best</span>
-</span><span class='line'><span class="l-Scalar-Plain">practices doc, from which I stole most of the text for this transition</span>
-</span><span class='line'><span class="l-Scalar-Plain">message ;-)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">https://we.riseup.net/debian/openpgp-best-practices</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Please let me know if you have any questions, or problems, and sorry</span>
-</span><span class='line'><span class="l-Scalar-Plain">for the inconvenience.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Joseph Ruether</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">0. https://gaffer.ptitcanardnoir.org/intrigeri/code/parcimonie/</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.oldkey.asc)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt.oldkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1.4.12 (GNU/Linux)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABAgAGBQJTpNubAAoJEOi6VN8lA5DvJpIQAKeb/PrZMIMquikQyeFYfMfw</span>
-</span><span class='line'><span class="l-Scalar-Plain">5M4OlALtDN1sJaDSsfODwPzgqu9vjNNkWznifaUnt/AAHWIh0mJGQ+ePetbdaK7C</span>
-</span><span class='line'><span class="l-Scalar-Plain">yW5Xc3idE6ElByiZa2NuSq6RMSRFYcBPtJWmrdlLlfv1gf5WFwkRGDUHrRbKGdKf</span>
-</span><span class='line'><span class="l-Scalar-Plain">mU4PIJPNgug8XjlSMNw8P8IEmG6nuxpaEcQSfsmjF+BuYyhPuNS+ZFBMTfG4j16t</span>
-</span><span class='line'><span class="l-Scalar-Plain">B8UrTAPD6FFRVC0mtE6lunveTeXMgFK6GtFN1vrKTcSSgHUarPIHgoOw7w9WNxde</span>
-</span><span class='line'><span class="l-Scalar-Plain">9gkfTLbxseFzfo4u/ng9xupgomguf+jP6dv3d8OQZg5Yvu624RhoPvKkVt5K8by3</span>
-</span><span class='line'><span class="l-Scalar-Plain">E8BvqnOz0fUK6rSmNoSmKimkQ/zPPb4UJ70BdqXgRm1N6WQjrzhuuFW3cJbIYEyf</span>
-</span><span class='line'><span class="l-Scalar-Plain">+59qYkIgMYGk/jpKacEVsUwpEa2Rm7r7+Gj/TTS7APh3Lh88YBNPdjJQMx+fkV9J</span>
-</span><span class='line'><span class="l-Scalar-Plain">CloWfSl5c9dntBpGhxeo03dY8fs6UxisIMZqpgntp2gTzJ6fZi501hdBzGbCUU08</span>
-</span><span class='line'><span class="l-Scalar-Plain">BBMZmOzB2hElsXEeNy1A/kjVgZuazGJViTiKtx+E3JsULv86DTXUwtC/HmaRsREF</span>
-</span><span class='line'><span class="l-Scalar-Plain">88ng/df3XITr1YJVXJALaICAhhR0Vhbn9m0Dwqm/FIudSsdPyD6tBHn5JbfT3fX1</span>
-</span><span class='line'><span class="l-Scalar-Plain">YzfWiLkqHwRxhjQ9TD51</span>
-</span><span class='line'><span class="l-Scalar-Plain">=u6TC</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.newkey.asc)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt.newkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABCgAGBQJTpN4CAAoJEInJf5BWENx2D+EP/0aK6kSa5grA/9wM2UlWe/kT</span>
-</span><span class='line'><span class="l-Scalar-Plain">t4PsugJHixYOeHn75Q3YX5CvMTnw6WSxy5hb4FpJrIaTwZshw5L8oiftUWhda1v0</span>
-</span><span class='line'><span class="l-Scalar-Plain">8DfRpm2sw2edtUgarNVwl+hLxbo41V8N6zyJiSjri9LLd+LD2PXM+/cURK696xbk</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ylpl5n1+PyxrhdiFeTui9QTHr0BKk1ShkaLqSQEsVHgC8AEviGv+jr70PX5roOZC</span>
-</span><span class='line'><span class="l-Scalar-Plain">EN9FfbqWRKleEqqZ/ROIQTsEQMN+QhxQxCwMZshgybqIbmGuSdHj0cJqYaz6EJDR</span>
-</span><span class='line'><span class="l-Scalar-Plain">NFKLQ5sETwqo1QCwfzXp2Fy42yEh+FbOYEWAUS3F7MDWJP2ZeuaNsSlf26iMWWN5</span>
-</span><span class='line'><span class="l-Scalar-Plain">dFeYaf28xRb8GMoc92q3n+S+M1STEX9V2fyitUq747yWrdbzgOQcblYS9lLtSEzo</span>
-</span><span class='line'><span class="l-Scalar-Plain">Jgf8MR0d3ZvWI2OtUnyyO/nVS5WYD4w09ItheNwf+02gKVPImOvT7TCC6aPxKzUr</span>
-</span><span class='line'><span class="l-Scalar-Plain">YPmJMncXFkES4TAH4vgVZpSYC1WAHoQoLFBBgbDFActb1Pp/6q4iGjv4pv0quSZl</span>
-</span><span class='line'><span class="l-Scalar-Plain">Dgy4T6U8W/NdmRXDTG05RqjMuQdV2/QPeredHkozpaGO4a0sIgEj5UkxfsburgE3</span>
-</span><span class='line'><span class="l-Scalar-Plain">H/RjbHVxfuTU1MtNvnBQHMNZS2swmgCfG4Ct9W4MAS5qeE4GhZZQSwtqvoOUVNqr</span>
-</span><span class='line'><span class="l-Scalar-Plain">6DAdB/qFc0Iavgvb9TK1</span>
-</span><span class='line'><span class="l-Scalar-Plain">=NiZp</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
 </span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
