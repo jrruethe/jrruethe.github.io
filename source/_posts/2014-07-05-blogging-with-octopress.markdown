@@ -13,7 +13,7 @@ Use these instructions if you are creating a blog for the first time.
  1. Install dependencies
  
         sudo apt-get install ruby bundler rake git  
-        git clone git://github.com/imathis/octopress.git octopress  
+        git clone git://github.com/imathis/octopress.git blog  
         cd octopress  
         bundle install  
         rake install  
@@ -41,6 +41,8 @@ Use these instructions if you are creating a blog for the first time.
     - [Bitcoin](https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside) : Add a QR code for Bitcoin Donations
     - [File Binder](https://github.com/aycabta/octopress-file-binder) : Easily attach an image to a post
     - [QR Codes](https://github.com/sailor79/Octopress-dynamic-QR-Code-aside) : Add QR codes for mobile navigation and sharing
+    - [Octolayer](https://github.com/mguentner/octolayer) : Embed maps into posts
+    - [Responsive Video Embed](https://github.com/optikfluffel/octopress-responsive-video-embed) : Embed Youtube videos into posts
     
  6. Sign up for [Disqus](https://disqus.com)
  
@@ -63,8 +65,7 @@ Use these instructions if you are creating a blog for the first time.
  
         rake _0.9.2.2_ setup_github_pages
 
-
-Ready to go. Jump down to "Creating a post"
+ 9. Ready to go. Jump down to "Creating a post"
         
 ---
 
@@ -74,11 +75,11 @@ Use these instructions if you are continuing a blog that has already been create
 
  1. Install the dependencies
  
-        sudo apt-get install ruby bundler rake git 
+        sudo apt-get install ruby bundler rake git ruby-gsl
 
  1. Clone the repository
  
-        git clone git@github.com:username/username.github.io.git
+        git clone -b source git@github.com:username/username.github.io.git blog
     
  2. Install the octopress dependencies
  
@@ -120,3 +121,67 @@ Next, you want to make sure that you re-pull after the deployment is complete, o
     
 Go to `username.github.com` and check out your page.
     
+### Embedding Content
+
+#### Code
+
+It is easy to embed any text file found in the source/downloads/code folder.  
+Octopress even supports syntax highlighting, and a handy download link.
+{% raw %}
+    {% include_code lang:yaml filename.ext %}
+{% endraw %}
+
+lang can be any of the following:
+
+ - ruby
+ - yaml
+ - bash
+ - python
+
+For example:
+{% raw %}
+    {% include_code lang:ruby address-to-hash.rb %}
+{% endraw %}
+
+Results in:
+{% include_code lang:ruby address-to-hash.rb %}
+
+#### Image
+
+Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is `2014-07-05-blogging-with-octopress.markdown`, and the image below has the filename `2014-07-05-blogging-with-octopress_01.png`. The image is refered to by the name after the trailing `_`. In this case, the name is `01.png`.
+
+To embed this image, use the tag like this:
+{% raw %}
+    {% img center ./01.png %}
+{% endraw %}
+
+Which results in this:
+{% img center ./01.png %}
+
+#### Video
+
+Embedding a youtube video can be done by grabbing the video id from the url:  
+[https://www.youtube.com/watch?v=**dQw4w9WgXcQ**](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+
+Use the following tag:
+{% raw %}
+    {% youtube dQw4w9WgXcQ %}
+{% endraw %}
+
+Here is the result:
+{% youtube dQw4w9WgXcQ %}
+
+#### Map
+
+Embedding a map can be done with the following tag:
+{% raw %}
+    {% map lat lon zoomLevel "markerTitle" "description" %}
+{% endraw %}
+    
+A simple example is shown here:
+{% raw %}
+    {% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
+{% endraw %}
+
+And here is the result:
+{% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
