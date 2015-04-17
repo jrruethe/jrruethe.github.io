@@ -52,8 +52,9 @@ lsi: true
 
 # list each of the sidebar modules you want to include, in the order you want them to appear.
 # To add custom asides, create files in /source/_includes/custom/asides/ and add them to the list like 'custom/asides/custom_aside_name.html'
-default_asides: [asides/qrcode.html, 
+default_asides: [asides/about.html,
                  asides/twitter.html,
+                 asides/qrcode.html, 
                  asides/recent_posts.html, 
                  asides/related_posts.html,
                  asides/github.html, 

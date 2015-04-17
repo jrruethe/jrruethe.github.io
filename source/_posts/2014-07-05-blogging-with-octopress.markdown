@@ -43,7 +43,8 @@ Use these instructions if you are creating a blog for the first time.
     - [QR Codes](https://github.com/sailor79/Octopress-dynamic-QR-Code-aside) : Add QR codes for mobile navigation and sharing
     - [Octolayer](https://github.com/mguentner/octolayer) : Embed maps into posts
     - [Responsive Video Embed](https://github.com/optikfluffel/octopress-responsive-video-embed) : Embed Youtube videos into posts
-    
+
+
  6. Sign up for [Disqus](https://disqus.com)
  
  7. Configure your _config.yml file
