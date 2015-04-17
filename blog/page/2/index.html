@@ -27,8 +27,15 @@
   <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
 
   
 
@@ -341,7 +348,7 @@ The reason the symlink is needed is because <code>nautilus-open-terminal</code> 
 <li><p>Install dependencies</p>
 
 <pre><code>sudo apt-get install ruby bundler rake git  
-git clone git://github.com/imathis/octopress.git octopress  
+git clone git://github.com/imathis/octopress.git blog  
 cd octopress  
 bundle install  
 rake install  
@@ -369,6 +376,8 @@ git push origin source
 <li><a href="https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside">Bitcoin</a> : Add a QR code for Bitcoin Donations</li>
 <li><a href="https://github.com/aycabta/octopress-file-binder">File Binder</a> : Easily attach an image to a post</li>
 <li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
+<li><a href="https://github.com/mguentner/octolayer">Octolayer</a> : Embed maps into posts</li>
+<li><a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Responsive Video Embed</a> : Embed Youtube videos into posts</li>
 </ul>
 </li>
 <li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
@@ -396,10 +405,9 @@ git push origin source
 
 <pre><code>rake _0.9.2.2_ setup_github_pages
 </code></pre></li>
+<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
 </ol>
 
-
-<p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p>
 
 <hr />
 
@@ -410,11 +418,11 @@ git push origin source
 <ol>
 <li><p>Install the dependencies</p>
 
-<pre><code>sudo apt-get install ruby bundler rake git 
+<pre><code>sudo apt-get install ruby bundler rake git ruby-gsl
 </code></pre></li>
 <li><p>Clone the repository</p>
 
-<pre><code>git clone git@github.com:username/username.github.io.git
+<pre><code>git clone -b source git@github.com:username/username.github.io.git blog
 </code></pre></li>
 <li><p>Install the octopress dependencies</p>
 
@@ -462,6 +470,136 @@ cd -
 </code></pre>
 
 <p>Go to <code>username.github.com</code> and check out your page.</p>
+
+<hr />
+
+<h3>Embedding Content</h3>
+
+<h4>Code</h4>
+
+<p>It is easy to embed any text file found in the source/downloads/code folder.<br/>
+Octopress even supports syntax highlighting, and a handy download link.</p>
+
+<pre><code>{% include_code lang:yaml filename.ext %}
+</code></pre>
+
+<p>lang can be any of the following:</p>
+
+<ul>
+<li>ruby</li>
+<li>yaml</li>
+<li>bash</li>
+<li>python</li>
+</ul>
+
+
+<p>For example:</p>
+
+<pre><code>{% include_code lang:ruby address-to-hash.rb %}
+</code></pre>
+
+<p>Results in:</p>
+
+<figure class='code'><figcaption><span> (address-to-hash.rb)</span> <a href='/downloads/code/address-to-hash.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>   <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the hex payload</span>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Image</h4>
+
+<p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>. The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
+
+<p>To embed this image, use the tag like this:</p>
+
+<pre><code>{% img center ./01.png %}
+</code></pre>
+
+<p>Which results in this:
+<img class="center" src="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png"></p>
+
+<h4>Video</h4>
+
+<p>Embedding a youtube video can be done by grabbing the video id from the url:<br/>
+<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong></a></p>
+
+<p>Use the following tag:</p>
+
+<pre><code>{% youtube dQw4w9WgXcQ %}
+</code></pre>
+
+<p>Here is the result:</p>
+
+<div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
+
+
+<h4>Map</h4>
+
+<p>Embedding a map can be done with the following tag:</p>
+
+<pre><code>{% map lat lon zoomLevel "markerTitle" "description" %}
+</code></pre>
+
+<p>A simple example is shown here:</p>
+
+<pre><code>{% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
+</code></pre>
+
+<p>And here is the result:</p>
+
+<div class='map'><div style='height:420px' id='map1'></div><div class='mapCaption'>Map Data: <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors <a href='http://www.openstreetmap.org/copyright'>License</a> - Tiles Courtesy of <a href='http://www.mapquest.com/' target='_blank'>MapQuest</a><img src='http://developer.mapquest.com/content/osm/mq_logo.png'></div></div>
+
+
+<script type='text/javascript'>jQuery(document).ready(function() {initmap('map1',37.7577,-122.4376,13,'','');});</script>
+
 </div>
   
   
@@ -637,262 +775,6 @@ The wireless key (F8) also works without any configuration needed.</p>
 
 <p>The sound control buttons (F1 / F2 / F3) do not seem to do anything out of the box.
 Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/04/installing-packages-on-a-fresh-system/">Installing Packages on a Fresh System</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-04T22:49:53-04:00" pubdate data-updated="true">Jul 4<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/04/installing-packages-on-a-fresh-system/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/04/installing-packages-on-a-fresh-system/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>When I do a fresh Debian installation, I always have a set number of packages I use for various tasks.<br/>
-This post is more of a reminder to myself for when I need a package list for a task. It also means I don&rsquo;t have to remember the name of that one package I needed to make something work.</p>
-
-<p>These lists are useful for creating a single purpose system:</p>
-
-<ul>
-<li>Bare Metal machines</li>
-<li>Virtual machines</li>
-<li>Docker containers</li>
-</ul>
-
-
-<p>Typically for a development machine I install all the packages in my list.<br/>
-But it is very easy to comment out a line to prevent the installation of a group.<br/>
-Since some groups might be enabled while others are disabled, there are some duplicate packages across groups.
-This can be useful for creating minimal systems, coldboot machines, backup machines, or development machines.</p>
-
-<p>The script is organized into the following package groups, designed to handle specific tasks:</p>
-
-<ul>
-<li>Common CLI packages</li>
-<li>Minimal Desktop Environment</li>
-<li>LVM / LUKS support</li>
-<li>System Optimization</li>
-<li>Networking</li>
-<li>Printing</li>
-<li>Audio</li>
-<li>Bluetooth</li>
-<li>Virtual Machines</li>
-<li>Development</li>
-<li>Documents</li>
-<li>Ruby</li>
-<li>Java</li>
-<li>Blogging</li>
-<li>Dropbox</li>
-<li>GPG</li>
-<li>Yubikey</li>
-<li>Tor</li>
-<li>Bitcoin</li>
-<li>Python</li>
-</ul>
-
-
-<p>As my workflow evolves, this script will be updated with additional packages and groups.</p>
-
-<p>The script can be found <a href="https://github.com/jrruethe/install-packages">here</a>.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-04T19:54:30-04:00" pubdate data-updated="true">Jul 4<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/04/debian-expert-install/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/04/debian-expert-install/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>When I do a new installation of Debian, I always choose to do an expert install.<br/>
-This gives me finer control of how the system turns out.</p>
-
-<p>The goals of this are simple:</p>
-
-<ul>
-<li>Minimal base image to build off of</li>
-<li>Full disk encryption with LUKS + LVM</li>
-</ul>
-
-
-<p>So lets begin!</p>
-
-<p><em>TODO: Add pictures of each step. I&rsquo;ll do this next time I install on a Virtual Machine</em></p>
-
-<h3>Step 1</h3>
-
-<p>Download the latest stable Debian Netinst ISO.<br/>
-Either burn it to a disk or load it into a VM.<br/>
-Getting the ISO to boot is out of the scope of this document.</p>
-
-<h3>Step 2</h3>
-
-<p>At the boot screen, scroll down to &ldquo;Advanced Options&rdquo;.<br/>
-On the following menu, select &ldquo;54 bit expert install&rdquo;.</p>
-
-<h3>Step 3</h3>
-
-<p>Get through all the language questions and keyboard layout.<br/>
-Select English for everything.<br/>
-Make sure the CD gets detected and mounted.</p>
-
-<h3>Step 4</h3>
-
-<p>Next you will be given the option to load installer components from the CD.<br/>
-On this screen, enable &ldquo;crypto-dm-modules&rdquo;.</p>
-
-<h3>Step 5</h3>
-
-<p>Next we need to connect to the network.<br/>
-I usually end up installing over wireless so these instructions will do just that.<br/>
-Select &ldquo;Detect network hardware&rdquo; followed by &ldquo;Configure the network&rdquo;.<br/>
-Then, select &ldquo;wlan0&rdquo; from the list of network interfaces.</p>
-
-<p>Select the SSID of your network, the encryption type (WPA2 PSK) and enter the passphrase.<br/>
-Let it auto-configure using DHCP.</p>
-
-<h3>Step 6</h3>
-
-<p>Select a hostname. I try to stick to names that describe what the system will be used for.<br/>
-Leave the domain name blank.</p>
-
-<h3>Step 7</h3>
-
-<p>When setting up users and passwords, be sure to enable shadow passwords.<br/>
-Also, disallow login as root. To gain root access you will need to use <code>sudo su</code> from your user account.<br/>
-Enter your full name, followed by your username.<br/>
-Finally, choose a strong password. This will be the password for your user account, and also the password you need to access the root account.<br/>
-It will NOT be the password you use to mount the encrypted volume at boot time.</p>
-
-<h3>Step 8</h3>
-
-<p>Configure the clock for NTP using the default server.<br/>
-Then select your time zone.</p>
-
-<h3>Step 9</h3>
-
-<p>Next, you will detect disks, and partition them.<br/>
-For this step, we are going to select &ldquo;Guided &ndash; use entire disk and set up encrypted LVM&#8221;<br/>
-Be very sure to select the correct disk!<br/>
-Choose to keep &rdquo;/home&#8221; on a separate partition.<br/>
-Review the information and if everything looks good, commit it to the disk.<br/>
-Erasing the disk and setting up the partitions will take some time, so just wait it out.</p>
-
-<hr />
-
-<h3>Step 10</h3>
-
-<p>You will be asked for an encryption passphrase. Be sure to choose a long one, and don&rsquo;t forget it!<br/>
-Without this key, your files are gone forever.</p>
-
-<h3>Step 11</h3>
-
-<p>Set the name of your LVM volume group, I usually set it the same as the hostname.<br/>
-It will ask you to verify the LVM volumes, after which it will perform the partitioning.</p>
-
-<h3>Step 12</h3>
-
-<p>You are finally ready to install the base system.<br/>
-The core packages will be downloaded. Sit back and wait.<br/>
-You will be asked to select a kernel, choose the generic one without a version number.</p>
-
-<hr />
-
-<h3>Step 13</h3>
-
-<p>Next, you will be asked which drivers to include in the initramfs.<br/>
-Be sure to choose generic here, it will come in handy later.</p>
-
-<h3>Step 14</h3>
-
-<p>Now you get to configure the package mananger.<br/>
-Be sure to enable the network mirror to get the most up to date packages.<br/>
-Select the default mirror.<br/>
-When asked, enable non-free software if you wish.<br/>
-Finally, enable the two update options from the security and release repositories.<br/>
-There will be a long wait while the installer prepares to initate the base system.</p>
-
-<hr />
-
-<h3>Step 15</h3>
-
-<p>When asked, choose to opt out of package statistics.<br/>
-Also, choose to disable man page setuid.</p>
-
-<h3>Step 16</h3>
-
-<p>It is time to install the software.<br/>
-We are going to do the minimal installation, so uncheck all the boxes.<br/>
-Select the bottom option: &ldquo;Standard system utilities&rdquo;.<br/>
-Also select &ldquo;Laptop&rdquo; if applicable.<br/>
-There will be another long wait while the base system is set up.</p>
-
-<hr />
-
-<h3>Step 17</h3>
-
-<p>Install the Grub bootloader onto the MBR of the disk.</p>
-
-<h3>Step 18</h3>
-
-<p>Set the clock to UTC time<br/>
-Finish the installation and reboot.<br/>
-Enter your LUKS password and enjoy your new minimal Debian installation!</p>
 </div>
   
   
@@ -1350,9 +1232,338 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 
     </article>
   
-  <div class="pagination">
+  
+    <article>
+      
+  <header>
     
-      <a class="prev" href="/blog/page/3/">&larr; Older</a>
+      <h1 class="entry-title"><a href="/blog/2014/06/20/transition-statement/">Transition Statement</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-20T21:24:29-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/06/20/transition-statement/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/06/20/transition-statement/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have decided to transition to a new GPG key. Below you will find the following:</p>
+
+<ul>
+<li>Transition Statement</li>
+<li>Signature of Transition Statement with old key</li>
+<li>Signature of Transition Statement with new key</li>
+</ul>
+
+
+<p>I have put my new public key in a separate post.</p>
+
+<figure class='code'><figcaption><span> (transition_statement.txt)</span> <a href='/downloads/code/transition_statement.txt'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">Date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">June 20th, 2014</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">For a number of reasons, i&#39;ve recently set up a new OpenPGP key,</span>
+</span><span class='line'><span class="l-Scalar-Plain">and will be transitioning away from my old one.</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">The old key will continue to be valid for some time, but i prefer all</span>
+</span><span class='line'><span class="l-Scalar-Plain">future correspondence to come to the new one.  I would also like this</span>
+</span><span class='line'><span class="l-Scalar-Plain">new key to be re-integrated into the web of trust.  This message is</span>
+</span><span class='line'><span class="l-Scalar-Plain">signed by both keys to certify the transition.</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">the old key was</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/250390EF 2013-11-03</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 584B CD6D 1CA2 8A2D 7F1C 9AA6 E8BA 54DF 2503 90EF</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">And the new key is</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/40B935FE 2014-06-14 [expires</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2015-06-14]</span>
+</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">To fetch the full key from a public key server, you can simply do</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --keyserver pool.sks-keyservers.net --recv-key &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">If you already know my old key, you can now verify that the new key is</span>
+</span><span class='line'><span class="l-Scalar-Plain">signed by the old one</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --check-sigs &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">If you don&#39;t already know my old key, or you just want to be double</span>
+</span><span class='line'><span class="l-Scalar-Plain">extra paranoid, you can check the fingerprint against the one above</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --fingerprint &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">If you are satisfied that you&#39;ve got the right key, and the UIDs match</span>
+</span><span class='line'><span class="l-Scalar-Plain">what you expect, I&#39;d appreciate it if you would sign my key. You can</span>
+</span><span class='line'><span class="l-Scalar-Plain">do that by issuing the following command</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">**</span>
+</span><span class='line'><span class="l-Scalar-Plain">NOTE</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">if you have previously signed my key but did a local-only</span>
+</span><span class='line'><span class="l-Scalar-Plain">signature (lsign), you will not want to issue the following, instead</span>
+</span><span class='line'><span class="l-Scalar-Plain">you will want to use --lsign-key, and not send the signatures to the</span>
+</span><span class='line'><span class="l-Scalar-Plain">keyserver</span>
+</span><span class='line'><span class="err">**</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --sign-key &#39;4630BEDC40B935FE&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">I&#39;d like to receive your signatures on my key. You can either send me</span>
+</span><span class='line'><span class="l-Scalar-Plain">an e-mail with the new signatures (if you have a functional MTA on</span>
+</span><span class='line'><span class="l-Scalar-Plain">your system)</span><span class="p-Indicator">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="l-Scalar-Plain">gpg --export &#39;4630BEDC40B935FE&#39; | gpg --encrypt -r &#39;4630BEDC40B935FE&#39; --armor | mail -s &#39;OpenPGP Signatures&#39; jrruethe@gmail.com</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Additionally, I highly recommend that you implement a mechanism to keep your key</span>
+</span><span class='line'><span class="l-Scalar-Plain">material up-to-date so that you obtain the latest revocations, and other updates</span>
+</span><span class='line'><span class="l-Scalar-Plain">in a timely manner. You can do regular key updates by using parcimonie[0] to</span>
+</span><span class='line'><span class="l-Scalar-Plain">refresh your keyring. Parcimonie is a daemon that slowly refreshes your keyring</span>
+</span><span class='line'><span class="l-Scalar-Plain">from a keyserver over Tor. It uses a randomized sleep, and fresh tor circuits</span>
+</span><span class='line'><span class="l-Scalar-Plain">for each key. The purpose is to make it hard for an attacker to correlate the</span>
+</span><span class='line'><span class="l-Scalar-Plain">key updates with your keyring.</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">I also highly recommend checking out the excellent Riseup GPG best</span>
+</span><span class='line'><span class="l-Scalar-Plain">practices doc, from which I stole most of the text for this transition</span>
+</span><span class='line'><span class="l-Scalar-Plain">message ;-)</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">https://we.riseup.net/debian/openpgp-best-practices</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Please let me know if you have any questions, or problems, and sorry</span>
+</span><span class='line'><span class="l-Scalar-Plain">for the inconvenience.</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Joseph Ruether</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">0. https://gaffer.ptitcanardnoir.org/intrigeri/code/parcimonie/</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (transition_statement.txt.oldkey.asc)</span> <a href='/downloads/code/transition_statement.txt.oldkey.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1.4.12 (GNU/Linux)</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABAgAGBQJTpNubAAoJEOi6VN8lA5DvJpIQAKeb/PrZMIMquikQyeFYfMfw</span>
+</span><span class='line'><span class="l-Scalar-Plain">5M4OlALtDN1sJaDSsfODwPzgqu9vjNNkWznifaUnt/AAHWIh0mJGQ+ePetbdaK7C</span>
+</span><span class='line'><span class="l-Scalar-Plain">yW5Xc3idE6ElByiZa2NuSq6RMSRFYcBPtJWmrdlLlfv1gf5WFwkRGDUHrRbKGdKf</span>
+</span><span class='line'><span class="l-Scalar-Plain">mU4PIJPNgug8XjlSMNw8P8IEmG6nuxpaEcQSfsmjF+BuYyhPuNS+ZFBMTfG4j16t</span>
+</span><span class='line'><span class="l-Scalar-Plain">B8UrTAPD6FFRVC0mtE6lunveTeXMgFK6GtFN1vrKTcSSgHUarPIHgoOw7w9WNxde</span>
+</span><span class='line'><span class="l-Scalar-Plain">9gkfTLbxseFzfo4u/ng9xupgomguf+jP6dv3d8OQZg5Yvu624RhoPvKkVt5K8by3</span>
+</span><span class='line'><span class="l-Scalar-Plain">E8BvqnOz0fUK6rSmNoSmKimkQ/zPPb4UJ70BdqXgRm1N6WQjrzhuuFW3cJbIYEyf</span>
+</span><span class='line'><span class="l-Scalar-Plain">+59qYkIgMYGk/jpKacEVsUwpEa2Rm7r7+Gj/TTS7APh3Lh88YBNPdjJQMx+fkV9J</span>
+</span><span class='line'><span class="l-Scalar-Plain">CloWfSl5c9dntBpGhxeo03dY8fs6UxisIMZqpgntp2gTzJ6fZi501hdBzGbCUU08</span>
+</span><span class='line'><span class="l-Scalar-Plain">BBMZmOzB2hElsXEeNy1A/kjVgZuazGJViTiKtx+E3JsULv86DTXUwtC/HmaRsREF</span>
+</span><span class='line'><span class="l-Scalar-Plain">88ng/df3XITr1YJVXJALaICAhhR0Vhbn9m0Dwqm/FIudSsdPyD6tBHn5JbfT3fX1</span>
+</span><span class='line'><span class="l-Scalar-Plain">YzfWiLkqHwRxhjQ9TD51</span>
+</span><span class='line'><span class="l-Scalar-Plain">=u6TC</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span> (transition_statement.txt.newkey.asc)</span> <a href='/downloads/code/transition_statement.txt.newkey.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABCgAGBQJTpN4CAAoJEInJf5BWENx2D+EP/0aK6kSa5grA/9wM2UlWe/kT</span>
+</span><span class='line'><span class="l-Scalar-Plain">t4PsugJHixYOeHn75Q3YX5CvMTnw6WSxy5hb4FpJrIaTwZshw5L8oiftUWhda1v0</span>
+</span><span class='line'><span class="l-Scalar-Plain">8DfRpm2sw2edtUgarNVwl+hLxbo41V8N6zyJiSjri9LLd+LD2PXM+/cURK696xbk</span>
+</span><span class='line'><span class="l-Scalar-Plain">Ylpl5n1+PyxrhdiFeTui9QTHr0BKk1ShkaLqSQEsVHgC8AEviGv+jr70PX5roOZC</span>
+</span><span class='line'><span class="l-Scalar-Plain">EN9FfbqWRKleEqqZ/ROIQTsEQMN+QhxQxCwMZshgybqIbmGuSdHj0cJqYaz6EJDR</span>
+</span><span class='line'><span class="l-Scalar-Plain">NFKLQ5sETwqo1QCwfzXp2Fy42yEh+FbOYEWAUS3F7MDWJP2ZeuaNsSlf26iMWWN5</span>
+</span><span class='line'><span class="l-Scalar-Plain">dFeYaf28xRb8GMoc92q3n+S+M1STEX9V2fyitUq747yWrdbzgOQcblYS9lLtSEzo</span>
+</span><span class='line'><span class="l-Scalar-Plain">Jgf8MR0d3ZvWI2OtUnyyO/nVS5WYD4w09ItheNwf+02gKVPImOvT7TCC6aPxKzUr</span>
+</span><span class='line'><span class="l-Scalar-Plain">YPmJMncXFkES4TAH4vgVZpSYC1WAHoQoLFBBgbDFActb1Pp/6q4iGjv4pv0quSZl</span>
+</span><span class='line'><span class="l-Scalar-Plain">Dgy4T6U8W/NdmRXDTG05RqjMuQdV2/QPeredHkozpaGO4a0sIgEj5UkxfsburgE3</span>
+</span><span class='line'><span class="l-Scalar-Plain">H/RjbHVxfuTU1MtNvnBQHMNZS2swmgCfG4Ct9W4MAS5qeE4GhZZQSwtqvoOUVNqr</span>
+</span><span class='line'><span class="l-Scalar-Plain">6DAdB/qFc0Iavgvb9TK1</span>
+</span><span class='line'><span class="l-Scalar-Plain">=NiZp</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/08/about-me/">About Me</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-08T07:06:48-04:00" pubdate data-updated="true">Jun 8<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/06/08/about-me/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/06/08/about-me/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>My name is Joe Ruether. I graduated from Michigan Technological University with a bachelors in Computer Engineering and Electrical Engineering. Currently I am a full time Software Engineer at a company that designs radar systems. I am working towards my masters in Computer Science at Drexel University.</p>
+
+<p>I&rsquo;m a programmer at heart, I love being able to express my thoughts in the form of code and have the machine act it out. Programming allows me to bring my ideas to life, to build a world that I can share. I feel that programming is an art form that combines the creativity of writing with the logic of mathematics.</p>
+
+<p>I am fluent at C++ and would consider myself an advanced user, I frequently use templates and metaprogramming, and I am very familiar with many of the Boost libraries. C++ is the main language I use and work with. I very much enjoy C++. As for Python, the only real reason I use it is for the workplace; I don&rsquo;t really prefer it as a language, although I do recognize its usefulness and the fact that it is available on every Linux machine. My favorite language so far is Ruby, and I have been trying to teach myself Ruby in my spare time. Not Rails, I haven&rsquo;t gotten to that yet, I am primarily focusing on desktop applications. Unfortunately, I do not know too much Java.</p>
+
+<p>I am a Linux user and am a fan of open source software. As such the projects I create will be released under the GPLv3 license. You can find them all on GitHub. I use Debian as my main OS, particularly because it really is the &ldquo;Universal Operating System&rdquo;; it is stable, mature, flexible, and has a massive package collection as well as a strong community.</p>
+
+<p>Personality-wise, the Myers-Briggs test classifies me as an INTP, and I think the description of that describes me well:</p>
+
+<blockquote><p>Seek to develop logical explanations for everything that interests them. Theoretical and abstract, interested more in ideas than in social interaction. Quiet, contained, flexible, and adaptable. Have unusual ability to focus in depth to solve problems in their area of interest. Skeptical, sometimes critical, always analytical.</p></blockquote>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -1363,12 +1574,22 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 <aside class="sidebar">
   
     <section>
-<h1>Link to this page</h1>
-<a href="http://jrruethe.github.io/blog/page/2/index.html"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/page/2/index.html" alt="post-qrcode"></a>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
 </section>
 <section>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/page/2/index.html" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/page/2/index.html" >Tweet</a>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/page/2/index.html" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/page/2/index.html" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/page/2/index.html"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/page/2/index.html" alt="post-qrcode"></a>
 </section>
 <section>
   <h1>Recent Posts</h1>

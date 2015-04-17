@@ -60,6 +60,20 @@
     - http://www.reddit.com/r/onions/comments/24uq96/zqktlw_hidden_wiki_admin_here_trying_to_clear_up/
     - https://bitcointalk.org/index.php?topic=511139.0
       
+ - Name: The Intercept Secure Drop
+   URL: https://firstlook.org/theintercept/securedrop/
+   Domain: firstlook.org
+   Certificate: *.firstlook.org
+   SHA1: FA:34:AB:6D:D5:68:0A:CC:38:4F:4E:28:B6:6B:43:9F:D3:0E:C4:3D
+   Onion: https://y6xjgkgwj47us5ca.onion/
+   Proof:
+    - https://firstlook.org/theintercept/securedrop/
+    - https://firstlook.org/theintercept/2015/04/08/securedrop-tor-hidden-service-now-uses-https/
+    - https://firstlook.org/theintercept/2015/01/28/how-to-leak-to-the-intercept/
+   GPG Fingerprint: 0B14 9192 9806 5962 5470  0155 FD72 0AD9 EBA3 4B1C
+   Email: tips@theintercept.com
+   Twitter: @the_intercept
+      
  - Name: Internet Archive
    URL: https://archive.org/index.php
    Domain: archive.org

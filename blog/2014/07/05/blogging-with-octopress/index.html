@@ -27,8 +27,15 @@
   <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
 
   
 
@@ -102,7 +109,7 @@
 <li><p>Install dependencies</p>
 
 <pre><code>sudo apt-get install ruby bundler rake git  
-git clone git://github.com/imathis/octopress.git octopress  
+git clone git://github.com/imathis/octopress.git blog  
 cd octopress  
 bundle install  
 rake install  
@@ -130,6 +137,8 @@ git push origin source
 <li><a href="https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside">Bitcoin</a> : Add a QR code for Bitcoin Donations</li>
 <li><a href="https://github.com/aycabta/octopress-file-binder">File Binder</a> : Easily attach an image to a post</li>
 <li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
+<li><a href="https://github.com/mguentner/octolayer">Octolayer</a> : Embed maps into posts</li>
+<li><a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Responsive Video Embed</a> : Embed Youtube videos into posts</li>
 </ul>
 </li>
 <li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
@@ -157,10 +166,9 @@ git push origin source
 
 <pre><code>rake _0.9.2.2_ setup_github_pages
 </code></pre></li>
+<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
 </ol>
 
-
-<p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p>
 
 <hr />
 
@@ -171,11 +179,11 @@ git push origin source
 <ol>
 <li><p>Install the dependencies</p>
 
-<pre><code>sudo apt-get install ruby bundler rake git 
+<pre><code>sudo apt-get install ruby bundler rake git ruby-gsl
 </code></pre></li>
 <li><p>Clone the repository</p>
 
-<pre><code>git clone git@github.com:username/username.github.io.git
+<pre><code>git clone -b source git@github.com:username/username.github.io.git blog
 </code></pre></li>
 <li><p>Install the octopress dependencies</p>
 
@@ -223,6 +231,136 @@ cd -
 </code></pre>
 
 <p>Go to <code>username.github.com</code> and check out your page.</p>
+
+<hr />
+
+<h3>Embedding Content</h3>
+
+<h4>Code</h4>
+
+<p>It is easy to embed any text file found in the source/downloads/code folder.<br/>
+Octopress even supports syntax highlighting, and a handy download link.</p>
+
+<pre><code>{% include_code lang:yaml filename.ext %}
+</code></pre>
+
+<p>lang can be any of the following:</p>
+
+<ul>
+<li>ruby</li>
+<li>yaml</li>
+<li>bash</li>
+<li>python</li>
+</ul>
+
+
+<p>For example:</p>
+
+<pre><code>{% include_code lang:ruby address-to-hash.rb %}
+</code></pre>
+
+<p>Results in:</p>
+
+<figure class='code'><figcaption><span> (address-to-hash.rb)</span> <a href='/downloads/code/address-to-hash.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>   <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the hex payload</span>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Image</h4>
+
+<p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>. The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
+
+<p>To embed this image, use the tag like this:</p>
+
+<pre><code>{% img center ./01.png %}
+</code></pre>
+
+<p>Which results in this:
+<img class="center" src="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png"></p>
+
+<h4>Video</h4>
+
+<p>Embedding a youtube video can be done by grabbing the video id from the url:<br/>
+<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong></a></p>
+
+<p>Use the following tag:</p>
+
+<pre><code>{% youtube dQw4w9WgXcQ %}
+</code></pre>
+
+<p>Here is the result:</p>
+
+<div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
+
+
+<h4>Map</h4>
+
+<p>Embedding a map can be done with the following tag:</p>
+
+<pre><code>{% map lat lon zoomLevel "markerTitle" "description" %}
+</code></pre>
+
+<p>A simple example is shown here:</p>
+
+<pre><code>{% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
+</code></pre>
+
+<p>And here is the result:</p>
+
+<div class='map'><div style='height:420px' id='map1'></div><div class='mapCaption'>Map Data: <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors <a href='http://www.openstreetmap.org/copyright'>License</a> - Tiles Courtesy of <a href='http://www.mapquest.com/' target='_blank'>MapQuest</a><img src='http://developer.mapquest.com/content/osm/mq_logo.png'></div></div>
+
+
+<script type='text/javascript'>jQuery(document).ready(function() {initmap('map1',37.7577,-122.4376,13,'','');});</script>
+
 </div>
 
 
@@ -287,12 +425,22 @@ cd -
 <aside class="sidebar">
   
     <section>
-<h1>Link to this page</h1>
-<a href="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" alt="post-qrcode"></a>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
 </section>
 <section>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" >Tweet</a>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" alt="post-qrcode"></a>
 </section>
 <section>
   <h1>Recent Posts</h1>
@@ -329,10 +477,6 @@ cd -
       </li>
    
       <li class="related">
-      <a href="/blog/2014/07/04/debian-expert-install/">Debian Expert Install</a>
-      </li>
-   
-      <li class="related">
       <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
       </li>
    
@@ -342,6 +486,10 @@ cd -
    
       <li class="related">
       <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
       </li>
    
    </ul>
