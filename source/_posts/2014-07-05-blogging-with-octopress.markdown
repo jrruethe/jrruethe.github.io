@@ -121,6 +121,8 @@ Next, you want to make sure that you re-pull after the deployment is complete, o
     
 Go to `username.github.com` and check out your page.
     
+---
+    
 ### Embedding Content
 
 #### Code
