@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-04-17T18:19:27-04:00</updated>
+  <updated>2015-04-19T15:29:42-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,205 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Generate Hashes]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/"/>
+    <updated>2015-04-19T14:51:57-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/19/generate-hashes</id>
+    <content type="html"><![CDATA[<p>This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking.</p>
+
+<figure class='code'><figcaption><span> (generate_hashes.sh)</span> <a href='http://jrruethe.github.io/downloads/code/generate_hashes.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Usage: ./generate_hashes.sh [directory] [hash]</span>
+</span><span class='line'><span class="c"># Check the result with sha256sum -c &lt;result&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># See if a directory was defined</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nv">DIRECTORY</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
+</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="k">${</span><span class="nv">DIRECTORY</span><span class="k">}</span>/
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$DIRECTORY</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $DIRECTORY&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Use the current directory</span>
+</span><span class='line'>   <span class="nv">DIRECTORY</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
+</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="s1">&#39;\./&#39;</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Hash type to use</span>
+</span><span class='line'><span class="nv">HASH</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">sha256</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generate the output filename</span>
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span>hashes.<span class="nv">$HASH</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Determine which program to use</span>
+</span><span class='line'><span class="nv">HASHER</span><span class="o">=</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span>sum
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remove any existing hash file</span>
+</span><span class='line'>rm -f <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Find all files in the directory</span>
+</span><span class='line'><span class="c"># that do not have the output filename</span>
+</span><span class='line'><span class="c"># and hash them. Store the output in the target directory</span>
+</span><span class='line'>find <span class="nv">$DIRECTORY</span> -type f ! -name <span class="s2">&quot;$OUTPUT&quot;</span> -exec <span class="nv">$HASHER</span> <span class="o">{}</span> <span class="se">\;</span> &gt;&gt; <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Sort the output on the filename column</span>
+</span><span class='line'>sort -u -k2 -o <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remove the directory from the listings</span>
+</span><span class='line'>sed -i <span class="s2">&quot;s@ $REPLACE@@g&quot;</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The following will show how to use it. First, we need some files:</p>
+
+<pre><code>$ ls
+generate_hashes.sh
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; 1.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0787343 s, 13.3 MB/s
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; 2.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0862146 s, 12.2 MB/s
+
+$ mkdir -p three/four
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; three/3.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0854334 s, 12.3 MB/s
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; three/four/4.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0783046 s, 13.4 MB/s
+
+$ ls *
+1.txt  2.txt  generate_hashes.sh
+
+three:
+3.txt  four
+</code></pre>
+
+<p>Calling the script without any arguments will generate the hashes in the current directory. The file is stored as hashes.hashtype, where hashtype defaults to sha256.</p>
+
+<pre><code>$ ./generate_hashes.sh 
+$ ls
+1.txt  2.txt  generate_hashes.sh  hashes.sha256  three
+
+$ cat hashes.sha256 
+3f27f253e357143105f9a29193141db5ad833b56299a4c4e4a30a2d19f4732a8 1.txt
+9dee9ed8f2c7a8533e764bc6963615537524d54292875e9fd858e9e0cd9b93b1 2.txt
+20a1cbbf5a21773d673c79d4d8e58e31c3766f87c0299aa5a8c669015504c9f0 generate_hashes.sh
+a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca three/3.txt
+bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 three/four/4.txt
+
+$ sha256sum -c hashes.sha256 
+1.txt: OK
+2.txt: OK
+generate_hashes.sh: OK
+three/3.txt: OK
+three/four/4.txt: OK
+</code></pre>
+
+<p>The first optional argument is the directory to hash. <code>.</code> is allowed.</p>
+
+<pre><code>$ rm hashes.sha256
+$ ls
+1.txt  2.txt  generate_hashes.sh  three
+$ ls three/
+3.txt  four
+
+$ ./generate_hashes.sh three/
+$ ls three/
+3.txt  four  hashes.sha256
+$ cat three/hashes.sha256 
+a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca 3.txt
+bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 four/4.txt
+</code></pre>
+
+<p>The second optional argument is the hash type to use:</p>
+
+<ul>
+<li>sha1</li>
+<li>sha224</li>
+<li>sha256 (default)</li>
+<li>sha384</li>
+<li>sha512</li>
+<li>md5</li>
+</ul>
+
+
+<p>Example:</p>
+
+<pre><code>$ ./generate_hashes.sh three/ sha1
+$ ls three/
+3.txt  four  hashes.sha1  hashes.sha256
+$ cat three/hashes.sha1
+fffdc438939ae0afa1f19569939dd3996a2d67bb 3.txt
+cec823c326525c23bba925d5d85b35a5ebbed62d four/4.txt
+deea8794a7aada412518d06df516c804389ef212 hashes.sha256
+
+$ cd three/
+$ sha1sum -c hashes.sha1
+3.txt: OK
+four/4.txt: OK
+hashes.sha256: OK
+</code></pre>
+
+<p>When distributing a large set of files or directory tree, it is best to generate the hashes in the root of the tree and sign the hashes.sha256 file with GPG.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Verified Addresses]]></title>
@@ -2971,18 +3170,32 @@ The reason the symlink is needed is because <code>nautilus-open-terminal</code> 
     <link href="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/"/>
     <updated>2014-07-05T20:51:27-04:00</updated>
     <id>http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress</id>
-    <content type="html"><![CDATA[<h3>Starting Fresh</h3>
+    <content type="html"><![CDATA[<h3>Before you continue</h3>
+
+<p>Grab all the dependencies:</p>
+
+<pre><code>sudo apt-get install ruby bundler git  
+sudo gem install rake --version 0.9.2.2
+git clone git://github.com/imathis/octopress.git blog  
+cd blog  
+bundle install  
+</code></pre>
+
+<p>You may have a newer <code>rake</code> installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.</p>
+
+<pre><code>alias rake="rake _0.9.2.2_"
+</code></pre>
+
+<hr />
+
+<h3>Starting Fresh</h3>
 
 <p>Use these instructions if you are creating a blog for the first time.</p>
 
 <ol>
-<li><p>Install dependencies</p>
+<li><p>Install the blog</p>
 
-<pre><code>sudo apt-get install ruby bundler rake git  
-git clone git://github.com/imathis/octopress.git blog  
-cd octopress  
-bundle install  
-rake install  
+<pre><code>rake install  
 </code></pre></li>
 <li><p>Create the Github repository</p>
 
@@ -3032,10 +3245,6 @@ git push origin source
 <li>Disqus</li>
 </ul>
 </li>
-<li><p>Set up Github Pages</p>
-
-<pre><code>rake _0.9.2.2_ setup_github_pages
-</code></pre></li>
 <li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
 </ol>
 
@@ -3049,7 +3258,8 @@ git push origin source
 <ol>
 <li><p>Install the dependencies</p>
 
-<pre><code>sudo apt-get install ruby bundler rake git ruby-gsl
+<pre><code>sudo apt-get install ruby bundler git ruby-gsl
+sudo gem install rake --version 0.9.2.2
 </code></pre></li>
 <li><p>Clone the repository</p>
 
@@ -3059,6 +3269,10 @@ git push origin source
 
 <pre><code>bundle install
 </code></pre></li>
+<li><p>Set up Github Pages</p>
+
+<pre><code>rake setup_github_pages
+</code></pre></li>
 <li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
 </ol>
 
@@ -3067,12 +3281,7 @@ git push origin source
 
 <h3>Creating a post</h3>
 
-<p>You may have a newer <code>rake</code> installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.</p>
-
-<pre><code>alias rake="rake _0.9.2.2_"
-</code></pre>
-
-<p>Now you can create a new post:</p>
+<p>To create a new post:</p>
 
 <pre><code>rake new_post["title"]
 </code></pre>
@@ -3101,6 +3310,21 @@ cd -
 </code></pre>
 
 <p>Go to <code>username.github.com</code> and check out your page.</p>
+
+<hr />
+
+<h3>Scripting the difficult pieces</h3>
+
+<p>If you look at the <a href="">source for my blog</a>, you will see a small number of scripts that make managing the blog even easier.</p>
+
+<ul>
+<li>install.sh : Simply clone the repo and run this to get everything set up</li>
+<li>sync.sh : Synchronizes the repository with Github if a change was made on a different machine</li>
+<li>new.sh Post Title : Make a new post with the specified title</li>
+<li>preview.sh : Auto generate and start the web server for 127.0.0.1:4000</li>
+<li>deploy.sh : Deploy to Github Pages</li>
+</ul>
+
 
 <hr />
 
@@ -3988,25 +4212,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 </span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[About Me]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/08/about-me/"/>
-    <updated>2014-06-08T07:06:48-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/08/about-me</id>
-    <content type="html"><![CDATA[<p>My name is Joe Ruether. I graduated from Michigan Technological University with a bachelors in Computer Engineering and Electrical Engineering. Currently I am a full time Software Engineer at a company that designs radar systems. I am working towards my masters in Computer Science at Drexel University.</p>
-
-<p>I&rsquo;m a programmer at heart, I love being able to express my thoughts in the form of code and have the machine act it out. Programming allows me to bring my ideas to life, to build a world that I can share. I feel that programming is an art form that combines the creativity of writing with the logic of mathematics.</p>
-
-<p>I am fluent at C++ and would consider myself an advanced user, I frequently use templates and metaprogramming, and I am very familiar with many of the Boost libraries. C++ is the main language I use and work with. I very much enjoy C++. As for Python, the only real reason I use it is for the workplace; I don&rsquo;t really prefer it as a language, although I do recognize its usefulness and the fact that it is available on every Linux machine. My favorite language so far is Ruby, and I have been trying to teach myself Ruby in my spare time. Not Rails, I haven&rsquo;t gotten to that yet, I am primarily focusing on desktop applications. Unfortunately, I do not know too much Java.</p>
-
-<p>I am a Linux user and am a fan of open source software. As such the projects I create will be released under the GPLv3 license. You can find them all on GitHub. I use Debian as my main OS, particularly because it really is the &ldquo;Universal Operating System&rdquo;; it is stable, mature, flexible, and has a massive package collection as well as a strong community.</p>
-
-<p>Personality-wise, the Myers-Briggs test classifies me as an INTP, and I think the description of that describes me well:</p>
-
-<blockquote><p>Seek to develop logical explanations for everything that interests them. Theoretical and abstract, interested more in ideas than in social interaction. Quiet, contained, flexible, and adaptable. Have unusual ability to focus in depth to solve problems in their area of interest. Skeptical, sometimes critical, always analytical.</p></blockquote>
 ]]></content>
   </entry>
   

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Usage: ./generate_hashes.sh [directory]
+# Usage: ./generate_hashes.sh [directory] [hash]
 # Check the result with sha256sum -c <result>
 
 # See if a directory was defined
@@ -19,7 +19,7 @@ else
 fi
 
 # Hash type to use
-HASH=sha256
+HASH=${2:-sha256}
 
 # Generate the output filename
 OUTPUT=hashes.$HASH
