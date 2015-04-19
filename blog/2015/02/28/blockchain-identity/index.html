@@ -1,0 +1,673 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Blockchain Identity - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="I stumbled upon Christopher Ellis&#8217; &ldquo;World Citizenship&rdquo; Blockchain ID concept and was immediately intrigued. His idea is to create &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Blockchain Identity</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-28T15:24:25-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I stumbled upon Christopher Ellis&#8217; <a href="https://github.com/MrChrisJ/World-Citizenship">&ldquo;World Citizenship&rdquo; Blockchain ID</a> concept and was immediately intrigued. His idea is to create proof of an individual&rsquo;s existence by storing their PGP identity in the blockchain.</p>
+
+<p>The trick is that the blockchain acts as an immutable database that includes full history tracking, meaning that a record can be proven to exist in some state at some time. These services are similar to this concept:</p>
+
+<ul>
+<li><a href="http://www.proofofexistence.com/about">Proof of Existence</a></li>
+<li><a href="http://www.cryptograffiti.info/">Cryptograffiti</a></li>
+<li><a href="https://www.btproof.com/">BTProof</a></li>
+</ul>
+
+
+<p>This post will detail how to create a Blockchain Identity.</p>
+
+<h2>Requirements</h2>
+
+<p>To begin, you will need:</p>
+
+<ul>
+<li>GPG key with signing abilities</li>
+<li>Bitcoin wallet with a small balance</li>
+<li>Keybase.io account</li>
+</ul>
+
+
+<p>Keybase.io is currently alpha, and you need an invite to get an account, but you can probably snag an invite from Reddit (that&rsquo;s where I got mine).</p>
+
+<p>I will be using Debian Linux for this tutorial. I recommend the following packages:</p>
+
+<ul>
+<li>gpg : For signing files</li>
+<li>electrum : For managing bitcoins</li>
+<li>ruby : For running the scripts below</li>
+</ul>
+
+
+<p>First you need to create a GPG key and an Electrum Bitcoin wallet. I won&rsquo;t dive into the details of how to create these in this post. The reason we are using Electrum is because it has the ability to choose the address to send funds from, unlike some other wallets. We will need to know this sending address later.</p>
+
+<p>You also need to get a small amount of Bitcoin into your Electrum wallet (at least 0.0003 BTC)</p>
+
+<h2>Gathering the Data</h2>
+
+<p>Time to collect the data. Open up a text editor and create a Yaml file named key.yml</p>
+
+<p>First, lets get the GPG key details. Run the following, substituting your UID:</p>
+
+<pre><code>gpg --fingerprint jrruethe
+pub   4096R/40B935FE 2014-06-14 [expires: 2015-06-14]
+      Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
+uid                  Joseph Ruether &lt;jrruethe@gmail.com&gt;
+</code></pre>
+
+<p>Fill out your key.yml file like so:</p>
+
+<pre><code>Name: Joseph Ruether
+Email: jrruethe@gmail.com
+Type: RSA
+Size: 4096
+Created: 2014-06-14
+Fingerprint: 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE
+</code></pre>
+
+<p>Next, go to your Electrum wallet and pick an address that contains a small amount of funds. You will need at least 0.0003 BTC. Add this address to your yaml file:</p>
+
+<pre><code>Address: 1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q
+</code></pre>
+
+<p>Go to <a href="https://blockchain.info">Blockchain.info</a> and find the latest block that has been added to the main chain. Add the block number and Merkle Root to your yaml file:</p>
+
+<pre><code>Block: 345546
+Merkle Root: ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9
+</code></pre>
+
+<p>At this point, your yaml file has all of your GPG key metadata, the address you will use to store the data in the blockchain, and a random number that proves this entry could not have been created earlier in time.</p>
+
+<h2>Preparing the Data</h2>
+
+<p>Now we need to put this data into a standard, machine readable format and sign it. First, use the following script to convert your yaml file into a normalized json file:</p>
+
+<figure class='code'><figcaption><span> (yaml-to-normalized-json.rb)</span> <a href='/downloads/code/yaml-to-normalized-json.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;yaml&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">String</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Add a snakecase function to the String class</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">snakecase</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[:\-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Strip spaces and downcase</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">normalize</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[: \-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Check if a string is a hex value</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">is_hex?</span>
+</span><span class='line'>      <span class="sr">/^[0-9A-F]+$/i</span> <span class="o">===</span> <span class="nb">self</span><span class="o">.</span><span class="n">normalize</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Load the yaml file</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Convert all keys to snakecase</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[</span><span class="n">h</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span> <span class="o">[</span><span class="n">k</span><span class="o">.</span><span class="n">snakecase</span><span class="p">,</span> <span class="n">v</span><span class="o">]</span> <span class="p">}</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Normalize all hex values</span>
+</span><span class='line'><span class="n">h</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span>
+</span><span class='line'>   <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">String</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">v</span><span class="o">.</span><span class="n">is_hex?</span>
+</span><span class='line'>      <span class="n">h</span><span class="o">[</span><span class="n">k</span><span class="o">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">normalize</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Sort the keys</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[*</span><span class="n">h</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">flatten</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Pretty print</span>
+</span><span class='line'><span class="nb">puts</span> <span class="no">JSON</span><span class="o">.</span><span class="n">pretty_generate</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run it like so:</p>
+
+<pre><code>./yaml-to-normalized-json.rb key.yml &gt; key.json
+</code></pre>
+
+<p>Then use GPG to clearsign this file:</p>
+
+<pre><code>gpg --clearsign key.json
+</code></pre>
+
+<p>The result should look something like this:</p>
+
+<figure class='code'><figcaption><span> (key.json.asc)</span> <a href='/downloads/code/key.json.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA256</span>
+</span><span class='line'>
+</span><span class='line'><span class="p-Indicator">{</span>
+</span><span class='line'>  <span class="s">&quot;address&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;block&quot;</span><span class="p-Indicator">:</span> <span class="nv">345546</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;created&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;2014-06-14&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;email&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;jrruethe@gmail.com&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;fingerprint&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;4f4099f8276bdba5475a84464630bedc40b935fe&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;merkle_root&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;name&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;Joseph</span><span class="nv"> </span><span class="s">Ruether&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;size&quot;</span><span class="p-Indicator">:</span> <span class="nv">4096</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;type&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;RSA&quot;</span>
+</span><span class='line'><span class="p-Indicator">}</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQEcBAEBCAAGBQJU8dS0AAoJEB7MsgHDevApMCEH/3yFMcNErb92AtEdwShsvb1v</span>
+</span><span class='line'><span class="l-Scalar-Plain">IVWxL4aTqrs8AD7CxHEUNhxcZ56C2AyFW/8HkOMSCpbq9wG4Jxk8pohIiyQKYfTl</span>
+</span><span class='line'><span class="l-Scalar-Plain">TGGEYGELNDPgx/Pvlhb0jLBh8McnE8XdYseH2OXa3lfq4xOCqYKNiBOIcUmNZSar</span>
+</span><span class='line'><span class="l-Scalar-Plain">9fk4i3/Z47oN1Nwg7NohsCkoqNo9JBKH3Dc3ec2mlLktl83TQ7OcOfBCazdOaHOR</span>
+</span><span class='line'><span class="l-Scalar-Plain">+kk3WZb0wTyG+B6u5Kl8e0VJh+inDB83ol96hli/Ofhuvf29280VP3n784nDpLwY</span>
+</span><span class='line'><span class="l-Scalar-Plain">vg6pukSc3STD3em4hYOYU7OuBydbRe27I5w//E6IwntPoOG+dahzNPJcpFfvD4A=</span>
+</span><span class='line'><span class="l-Scalar-Plain">=/daq</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Sending the Data to the Blockchain</h2>
+
+<p>Now that we have our signed data file, we want to send it to the blockchain. It is important to note that the blockchain will only contain the sha256 hash of your key.json.asc, therefore you need to keep the original data around for validation. Later on, we will create an identification card with a QR code containing the original data.</p>
+
+<p>There is a clever trick we are going to use. If you look at the <a href="https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses">Technical Background of Bitcoin Addresses</a>, you will see that the address is generated from the hash of the public key. We can replace that hash (at step 3) with the hash of our file before continuing to generate the address. By sending Bitcoins to the address we create, we store the file&rsquo;s hash in the blockchain. Of course, those coins will be lost forever, because the private key for that address does not exist. That is why we only send a small amount.</p>
+
+<p>Now, use the following script to obtain the Bitcoin address that is associated with the hash of your signed key.json:</p>
+
+<figure class='code'><figcaption><span> (file-to-address.rb)</span> <a href='/downloads/code/file-to-address.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;digest&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the filename</span>
+</span><span class='line'><span class="n">filename</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Hash the file</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span> <span class="n">filename</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Take only the first 20 bytes</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">39</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Prepend 0x00 to the hash</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="nb">hash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Calculate the checksum</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="nb">hash</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="n">checksum</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Pull out the first 4 bytes</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="n">checksum</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">7</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">encode_base58</span><span class="p">(</span><span class="n">hex</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">int_val</span> <span class="o">=</span> <span class="n">hex</span><span class="o">.</span><span class="n">to_i</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="k">while</span> <span class="n">int_val</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">int_val</span><span class="p">,</span> <span class="n">remainder</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">base58_val</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">[</span><span class="n">remainder</span><span class="o">]</span> <span class="o">+</span> <span class="n">base58_val</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span>  <span class="o">=</span> <span class="p">(</span><span class="n">hex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([0]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
+</span><span class='line'>   <span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">base58_val</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Generate the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="n">encode_base58</span><span class="p">(</span><span class="nb">hash</span> <span class="o">+</span> <span class="n">checksum</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">address</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run it like this:</p>
+
+<pre><code>./file-to-address.rb key.json.asc
+1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
+</code></pre>
+
+<p>For some basic sanity checks, visit this website: <a href="http://lenschulwitz.com/base58">Base58 Decoder</a><br/>
+Here you can validate that the Bitcoin address is legitimate, as well as decode the address to hex. Here is what I get:</p>
+
+<pre><code>00703BF01D7DF0A110C9B2CE1E8984F545831BFFAA5556057E
+</code></pre>
+
+<p>Next, get the sha256 hash of key.json.asc:</p>
+
+<pre><code>sha256sum key.json.asc 
+703bf01d7df0a110c9b2ce1e8984f545831bffaa08042e78b470b3b1464faada  key.json.asc
+</code></pre>
+
+<p>Compare the two outputs to make sure they match:</p>
+
+<pre><code>00 703BF01D7DF0A110C9B2CE1E8984F545831BFFAA 5556057E
+   703bf01d7df0a110c9b2ce1e8984f545831bffaa 08042e78b470b3b1464faada
+</code></pre>
+
+<p>All that is left to do is send some bitcoin to that address. Use <a href="https://blockchain.info/">Blockchain.info</a> to capture the transaction details as proof of the file&rsquo;s existence:</p>
+
+<p><a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">Transaction: 68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-28T15:24:25-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/25/cryptography-primer/" title="Previous Post: Cryptography Primer">&laquo; Cryptography Primer</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/03/27/bitcoin-address-to-hash/" title="Next Post: Bitcoin Address to Hash">Bitcoin Address to Hash &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/04/19/generate-hashes/">Generate Hashes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/11/verified-addresses/">Verified Addresses</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/27/physical-blockchain-identity-card/">Physical Blockchain Identity Card</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/27/physical-blockchain-identity-card/">Physical Blockchain Identity Card</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/07/05/blogging-with-octopress/">Blogging with Octopress</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Joe Ruether -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
