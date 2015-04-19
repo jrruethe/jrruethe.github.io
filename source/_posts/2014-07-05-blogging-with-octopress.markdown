@@ -98,7 +98,14 @@ Use these instructions if you are continuing a blog that has already been create
  
         rake setup_github_pages
         
- 4. Ready to go. Jump down to "Creating a post"
+ 4. Sync the deployment
+ 
+        $ cd _deploy/
+        $ git pull origin master
+        $ git add index.html
+        $ git commit -m 'Deployment'
+ 
+ 5. Ready to go. Jump down to "Creating a post"
         
 ---
         
