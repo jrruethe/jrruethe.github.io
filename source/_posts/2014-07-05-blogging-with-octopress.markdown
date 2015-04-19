@@ -6,16 +6,28 @@ comments: true
 categories: 
 ---
 
+### Before you continue
+
+Grab all the dependencies:
+
+    sudo apt-get install ruby bundler git  
+    sudo gem install rake --version 0.9.2.2
+    git clone git://github.com/imathis/octopress.git blog  
+    cd blog  
+    bundle install  
+
+You may have a newer `rake` installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.
+
+    alias rake="rake _0.9.2.2_"
+
+---
+
 ### Starting Fresh
 
 Use these instructions if you are creating a blog for the first time.
 
- 1. Install dependencies
+ 1. Install the blog
  
-        sudo apt-get install ruby bundler rake git  
-        git clone git://github.com/imathis/octopress.git blog  
-        cd octopress  
-        bundle install  
         rake install  
  
  2. Create the Github repository
@@ -42,8 +54,7 @@ Use these instructions if you are creating a blog for the first time.
     - [File Binder](https://github.com/aycabta/octopress-file-binder) : Easily attach an image to a post
     - [QR Codes](https://github.com/sailor79/Octopress-dynamic-QR-Code-aside) : Add QR codes for mobile navigation and sharing
     - [Octolayer](https://github.com/mguentner/octolayer) : Embed maps into posts
-    - [Responsive Video Embed](https://github.com/optikfluffel/octopress-responsive-video-embed) : Embed Youtube videos into posts
-
+    - [Responsive Video Embed](https://github.com/optikfluffel/octopress-responsive-video-embed) : Embed Youtube videos into posts  
 
  6. Sign up for [Disqus](https://disqus.com)
  
@@ -54,19 +65,15 @@ Use these instructions if you are creating a blog for the first time.
     - URL
     - Title
     - Subtitle
-    - Author
+    - Author  
     
     Also scroll down to the bottom and set up the following sections:
     
     - Github
     - Twitter
-    - Disqus
+    - Disqus  
     
- 8. Set up Github Pages
- 
-        rake _0.9.2.2_ setup_github_pages
-
- 9. Ready to go. Jump down to "Creating a post"
+ 8. Ready to go. Jump down to "Creating a post"
         
 ---
 
@@ -76,7 +83,8 @@ Use these instructions if you are continuing a blog that has already been create
 
  1. Install the dependencies
  
-        sudo apt-get install ruby bundler rake git ruby-gsl
+        sudo apt-get install ruby bundler git ruby-gsl
+        sudo gem install rake --version 0.9.2.2
 
  1. Clone the repository
  
@@ -86,17 +94,17 @@ Use these instructions if you are continuing a blog that has already been create
  
         bundle install
         
- 3. Ready to go. Jump down to "Creating a post"
+ 3. Set up Github Pages
+ 
+        rake setup_github_pages
+        
+ 4. Ready to go. Jump down to "Creating a post"
         
 ---
         
 ### Creating a post
 
-You may have a newer `rake` installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.
-
-    alias rake="rake _0.9.2.2_"
-    
-Now you can create a new post:
+To create a new post:
 
     rake new_post["title"]
     
@@ -121,6 +129,18 @@ Next, you want to make sure that you re-pull after the deployment is complete, o
     cd -
     
 Go to `username.github.com` and check out your page.
+    
+---
+
+### Scripting the difficult pieces
+
+If you look at the [source for my blog](), you will see a small number of scripts that make managing the blog even easier.
+
+ - install.sh : Simply clone the repo and run this to get everything set up
+ - sync.sh : Synchronizes the repository with Github if a change was made on a different machine
+ - new.sh Post Title : Make a new post with the specified title
+ - preview.sh : Auto generate and start the web server for 127.0.0.1:4000
+ - deploy.sh : Deploy to Github Pages
     
 ---
     
