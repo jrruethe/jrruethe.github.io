@@ -5,7 +5,6 @@
 set -e
 
 # Make sure source is synced
-git checkout source
 git pull
 git push origin source
 
