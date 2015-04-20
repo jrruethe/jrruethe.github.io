@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-04-19T15:43:56-04:00</updated>
+  <updated>2015-04-20T18:07:30-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -2701,6 +2701,8 @@ This is a simplified explanation of how cryptography accomplishes this task.</p>
 
 <p>Symmetric encryption is the most intuitive form of encryption. The basic analogy is a lock and key. Keys are used together with an encryption algorithm to encrypt, or lock, a file. The resulting file is unreadable, and indistinguishable from random garbage data.</p>
 
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png"></p>
+
 <p>A key is just a long string of bits. Passwords supplied by a user are either used as a key directly, or are used to derive a key. With symmetric encryption, the same key is used to both encrypt and decrypt a file.</p>
 
 <blockquote><p>All data is represented in binary, a string of 0&rsquo;s and 1&rsquo;s. Data alone is meaningless without structure; it all depends on how you interpret it. For example, the number <code>65</code> in binary can be represented like this: <code>01000001</code>, but if you interpret that value using the ASCII system, it becomes the letter <code>A</code>. The text <code>Hi</code> is encoded in ASCII as <code>0100100001101001</code>. If it were interpreted as two 8 bit numbers, it would be <code>(72, 105)</code>. If it were interpreted as one large number, it would be <code>18537</code>. Entire files containing text can also be interpreted as one very large number.</p></blockquote>
@@ -2729,7 +2731,9 @@ This is a secret
 
 <h2>Man in the Middle attacks</h2>
 
-<p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves inbetween you and the other person. This is different than just sniffing or evesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.</p>
+<p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves in between you and the other person. This is different than just sniffing or eavesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png"></p>
 
 <p>To combat this attack, encryption can be used. If Alice and Bob had the same key, they could communicate securely by encrypting their messages before sending them to the other, and decrypting them upon receipt. This prevents Eve from reading the actual message. However, in order to communicate, they need to have the same key. Either Alice or Bob can generate the key, but the difficulty is transferring the key to the other without Eve intercepting it. The only secure solution is for them to pre-share the key across some other medium, such as a phone call or in person. This exchange is cumbersome, as it must be done before each session. In addition, the key cannot be reused across different sessions; If Eve were to ever obtain the key to a single session, she could also infiltrate all the other sessions, including recordings of past sessions.</p>
 
@@ -2741,15 +2745,19 @@ This is a secret
 
 <p>Alice will generate a key-pair and keep the private key to herself, while sending her public key to Bob. Likewise, Bob will generate his key-pair and send his public key to Alice while keeping his private key to himself. When Alice wants to talk to Bob, she can use Bob&rsquo;s public key to perform the encryption. Only Bob will be able to decrypt the message, since he is the only one who has the private key. Bob can then respond to Alice by using her public key to encrypt his response.</p>
 
-<p>Asymmetric encryption algorithms, such as RSA, are slow and require much larger keys to achieve the same security that AES provides (2048 &ndash; 4096 bits). This means that using asymmetric encryption for an entire conversation is inefficient. For this reason, a hybrid approach is used. A user will generate a random symmetirc key intended for one time use, called a session key, and encrypt it using the public asymmetric key of the recipient. The receiver will use their private asymmetric key to obtain the symmetric session key. Now that both users have the same symmetric key, they can use symmetric encryption to communicate.</p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png"></p>
 
-<p>But how does Bob know that the key actually came from Alice? What if Eve was the one who actually sent him the session key? Afterall, Bob&rsquo;s public key is public; anyone can use it. We need to introduce the 3rd fundamental technology first.</p>
+<p>Asymmetric encryption algorithms, such as RSA, are slow and require much larger keys to achieve the same security that AES provides (2048 &ndash; 4096 bits). This means that using asymmetric encryption for an entire conversation is inefficient. For this reason, a hybrid approach is used. A user will generate a random symmetric key intended for one time use, called a session key, and encrypt it using the public asymmetric key of the recipient. The receiver will use their private asymmetric key to obtain the symmetric session key. Now that both users have the same symmetric key, they can use symmetric encryption to communicate.</p>
+
+<p>But how does Bob know that the key actually came from Alice? What if Eve was the one who actually sent him the session key? After all, Bob&rsquo;s public key is public; anyone can use it. We need to introduce the 3rd fundamental technology first.</p>
 
 <h2>Hashes</h2>
 
 <p>Unlike the other two, a hash is not an encryption method. Hashes are also known as message digests or fingerprints. They are one-way functions, meaning that they cannot be reversed or undone; given the output, it is impossible to derive the input.</p>
 
 <p>Any two messages that contain the exact same data will produce the exact same hash, or fingerprint. Similarly, if even a single bit is different, the hash will be completely different. Hash algorithms employ an avalanche technique such that a small change to the input produces a large change in the output. Finally, hash algorithms always produce the same size output regardless of the size of the input.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png"></p>
 
 <p>Here are some examples, using the SHA-256 algorithm (Secure Hash Algorithm):</p>
 
@@ -2773,21 +2781,25 @@ echo This is b message | sha256sum
 
 <p>Now, back to our previous question; How can Bob be assured that a message came from Alice? Because of the way asymmetric encryption works, Alice can also encrypt a message using her own private key. The resulting cyphertext can be decrypted by anyone, since the corresponding public key is publicly available. However, the cyphertext could only have been created by Alice, because she is the only one who has the private key. This is called a digital signature; Alice <em>signs</em> a message by encrypting it with her private key.</p>
 
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png"></p>
+
 <p>Because asymmetric encryption keys are so large (which causes the resulting cyphertext to be large), it is not practical to encrypt an entire message, especially if that message is large. Instead, the hash of the message is encrypted, and the message itself is sent in plaintext (unencrypted). Anyone can read the message and compute it&rsquo;s hash. Then, they use Alice&rsquo;s public key to decrypt the signature connected to the message to obtain the hash that Alice encrypted. If the two hashes match, then the message was not tampered with, and the user can be certain that the message originated from Alice.</p>
 
 <h2>Secure Communication</h2>
 
-<p>Putting these concepts togther, here is how secure communication can be established:</p>
+<p>Putting these concepts together, here is how secure communication can be established:</p>
 
 <p>Alice and Bob each generate asymmetric key pairs. They take a hash of their public key and encrypt it with their private key. They then attach the result to the public key itself. This is called self-signing their public key.</p>
 
 <p>Alice and Bob share their public keys with each other. One of them generates a random session key and encrypts it with their private key. They take the result and encrypt it with the public key of the recipient.</p>
 
-<p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any evesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.</p>
+<p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any eavesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png"></p>
 
 <p>However, there is still one thing missing which makes this communication vulnerable to a man in the middle attack. If Eve is able to tamper with the initial handshake, where the public keys are exchanged, she could pass fake public keys to each side. Alice would think that she received Bob&rsquo;s public key, when in fact she received Eve&rsquo;s public key. Her entire communication would be with Eve directly, who is impersonating Bob, but is also passing the messages to Bob after reading them. Neither is aware that this is happening.</p>
 
-<p>In other words, you can securely communicate with someone and be assurred that no one else can evesdrop, but you cannot be certain about who you are actually communicating with.</p>
+<p>In other words, you can securely communicate with someone and be assured that no one else can eavesdrop, but you cannot be certain about who you are actually communicating with.</p>
 
 <p>The signatures on the keys don&rsquo;t give any additional information on their own; they only claim that the holder of the private key trusts the public key. The missing piece to the security is linking an identity to the public key, so you know which key belongs to who. Once you can trust that you are securely communicating with the correct person, you win!</p>
 
@@ -2797,6 +2809,8 @@ echo This is b message | sha256sum
 
 <p>A digital certificate links an identity to a public key. Certificates can be signed with many different signatures, as well as a self-signature (the owner of the public key). Certificates play an important role in creating a network of trust. Remember, anyone can create an identity and public key, and they can sign their own certificate. This means that while the link between the public key and identity is real, the identity itself could be fabricated. Trust in a certificate is established by obtaining signatures from trustworthy entities.</p>
 
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png"></p>
+
 <p>There are currently two models for establishing trust in digital certificates. One of them is a hierarchial centralized method which uses a <code>root certificate authority</code> that must be completely trusted, while the other is a decentralized <code>web of trust</code> that gives each person full control of their trust.</p>
 
 <h2>Root Certificate Authority</h2>
@@ -2805,25 +2819,29 @@ echo This is b message | sha256sum
 
 <p>If you can find a chain of signatures from a certificate back to the root authority, and you trust the root authority, then you can trust the certificate. This trust model is all or nothing, meaning that as long as the root authority is trusted, every chain originating at the root authority is trusted regardless of the number of links.</p>
 
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png"></p>
+
 <p>Most of the internet works using this model. Your web browser comes with preinstalled certificates for the major root authorities, which sign the certificates of all the websites you interact with. There are flaws with this model, however. Security is a &ldquo;weakest link&rdquo; type of problem; A chain ending at the root authority doesn&rsquo;t mean that the entire chain is solid. It could be that a sub-authority does not properly perform its background checks, resulting in that sub-authority being the weakest link. If that sub-authority signs a fabricated certificate, there is no way for you to know not to trust it. The owner of the certificate could masquerade as their false identity and impersonate a target.</p>
 
 <p>In addition to this, well funded organizations such as the NSA can take control of a root authority and sign whichever certificates they want, essentially breaking the entire model.</p>
 
 <h2>Web of Trust</h2>
 
-<p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convienient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.</p>
+<p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convenient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png"></p>
 
 <p>In the web of trust model, you are responsible for verifying that the identity of the certificate matches the identity of the certificate holder. This is typically done in person or over some other medium besides the one being used with the certificate (such as the phone). You would ask the person to present their certificate as well as some reputable identification, such as a passport or drivers license, and sign the certificate if the identities match. Chains are formed transitively by signing a certificate when someone has signed your own certificate.</p>
 
-<p>For example, if Alice signs Bob&rsquo;s certificate, and Bob sign&rsquo;s Carol&rsquo;s certificate, then Alice can reasonably trust that Carol&rsquo;s certificate is authentic. Even though she hasn&rsquo;t necessarily met Carol, Alice trusts that Bob performed the necessary identity checks. Alice&rsquo;s trust in Carol can be increased if there are other chains that linkt he two together. If Alice also signed Dave&rsquo;s certificate, and Dave also signed Carol&rsquo;s certificate, then Carol has two signatures from people that Alice trusts, further increasing the odds that Carol really is who she says she is (from Alice&rsquo;s point of view).</p>
+<p>For example, if Alice signs Bob&rsquo;s certificate, and Bob sign&rsquo;s Carol&rsquo;s certificate, then Alice can reasonably trust that Carol&rsquo;s certificate is authentic. Even though she hasn&rsquo;t necessarily met Carol, Alice trusts that Bob performed the necessary identity checks. Alice&rsquo;s trust in Carol can be increased if there are other chains that link the two together. If Alice also signed Dave&rsquo;s certificate, and Dave also signed Carol&rsquo;s certificate, then Carol has two signatures from people that Alice trusts, further increasing the odds that Carol really is who she says she is (from Alice&rsquo;s point of view).</p>
 
-<p>It is important to note that it isn&rsquo;t the number of signatures that determines trust, it is the number of chains. For example, Eve can create 100 fake identites and have them all sign her certificate, but that doesn&rsquo;t mean that Eve can be trusted.</p>
+<p>It is important to note that it isn&rsquo;t the number of signatures that determines trust, it is the number of chains. For example, Eve can create 100 fake identities and have them all sign her certificate, but that doesn&rsquo;t mean that Eve can be trusted.</p>
 
 <p>In this model, each additional link degrades trust; A certificate 2 steps away can typically be trusted more than a certificate 5 steps away. If everyone is creating chains from themselves to everyone else, a web of trust is formed, hence the name.</p>
 
-<h2>Where to next?</h2>
+<h2>Trust</h2>
 
-<p>Using the fundamental technologies of modern cryptography, we have learned how to establish secure communications with a trusted identity. How can we apply these techniques in practice? What else can we apply these methods to? Stay tuned, I will cover this and more in a future blog post.</p>
+<p>Secure communication is possible if you can establish trust in the other person&rsquo;s identity. How does one go about establishing this trust? I will cover this in a future post.</p>
 ]]></content>
   </entry>
   
