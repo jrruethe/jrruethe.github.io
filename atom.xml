@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-04-20T18:07:30-04:00</updated>
+  <updated>2015-04-26T13:55:43-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,141 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin Analogy]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/"/>
+    <updated>2015-04-26T12:59:49-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy</id>
+    <content type="html"><![CDATA[<p>Imagine there are a group of lockers in a public place. Each locker has the following:</p>
+
+<ul>
+<li>A lock that requires a key</li>
+<li>A window to see inside</li>
+<li>A slot that money can be put in</li>
+<li>An identifying number</li>
+</ul>
+
+
+<p>A group of these lockers might look like this:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/01.jpg"></p>
+
+<p>These lockers are secure. The windows are unbreakable, the locks cannot be picked, the metal cannot be cut, and the entire group is bolted to the ground. Furthermore, there is only one copy of the key, and it is in possession of that locker&rsquo;s owner; Nobody else is able to get inside without that key.</p>
+
+<p>Each locker is free of charge. A person may claim any unused locker, upon which they get the only copy of the key. A person may have as many lockers as they choose; there is no shortage of lockers. People use &ldquo;wallets&rdquo; (which are more like keychains in this case) to keep track of all the lockers they own and their associated keys. If anyone loses their wallet, they lose the ability to open any of their lockers, and that money is inaccessible forever.</p>
+
+<p>Because the group of lockers is in a public place, and each locker has a window, anyone is able to see how much money is in each locker. They can see the identifying numbers on the locker, but they do not know who the owner of the locker is.</p>
+
+<p>This group of lockers represents the Blockchain, and the contents of each locker represent Bitcoins.</p>
+
+<p>Alice is selling a chair that Bob wants to buy. Bob calls up Alice to make a deal:</p>
+
+<blockquote><p>Bob: I&rsquo;d like to buy the chair you are selling. How much do you want for it?<br/>
+Alice: I&rsquo;ll give it to you for 0.2 Bitcoins<br/>
+Bob: Sounds great! Which locker number is yours?</p></blockquote>
+
+<p>Alice goes to the group of lockers, sees that #412 is unclaimed, and claims it. She heads home with the key.</p>
+
+<blockquote><p>Alice: Put the money in locker 412 please!</p></blockquote>
+
+<p>Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob then goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.</p>
+
+<blockquote><p>Bob: I put the money in your locker!</p></blockquote>
+
+<p>Alice goes to the lockers and checks the contents of locker #412 through the window. She sees the 0.2 Bitcoins sitting there. Since Bob is the only person she told about #412, the money must have come from him.</p>
+
+<blockquote><p>Alice: I just checked, and I see the money in my locker. Here is your chair!</p></blockquote>
+
+<p>The entire transaction was done without Alice and Bob ever needing to meet in person. No banks were involved in the transaction, there were no processing delays, there were no fees. Bob is unable to issue a &ldquo;chargeback&rdquo; to void his transaction; the money is already in Alice&rsquo;s locker, and only she can get it back out. Furthermore, anyone checking the contents of the lockers by peeking through the windows could only tell that a transaction was made; they are unable to discover who was involved.</p>
+
+<p>This is the basic premise of Bitcoin. Learn more about Bitcoin <a href="http://www.coindesk.com/information/what-is-bitcoin/">here</a>.</p>
+
+<p><em>This analogy was not my idea, I am paraphrasing <a href="http://thebitcoincatalog.com/safe-analogy/">Henry Romp</a>.</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin Paper Wallets]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/"/>
+    <updated>2015-04-23T19:18:12-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets</id>
+    <content type="html"><![CDATA[<p>Paper wallets are extremely vulnerable to water!
+Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer.</p>
+
+<hr />
+
+<p>A verified repository of paper wallet generators can be found <a href="">here</a>.<br/>
+Below are reviews of my two personal favorites:</p>
+
+<hr />
+
+<p>Bitcoin Paper Wallet</p>
+
+<ul>
+<li><a href="https://bitcoinpaperwallet.com/">Website</a></li>
+<li><a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a></li>
+</ul>
+
+
+<p>PICTURE HERE</p>
+
+<p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin! Highly recommended.</p>
+
+<p>Features:</p>
+
+<ul>
+<li>&ldquo;Butterfly&rdquo; design secures the private key</li>
+<li>Resistant to candling</li>
+<li>Supports <a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a> encryption</li>
+<li>Private key encoded in <a href="https://en.bitcoin.it/wiki/Wallet_import_format">Wallet Import Format</a></li>
+<li>Designed to be printed in landscape mode</li>
+<li>Double sided</li>
+<li>2x wallets per sheet</li>
+<li>Notes section on the back</li>
+<li>Public key visible</li>
+</ul>
+
+
+<p>Additional Options:</p>
+
+<ul>
+<li><a href="https://bitcoinpaperwallet.com/">Security Stickers</a> 1.5in x .5in (<a href="http://www.amazon.com/gp/product/B00MWCCN7C">Alternative</a>)</li>
+<li><a href="https://bitcoinpaperwallet.com/">Waterproof Bag</a> 6in x 3in (<a href="http://www.amazon.com/Clear-Lock-Bags-Case-1000/dp/B0040003E4">Alternative</a>)</li>
+<li><a href="http://www.amazon.com/dp/B004PX7ZTC">Teslin Paper</a> (Inkjet Printers)</li>
+<li><a href="http://www.amazon.com/gp/product/B004UI335W/">Revlar Paper</a> (Laser Printers)</li>
+</ul>
+
+
+<p>Dimensions:</p>
+
+<ul>
+<li>Landscape: 5.5in x 2.5in (Slightly smaller than a dollar bill)</li>
+<li>Portrait: 4in x 2in (Slightly bigger than a standard business card)</li>
+<li>QR Codes: 1in x 1in (About the size of a quarter)</li>
+</ul>
+
+
+<p>For additional artworks, check out <a href="http://libertywallet.liberty.me/2015/03/18/liberty-wallet/">Liberty Paper Wallet</a> (<a href="https://github.com/SimonBelmond/libertypaperwallet">Github</a>).</p>
+
+<hr />
+
+<p>Wallet Generator</p>
+
+<ul>
+<li><a href="">Website</a></li>
+<li><a href="">Github</a></li>
+</ul>
+
+
+<p>Additional Options:</p>
+
+<ul>
+<li><a href="http://www.amazon.com/gp/product/B00ENI0NI4">Scratch Off Stickers</a> 1in x 1in</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Generate Hashes]]></title>
@@ -1290,9 +1425,7 @@ lala  new_secret_data.bin  secret_data.bin
 
 <h2>Hashes and Signatures</h2>
 
-<p>Hashes and signatures are your primary tool for verifying data and detecting any form of tampering.<br/>
-You need to understand how hashes work and why they are important.<br/>
-Know how to generate hashes and checksums:</p>
+<p>Hashes and signatures are your primary tool for verifying data and detecting any form of tampering. You need to understand how hashes work and why they are important. Know how to generate hashes and checksums:</p>
 
 <pre><code>$ echo Hello1 &gt; test.txt
 $ cat test.txt 
@@ -1428,11 +1561,15 @@ This practice is good for storing GPG private keys and Bitcoin wallets securely.
 
 <h2>More Information</h2>
 
-<p>I highly recommend you read the following pages carefully:</p>
+<p>I highly recommend you read the following pages for more information:</p>
 
 <ul>
-<li><a href="https://freedom.press/encryption-works">https://freedom.press/encryption-works</a></li>
-<li><a href="https://pack.resetthenet.org/">https://pack.resetthenet.org/</a></li>
+<li><a href="https://freedom.press/encryption-works">Encryption Works</a></li>
+<li><a href="https://prism-break.org/en/">Prism Break</a></li>
+<li><a href="https://www.privacytools.io/">Privacy Tools</a></li>
+<li><a href="https://pack.resetthenet.org/">Reset the Net</a></li>
+<li><a href="https://ssd.eff.org/">Surveillance Self-Defense</a></li>
+<li><a href="https://www.bestvpn.com/the-ultimate-privacy-guide/">Ultimate Privacy Guide</a></li>
 </ul>
 
 ]]></content>
@@ -3679,561 +3816,6 @@ Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
 </span><span class='line'><span class="l-Scalar-Plain">LwZSpxmJbUX090MRZm8NFsCMn8u4ItdRYqpO3AB9f0Nh1yKtcqIwIW11sIFVoO2u</span>
 </span><span class='line'><span class="l-Scalar-Plain">OENFIIkWuDkpqtlFlS4i</span>
 </span><span class='line'><span class="l-Scalar-Plain">=ZqmE</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[GPG Key]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/20/gpg-key/"/>
-    <updated>2014-06-20T21:41:36-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/20/gpg-key</id>
-    <content type="html"><![CDATA[<p>Below you can find a copy of my new GPG key.</p>
-
-<pre><code>4096R/0x4630BEDC40B935FE 2014-06-14 [expires: 2015-06-14]
-Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
-</code></pre>
-
-<figure class='code'><figcaption><span> (jrruethe-public.asc)</span> <a href='http://jrruethe.github.io/downloads/code/jrruethe-public.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-<span class='line-number'>76</span>
-<span class='line-number'>77</span>
-<span class='line-number'>78</span>
-<span class='line-number'>79</span>
-<span class='line-number'>80</span>
-<span class='line-number'>81</span>
-<span class='line-number'>82</span>
-<span class='line-number'>83</span>
-<span class='line-number'>84</span>
-<span class='line-number'>85</span>
-<span class='line-number'>86</span>
-<span class='line-number'>87</span>
-<span class='line-number'>88</span>
-<span class='line-number'>89</span>
-<span class='line-number'>90</span>
-<span class='line-number'>91</span>
-<span class='line-number'>92</span>
-<span class='line-number'>93</span>
-<span class='line-number'>94</span>
-<span class='line-number'>95</span>
-<span class='line-number'>96</span>
-<span class='line-number'>97</span>
-<span class='line-number'>98</span>
-<span class='line-number'>99</span>
-<span class='line-number'>100</span>
-<span class='line-number'>101</span>
-<span class='line-number'>102</span>
-<span class='line-number'>103</span>
-<span class='line-number'>104</span>
-<span class='line-number'>105</span>
-<span class='line-number'>106</span>
-<span class='line-number'>107</span>
-<span class='line-number'>108</span>
-<span class='line-number'>109</span>
-<span class='line-number'>110</span>
-<span class='line-number'>111</span>
-<span class='line-number'>112</span>
-<span class='line-number'>113</span>
-<span class='line-number'>114</span>
-<span class='line-number'>115</span>
-<span class='line-number'>116</span>
-<span class='line-number'>117</span>
-<span class='line-number'>118</span>
-<span class='line-number'>119</span>
-<span class='line-number'>120</span>
-<span class='line-number'>121</span>
-<span class='line-number'>122</span>
-<span class='line-number'>123</span>
-<span class='line-number'>124</span>
-<span class='line-number'>125</span>
-<span class='line-number'>126</span>
-<span class='line-number'>127</span>
-<span class='line-number'>128</span>
-<span class='line-number'>129</span>
-<span class='line-number'>130</span>
-<span class='line-number'>131</span>
-<span class='line-number'>132</span>
-<span class='line-number'>133</span>
-<span class='line-number'>134</span>
-<span class='line-number'>135</span>
-<span class='line-number'>136</span>
-<span class='line-number'>137</span>
-<span class='line-number'>138</span>
-<span class='line-number'>139</span>
-<span class='line-number'>140</span>
-<span class='line-number'>141</span>
-<span class='line-number'>142</span>
-<span class='line-number'>143</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP PUBLIC KEY BLOCK-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">mQINBFOceg4BEACzdFQHS6p9xJf6f88Vj5e+I2lchu/mE1md/Yf+lBDxiHKobRQb</span>
-</span><span class='line'><span class="l-Scalar-Plain">h9muVbrtsq6wbwJYAhPXztAIF4u/DCHuR8I3ZAC0boJUTJvjzGQDJS38dB4kJPO8</span>
-</span><span class='line'><span class="l-Scalar-Plain">TA4wIdPLsxroZ6TC7YjxIbEDfLT5kTvq4/MZzOsc48lxp/Etw3KYk+V1gy0Od7Lj</span>
-</span><span class='line'><span class="l-Scalar-Plain">oYG9758uiaTHUYrAFiYKtCEeOvic1zzfKcCD7iRz0acWBXnRQdZhRCoasGW69ZMi</span>
-</span><span class='line'><span class="l-Scalar-Plain">/GpHzrAzjG2QWutWYIkZbp/7QBjO1lC4sN8nUZdZgXt71KJOcKTAnHnYvdLjxqH7</span>
-</span><span class='line'><span class="l-Scalar-Plain">HsxGh9r+huZgEujoTQ89VIsopTNjSzg2A/u+4FqxZf0EJgLK+7AujuRLnCdMZeOl</span>
-</span><span class='line'><span class="l-Scalar-Plain">AUcV/27Ahfyshk9s+IGYwD53Tx3UhyYnXlIjWhKueg7IkuNHnbUysQS8avLYXPSM</span>
-</span><span class='line'><span class="l-Scalar-Plain">y4o1NrOhtmwia1R065zKCtSuCABdFyYbhAUY7euRKTeBS9iMJEy4CgsKk9f/7eAw</span>
-</span><span class='line'><span class="l-Scalar-Plain">ll7nrrNv4/R3hC/njnHjPrO2hdxhGxHLJ+EXHZ9J+Vuk8OsEloXyX3b2vNLMXndu</span>
-</span><span class='line'><span class="l-Scalar-Plain">O/ASIIDQ6YOmREc3b3QOBr4ojItKCwlBAKY/aLGKyz/5+tIhlQzPacHqjIUheoHw</span>
-</span><span class='line'><span class="l-Scalar-Plain">dVMecr7xVOI7ZaBdsIo+9ULGbyFXNuinU9rotCR8+n76PNk1R/260V+/hQARAQAB</span>
-</span><span class='line'><span class="l-Scalar-Plain">tCNKb3NlcGggUnVldGhlciA8anJydWV0aGVAZ21haWwuY29tPokCPgQTAQIAKAUC</span>
-</span><span class='line'><span class="l-Scalar-Plain">U5x6DgIbAwUJAeEzgAYLCQgHAwIGFQgCCQoLBBYCAwECHgECF4AACgkQRjC+3EC5</span>
-</span><span class='line'><span class="l-Scalar-Plain">Nf7YkBAAgNuu2CgC0cGeB9hP+9L++T7vbgtHAQ09R1V7AsYxyuMUPJW2XsbVmHOC</span>
-</span><span class='line'><span class="l-Scalar-Plain">pY/1VxLM6OezJiVF7KCDAxyEEaaxMBQQ7MKwsdVaGN0FB6e0l4uCD7RcgpJN6l5p</span>
-</span><span class='line'><span class="l-Scalar-Plain">yI1sHIL9sfVUs4Akn+ZUJZohPevDjLos9QPtc/f6nLm3L6Fk5J3s8U8qEJq9sHD/</span>
-</span><span class='line'><span class="l-Scalar-Plain">Limrc4ZVPodUtN+tYy8hkqcxXOqntWm6J+Ye7SHgfAp8G/lTu0DgL7EcvP9TxNkV</span>
-</span><span class='line'><span class="l-Scalar-Plain">MgQ/WLwAg3x6PmnSXrpIB4SCkWskXzulsM7oNOzljQAUzLYg0e5EHXKAYq2qn4LH</span>
-</span><span class='line'><span class="l-Scalar-Plain">VbnHI+nnwdZ88QnzbK/0V7aw5CNM69XSd7sszrnLTA2EJCknEFcwvaxJX3tDs63a</span>
-</span><span class='line'><span class="l-Scalar-Plain">nQMDJX21dwZOaDeUWW4l88bcjQs2FmDlFpewXM3jrecSfwEgzmcDi/pWPKdAYLxm</span>
-</span><span class='line'><span class="l-Scalar-Plain">dhWbMsLk4S6At3VCswy/lZTXtf3X8VjNlXxhpZNCNKjLLPHzyN1vgvO2JAFaUpkb</span>
-</span><span class='line'><span class="l-Scalar-Plain">48AAJVZ8JGkiCPiRGCP6UgAP5e02gQTJRIG567hY9dYtpAzAGjul6aLuot3Pgyp4</span>
-</span><span class='line'><span class="l-Scalar-Plain">AaDH+7fbX4E6YpEs/NISHt390WKm14qB6yJl+obpAzjL53n2GPmO0Qkk6mC2PzVC</span>
-</span><span class='line'><span class="l-Scalar-Plain">Rjq1y5KU0ceG8L5OLeWE5sKCVRVPC5TMOzWYZ+HV2v8nydYD3fm5Ag0EU5x6DgEQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">AMmEIUTVuyKRApKzQEMmmnqiApfoQKjVrBLqFz8DzpuLlWmYqCN89xJeiBwiuHJK</span>
-</span><span class='line'><span class="l-Scalar-Plain">Qc6Bp8hSS46JavXivmVGP/WLN3JI5GGY/n6tVLAjnpw6zUcwDwaJhQApOU8w/jBk</span>
-</span><span class='line'><span class="l-Scalar-Plain">78RIWvqYEYhhav4z393jGuM/TKtJeFppieApyD2myOLR+/IZzVlOYfrpmq5y4RI/</span>
-</span><span class='line'><span class="l-Scalar-Plain">fBbPmvVMOPNlELMH2qarww4T5W5g1ih1SVJZwaXbZXgHsz40H8QpgAyYOo6k3N8v</span>
-</span><span class='line'><span class="l-Scalar-Plain">f5pwjArxSicurqYCPSqkfFhZXyZefj2oY6UDWGHbRq5byJ+L+vVo2hDcb0v6+xEu</span>
-</span><span class='line'><span class="l-Scalar-Plain">La4DWO2g9bgxxrQuE/dKheRxucza+FwhOHMVdby7UFiI1qbGY2r/Lbk6fO+qSU+s</span>
-</span><span class='line'><span class="l-Scalar-Plain">1kCxLUYcyJtqJXibwxVPm2GxbEVMIKe1yLdFCrV3gzvp9L1hhGJWw9lKSVjXwrVY</span>
-</span><span class='line'><span class="l-Scalar-Plain">FtxOMYXB5vsExcn7XIuLWoS0ra8daTE+ccu6SyBx2FM5xN2+ogLfVLWgHxA8wpYw</span>
-</span><span class='line'><span class="l-Scalar-Plain">QBXkA/iemyMj8+OcGQqKgXvjhMNY1ZQmHz0CPSXY6GRJApAAKSyScC12RgsX+mER</span>
-</span><span class='line'><span class="l-Scalar-Plain">li4uzddz24OowXw2cmrcTArMFjnMEweA1eE06ZjJje/1DLESqZULsv9MUar9XDiA</span>
-</span><span class='line'><span class="l-Scalar-Plain">ZrQrZ97O6xs6P6We6+WQxov9uLjIM0JbEt2c14pXoWpJABEBAAGJAiUEGAECAA8F</span>
-</span><span class='line'><span class="l-Scalar-Plain">AlOceg4CGwwFCQHhM4AACgkQRjC+3EC5Nf5Jxg//Ql4ideUBAZ+uZizM8Rqx1+XQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">aLOmuPO+YIkIHqjpvv4Wk4whYa2h7GYj70Gm243hXDdwUJEGR5lA1UDMkDXni4lx</span>
-</span><span class='line'><span class="l-Scalar-Plain">YhZv4mG6NxuGjfsnt3oDhVjP8R+C5W/GQfA8qoo/47bb82jAPgs6ZajVhD7B+DZX</span>
-</span><span class='line'><span class="l-Scalar-Plain">WuTOdRZ7B9Va0oz1NZJIEVOKcG0u9u0iL+T10v7dEShiJTqBDG/mevT3mBVpsAvK</span>
-</span><span class='line'><span class="l-Scalar-Plain">vqdWD1l5zT2xWDre5u9L+nnxx2IpteGkgfFzTekQB5YqId+o/LU+G62EFScTYOFl</span>
-</span><span class='line'><span class="l-Scalar-Plain">Kx/8TTdRVCwcyZOhvnknljvHTH0+lCi6x5j7UFRL5yNbo7y4ld6tn/9t0bWiMTtw</span>
-</span><span class='line'><span class="l-Scalar-Plain">+LXDObkw9TcKqQNQxWmkPnUB8u/fqkOaAywc09pbMU2tyOfWrTJDVFmXSWOoe3iU</span>
-</span><span class='line'><span class="l-Scalar-Plain">7w3eR8RhYg8ELdSTL6V288SplFAnNSlfreh2cK5Fny4CbC0GkE+aXFsVMXGZta4h</span>
-</span><span class='line'><span class="l-Scalar-Plain">FrZ1IEt/BoAvKRp3zWq2DsCdLvdQk3/7vHbO28Mc/ac8SDv73PPHC/Gpy52falm9</span>
-</span><span class='line'><span class="l-Scalar-Plain">wiy3OSnUFGfc7sU+yaOOSczE78YwsiEUsc4BdookqzwstHY0zsAU34mDxFAHcSxs</span>
-</span><span class='line'><span class="l-Scalar-Plain">1UgHnFCO6+eG2l5A2sdRcylv+0zLvyi1Pmn19QM9A85WgY3jFWhOoL7LbmioyLn2</span>
-</span><span class='line'><span class="l-Scalar-Plain">yAeEx+brN5tnYmpEb3i5Ag0EU5x79QEQAMCFHgDPjZ4XsmzOJJBVomgl1bOz4Dbd</span>
-</span><span class='line'><span class="l-Scalar-Plain">0eIjSkFRIOom3hTXWfsbvhJNtzrPjie/XIHqAMsr5gUeI3ceDwfklSrsHAsZ6dQT</span>
-</span><span class='line'><span class="l-Scalar-Plain">nbMnf8WxCOS6Swka6jLQDf8x4I3vnOKFR1b5h5tU9sxml2tWlIzJxO8o0roPhdRZ</span>
-</span><span class='line'><span class="l-Scalar-Plain">YurwDRgBS60f8wOLfZ6ke3VdkjjpeqBKfq0skMHl1i1tUTxzBNZPljjRP6vEi5qv</span>
-</span><span class='line'><span class="l-Scalar-Plain">HEEZD7/nAE6MptZnppzsDKZVIoxp8pgt8SMwNq35z67gL1aQHWUFy/TGYP1XSLPK</span>
-</span><span class='line'><span class="l-Scalar-Plain">TDk6zgbjuxb7ydpBCFIbaDaSJOq3diPbk91QiPH238S9/Jpg82EacO9F0KqLCj6r</span>
-</span><span class='line'><span class="l-Scalar-Plain">39dfWVKBirBM0KGq+H4w9CjWQyYCKHiUuYp1gVvjULgs+/sHg0h70CXWL3c4UmNA</span>
-</span><span class='line'><span class="l-Scalar-Plain">jKod/WDzyQDrLUJ7wyp7uc/Dlhpd4KqqHq/JHPjIBTytq7/a3NZP/uB0ia9Is5Mq</span>
-</span><span class='line'><span class="l-Scalar-Plain">YNlFwvCu6SldBbGb5zIG6C9j8Jq7Ym+c9jMkkr9xg5VYLPqwmae2ZjwQhXrRBAMW</span>
-</span><span class='line'><span class="l-Scalar-Plain">ttZZEwMMSVtw1NQ6pLo+49VaEtXlaywuGm5VSru4N3GFxTVom8Ycx98ePjvEzDwW</span>
-</span><span class='line'><span class="l-Scalar-Plain">y+aRfNa+gErDmmuydRS1xtzOVvcsZpBlK/6lp4crDfl9bCuzXrlS09vQXbC7V8XG</span>
-</span><span class='line'><span class="l-Scalar-Plain">fm9X62Go2KcXABEBAAGJBEQEGAECAA8FAlOce/UCGwIFCQHhM4ACKQkQRjC+3EC5</span>
-</span><span class='line'><span class="l-Scalar-Plain">Nf7BXSAEGQECAAYFAlOce/UACgkQicl/kFYQ3HaVpQ//RR41unV2TUDozklmC5H0</span>
-</span><span class='line'><span class="l-Scalar-Plain">9EDzPqWjpIc9PPMrGOCFiMBvXrqPqjAQaBDBBWFilX/THgIeVdqZUtPhL+12cPOQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">DwbtoKCTrbetkVLa4dmb2+GD2O9XyKjMM67obS4GEswPwmAZQujg0YSSymtmhRly</span>
-</span><span class='line'><span class="l-Scalar-Plain">J0xN0lu/OtcUyj4+967YEIFHeNEaeYLI973QY0hZVAbSuln503yoN9lb2CAei2oM</span>
-</span><span class='line'><span class="l-Scalar-Plain">Wi8IEDRd/KJvjUln9ZQv3AkAPmZAFDp13gCUlaW6EEHdZU5XnPCbQkji0MAAF9Uh</span>
-</span><span class='line'><span class="l-Scalar-Plain">imnImYBOLf8S5T8p21xikHoK2zg736/jKPbh6SwzVY3susvZieD4cZw5ZD/C1Mo3</span>
-</span><span class='line'><span class="l-Scalar-Plain">NLBRi72ZcwE1j6FUpB3syrhH8Cz3HD5v++0DfJAFovra/pEEsSxmJJaqR9LF8xBA</span>
-</span><span class='line'><span class="l-Scalar-Plain">ZBnGmPCXDY8Rk44lQYCwU1PO0J6xGWFO+jBaeI0+HkI/rRzfKBG8YSukee7FZbXV</span>
-</span><span class='line'><span class="l-Scalar-Plain">NtL3HQaf8a4x0AjlHepSEk805Yo9I/NVyEE/xh/I/1AgG0yBEptFva7HDdFI1Udl</span>
-</span><span class='line'><span class="l-Scalar-Plain">LbSt60QIJ4jbvsmFBmTYOHMJWER4fbCSg67gGiQ3i4/90wm7vokqUhQ5NkYpeoa7</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ilq6U6TbZx3nM79mXImSusQB8giqYLQxvi9tlld9MY9qUiy/5F9HMvx+VZ6u7qGQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">Kg1Za9gYGhbwb95rzq9NrgfovBAAqxXt7EVEC5nyKfIZVIwcjZ1tC3fRAd1EnGig</span>
-</span><span class='line'><span class="l-Scalar-Plain">XncVS+e4hxt8Atwo1/a2lAo/fUiyZSyoA917YsbbXytkqvozqx0xTo6CbsVmtCC3</span>
-</span><span class='line'><span class="l-Scalar-Plain">EfS/xsl/AqUZ26/thvJQHSWKlEme7J/WlW4W4wqW9imq+x8Ni1i1sGZkICghDS8W</span>
-</span><span class='line'><span class="l-Scalar-Plain">U7w9psnLwDCsoXTsqHMPUUfT/QLGi3mJzdMfn7XobGzbu0Q9uMUQXbIMqmvI2Dxu</span>
-</span><span class='line'><span class="l-Scalar-Plain">uT0M6q7xSt2OOpF+iRpfEjo3U/wjxwtOOSB+D6lsq/l7yp/AQD0fUCf+UVuA6n3h</span>
-</span><span class='line'><span class="l-Scalar-Plain">kKf1H4zkjc9YdSHssmkZQDQRYAsUXOpsCpQL/zEQaHIGvXQOVndBuJ7Ux3NMxZXU</span>
-</span><span class='line'><span class="l-Scalar-Plain">28tcpM+MXx0JqMiKzAZCbIAG/0B9n0+JCeK63RXzuCVW2AeiK8r5YhUofAOG0P13</span>
-</span><span class='line'><span class="l-Scalar-Plain">4YsJaAK4MFSABMyZYknFTNXOJfBXYZ4Hh1WrXuqGtihj5lcnmoWuLYtBpIEaSD6q</span>
-</span><span class='line'><span class="l-Scalar-Plain">ILRzCHJ5Rlt4pFSfjvMub0tFNsoeyqzlbarYLTLGkJFNMkO+oP3wVnzBITXNN9Q0</span>
-</span><span class='line'><span class="l-Scalar-Plain">IKxFga/9RVHnBbm61dhD96uKbhHQ6i6didS9XeRWt+yLRFOVnivOLa3fKzW0QO4G</span>
-</span><span class='line'><span class="l-Scalar-Plain">d3YGQ4fgJPalmZlxPEqfNuFQI/GA8OnXADFFoRsuoT9Ta9FEGmqarBbarI83kcZt</span>
-</span><span class='line'><span class="l-Scalar-Plain">c/GRqqS5AQ0EVL2YagEIAK0QjBAcz+bPk0P09JMRdwusyhqAgDabuQSuT7KPUxNe</span>
-</span><span class='line'><span class="l-Scalar-Plain">P6rR2VQwhKaxueG5czlttYyTFYd64g4V2EQiuxbu7B+MYoOcnr6nt6bOafoxpa2s</span>
-</span><span class='line'><span class="l-Scalar-Plain">cDsYZxLeXj4dNc/xxT8AsZ29Nrn1G292CNjWhypEyv3AFrfn2WF6YTYXia+Jau3o</span>
-</span><span class='line'><span class="l-Scalar-Plain">3n5qHEzBhfwQzI2ejrBcWoqd3iJoFnMX39jt1j9dnIvXzb9SEDpbJrYteKTAHNkg</span>
-</span><span class='line'><span class="l-Scalar-Plain">cGL0YMqdz0MZIrvJfgQK4zQq2nnhjisc0KaNaF0AcsvGwVKjFFH4mI9GGbD9WJZU</span>
-</span><span class='line'><span class="l-Scalar-Plain">YeVcvZ5JOQgjrJOyOAJVmn1yPq+hw6n5wMa2nIEluJkAEQEAAYkDQwQYAQIADwUC</span>
-</span><span class='line'><span class="l-Scalar-Plain">VL2YagIbAgUJAeEzgAEpCRBGML7cQLk1/sBdIAQZAQIABgUCVL2YagAKCRAezLIB</span>
-</span><span class='line'><span class="l-Scalar-Plain">w3rwKd6zB/oDu2mUZVLhsEcjLKF3W8hcVE4Vu9AGfIz+j0FpUE79dZDThXl6eULF</span>
-</span><span class='line'><span class="l-Scalar-Plain">3MqkX16Ep/pD2KE/8TcjyyhyE+W+M4s+TlvGoDyLCYJ5xjTjdptgWQWZMBQ9Te8l</span>
-</span><span class='line'><span class="l-Scalar-Plain">G+rBsUPUXvnzTFalFfpvdqAaC32RQoiq1ixqstyxYWNvDrexYgzs76Nm/KibozY4</span>
-</span><span class='line'><span class="l-Scalar-Plain">95QdWdC1U2dCfi2B6Am9su0N3/K6/jowXbu3sRcmP+9GMzd45IK/5hDwoyk2mbFg</span>
-</span><span class='line'><span class="l-Scalar-Plain">RF3LySDAjItWleRIvrnVhGXAD1IQut1hzdlb6Vsf6LF6CrWJ/0idkTGl2vZMkqUP</span>
-</span><span class='line'><span class="l-Scalar-Plain">6VHq1VaSQXjZdTTWztSSoXe05jz+ylfsIoYP+LGfF07XZGLeljBNMFm1U03NoKpd</span>
-</span><span class='line'><span class="l-Scalar-Plain">gQCBa913dQ42FVvOGZ5+1skjjaWudEayKC731gTu749306lDrQkxI92nh/99j8Cq</span>
-</span><span class='line'><span class="l-Scalar-Plain">SBDqtwl2RhI+Se3qqjsRCfZnstJ14V1kmOk0LinTLBz8V/V8chDTHTsFxLtZB8ds</span>
-</span><span class='line'><span class="l-Scalar-Plain">H242DviuaHGk3wXXVDhtlEZdth1RbFTmTs8A0adMOj1uoVlX1rzkHGZqtChEzJRj</span>
-</span><span class='line'><span class="l-Scalar-Plain">ZGvhpZytPZlmzrCf0jL3rkB91t3iEdPU3M8qaHmF4LVgWLdfh6hxymmtAuDgFpdt</span>
-</span><span class='line'><span class="l-Scalar-Plain">g+Ca231syeveVO7bMLZdQuD5Lpj2dIynYodEQy8ajiKZJpjOUuPUgciyevXzf2Cm</span>
-</span><span class='line'><span class="l-Scalar-Plain">kXEzZq0XAF59VD6YEJGJdLXfw7uZqLSdZ1+nPJ6iZMZ4JxRksw4LR8oalCDrMQ8U</span>
-</span><span class='line'><span class="l-Scalar-Plain">hQ706onnJglHTHZq5F1faW+Q6BdSowZflLehTbPrI85O/GlQUobst2puNnAW9NdU</span>
-</span><span class='line'><span class="l-Scalar-Plain">7qlW7yvpbbkoXOCkCgfIqmLbaoEbeQfcGfWnuJmiU3LE1kUUvCGf51KZ7tWowqpd</span>
-</span><span class='line'><span class="l-Scalar-Plain">LDXhE5DdMs6ag8nv/AVKik6F9jMXjhCLFxtH7MVd4WLmnoUSEguTzeZaP3qyabuk</span>
-</span><span class='line'><span class="l-Scalar-Plain">OFA+IDTfBDwhVclbgr0mOx6+G3E2AIiewbrXT/gXUHAR3VGcUlIoKRQSwbUkYaZc</span>
-</span><span class='line'><span class="l-Scalar-Plain">lXP+Po6Fm3MTdqO5AQ0EVL2ZNQEIAN4qry4CsnUbitbEv3kkxk9AnXp5vx3RvhMz</span>
-</span><span class='line'><span class="l-Scalar-Plain">xudXwrGU+gnVjB8JLh7YN+f7WsBiaBJa2l8nZmHbnQbUpGiEER+2NwResqy7tgHv</span>
-</span><span class='line'><span class="l-Scalar-Plain">6fZ9rLWP1Qg7/zcGWQ5e9u0dAnjZfsgjq5ix5eUzfFe4iQK9wIHolQ4dHjIpCMJZ</span>
-</span><span class='line'><span class="l-Scalar-Plain">NEtR+GeFui90M7w+zviUV+ezTgCZ7uswAkwZUWXNIEyKL7hXpp+PHuQnJ2XwHE8m</span>
-</span><span class='line'><span class="l-Scalar-Plain">fciyw2sjoYiSAyfSP8dJnVK8yLPE6qJ07u9JR8KC9M6DvwjBtYsgKD47mYeD1HUe</span>
-</span><span class='line'><span class="l-Scalar-Plain">HBGUgdXr1sg2pSfBgNS+Nzd3jdgCNMSMQsKJ/h8OkVuriODdH/MAEQEAAYkCJQQY</span>
-</span><span class='line'><span class="l-Scalar-Plain">AQIADwUCVL2ZNQIbDAUJAeEzgAAKCRBGML7cQLk1/qt6D/41cKgDR+4shKrypn1w</span>
-</span><span class='line'><span class="l-Scalar-Plain">LsrWFaLynTXDwzX7saSIt6AD09hZJFRo1cS6NaFwe5xwJtqA9cSeuTnP7NTR7MHv</span>
-</span><span class='line'><span class="l-Scalar-Plain">lGO9Otpj6/EahRNY659rP9m8JpRufdRqKC6iFVhcbYzVMQ7Kj+lTsuPZ+mvCfHXk</span>
-</span><span class='line'><span class="l-Scalar-Plain">VbCQqzUIxw99muVBBoHBqgQso6GWwhu4VNcWXJWMwksKPcBq3LGSinXFA8GVoi1a</span>
-</span><span class='line'><span class="l-Scalar-Plain">2W4kC5qHYwInfFMj+O/2FEg1A8vW8TXlZLQ6SQBhtJ6/UjsTAgNwKRZdOeAplvAE</span>
-</span><span class='line'><span class="l-Scalar-Plain">WY/V2xNPQqOMkp+QoO67MDUkg8OVju5DmFzI0pgIGRcaUOq6iXJBT5EHPAgo0WTR</span>
-</span><span class='line'><span class="l-Scalar-Plain">h945lydXpIvqqr9qEunkZVHOYP8rNqj7WTl7jRAJ2iVe5yrPq4JTGpeQQeYH21Gt</span>
-</span><span class='line'><span class="l-Scalar-Plain">Qs9zNJ+dcDm6wtzEI+h+A/wn6VzS5U0nZH5gAZP7cIRAbKrVA7mtn4pLDo5HY6RJ</span>
-</span><span class='line'><span class="l-Scalar-Plain">Nt1323pXYckMGJV4tpZdWNXECsjmLszAZN8FHe7AI8BDYGnuvEBlX2G4/NnpAwlq</span>
-</span><span class='line'><span class="l-Scalar-Plain">wa5aqVPMzjasS7hnwH985ACkpQa44RnFfjaNQtQYFxt8eDuoCdx0V/14imBP2VX5</span>
-</span><span class='line'><span class="l-Scalar-Plain">xVKiQbWrzQgEQJ0grRcdJbCKDqM2YnlHpG4YsihA11h5RdgxlPQEqiOav+6Wcuqj</span>
-</span><span class='line'><span class="l-Scalar-Plain">Xl6oYqFSZT8n3f3JCesl+x05sLkBDQRUvZnnAQgA0gn3SK4TtgCKtJzutMde7mlK</span>
-</span><span class='line'><span class="l-Scalar-Plain">COrsmMtR7d+Zi9rqUlPkurCo21vrcGI9VkgaFc4xXpmH1TF2MMhuAmEEx0ME4Guk</span>
-</span><span class='line'><span class="l-Scalar-Plain">zw5I34oLbqVJZkT2XVj73sy3Zic2jiayuYJtPdBvJL5XocCO+zrBWcUPW3af4aKa</span>
-</span><span class='line'><span class="l-Scalar-Plain">QarIZwAiYveCPmswJ/GxaeYVIGtfFkdoXczYCMcRyUcacDmAzn//o3XvRLXCFgE2</span>
-</span><span class='line'><span class="l-Scalar-Plain">NXZvqLUdXdMo0acX+DjwMkecivZ0ZEob7mUiDy4lgXXt9g2Atcsoiwqx2xAXB03x</span>
-</span><span class='line'><span class="l-Scalar-Plain">w28+vhTUwcB+wznnwStGddYoc4szd8Od9U00JusgbyTzm9D3+9pMuZuw4X1bywAR</span>
-</span><span class='line'><span class="l-Scalar-Plain">AQABiQIlBBgBAgAPBQJUvZnnAhsgBQkB4TOAAAoJEEYwvtxAuTX+g9gP/iNjPG1H</span>
-</span><span class='line'><span class="l-Scalar-Plain">QZuLH/T+5mB/24IkJA8jymbCgyYR5C4d4aPkLmbmG4T0Gbh0GP0jk2bclbmPuFT6</span>
-</span><span class='line'><span class="l-Scalar-Plain">6FvrKLdKappD+1rqog9WkUOojCKBNTEJmq94qwCDD4yaUwMbxHc7Bz98Cz+gsaBa</span>
-</span><span class='line'><span class="l-Scalar-Plain">/LalKdkG77DYKHpQFZh6z7RSGZp0xa50af+X2DL73seDJlChfx5eTXlPeta3z1Qv</span>
-</span><span class='line'><span class="l-Scalar-Plain">qib1rHdF2nvXIkYQbM1qgtrw5aeGarYHcwxjTn4bnLfQiubTnvyy+Rx+Isp7qTW5</span>
-</span><span class='line'><span class="l-Scalar-Plain">uF6bggHay21162G7/gm4QK/NuKSMPmLRj+vRmbq/ZPy002ZcD549HipU6DFiZgq4</span>
-</span><span class='line'><span class="l-Scalar-Plain">fnPtyDW583P3+xuaiFwt1kRKrCmR70M/+mYUDCuDgUQEmc6Hi7WLyHlhSAnwBzuR</span>
-</span><span class='line'><span class="l-Scalar-Plain">Mzys9cDYFXkz8rAkFnG30gXvFFxQFGcucixZkU4vgwBh/byMF7KOMgSujFfjUAss</span>
-</span><span class='line'><span class="l-Scalar-Plain">0jkToLv8mSQNEshHAcKCmJWg7OOys4Iwkaou+54tN/MVjQaCcXLHbSbRg+TxrDIp</span>
-</span><span class='line'><span class="l-Scalar-Plain">JMFPROiKU3Bk0rjIDXTdsMZLg5RWv3OeM06NKTBbNVCShYCn0pZac0p3Bbz8N7/x</span>
-</span><span class='line'><span class="l-Scalar-Plain">UtQXBDGeMkRCq20eSCHzc9am5HjEly4GQvHtJR97D/pRegDuhJqrbyuCK+kD3/de</span>
-</span><span class='line'><span class="l-Scalar-Plain">ewB6rgu7pPnOa3eGk52czyArCIsgYeVp/jlQ</span>
-</span><span class='line'><span class="l-Scalar-Plain">=MDtX</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP PUBLIC KEY BLOCK-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Transition Statement]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/06/20/transition-statement/"/>
-    <updated>2014-06-20T21:24:29-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/06/20/transition-statement</id>
-    <content type="html"><![CDATA[<p>I have decided to transition to a new GPG key. Below you will find the following:</p>
-
-<ul>
-<li>Transition Statement</li>
-<li>Signature of Transition Statement with old key</li>
-<li>Signature of Transition Statement with new key</li>
-</ul>
-
-
-<p>I have put my new public key in a separate post.</p>
-
-<figure class='code'><figcaption><span> (transition_statement.txt)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-<span class='line-number'>59</span>
-<span class='line-number'>60</span>
-<span class='line-number'>61</span>
-<span class='line-number'>62</span>
-<span class='line-number'>63</span>
-<span class='line-number'>64</span>
-<span class='line-number'>65</span>
-<span class='line-number'>66</span>
-<span class='line-number'>67</span>
-<span class='line-number'>68</span>
-<span class='line-number'>69</span>
-<span class='line-number'>70</span>
-<span class='line-number'>71</span>
-<span class='line-number'>72</span>
-<span class='line-number'>73</span>
-<span class='line-number'>74</span>
-<span class='line-number'>75</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">Date</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">June 20th, 2014</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">For a number of reasons, i&#39;ve recently set up a new OpenPGP key,</span>
-</span><span class='line'><span class="l-Scalar-Plain">and will be transitioning away from my old one.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">The old key will continue to be valid for some time, but i prefer all</span>
-</span><span class='line'><span class="l-Scalar-Plain">future correspondence to come to the new one.  I would also like this</span>
-</span><span class='line'><span class="l-Scalar-Plain">new key to be re-integrated into the web of trust.  This message is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by both keys to certify the transition.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">the old key was</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/250390EF 2013-11-03</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 584B CD6D 1CA2 8A2D 7F1C 9AA6 E8BA 54DF 2503 90EF</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">And the new key is</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">pub   4096R/40B935FE 2014-06-14 [expires</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2015-06-14]</span>
-</span><span class='line'>      <span class="l-Scalar-Plain">Key fingerprint = 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">To fetch the full key from a public key server, you can simply do</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --keyserver pool.sks-keyservers.net --recv-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you already know my old key, you can now verify that the new key is</span>
-</span><span class='line'><span class="l-Scalar-Plain">signed by the old one</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --check-sigs &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you don&#39;t already know my old key, or you just want to be double</span>
-</span><span class='line'><span class="l-Scalar-Plain">extra paranoid, you can check the fingerprint against the one above</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --fingerprint &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">If you are satisfied that you&#39;ve got the right key, and the UIDs match</span>
-</span><span class='line'><span class="l-Scalar-Plain">what you expect, I&#39;d appreciate it if you would sign my key. You can</span>
-</span><span class='line'><span class="l-Scalar-Plain">do that by issuing the following command</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'><span class="l-Scalar-Plain">NOTE</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">if you have previously signed my key but did a local-only</span>
-</span><span class='line'><span class="l-Scalar-Plain">signature (lsign), you will not want to issue the following, instead</span>
-</span><span class='line'><span class="l-Scalar-Plain">you will want to use --lsign-key, and not send the signatures to the</span>
-</span><span class='line'><span class="l-Scalar-Plain">keyserver</span>
-</span><span class='line'><span class="err">**</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --sign-key &#39;4630BEDC40B935FE&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I&#39;d like to receive your signatures on my key. You can either send me</span>
-</span><span class='line'><span class="l-Scalar-Plain">an e-mail with the new signatures (if you have a functional MTA on</span>
-</span><span class='line'><span class="l-Scalar-Plain">your system)</span><span class="p-Indicator">:</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="l-Scalar-Plain">gpg --export &#39;4630BEDC40B935FE&#39; | gpg --encrypt -r &#39;4630BEDC40B935FE&#39; --armor | mail -s &#39;OpenPGP Signatures&#39; jrruethe@gmail.com</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Additionally, I highly recommend that you implement a mechanism to keep your key</span>
-</span><span class='line'><span class="l-Scalar-Plain">material up-to-date so that you obtain the latest revocations, and other updates</span>
-</span><span class='line'><span class="l-Scalar-Plain">in a timely manner. You can do regular key updates by using parcimonie[0] to</span>
-</span><span class='line'><span class="l-Scalar-Plain">refresh your keyring. Parcimonie is a daemon that slowly refreshes your keyring</span>
-</span><span class='line'><span class="l-Scalar-Plain">from a keyserver over Tor. It uses a randomized sleep, and fresh tor circuits</span>
-</span><span class='line'><span class="l-Scalar-Plain">for each key. The purpose is to make it hard for an attacker to correlate the</span>
-</span><span class='line'><span class="l-Scalar-Plain">key updates with your keyring.</span>
-</span><span class='line'>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">I also highly recommend checking out the excellent Riseup GPG best</span>
-</span><span class='line'><span class="l-Scalar-Plain">practices doc, from which I stole most of the text for this transition</span>
-</span><span class='line'><span class="l-Scalar-Plain">message ;-)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">https://we.riseup.net/debian/openpgp-best-practices</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Please let me know if you have any questions, or problems, and sorry</span>
-</span><span class='line'><span class="l-Scalar-Plain">for the inconvenience.</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">Joseph Ruether</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">0. https://gaffer.ptitcanardnoir.org/intrigeri/code/parcimonie/</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.oldkey.asc)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt.oldkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1.4.12 (GNU/Linux)</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABAgAGBQJTpNubAAoJEOi6VN8lA5DvJpIQAKeb/PrZMIMquikQyeFYfMfw</span>
-</span><span class='line'><span class="l-Scalar-Plain">5M4OlALtDN1sJaDSsfODwPzgqu9vjNNkWznifaUnt/AAHWIh0mJGQ+ePetbdaK7C</span>
-</span><span class='line'><span class="l-Scalar-Plain">yW5Xc3idE6ElByiZa2NuSq6RMSRFYcBPtJWmrdlLlfv1gf5WFwkRGDUHrRbKGdKf</span>
-</span><span class='line'><span class="l-Scalar-Plain">mU4PIJPNgug8XjlSMNw8P8IEmG6nuxpaEcQSfsmjF+BuYyhPuNS+ZFBMTfG4j16t</span>
-</span><span class='line'><span class="l-Scalar-Plain">B8UrTAPD6FFRVC0mtE6lunveTeXMgFK6GtFN1vrKTcSSgHUarPIHgoOw7w9WNxde</span>
-</span><span class='line'><span class="l-Scalar-Plain">9gkfTLbxseFzfo4u/ng9xupgomguf+jP6dv3d8OQZg5Yvu624RhoPvKkVt5K8by3</span>
-</span><span class='line'><span class="l-Scalar-Plain">E8BvqnOz0fUK6rSmNoSmKimkQ/zPPb4UJ70BdqXgRm1N6WQjrzhuuFW3cJbIYEyf</span>
-</span><span class='line'><span class="l-Scalar-Plain">+59qYkIgMYGk/jpKacEVsUwpEa2Rm7r7+Gj/TTS7APh3Lh88YBNPdjJQMx+fkV9J</span>
-</span><span class='line'><span class="l-Scalar-Plain">CloWfSl5c9dntBpGhxeo03dY8fs6UxisIMZqpgntp2gTzJ6fZi501hdBzGbCUU08</span>
-</span><span class='line'><span class="l-Scalar-Plain">BBMZmOzB2hElsXEeNy1A/kjVgZuazGJViTiKtx+E3JsULv86DTXUwtC/HmaRsREF</span>
-</span><span class='line'><span class="l-Scalar-Plain">88ng/df3XITr1YJVXJALaICAhhR0Vhbn9m0Dwqm/FIudSsdPyD6tBHn5JbfT3fX1</span>
-</span><span class='line'><span class="l-Scalar-Plain">YzfWiLkqHwRxhjQ9TD51</span>
-</span><span class='line'><span class="l-Scalar-Plain">=u6TC</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<figure class='code'><figcaption><span> (transition_statement.txt.newkey.asc)</span> <a href='http://jrruethe.github.io/downloads/code/transition_statement.txt.newkey.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAABCgAGBQJTpN4CAAoJEInJf5BWENx2D+EP/0aK6kSa5grA/9wM2UlWe/kT</span>
-</span><span class='line'><span class="l-Scalar-Plain">t4PsugJHixYOeHn75Q3YX5CvMTnw6WSxy5hb4FpJrIaTwZshw5L8oiftUWhda1v0</span>
-</span><span class='line'><span class="l-Scalar-Plain">8DfRpm2sw2edtUgarNVwl+hLxbo41V8N6zyJiSjri9LLd+LD2PXM+/cURK696xbk</span>
-</span><span class='line'><span class="l-Scalar-Plain">Ylpl5n1+PyxrhdiFeTui9QTHr0BKk1ShkaLqSQEsVHgC8AEviGv+jr70PX5roOZC</span>
-</span><span class='line'><span class="l-Scalar-Plain">EN9FfbqWRKleEqqZ/ROIQTsEQMN+QhxQxCwMZshgybqIbmGuSdHj0cJqYaz6EJDR</span>
-</span><span class='line'><span class="l-Scalar-Plain">NFKLQ5sETwqo1QCwfzXp2Fy42yEh+FbOYEWAUS3F7MDWJP2ZeuaNsSlf26iMWWN5</span>
-</span><span class='line'><span class="l-Scalar-Plain">dFeYaf28xRb8GMoc92q3n+S+M1STEX9V2fyitUq747yWrdbzgOQcblYS9lLtSEzo</span>
-</span><span class='line'><span class="l-Scalar-Plain">Jgf8MR0d3ZvWI2OtUnyyO/nVS5WYD4w09ItheNwf+02gKVPImOvT7TCC6aPxKzUr</span>
-</span><span class='line'><span class="l-Scalar-Plain">YPmJMncXFkES4TAH4vgVZpSYC1WAHoQoLFBBgbDFActb1Pp/6q4iGjv4pv0quSZl</span>
-</span><span class='line'><span class="l-Scalar-Plain">Dgy4T6U8W/NdmRXDTG05RqjMuQdV2/QPeredHkozpaGO4a0sIgEj5UkxfsburgE3</span>
-</span><span class='line'><span class="l-Scalar-Plain">H/RjbHVxfuTU1MtNvnBQHMNZS2swmgCfG4Ct9W4MAS5qeE4GhZZQSwtqvoOUVNqr</span>
-</span><span class='line'><span class="l-Scalar-Plain">6DAdB/qFc0Iavgvb9TK1</span>
-</span><span class='line'><span class="l-Scalar-Plain">=NiZp</span>
 </span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
 </span></code></pre></td></tr></table></div></figure>
 
