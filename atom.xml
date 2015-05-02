@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-04-26T13:55:43-04:00</updated>
+  <updated>2015-05-02T16:04:00-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -14,7 +14,224 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Bitcoin Analogy]]></title>
+    <title type="html"><![CDATA[Temporary Security Mirror]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/"/>
+    <updated>2015-05-02T15:31:12-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror</id>
+    <content type="html"><![CDATA[<p>Sometimes you need to perform a task in a secure way that leaves no trace on your computer. The traditional way of accomplishing this is to boot from a live CD like <a href="https://tails.boum.org/">Tails</a>. The problem with this is that you might need the software, drivers, or setup you have on your main operating system to accomplish the task. An example of this might be creating a Bitcoin Paper Wallet with a proprietary printer; it might be too difficult to set up the printer on a live CD for a one-off task.</p>
+
+<p>Below is a script that help for these specialized cases. It creates a secure mirror of your system that never touches the disk; anything you do is wiped away on shutdown. Best part is, you can use this from an already running system.</p>
+
+<p>This script will:</p>
+
+<ul>
+<li>Disable swap</li>
+<li>Do a read only bind mount of root</li>
+<li>Apply a tmpfs aufs layer over the read only root view</li>
+<li>Start an X server and chroot into the root view</li>
+</ul>
+
+
+<p>The end result is a temporary secure mirror of your running system.<br/>
+You need the following installed for this to work:</p>
+
+<ul>
+<li>aufs-tools</li>
+<li>Xephyr</li>
+<li>fluxbox</li>
+</ul>
+
+
+<p>Simply run <code>tsm.sh</code> and you will get a window of your running system, where anything you do is forgotten when closed. You will have access to all your files and devices. For more security, close any applications and disconnect your internet before running this script. When finished, close the window and restart your computer.</p>
+
+<figure class='code'><figcaption><span> (tsm.sh)</span> <a href='http://jrruethe.github.io/downloads/code/tsm.sh'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Check to make sure we are running as root</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> <span class="nv">$EUID</span> -ne 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;This script must be run as root&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Define variables</span>
+</span><span class='line'><span class="nv">insecure_root</span><span class="o">=</span>insecure_root
+</span><span class='line'><span class="nv">tmpfs_redirect</span><span class="o">=</span>tmpfs_redirect
+</span><span class='line'><span class="nv">secure_root</span><span class="o">=</span>secure_root
+</span><span class='line'>
+</span><span class='line'><span class="c"># Disable Swap</span>
+</span><span class='line'>swapoff -a
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create the mount points</span>
+</span><span class='line'>mkdir -p <span class="nv">$insecure_root</span>
+</span><span class='line'>mkdir -p <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>mkdir -p <span class="nv">$secure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Clean up the mount points</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$insecure_root</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$secure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Bind mount the root directory</span>
+</span><span class='line'>mount --bind / <span class="nv">$insecure_root</span>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$insecure_root</span> <span class="o">||</span> umount -lf <span class="nv">$insecure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remount the root directory as read only</span>
+</span><span class='line'>mount -o remount,ro,bind <span class="nv">$insecure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a tmpfs filesystem</span>
+</span><span class='line'>mount -t tmpfs tmpfs <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$tmpfs_redirect</span> <span class="o">||</span> umount -lf <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Aufs mount to redirect all </span>
+</span><span class='line'>mount -t aufs -o <span class="nv">br</span><span class="o">=</span><span class="nv">$tmpfs_redirect</span><span class="o">=</span>rw:<span class="nv">$insecure_root</span><span class="o">=</span>ro none <span class="nv">$secure_root</span>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span> <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the necessary filesystems in the chroot</span>
+</span><span class='line'>mount --bind /dev <span class="nv">$secure_root</span>/dev
+</span><span class='line'>mount -t proc none <span class="nv">$secure_root</span>/proc
+</span><span class='line'>mount -t sysfs none <span class="nv">$secure_root</span>/sys
+</span><span class='line'>mount -t devpts none <span class="nv">$secure_root</span>/dev/pts
+</span><span class='line'>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/dev <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/dev
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/proc <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/proc
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/sys <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/sys
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/dev/pts <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/dev/pts
+</span><span class='line'>
+</span><span class='line'><span class="c"># Everything is set up, enter the chroot</span>
+</span><span class='line'><span class="nb">set</span> +e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Start the nested X server</span>
+</span><span class='line'>Xephyr -screen 1024x768 -name <span class="s2">&quot;Temporary Security Mirror&quot;</span> -title <span class="s2">&quot;Temporary Security Mirror&quot;</span> :1 &amp;
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for the X server to start</span>
+</span><span class='line'>sleep 5
+</span><span class='line'>
+</span><span class='line'><span class="c"># Chroot in and startx</span>
+</span><span class='line'>chroot <span class="nv">$secure_root</span> env <span class="nv">DISPLAY</span><span class="o">=</span>localhost:1 /usr/bin/fluxbox
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for things to settle down</span>
+</span><span class='line'>sleep 5
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[A Simple Bitcoin Analogy]]></title>
     <link href="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/"/>
     <updated>2015-04-26T12:59:49-04:00</updated>
     <id>http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy</id>
@@ -50,7 +267,7 @@ Bob: Sounds great! Which locker number is yours?</p></blockquote>
 
 <blockquote><p>Alice: Put the money in locker 412 please!</p></blockquote>
 
-<p>Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob then goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.</p>
+<p>Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.</p>
 
 <blockquote><p>Bob: I put the money in your locker!</p></blockquote>
 
@@ -63,88 +280,6 @@ Bob: Sounds great! Which locker number is yours?</p></blockquote>
 <p>This is the basic premise of Bitcoin. Learn more about Bitcoin <a href="http://www.coindesk.com/information/what-is-bitcoin/">here</a>.</p>
 
 <p><em>This analogy was not my idea, I am paraphrasing <a href="http://thebitcoincatalog.com/safe-analogy/">Henry Romp</a>.</em></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Bitcoin Paper Wallets]]></title>
-    <link href="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/"/>
-    <updated>2015-04-23T19:18:12-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets</id>
-    <content type="html"><![CDATA[<p>Paper wallets are extremely vulnerable to water!
-Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer.</p>
-
-<hr />
-
-<p>A verified repository of paper wallet generators can be found <a href="">here</a>.<br/>
-Below are reviews of my two personal favorites:</p>
-
-<hr />
-
-<p>Bitcoin Paper Wallet</p>
-
-<ul>
-<li><a href="https://bitcoinpaperwallet.com/">Website</a></li>
-<li><a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a></li>
-</ul>
-
-
-<p>PICTURE HERE</p>
-
-<p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin! Highly recommended.</p>
-
-<p>Features:</p>
-
-<ul>
-<li>&ldquo;Butterfly&rdquo; design secures the private key</li>
-<li>Resistant to candling</li>
-<li>Supports <a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a> encryption</li>
-<li>Private key encoded in <a href="https://en.bitcoin.it/wiki/Wallet_import_format">Wallet Import Format</a></li>
-<li>Designed to be printed in landscape mode</li>
-<li>Double sided</li>
-<li>2x wallets per sheet</li>
-<li>Notes section on the back</li>
-<li>Public key visible</li>
-</ul>
-
-
-<p>Additional Options:</p>
-
-<ul>
-<li><a href="https://bitcoinpaperwallet.com/">Security Stickers</a> 1.5in x .5in (<a href="http://www.amazon.com/gp/product/B00MWCCN7C">Alternative</a>)</li>
-<li><a href="https://bitcoinpaperwallet.com/">Waterproof Bag</a> 6in x 3in (<a href="http://www.amazon.com/Clear-Lock-Bags-Case-1000/dp/B0040003E4">Alternative</a>)</li>
-<li><a href="http://www.amazon.com/dp/B004PX7ZTC">Teslin Paper</a> (Inkjet Printers)</li>
-<li><a href="http://www.amazon.com/gp/product/B004UI335W/">Revlar Paper</a> (Laser Printers)</li>
-</ul>
-
-
-<p>Dimensions:</p>
-
-<ul>
-<li>Landscape: 5.5in x 2.5in (Slightly smaller than a dollar bill)</li>
-<li>Portrait: 4in x 2in (Slightly bigger than a standard business card)</li>
-<li>QR Codes: 1in x 1in (About the size of a quarter)</li>
-</ul>
-
-
-<p>For additional artworks, check out <a href="http://libertywallet.liberty.me/2015/03/18/liberty-wallet/">Liberty Paper Wallet</a> (<a href="https://github.com/SimonBelmond/libertypaperwallet">Github</a>).</p>
-
-<hr />
-
-<p>Wallet Generator</p>
-
-<ul>
-<li><a href="">Website</a></li>
-<li><a href="">Github</a></li>
-</ul>
-
-
-<p>Additional Options:</p>
-
-<ul>
-<li><a href="http://www.amazon.com/gp/product/B00ENI0NI4">Scratch Off Stickers</a> 1in x 1in</li>
-</ul>
-
 ]]></content>
   </entry>
   
