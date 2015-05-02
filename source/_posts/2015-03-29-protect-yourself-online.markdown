@@ -10,9 +10,7 @@ This is a quick guide to staying secure on the internet.
 
 Hashes and Signatures
 ---------------------
-Hashes and signatures are your primary tool for verifying data and detecting any form of tampering.  
-You need to understand how hashes work and why they are important.  
-Know how to generate hashes and checksums:
+Hashes and signatures are your primary tool for verifying data and detecting any form of tampering. You need to understand how hashes work and why they are important. Know how to generate hashes and checksums:
 
     $ echo Hello1 > test.txt
     $ cat test.txt 
@@ -142,7 +140,11 @@ This practice is good for storing GPG private keys and Bitcoin wallets securely.
 More Information
 ----------------
 
-I highly recommend you read the following pages carefully:
+I highly recommend you read the following pages for more information:
 
- - https://freedom.press/encryption-works
- - https://pack.resetthenet.org/
+ - [Encryption Works](https://freedom.press/encryption-works)
+ - [Prism Break](https://prism-break.org/en/)
+ - [Privacy Tools](https://www.privacytools.io/)
+ - [Reset the Net](https://pack.resetthenet.org/)
+ - [Surveillance Self-Defense](https://ssd.eff.org/)
+ - [Ultimate Privacy Guide](https://www.bestvpn.com/the-ultimate-privacy-guide/)

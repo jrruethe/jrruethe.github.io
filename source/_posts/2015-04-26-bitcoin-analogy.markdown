@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Bitcoin Analogy"
+title: "A Simple Bitcoin Analogy"
 date: 2015-04-26 12:59:49 -0400
 comments: true
 categories: 
@@ -35,7 +35,7 @@ Alice goes to the group of lockers, sees that #412 is unclaimed, and claims it. 
 
 > Alice: Put the money in locker 412 please!
 
-Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob then goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.
+Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.
 
 > Bob: I put the money in your locker!
 
