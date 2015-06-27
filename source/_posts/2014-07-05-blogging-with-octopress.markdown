@@ -168,6 +168,7 @@ lang can be any of the following:
  - bash
  - python
  - json
+ - c++
 
 For example:
 {% raw %}

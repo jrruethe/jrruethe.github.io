@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 layout: post
 title: "Boost Fusion Json Serializer"
 date: 2015-05-21 19:21:50 -0400
@@ -78,7 +78,7 @@ Boost::Fusion is a library that enables reflection in C++ with only a small amou
 
 {% endcodeblock %}
 
-Next, we define a serializer for each meta-type that needs to be supported. Each serializer will take a reference to an output stream that will be appended to, a type to serialize, and the current recursion depth. The depth is useful for pretty-printing with the proper indentation:
+Next, we define a serializer for each meta-type that needs to be supported. Each serializer will take a reference to an output stream that will be appended to, a type to serialize, and the current recursion depth. The depth is useful for pretty-printing with the proper indentation. All four will start off following the same pattern before we complete the implementation:
 
 {% codeblock lang:c++ %}
 
@@ -156,6 +156,7 @@ Next, lets implement the `array_serializer`. We need to get the size of the arra
 
 {% codeblock lang:c++ %}
 
+    // Helper method for generating a tab as 3 spaces
     static inline std::string tab(int depth)
     {
     	std::string retval;
@@ -168,25 +169,34 @@ Next, lets implement the `array_serializer`. We need to get the size of the arra
     {
        typedef array_serializer<T> type;
     
+       // If T is an array type then removes the top level array qualifier from T, otherwise leaves T unchanged. 
+       // For example "int[2][3]" becomes "int[3]".
        typedef typename boost::remove_bounds<T>::type slice_t;
     
+       // Determine the size of the array by dividing out the size of its elements
        static const size_t size = sizeof(T) / sizeof(slice_t);
     
        template<typename Ostream>
        static inline void serialize(Ostream& os, T const& t, int depth)
        {
+          // Indent the stream
           os << "\n" + tab(depth) + "[";
     
+          // For each element in the array
           for(unsigned int i = 0; i < size; ++i)
           {
+             // Serialize the element
              json_serializer<slice_t>::serialize(os, t[i], depth + 1);
     
+             // As long as we are not after the last element
              if(i != size-1)
              {
+                // Add a comma separator
                 os << ", ";
              }
           }
     
+          // Close the array representation
           os << "\n" + tab(depth) + "]";
        }
     };
@@ -207,11 +217,14 @@ The container serializer is very similar; we use `BOOST_FOREACH` to do the itera
        {
           os << "\n" + tab(depth) + "[";
     
+          // Use the container's size method
           std::size_t size = t.size();
           std::size_t count = 0;
     
+          // STL containers all have a "value_type" typedef
           BOOST_FOREACH(typename T::value_type const& v, t)
           {
+             // Serialize each value
              json_serializer<typename T::value_type>::serialize(os, v, depth + 1);
     
              if(count != size - 1)
@@ -219,6 +232,7 @@ The container serializer is very similar; we use `BOOST_FOREACH` to do the itera
                 os << ", ";
              }
     
+             // Keep track of the count so we can tell when a comma separator is needed
              ++count;
           }
     
@@ -228,9 +242,7 @@ The container serializer is very similar; we use `BOOST_FOREACH` to do the itera
 
 {% endcodeblock %}	
 
-The last serializer is the `struct_serializer`. This one is trickier. Structures are adapted as `Boost::Fusion` sequences by the boilerplate we defined above. A sequence is basically a vector, except each element can have a different type. In this case, the type/value pairs correspond directly with the members of the structure, and we can iterate over these members.
-
-It would be fairly straightforward to treat the sequence similar to a container by using `boost::fusion::for_each`, so instead lets keep things interesting and use recursion.
+The last serializer is the `struct_serializer`. This one is trickier. Structures are adapted as `Boost::Fusion` sequences by the boilerplate we defined above. A sequence is basically a vector, except each element can have a different type. In this case, the type/value pairs correspond directly with the members of the structure, and we can iterate over these members. We will accomplish this through recursion.
 
 Before we get to the serializer, lets define some wrappers for interacting with the sequences in a friendlier way. We can get properties of the sequence as a whole, or we can get properties of a certain element in the sequence by using it's index. You can even get an element's member name and member type as a string (which is very handy when writing an XML serializer):
 
@@ -312,11 +324,16 @@ Using the above sequence helpers, we can obtain the type of the current element,
 
 {% codeblock lang:c++ %}
 
+    // Current element
     typedef typename element_at<S, N>::type current_t;
+    
+    // Next element
     typedef typename element_at<S, N>::next next_t;
     
+    // Name of current element
     std::string name = element_at<S, N>::name();
     
+    // Value of current element
     current_t const& t = element_at<S, N>::get(s);
 
 {% endcodeblock %}	
@@ -328,23 +345,32 @@ Structures will be represented as key/value pairs separated by commas. Each valu
     template<typename S, typename N>
     struct struct_serializer_recursive
     {
+       // Get the current and next elements
        typedef typename element_at<S, N>::type current_t;
        typedef typename element_at<S, N>::next next_t;
     
        template<typename Ostream>
        static inline void serialize(Ostream& os, S const& s, int depth)
        {
+          // The name of the element is the key
           std::string name = element_at<S, N>::name();
+          
+          // The element itself is the value
           current_t const& t = element_at<S, N>::get(s);
           
+          // Output the key
           os << "\n" + tab(depth) + "\""
              << name
              << "\" : ";
     
+          // Recursively output the value
           json_serializer<current_t>::serialize(os, t, depth);
     
+          // Add a separator for the next element
+          // (Pay attention to this, we will revisit it later)
           os << ", ";
     
+          // Perform a recursive call to the next element
           struct_serializer_recursive<S, next_t>::serialize(os, s, depth);
        }
     };
@@ -355,6 +381,7 @@ We need to define the base case to stop the recursion. To do this, we use templa
 
 {% codeblock lang:c++ %}
 
+    // Specialize on the last element in the sequence
     template<typename S>
     struct struct_serializer_recursive<S, typename sequence<S>::end>
     {
@@ -365,6 +392,7 @@ We need to define the base case to stop the recursion. To do this, we use templa
        }
     };
     
+    // Initiate the recursion by calling into the first element
     template<typename S>
     struct struct_serializer_initiate : struct_serializer_recursive<S, typename sequence<S>::begin>
     {
@@ -385,6 +413,7 @@ With the help of these pieces, we can implement the `struct_serializer`:
        template<typename Ostream>
        static inline void serialize(Ostream& os, T const& t, int depth)
        {
+          // Begin recursing into the structure sequence
           os << "\n" + tab(depth) + "{";
           struct_serializer_initiate<T>::serialize(os, t, depth + 1);
           os << "\n" + tab(depth) + "}";
@@ -400,14 +429,15 @@ Now that all four serializers are implemented, we need a way to determine which 
     template<typename T>
     struct choose_serializer
     {
+       // Very large typedef, indented to show the different nested levels
        typedef
-       typename boost::mpl::eval_if<boost::is_array<T>,
-                                    boost::mpl::identity<array_serializer<T> >,
-                                    typename boost::mpl::eval_if<boost::spirit::traits::is_container<T>,
-                                                                 boost::mpl::identity<container_serializer<T> >,
-                                                                 typename boost::mpl::eval_if<boost::is_class<T>,
-                                                                                              boost::mpl::identity<struct_serializer<T> >,
-                                                                                              boost::mpl::identity<primitive_serializer<T> >
+       typename boost::mpl::eval_if<boost::is_array<T>,                                                                                      // If the type is an array,
+                                    boost::mpl::identity<array_serializer<T> >,                                                              // use the array serializer
+                                    typename boost::mpl::eval_if<boost::spirit::traits::is_container<T>,                                     // Otherwise, check to see if it is a container (using the hidden type-trait)
+                                                                 boost::mpl::identity<container_serializer<T> >,                             // If so, use the container serializer
+                                                                 typename boost::mpl::eval_if<boost::is_class<T>,                            // Otherwise, check to see if it is a structure
+                                                                                              boost::mpl::identity<struct_serializer<T> >,   // If so, use the structure serializer
+                                                                                              boost::mpl::identity<primitive_serializer<T> > // If all else fails, treat it as a primitive.
                                                                                              >
                                                                 >
                                    >::type 
@@ -420,17 +450,21 @@ The last piece is to wrap all this code up into a `json_serializer` and utilize 
 
 {% codeblock lang:c++ %}
 
+    // The json serializer adapts itself to the top level type
     template<typename T>
     struct json_serializer : public choose_serializer<T>::type
     {
     
     };
     
+    // This is the mixin to inherit from
     template<typename T>
     struct json
     {
+       // Returns the json representation of this class
        std::string to_json(void)
        {
+          // Serialize to a stringstream, convert booleans to strings. Start at a depth of 0.
           std::stringstream ss;
           json_serializer<T>::serialize(ss << std::boolalpha, self(), 0);
           return ss.str();
@@ -438,6 +472,7 @@ The last piece is to wrap all this code up into a `json_serializer` and utilize 
        
     private:
     
+       // Cast ourselves to the template parameter since this is a mixin via CRTP
        T const& self(void) const
        {
           return *static_cast<T const*>(this);
@@ -548,6 +583,7 @@ The first issue is caused by the `primitive_serializer` not adding newlines for 
        template<typename Ostream>
        static inline void serialize(Ostream& os, T const& t, int depth, bool array_value)
        {
+          // Put in tabs if this is a value from an array (called from an array serializer)
           if(array_value)
           {
              os << "\n" + tab(depth) + "\""
@@ -569,6 +605,7 @@ Fixing the second issue (trailing commas) involves a little more template magic.
 
 {% codeblock lang:c++ %}
 
+    // Return a proper comma separator for any element in the sequence.
     template<typename S,
              typename N>
     struct separator
@@ -579,6 +616,7 @@ Fixing the second issue (trailing commas) involves a little more template magic.
         }
     };
     
+    // Specialize on the last element and prevent a comma from being returned.
     template<typename S>
     struct separator<S, typename sequence<S>::last>
     {
@@ -605,16 +643,20 @@ The third issue is caused by the map container's value_type being a pair. Boost 
        template<typename Ostream>
        static inline void serialize(Ostream& os, S const& s, int depth, bool array_value, bool pair)
        {
+          // For pairs, the member name will be "first" or "second".
+          // Instead, treat the value of "first" as the key
           current_t const& t = element_at<S, N>::get(s);
           
           os << "\n" + tab(depth) + "\""
              << t
              << "\" : ";
     
+          // Then recurse and treat the value of "second" as the value
           pair_serializer_recursive<S, next_t>::serialize(os, s, depth, false, false);
        }
     };
     
+    // Specialize on the second element of the pair to stop the recursion
     template<typename S>
     struct pair_serializer_recursive<S, typename sequence<S>::second>
     {
@@ -625,12 +667,14 @@ The third issue is caused by the map container's value_type being a pair. Boost 
        {
           current_t const& t = element_at<S, typename sequence<S>::second>::get(s);
           
+          // Mimic the primitive serializer
           os << "\""
              << t
              << "\"";
        }
     };
     
+    // Initiate the recursion
     template<typename T>
     struct pair_serializer_initiate : public pair_serializer_recursive<T, typename sequence<T>::begin>
     {
@@ -643,6 +687,7 @@ The third issue is caused by the map container's value_type being a pair. Boost 
 
 {% codeblock lang:c++ %}
 
+    // Specialize the container serializer on std::map
     template<typename K, typename V, typename C, typename A>
     struct container_serializer<std::map<K, V, C, A> >
     {
@@ -659,6 +704,7 @@ The third issue is caused by the map container's value_type being a pair. Boost 
           
           BOOST_FOREACH(typename T::value_type v, t)
           {
+             // This will end up calling the structure serializer, but we set the "pair" flag to true
              json_serializer<typename T::value_type>::serialize(os, v, depth + 1, true, true);
     
              if(count != size - 1)
@@ -687,6 +733,8 @@ The third issue is caused by the map container's value_type being a pair. Boost 
        template<typename Ostream>
        static inline void serialize(Ostream& os, T const& t, int depth, bool array_value, bool pair)
        {
+          // If being called from the std::map specialization of the container serializer,
+          // we should treat the values as pairs, so forward to the appropriate serializer
           if(pair)
           {
              pair_serializer_initiate<T>::serialize(os, t, depth, false, false);
@@ -702,7 +750,7 @@ The third issue is caused by the map container's value_type being a pair. Boost 
 
 {% endcodeblock %}
 
-Unfortunately, this means we needed to add another boolean parameter for our serialize function. After all that, we get the following Json output:
+Unfortunately, this means we needed to add another boolean parameter for our serialize function (and all serializers must do this so the signatures all match). After all that, we get the following Json output:
 
 {% codeblock lang:json %}
 
@@ -749,6 +797,7 @@ Unfortunately, this means we needed to add another boolean parameter for our ser
 
 It validates! Below is the final form of the code. While it is quite a bit, the nice thing is that all a user needs to do is perform the fusion adaption of their structure and inherit from the mixin; the rest is hidden behind the scenes.
 
+{% include_code lang:c++ json.cpp %}
 
 Hopefully you learned some cool C++ tricks from this.
 
