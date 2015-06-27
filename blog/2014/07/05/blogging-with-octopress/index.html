@@ -66,6 +66,8 @@ git clone git://github. &hellip;">
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
 </ul>
 
 </nav>
@@ -284,6 +286,8 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <li>yaml</li>
 <li>bash</li>
 <li>python</li>
+<li>json</li>
+<li>c++</li>
 </ul>
 
 
@@ -320,7 +324,39 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <span class='line-number'>23</span>
 <span class='line-number'>24</span>
 <span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># address-to-hash.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 </span><span class='line'>
 </span><span class='line'><span class="c1"># Get the address</span>
 </span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
@@ -348,6 +384,41 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>You can also embed code content directly into a markdown file by enclosing it with codeblocks:</p>
+
+<pre><code>{% codeblock lang:json %}
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+{% endcodeblock %}  
+</code></pre>
+
+<p>Results in:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="nt">&quot;one&quot;</span> <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="nt">&quot;two&quot;</span> <span class="p">:</span> <span class="s2">&quot;2&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is better than the normal 4-space indent because you get syntax highlighting and line numbers. Compare:</p>
+
+<pre><code>{
+   "one" : "1",
+   "two" : "2"
+}
+</code></pre>
+
+<hr />
+
 <h4>Image</h4>
 
 <p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>. The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
@@ -357,8 +428,10 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <pre><code>{% img center ./01.png %}
 </code></pre>
 
-<p>Which results in this:
+<p>Which results in this<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:
 <img class="center" src="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png"></p>
+
+<hr />
 
 <h4>Video</h4>
 
@@ -374,6 +447,8 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 
 <div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
 
+
+<hr />
 
 <h4>Map</h4>
 
@@ -393,6 +468,23 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 
 
 <script type='text/javascript'>jQuery(document).ready(function() {initmap('map1',37.7577,-122.4376,13,'','');});</script>
+
+
+<hr />
+
+<h4>Footnotes</h4>
+
+<p>Footnotes are good for attributing content made by other people. Simply place an anchor <code>[^2]</code> where you want the link to the footnote to appear.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>
+Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a footnote</code>. The line above the footnotes is created automatically.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://xkcd.com/">Randall Munrow, XKCD</a> licensed under CC-BY-NA 2.5<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>This is a footnote<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
 
 </div>
 
@@ -480,6 +572,10 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/05/02/temporary-security-mirror/">Temporary Security Mirror</a>
       </li>
     
@@ -488,15 +584,11 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
       </li>
     
       <li class="post">
+        <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/04/19/generate-hashes/">Generate Hashes</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/04/11/verified-addresses/">Verified Addresses</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
       </li>
     
   </ul>
@@ -510,19 +602,19 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
       </li>
    
       <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
       <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
       </li>
    
       <li class="related">
       <a href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/">PDF Generation with ruby and Pocket</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
       </li>
    
    </ul>
@@ -572,8 +664,18 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Joe Ruether -
+  <span class="license">
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
 </p>
 
 </footer>

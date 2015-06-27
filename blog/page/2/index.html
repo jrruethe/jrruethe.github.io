@@ -9,8 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Digital cryptography is used everywhere on your computer, both online and offline, to keep your secrets safe.
-This is a simplified explanation of how &hellip;">
+  <meta name="description" content="In the previous post, I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +65,8 @@ This is a simplified explanation of how &hellip;">
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
 </ul>
 
 </nav>
@@ -73,6 +74,595 @@ This is a simplified explanation of how &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/27/bitcoin-address-to-hash/">Bitcoin Address to Hash</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-27T13:40:20-04:00" pubdate data-updated="true">Mar 27<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/03/27/bitcoin-address-to-hash/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/03/27/bitcoin-address-to-hash/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In the <a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">previous post</a>, I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a small amount of bitcoin to it. I neglected to include a script that goes the other way.</p>
+
+<p>Below is a script that will take a valid Bitcoin address and convert it back to the hash it came from. This can be used to validate Blockchain Identities.</p>
+
+<figure class='code'><figcaption><span> (address-to-hash.rb)</span> <a href='/downloads/code/address-to-hash.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># address-to-hash.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>   <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the hex payload</span>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Grab the sending address from the <a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">transaction</a>:</p>
+
+<pre><code>1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
+</code></pre>
+
+<p>Run the script using this address:</p>
+
+<pre><code>./address-to-hash.rb 1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K 
+703bf01d7df0a110c9b2ce1e8984f545831bffaa
+</code></pre>
+
+<p>As you can see, the resulting hash matches the sha256 hash of key.json.asc generated in the previous post.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-28T15:24:25-05:00" pubdate data-updated="true">Feb 28<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/02/28/blockchain-identity/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I stumbled upon Christopher Ellis&#8217; <a href="https://github.com/MrChrisJ/World-Citizenship">&ldquo;World Citizenship&rdquo; Blockchain ID</a> concept and was immediately intrigued. His idea is to create proof of an individual&rsquo;s existence by storing their PGP identity in the blockchain.</p>
+
+<p>The trick is that the blockchain acts as an immutable database that includes full history tracking, meaning that a record can be proven to exist in some state at some time. These services are similar to this concept:</p>
+
+<ul>
+<li><a href="http://www.proofofexistence.com/about">Proof of Existence</a></li>
+<li><a href="http://www.cryptograffiti.info/">Cryptograffiti</a></li>
+<li><a href="https://www.btproof.com/">BTProof</a></li>
+</ul>
+
+
+<p>This post will detail how to create a Blockchain Identity.</p>
+
+<h2>Requirements</h2>
+
+<p>To begin, you will need:</p>
+
+<ul>
+<li>GPG key with signing abilities</li>
+<li>Bitcoin wallet with a small balance</li>
+<li>Keybase.io account</li>
+</ul>
+
+
+<p>Keybase.io is currently alpha, and you need an invite to get an account, but you can probably snag an invite from Reddit (that&rsquo;s where I got mine).</p>
+
+<p>I will be using Debian Linux for this tutorial. I recommend the following packages:</p>
+
+<ul>
+<li>gpg : For signing files</li>
+<li>electrum : For managing bitcoins</li>
+<li>ruby : For running the scripts below</li>
+</ul>
+
+
+<p>First you need to create a GPG key and an Electrum Bitcoin wallet. I won&rsquo;t dive into the details of how to create these in this post. The reason we are using Electrum is because it has the ability to choose the address to send funds from, unlike some other wallets. We will need to know this sending address later.</p>
+
+<p>You also need to get a small amount of Bitcoin into your Electrum wallet (at least 0.0003 BTC)</p>
+
+<h2>Gathering the Data</h2>
+
+<p>Time to collect the data. Open up a text editor and create a Yaml file named key.yml</p>
+
+<p>First, lets get the GPG key details. Run the following, substituting your UID:</p>
+
+<pre><code>gpg --fingerprint jrruethe
+pub   4096R/40B935FE 2014-06-14 [expires: 2015-06-14]
+      Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
+uid                  Joseph Ruether &lt;jrruethe@gmail.com&gt;
+</code></pre>
+
+<p>Fill out your key.yml file like so:</p>
+
+<pre><code>Name: Joseph Ruether
+Email: jrruethe@gmail.com
+Type: RSA
+Size: 4096
+Created: 2014-06-14
+Fingerprint: 4F40 99F8 276B DBA5 475A 8446 4630 BEDC 40B9 35FE
+</code></pre>
+
+<p>Next, go to your Electrum wallet and pick an address that contains a small amount of funds. You will need at least 0.0003 BTC. Add this address to your yaml file:</p>
+
+<pre><code>Address: 1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q
+</code></pre>
+
+<p>Go to <a href="https://blockchain.info">Blockchain.info</a> and find the latest block that has been added to the main chain. Add the block number and Merkle Root to your yaml file:</p>
+
+<pre><code>Block: 345546
+Merkle Root: ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9
+</code></pre>
+
+<p>At this point, your yaml file has all of your GPG key metadata, the address you will use to store the data in the blockchain, and a random number that proves this entry could not have been created earlier in time.</p>
+
+<h2>Preparing the Data</h2>
+
+<p>Now we need to put this data into a standard, machine readable format and sign it. First, use the following script to convert your yaml file into a normalized json file:</p>
+
+<figure class='code'><figcaption><span> (yaml-to-normalized-json.rb)</span> <a href='/downloads/code/yaml-to-normalized-json.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># yaml-to-normalized-json.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;yaml&#39;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">String</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Add a snakecase function to the String class</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">snakecase</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[:\-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Strip spaces and downcase</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">normalize</span>
+</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[: \-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1"># Check if a string is a hex value</span>
+</span><span class='line'>   <span class="k">def</span> <span class="nf">is_hex?</span>
+</span><span class='line'>      <span class="sr">/^[0-9A-F]+$/i</span> <span class="o">===</span> <span class="nb">self</span><span class="o">.</span><span class="n">normalize</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Load the yaml file</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Convert all keys to snakecase</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[</span><span class="n">h</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span> <span class="o">[</span><span class="n">k</span><span class="o">.</span><span class="n">snakecase</span><span class="p">,</span> <span class="n">v</span><span class="o">]</span> <span class="p">}</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Normalize all hex values</span>
+</span><span class='line'><span class="n">h</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span>
+</span><span class='line'>   <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">String</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">v</span><span class="o">.</span><span class="n">is_hex?</span>
+</span><span class='line'>      <span class="n">h</span><span class="o">[</span><span class="n">k</span><span class="o">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">normalize</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Sort the keys</span>
+</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[*</span><span class="n">h</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">flatten</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Pretty print</span>
+</span><span class='line'><span class="nb">puts</span> <span class="no">JSON</span><span class="o">.</span><span class="n">pretty_generate</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run it like so:</p>
+
+<pre><code>./yaml-to-normalized-json.rb key.yml &gt; key.json
+</code></pre>
+
+<p>Then use GPG to clearsign this file:</p>
+
+<pre><code>gpg --clearsign key.json
+</code></pre>
+
+<p>The result should look something like this:</p>
+
+<figure class='code'><figcaption><span> (key.json.asc)</span> <a href='/downloads/code/key.json.asc'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA256</span>
+</span><span class='line'>
+</span><span class='line'><span class="p-Indicator">{</span>
+</span><span class='line'>  <span class="s">&quot;address&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;block&quot;</span><span class="p-Indicator">:</span> <span class="nv">345546</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;created&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;2014-06-14&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;email&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;jrruethe@gmail.com&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;fingerprint&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;4f4099f8276bdba5475a84464630bedc40b935fe&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;merkle_root&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;name&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;Joseph</span><span class="nv"> </span><span class="s">Ruether&quot;</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;size&quot;</span><span class="p-Indicator">:</span> <span class="nv">4096</span><span class="p-Indicator">,</span>
+</span><span class='line'>  <span class="s">&quot;type&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;RSA&quot;</span>
+</span><span class='line'><span class="p-Indicator">}</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQEcBAEBCAAGBQJU8dS0AAoJEB7MsgHDevApMCEH/3yFMcNErb92AtEdwShsvb1v</span>
+</span><span class='line'><span class="l-Scalar-Plain">IVWxL4aTqrs8AD7CxHEUNhxcZ56C2AyFW/8HkOMSCpbq9wG4Jxk8pohIiyQKYfTl</span>
+</span><span class='line'><span class="l-Scalar-Plain">TGGEYGELNDPgx/Pvlhb0jLBh8McnE8XdYseH2OXa3lfq4xOCqYKNiBOIcUmNZSar</span>
+</span><span class='line'><span class="l-Scalar-Plain">9fk4i3/Z47oN1Nwg7NohsCkoqNo9JBKH3Dc3ec2mlLktl83TQ7OcOfBCazdOaHOR</span>
+</span><span class='line'><span class="l-Scalar-Plain">+kk3WZb0wTyG+B6u5Kl8e0VJh+inDB83ol96hli/Ofhuvf29280VP3n784nDpLwY</span>
+</span><span class='line'><span class="l-Scalar-Plain">vg6pukSc3STD3em4hYOYU7OuBydbRe27I5w//E6IwntPoOG+dahzNPJcpFfvD4A=</span>
+</span><span class='line'><span class="l-Scalar-Plain">=/daq</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Sending the Data to the Blockchain</h2>
+
+<p>Now that we have our signed data file, we want to send it to the blockchain. It is important to note that the blockchain will only contain the sha256 hash of your key.json.asc, therefore you need to keep the original data around for validation. Later on, we will create an identification card with a QR code containing the original data.</p>
+
+<p>There is a clever trick we are going to use. If you look at the <a href="https://en.bitcoin.it/wiki/Technical_background_of_Bitcoin_addresses">Technical Background of Bitcoin Addresses</a>, you will see that the address is generated from the hash of the public key. We can replace that hash (at step 3) with the hash of our file before continuing to generate the address. By sending Bitcoins to the address we create, we store the file&rsquo;s hash in the blockchain. Of course, those coins will be lost forever, because the private key for that address does not exist. That is why we only send a small amount.</p>
+
+<p>Now, use the following script to obtain the Bitcoin address that is associated with the hash of your signed key.json:</p>
+
+<figure class='code'><figcaption><span> (file-to-address.rb)</span> <a href='/downloads/code/file-to-address.rb'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># file-to-address.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;digest&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the filename</span>
+</span><span class='line'><span class="n">filename</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Hash the file</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span> <span class="n">filename</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Take only the first 20 bytes</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">39</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Prepend 0x00 to the hash</span>
+</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="nb">hash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Calculate the checksum</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="nb">hash</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="n">checksum</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Pull out the first 4 bytes</span>
+</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="n">checksum</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">7</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">encode_base58</span><span class="p">(</span><span class="n">hex</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">int_val</span> <span class="o">=</span> <span class="n">hex</span><span class="o">.</span><span class="n">to_i</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="k">while</span> <span class="n">int_val</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="n">int_val</span><span class="p">,</span> <span class="n">remainder</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">base58_val</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">[</span><span class="n">remainder</span><span class="o">]</span> <span class="o">+</span> <span class="n">base58_val</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span>  <span class="o">=</span> <span class="p">(</span><span class="n">hex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([0]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
+</span><span class='line'>   <span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">base58_val</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Generate the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="n">encode_base58</span><span class="p">(</span><span class="nb">hash</span> <span class="o">+</span> <span class="n">checksum</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="n">address</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run it like this:</p>
+
+<pre><code>./file-to-address.rb key.json.asc
+1BESV3iP1x1HAMDGhsYiQE3do6aiywGZ3K
+</code></pre>
+
+<p>For some basic sanity checks, visit this website: <a href="http://lenschulwitz.com/base58">Base58 Decoder</a><br/>
+Here you can validate that the Bitcoin address is legitimate, as well as decode the address to hex. Here is what I get:</p>
+
+<pre><code>00703BF01D7DF0A110C9B2CE1E8984F545831BFFAA5556057E
+</code></pre>
+
+<p>Next, get the sha256 hash of key.json.asc:</p>
+
+<pre><code>sha256sum key.json.asc 
+703bf01d7df0a110c9b2ce1e8984f545831bffaa08042e78b470b3b1464faada  key.json.asc
+</code></pre>
+
+<p>Compare the two outputs to make sure they match:</p>
+
+<pre><code>00 703BF01D7DF0A110C9B2CE1E8984F545831BFFAA 5556057E
+   703bf01d7df0a110c9b2ce1e8984f545831bffaa 08042e78b470b3b1464faada
+</code></pre>
+
+<p>All that is left to do is send some bitcoin to that address. Use <a href="https://blockchain.info/">Blockchain.info</a> to capture the transaction details as proof of the file&rsquo;s existence:</p>
+
+<p><a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">Transaction: 68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -121,7 +711,7 @@ This is a simplified explanation of how cryptography accomplishes this task.</p>
 
 <p>Symmetric encryption is the most intuitive form of encryption. The basic analogy is a lock and key. Keys are used together with an encryption algorithm to encrypt, or lock, a file. The resulting file is unreadable, and indistinguishable from random garbage data.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png"><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
 
 <p>A key is just a long string of bits. Passwords supplied by a user are either used as a key directly, or are used to derive a key. With symmetric encryption, the same key is used to both encrypt and decrypt a file.</p>
 
@@ -153,7 +743,7 @@ This is a secret
 
 <p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves in between you and the other person. This is different than just sniffing or eavesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png"><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
 
 <p>To combat this attack, encryption can be used. If Alice and Bob had the same key, they could communicate securely by encrypting their messages before sending them to the other, and decrypting them upon receipt. This prevents Eve from reading the actual message. However, in order to communicate, they need to have the same key. Either Alice or Bob can generate the key, but the difficulty is transferring the key to the other without Eve intercepting it. The only secure solution is for them to pre-share the key across some other medium, such as a phone call or in person. This exchange is cumbersome, as it must be done before each session. In addition, the key cannot be reused across different sessions; If Eve were to ever obtain the key to a single session, she could also infiltrate all the other sessions, including recordings of past sessions.</p>
 
@@ -165,7 +755,7 @@ This is a secret
 
 <p>Alice will generate a key-pair and keep the private key to herself, while sending her public key to Bob. Likewise, Bob will generate his key-pair and send his public key to Alice while keeping his private key to himself. When Alice wants to talk to Bob, she can use Bob&rsquo;s public key to perform the encryption. Only Bob will be able to decrypt the message, since he is the only one who has the private key. Bob can then respond to Alice by using her public key to encrypt his response.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png"><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></p>
 
 <p>Asymmetric encryption algorithms, such as RSA, are slow and require much larger keys to achieve the same security that AES provides (2048 &ndash; 4096 bits). This means that using asymmetric encryption for an entire conversation is inefficient. For this reason, a hybrid approach is used. A user will generate a random symmetric key intended for one time use, called a session key, and encrypt it using the public asymmetric key of the recipient. The receiver will use their private asymmetric key to obtain the symmetric session key. Now that both users have the same symmetric key, they can use symmetric encryption to communicate.</p>
 
@@ -177,7 +767,7 @@ This is a secret
 
 <p>Any two messages that contain the exact same data will produce the exact same hash, or fingerprint. Similarly, if even a single bit is different, the hash will be completely different. Hash algorithms employ an avalanche technique such that a small change to the input produces a large change in the output. Finally, hash algorithms always produce the same size output regardless of the size of the input.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png"><sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></p>
 
 <p>Here are some examples, using the SHA-256 algorithm (Secure Hash Algorithm):</p>
 
@@ -201,7 +791,7 @@ echo This is b message | sha256sum
 
 <p>Now, back to our previous question; How can Bob be assured that a message came from Alice? Because of the way asymmetric encryption works, Alice can also encrypt a message using her own private key. The resulting cyphertext can be decrypted by anyone, since the corresponding public key is publicly available. However, the cyphertext could only have been created by Alice, because she is the only one who has the private key. This is called a digital signature; Alice <em>signs</em> a message by encrypting it with her private key.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png"><sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></p>
 
 <p>Because asymmetric encryption keys are so large (which causes the resulting cyphertext to be large), it is not practical to encrypt an entire message, especially if that message is large. Instead, the hash of the message is encrypted, and the message itself is sent in plaintext (unencrypted). Anyone can read the message and compute it&rsquo;s hash. Then, they use Alice&rsquo;s public key to decrypt the signature connected to the message to obtain the hash that Alice encrypted. If the two hashes match, then the message was not tampered with, and the user can be certain that the message originated from Alice.</p>
 
@@ -215,7 +805,7 @@ echo This is b message | sha256sum
 
 <p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any eavesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png"><sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></p>
 
 <p>However, there is still one thing missing which makes this communication vulnerable to a man in the middle attack. If Eve is able to tamper with the initial handshake, where the public keys are exchanged, she could pass fake public keys to each side. Alice would think that she received Bob&rsquo;s public key, when in fact she received Eve&rsquo;s public key. Her entire communication would be with Eve directly, who is impersonating Bob, but is also passing the messages to Bob after reading them. Neither is aware that this is happening.</p>
 
@@ -229,7 +819,7 @@ echo This is b message | sha256sum
 
 <p>A digital certificate links an identity to a public key. Certificates can be signed with many different signatures, as well as a self-signature (the owner of the public key). Certificates play an important role in creating a network of trust. Remember, anyone can create an identity and public key, and they can sign their own certificate. This means that while the link between the public key and identity is real, the identity itself could be fabricated. Trust in a certificate is established by obtaining signatures from trustworthy entities.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png"><sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></p>
 
 <p>There are currently two models for establishing trust in digital certificates. One of them is a hierarchial centralized method which uses a <code>root certificate authority</code> that must be completely trusted, while the other is a decentralized <code>web of trust</code> that gives each person full control of their trust.</p>
 
@@ -239,7 +829,7 @@ echo This is b message | sha256sum
 
 <p>If you can find a chain of signatures from a certificate back to the root authority, and you trust the root authority, then you can trust the certificate. This trust model is all or nothing, meaning that as long as the root authority is trusted, every chain originating at the root authority is trusted regardless of the number of links.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png"><sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></p>
 
 <p>Most of the internet works using this model. Your web browser comes with preinstalled certificates for the major root authorities, which sign the certificates of all the websites you interact with. There are flaws with this model, however. Security is a &ldquo;weakest link&rdquo; type of problem; A chain ending at the root authority doesn&rsquo;t mean that the entire chain is solid. It could be that a sub-authority does not properly perform its background checks, resulting in that sub-authority being the weakest link. If that sub-authority signs a fabricated certificate, there is no way for you to know not to trust it. The owner of the certificate could masquerade as their false identity and impersonate a target.</p>
 
@@ -249,7 +839,7 @@ echo This is b message | sha256sum
 
 <p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convenient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png"></p>
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png"><sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></p>
 
 <p>In the web of trust model, you are responsible for verifying that the identity of the certificate matches the identity of the certificate holder. This is typically done in person or over some other medium besides the one being used with the certificate (such as the phone). You would ask the person to present their certificate as well as some reputable identification, such as a passport or drivers license, and sign the certificate if the identities match. Chains are formed transitively by signing a certificate when someone has signed your own certificate.</p>
 
@@ -262,6 +852,30 @@ echo This is b message | sha256sum
 <h2>Trust</h2>
 
 <p>Secure communication is possible if you can establish trust in the other person&rsquo;s identity. How does one go about establishing this trust? I will cover this in a future post.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx <a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>http://www.cs.ucla.edu/classes/winter13/cs111/scribe/17b/ (http://fearlessweb.trendmicro.com/2012/tips-and-tricks/what-are-man-in-the-middle-attacks-and-how-can-i-protect-myself-from-them/)<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<li id="fn:4">
+<p>http://computersecuritypsh.wikia.com/wiki/File:Hash_Function.png<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+<li id="fn:5">
+<p>http://oz.stern.nyu.edu/fall99/readings/security/<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
+<li id="fn:6">
+<p>http://www.embedded.com/design/safety-and-security/4230829/2/Securing-your-apps-with-Public-Key-Cryptography&mdash;-Digital-Signature<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
+<li id="fn:7">
+<p>https://commons.wikimedia.org/wiki/File:Digital_Signature_diagram.svg<a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
+<li id="fn:8">
+<p>http://www.hill2dot0.com/wiki/index.php?title=Image:G1662_CA-Hierarchies-and-Cr.jpg<a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
+<li id="fn:9">
+<p>http://books.gigatux.nl/mirror/securitytools/ddu/ch09lev1sec1.html<a href="#fnref:9" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
 </div>
   
   
@@ -970,6 +1584,8 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <li>yaml</li>
 <li>bash</li>
 <li>python</li>
+<li>json</li>
+<li>c++</li>
 </ul>
 
 
@@ -1006,7 +1622,39 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <span class='line-number'>23</span>
 <span class='line-number'>24</span>
 <span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># address-to-hash.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 </span><span class='line'>
 </span><span class='line'><span class="c1"># Get the address</span>
 </span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
@@ -1034,6 +1682,41 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>You can also embed code content directly into a markdown file by enclosing it with codeblocks:</p>
+
+<pre><code>{% codeblock lang:json %}
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+{% endcodeblock %}  
+</code></pre>
+
+<p>Results in:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="nt">&quot;one&quot;</span> <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="nt">&quot;two&quot;</span> <span class="p">:</span> <span class="s2">&quot;2&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is better than the normal 4-space indent because you get syntax highlighting and line numbers. Compare:</p>
+
+<pre><code>{
+   "one" : "1",
+   "two" : "2"
+}
+</code></pre>
+
+<hr />
+
 <h4>Image</h4>
 
 <p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>. The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
@@ -1043,8 +1726,10 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <pre><code>{% img center ./01.png %}
 </code></pre>
 
-<p>Which results in this:
+<p>Which results in this<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:
 <img class="center" src="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png"></p>
+
+<hr />
 
 <h4>Video</h4>
 
@@ -1060,6 +1745,8 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 
 <div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
 
+
+<hr />
 
 <h4>Map</h4>
 
@@ -1079,6 +1766,23 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 
 
 <script type='text/javascript'>jQuery(document).ready(function() {initmap('map1',37.7577,-122.4376,13,'','');});</script>
+
+
+<hr />
+
+<h4>Footnotes</h4>
+
+<p>Footnotes are good for attributing content made by other people. Simply place an anchor <code>[^2]</code> where you want the link to the footnote to appear.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>
+Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a footnote</code>. The line above the footnotes is created automatically.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://xkcd.com/">Randall Munrow, XKCD</a> licensed under CC-BY-NA 2.5<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>This is a footnote<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
 
 </div>
   
@@ -1153,232 +1857,6 @@ ping -c 1 www.google.com
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Debian on the Lenovo Thinkpad Yoga</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-05T20:03:39-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Many of the features of the Lenovo Thinkpad Yoga work out of the box with a fresh install of Debian Testing.
-Keep in mind that I am using Kernel 3.14.1-amd64</p>
-
-<h3>Wireless</h3>
-
-<p>Wireless does work well, but you need to install the firmware package from the repositories.</p>
-
-<pre><code>apt-get install firmware-iwlwifi
-</code></pre>
-
-<p>Getting this was tricky, because there are no ethernet ports on the system, and the wireless is not recognised at install time.<br/>
-I had to use a usb-ethernet adapter and plug it into my router.<br/>
-After installing the package and rebooting, wireless works great.</p>
-
-<h3>Touchscreen</h3>
-
-<p>Touchscreen works out of the box for left clicking and dragging.<br/>
-Multitouch does not seem to work out of the box, I am unable to two-finger-scroll nor pinch-zoom in Chromium.
-Also, holding down your finger for right click does not work.</p>
-
-<h3>Wacom Stylus</h3>
-
-<p>The stylus works out of the box, including clicking and dragging. There is a little button on the stylus, and if you hold it down while you touch the screen it does a right-click.<br/>
-By installing <code>gnome-control-center</code> you can calibrate the touchscreen with the stylus.</p>
-
-<h3>Touchpad</h3>
-
-<p>The Synaptics Touchpad works out of the box for the most part. However, tap-to-click doesn&rsquo;t work.
-Clicking the entire touchpad down with one finger is a left-click, while clicking the entire touchpad down with two fingers is a right click.<br/>
-Dragging while holding the touchpad down works for multiple selection and moving files around.<br/>
-Two-finger scroll works out of the box.<br/>
-I haven&rsquo;t figured out how to do a middle-click.</p>
-
-<p>I tried using <code>gnome-control-center</code> to enable tap-to-click, but was unsuccessful. I don&rsquo;t think the lack of this feature hinders usability in any way.</p>
-
-<p>Also, the little red pointer nub works as well. You need to click the touchpad with your thumb, and there is no real way to do a right click while using the red pointer nub.</p>
-
-<h3>Sound</h3>
-
-<p>Sound works out of the box, however it is muted at installation.<br/>
-I found the easiest way to fix this is to install PulseAudio Volume Control (<code>pavucontrol</code>) and unmute the speakers.</p>
-
-<h3>Bluetooth</h3>
-
-<p>Bluetooth seemed to work out of the box as well. I did install the <code>bluetooth</code> and <code>blueman</code> packages to use it.</p>
-
-<h3>Webcam</h3>
-
-<p>The webcam works out of the box.</p>
-
-<h3>Function Keys</h3>
-
-<p>The brightness keys (F5 / F6) work out of the box, but there is no OSD / HUD.<br/>
-The wireless key (F8) also works without any configuration needed.</p>
-
-<p>The webcam buttom (F7) seems to work, but there is a caveat:</p>
-
-<ol>
-<li>Start webcam with QtQr</li>
-<li>See webcam active</li>
-<li>Press F7</li>
-<li>See webcam get immediately disabled</li>
-<li>Without pressing F7 again, start the webcam</li>
-<li>The webcam is active again</li>
-</ol>
-
-
-<p>So the button can &ldquo;kill&rdquo; an active webcam, but it cannot prevent the webcam from activating again.</p>
-
-<p>The sound control buttons (F1 / F2 / F3) do not seem to do anything out of the box.
-Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-06-20T21:58:58-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Onename.io is a decentralized identity system that allows someone to:</p>
-
-<ul>
-<li>Claim a unique, global username</li>
-<li>Unify your online presence with one username and profile</li>
-<li>Own your online identity &amp; data</li>
-<li>Store your profile in the blockchain</li>
-<li>Allow anyone to easily look up your PGP public key</li>
-<li>Share Bitcoin QR codes</li>
-</ul>
-
-
-<p>It uses Namecoin under the hood. Namecoin is a key-value store that utilizes the blockchain as a decentralized database. All authorization is done via public key cryptography, so an individual is in 100% control of their data in the database.</p>
-
-<p>I am a huge fan of decentralized systems, such as:</p>
-
-<ul>
-<li>Bitcoin</li>
-<li>Namecoin / Onename</li>
-<li>Git</li>
-<li>GPG</li>
-</ul>
-
-
-<p>Onename.io gives me a way to link all this together into my own little decentralized profile:</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/01.png"></p>
-
-<p>Of course, each of those entities also have their own links, many pointing back at Onename.io for verification. So the web really looks more like this:</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/02.png"></p>
-
-<p>The following is proof that I am the owner of my <a href="https://onename.io/jrruethe">Onename.io</a> account:</p>
-
-<figure class='code'><figcaption><span> (verifymyonename.txt.asc)</span> <a href='/downloads/code/verifymyonename.txt.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA512</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">#verifymyonename +jrruethe</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQIcBAEBCgAGBQJTpOeMAAoJEInJf5BWENx2TjAP/2LkdSVqiP/xhS03rxCDPBFE</span>
-</span><span class='line'><span class="l-Scalar-Plain">DmsQ1d4r4M3wlBRyp08BQUCS1mAl3sRmkwCnoAB9rpN6hOZusZKF3iStq4u7AQJf</span>
-</span><span class='line'><span class="l-Scalar-Plain">zc5mhfHp878pj+HnNpdBHURTBK6jm+IWxBaGABMawaxMvoPbUZi3IPCy00KFgfWr</span>
-</span><span class='line'><span class="l-Scalar-Plain">bS+VuIe1SN7DTW2/ecdfHJY5BHrsln/dOzSPZAINcfW/p7Xp8aRDRPrX7Anl/YP8</span>
-</span><span class='line'><span class="l-Scalar-Plain">CerrMNwiA6ELHQSd0OW9gdO6xK9z/8u/Le8tXfuSIplu8qomgZOYfnBYzHmqVBvj</span>
-</span><span class='line'><span class="l-Scalar-Plain">sIbQjwQO9i5BsAQC24HC/3er7mJcaSvio1+LLHAXAvB+Dk4xlErDOLurQaWK0cNA</span>
-</span><span class='line'><span class="l-Scalar-Plain">4vbaYvQ/mEIMBrE40g57OyFYDh8/xcFsaXcuZarUJvXhOh9NAMHhweIm/TwOiPda</span>
-</span><span class='line'><span class="l-Scalar-Plain">A2mfPlZfi+jHdv7vnVOrWAjJwWpgbNUeSNk7K311X9cGrKVl3c2y17VIrZT5V4Pt</span>
-</span><span class='line'><span class="l-Scalar-Plain">sx9asMJGSPqYt8+wV6jpw+CRBWDpQgGjLhcStz1JxJb+7rKzNyUFM8RLUd0bAHkb</span>
-</span><span class='line'><span class="l-Scalar-Plain">XlXW4ZOHrN2foMXXE4jQuGQOXJ+Hkx1STCd5LGD4wsGEn8mDMU+AzB4tsmh6YOgt</span>
-</span><span class='line'><span class="l-Scalar-Plain">LwZSpxmJbUX090MRZm8NFsCMn8u4ItdRYqpO3AB9f0Nh1yKtcqIwIW11sIFVoO2u</span>
-</span><span class='line'><span class="l-Scalar-Plain">OENFIIkWuDkpqtlFlS4i</span>
-</span><span class='line'><span class="l-Scalar-Plain">=ZqmE</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -1414,6 +1892,10 @@ Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/05/02/temporary-security-mirror/">Temporary Security Mirror</a>
       </li>
     
@@ -1422,15 +1904,11 @@ Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
       </li>
     
       <li class="post">
+        <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/04/19/generate-hashes/">Generate Hashes</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/04/11/verified-addresses/">Verified Addresses</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
       </li>
     
   </ul>
@@ -1485,8 +1963,18 @@ Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Joe Ruether -
+  <span class="license">
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
 </p>
 
 </footer>

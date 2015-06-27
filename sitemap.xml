@@ -28,7 +28,7 @@
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/</loc>
-        <lastmod>2015-04-19T15:41:57-04:00</lastmod>
+        <lastmod>2015-06-26T22:49:30-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/2014/07/06/open-terminator-from-nautilus/</loc>
@@ -52,7 +52,7 @@
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/</loc>
-        <lastmod>2015-04-20T18:06:25-04:00</lastmod>
+        <lastmod>2015-06-25T22:05:55-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/</loc>
@@ -72,7 +72,7 @@
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/2015/03/29/protect-yourself-online/</loc>
-        <lastmod>2015-04-26T12:56:59-04:00</lastmod>
+        <lastmod>2015-06-25T22:08:22-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/</loc>
@@ -87,16 +87,24 @@
         <lastmod>2015-04-19T15:31:59-04:00</lastmod>
     </url>
     <url>
+        <loc>http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/</loc>
+        <lastmod>2015-06-26T07:20:08-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/</loc>
-        <lastmod>2015-05-02T15:22:09-04:00</lastmod>
+        <lastmod>2015-06-25T22:09:44-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/</loc>
         <lastmod>2015-05-02T15:58:04-04:00</lastmod>
     </url>
     <url>
+        <loc>http://jrruethe.github.io/blog/2015/05/21/boost-fusion-json-serializer/</loc>
+        <lastmod>2015-06-26T22:49:22-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://jrruethe.github.io/</loc>
-        <lastmod>2015-05-02T15:58:04-04:00</lastmod>
+        <lastmod>2015-06-26T22:49:30-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/downloads/code/key.json.asc</loc>
@@ -123,8 +131,16 @@
         <lastmod>2015-04-19T15:31:59-04:00</lastmod>
     </url>
     <url>
+        <loc>http://jrruethe.github.io/blog/license/</loc>
+        <lastmod>2015-06-26T22:49:30-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://jrruethe.github.io/blog/archives/</loc>
-        <lastmod>2015-05-02T15:58:04-04:00</lastmod>
+        <lastmod>2015-06-26T22:49:30-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://jrruethe.github.io/blog/about/</loc>
+        <lastmod>2015-06-26T22:49:30-04:00</lastmod>
     </url>
     <url>
         <loc>http://jrruethe.github.io/robots.txt</loc>
