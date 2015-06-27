@@ -2,6 +2,7 @@
 #      Main Configs       #
 # ----------------------- #
 
+safe: false
 url: http://jrruethe.github.io
 title: Morning Musings
 subtitle: I'm not ready to wake up yet...

@@ -59,7 +59,7 @@ Become familiar with GPG. Know how to verify signatures:
 Passwords and Encryption
 ------------------------
 
-{% img center ./01.png %}
+{% img center ./01.png %}[^1]
 
 With passwords, the longer the better. Complexity does not beat length.  
 Use [Diceware](http://world.std.com/~reinhold/diceware.html) to generate a 4 or 5 word passphrase and memorize it.
@@ -148,3 +148,5 @@ I highly recommend you read the following pages for more information:
  - [Reset the Net](https://pack.resetthenet.org/)
  - [Surveillance Self-Defense](https://ssd.eff.org/)
  - [Ultimate Privacy Guide](https://www.bestvpn.com/the-ultimate-privacy-guide/)
+
+[^1]: [Randall Munrow, XKCD](http://xkcd.com/) licensed under CC-BY-NA 2.5

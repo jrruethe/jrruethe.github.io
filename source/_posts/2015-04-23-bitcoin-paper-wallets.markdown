@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 layout: post
 title: "Bitcoin Paper Wallets"
 date: 2015-04-23 19:18:12 -0400
@@ -17,7 +17,7 @@ There are many options with different formats and templates, however I highly re
 ---
 ### [BitcoinPaperWallet.com](https://bitcoinpaperwallet.com/) ([Github](https://github.com/cantonbecker/bitcoinpaperwallet))
 
-{% img center ./01.png %}
+{% img center ./01.jpg %}
 
 This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted [bitaddress.org](https://www.bitaddress.org). This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!
 
@@ -44,7 +44,7 @@ Additional Options:
  - [Laminator](http://www.amazon.com/gp/product/B0010JEJPC)
 
 >
-*The official security stickers from bitcoinpaperwallet.com are serialized in pairs, meaning you get two of each number. This is best because each paper wallet requires two stickers, so the numbers match. The alternative link only provides one sticker for each number. Support bitcoinpaperwallet.com!
+*The official security stickers from bitcoinpaperwallet.com are serialized in pairs, meaning you get two of each number. This is best because each paper wallet requires two stickers, so the numbers match. The alternative link only provides one sticker for each number.
 
 Dimensions:
 
@@ -55,44 +55,12 @@ Dimensions:
 For additional artworks, check out [Liberty Paper Wallet](http://libertywallet.liberty.me/2015/03/18/liberty-wallet/) ([Github](https://github.com/SimonBelmond/libertypaperwallet)).
 
 ---
-### [WalletGenerator.net]() ([Github]())
-
-{% img center ./02.png %}
-
-This is a simpler paper wallet that doesn't require any cuts or stickers. It can be quickly printed and folded up on short notice, and is good for giving a small amount of Bitcoin to someone who doesn't have a smart phone or a Bitcoin app. It is not as secure, but is more practical and convenient. 
-
-Features:
-
- - Folded design covers the private key
- - Public key is not visible when closed
- - Folds can be tucked into each other to "lock" the wallet shut
- - Resistant to candling
- - Supports [BIP38](https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki) encryption
- - Private key encoded in [Wallet Import Format](https://en.bitcoin.it/wiki/Wallet_import_format)
- - Designed to be printed in landscape mode, but works in portrait mode as well
- - Single sided
- - 2x wallets per sheet
- - Notes section on the back
-
-Additional Options:
-
- - [Teslin Paper](http://www.amazon.com/dp/B004PX7ZTC) (Inkjet Printers)
- - [Revlar Paper](http://www.amazon.com/gp/product/B004UI335W/) (Laser Printers)
- - [Scratch Off Stickers](http://www.amazon.com/gp/product/B00ENI0NI4) 1in x 1in
-
-Dimensions:
-
- - Landscape: 
- - Portrait: 2.75in x 1.75in (Smaller than a standard business card)
- - QR Codes: 1in x 1in (About the size of a quarter)
-
----
 ### Protecting your paper wallet
 
 Paper wallets are extremely vulnerable to water.
 Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.
 
-{% img center ./03.png %}
+{% img center ./03.jpg %}
 
 Paper wallets are also extremely vulnerable to fire.
 However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.
@@ -113,7 +81,7 @@ Save a [copy of bitcoinpaperwallet](https://github.com/cantonbecker/bitcoinpaper
  4. Wait for tor to become ready.
 
 >
-For this tutorial, in order to get screenshots I am using a virtual machine. DO NOT USE A VIRTUAL MACHINE WHEN DOING THIS FOR REAL!
+For this tutorial, in order to get screenshots I am using a virtual machine. Do not use a virtual machine when doing this for real!
 
 Before creating the paper wallet, you will want to ensure that your printer works correctly. You need a printer that is directly connected to your machine; don't use a network printer (you shouldn't be connected to any network). If possible, use a dumb printer, and try to ensure that your printer does not save a copy of printouts to internal memory. Use this time to get any drivers you need from the internet.
 
@@ -148,7 +116,7 @@ There are pros and cons to encrypting your paper wallet. Encryption adds an extr
 
 You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.
 
-{% img center ./10.png %}
+{% img center ./10.jpg 400 600 %}
 
 Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.
 
@@ -163,11 +131,11 @@ If you have a laser printer, you will want to include a small 1in x 1in square o
 
 Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.
 
-{% img center ./12.png %}
+{% img center ./12.jpg 400 600 %}
 
 Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.
 
-{% img center ./13.png %}
+{% img center ./13.jpg 400 600 %}
 
 ---
 ### How to properly use a paper wallet
@@ -176,7 +144,7 @@ You can scan the public key into Electrum or Mycelium as a watch-only wallet to 
 
 First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the "Private Key / Withdraw" line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.
 
-{% img center ./14.png %}
+{% img center ./14.jpg %}
 
 Now comes the important part. The funds must be "swept" into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.
 

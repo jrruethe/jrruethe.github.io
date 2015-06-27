@@ -66,7 +66,7 @@ Use these instructions if you are creating a blog for the first time.
     - Title
     - Subtitle
     - Author  
-    
+
     Also scroll down to the bottom and set up the following sections:
     
     - Github
@@ -167,6 +167,7 @@ lang can be any of the following:
  - yaml
  - bash
  - python
+ - json
 
 For example:
 {% raw %}
@@ -176,6 +177,36 @@ For example:
 Results in:
 {% include_code lang:ruby address-to-hash.rb %}
 
+You can also embed code content directly into a markdown file by enclosing it with codeblocks:
+{% raw %}
+    {% codeblock lang:json %}
+    
+    {
+       "one" : "1",
+       "two" : "2"
+    }
+    
+    {% endcodeblock %}	
+{% endraw %}
+
+Results in:
+{% codeblock lang:json %}
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+{% endcodeblock %}	
+
+This is better than the normal 4-space indent because you get syntax highlighting and line numbers. Compare:
+
+    {
+       "one" : "1",
+       "two" : "2"
+    }
+
+---
 #### Image
 
 Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is `2014-07-05-blogging-with-octopress.markdown`, and the image below has the filename `2014-07-05-blogging-with-octopress_01.png`. The image is refered to by the name after the trailing `_`. In this case, the name is `01.png`.
@@ -185,9 +216,10 @@ To embed this image, use the tag like this:
     {% img center ./01.png %}
 {% endraw %}
 
-Which results in this:
+Which results in this[^1]:
 {% img center ./01.png %}
 
+---
 #### Video
 
 Embedding a youtube video can be done by grabbing the video id from the url:  
@@ -201,6 +233,7 @@ Use the following tag:
 Here is the result:
 {% youtube dQw4w9WgXcQ %}
 
+---
 #### Map
 
 Embedding a map can be done with the following tag:
@@ -215,3 +248,12 @@ A simple example is shown here:
 
 And here is the result:
 {% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
+
+---
+#### Footnotes
+
+Footnotes are good for attributing content made by other people. Simply place an anchor `[^2]` where you want the link to the footnote to appear.[^2]
+Then, at the bottom of the page, put the actual footnote: `[^2]: This is a footnote`. The line above the footnotes is created automatically.
+
+[^1]: [Randall Munrow, XKCD](http://xkcd.com/) licensed under CC-BY-NA 2.5
+[^2]: This is a footnote
