@@ -9,7 +9,7 @@ categories:
 
 Paper wallets are a form of *cold storage*, meaning that the private key has never touched a computer with internet access. This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself. For that reason, this is a tutorial to create a paper wallet in a secure fashion.
 
-A repository of paper wallet generators can be found [here](). You can choose to use my repository directly if you wish, but I recommend going straight to the source.
+A repository of paper wallet generators can be found [here](https://github.com/jrruethe/paper_wallet). You can choose to use my repository directly if you wish, but I recommend going straight to the source.
 There are many options with different formats and templates, however I highly recommend bitcoinpaperwallet.com.
 
 *I am in no way affiliated with bitcoinpaperwallet.com, just a satisfied customer.*
@@ -104,7 +104,7 @@ Time to disconnect from the internet. Unplug the ethernet cord, turn off any wir
 
 {% img center ./07.png %}
 
-Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. "Brain wallets" may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.
+Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! "Brain wallets" may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.
 
 {% img center ./08.png %}
 
@@ -155,3 +155,5 @@ The destination address will get the desired amount, and any remaining amount wi
 Read more about change [here](https://en.bitcoin.it/wiki/Change)
 
 Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.
+
+{% img center ./15.jpg %}
