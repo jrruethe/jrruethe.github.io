@@ -1,0 +1,955 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Parameter Forwarding - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="C++11 introduced the possibility of &ldquo;perfect forwarding&rdquo; and &ldquo;variadic templates&rdquo;. This allows a function to pass all of its &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Parameter Forwarding</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-30T17:41:55-04:00" pubdate data-updated="true">Jun 30<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>C++11 introduced the possibility of &ldquo;perfect forwarding&rdquo; and &ldquo;variadic templates&rdquo;. This allows a function to pass all of its parameters to another function seamlessly. Such abilities are very useful for wrapper classes and factories.</p>
+
+<p>Fortunately, this ability can be emulated in C++03 with the power of Boost and the preprocessor. This post is a guide on how to do parameter forwarding. This concept will be used as a tool in a future post about creating a generic factory class.</p>
+
+<p>For this walkthrough, you will need the following installed:</p>
+
+<ul>
+<li>libboost-dev</li>
+</ul>
+
+
+<p>To start, let&rsquo;s define a simplistic factory class as an example. Our factory for this example will not do much, except return the built object as a smart pointer.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/smart_ptr.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Factory</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The problem with this is that it only supports building objects with the default constructor. Hence, we want to use parameter forwarding to pass parameters from the <code>create</code> method to the constructor of the object.</p>
+
+<p>We can make a manual attempt at this first:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/smart_ptr.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Factory</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">A0</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">A0</span> <span class="n">a0</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">a0</span><span class="p">));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">A0</span><span class="p">,</span>
+</span><span class='line'>            <span class="k">typename</span> <span class="n">A1</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">A0</span> <span class="n">a0</span><span class="p">,</span>
+</span><span class='line'>                  <span class="n">A1</span> <span class="n">a1</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">a0</span><span class="p">,</span>
+</span><span class='line'>                              <span class="n">a1</span><span class="p">));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can see how this gets repetitive for constructors with many parameters. Likewise, you should also be able to see the pattern. Patterns mean we can let the machine do the work for us!</p>
+
+<p>Before that, lets test what we have so far:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/smart_ptr.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Factory</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">A0</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">A0</span> <span class="n">a0</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">a0</span><span class="p">));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">A0</span><span class="p">,</span>
+</span><span class='line'>            <span class="k">typename</span> <span class="n">A1</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">A0</span> <span class="n">a0</span><span class="p">,</span>
+</span><span class='line'>                  <span class="n">A1</span> <span class="n">a1</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">a0</span><span class="p">,</span>
+</span><span class='line'>                              <span class="n">a1</span><span class="p">));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Default constructor</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">A</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">A</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;A Constructor&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="n">APtr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Non-default constructor</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">B</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">B</span><span class="p">(</span><span class="kt">int</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">_value</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;B Constructor: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kt">int</span> <span class="n">value</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">_value</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>   <span class="kt">int</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">_value</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">B</span><span class="o">&gt;</span> <span class="n">BPtr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Factory</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="n">factory_a</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Factory</span><span class="o">&lt;</span><span class="n">B</span><span class="o">&gt;</span> <span class="n">factory_b</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">APtr</span> <span class="n">a_ptr</span> <span class="o">=</span> <span class="n">factory_a</span><span class="p">.</span><span class="n">create</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">BPtr</span> <span class="n">b_ptr</span> <span class="o">=</span> <span class="n">factory_b</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">b_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">value</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">b_ptr</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This outputs:</p>
+
+<pre><code>A Constructor
+B Constructor: 3
+3
+0
+</code></pre>
+
+<p>Notice how the reference to <code>value</code> wasn&rsquo;t maintained. Boost addresses this issue in the <a href="http://www.boost.org/doc/libs/1_58_0/doc/html/move/construct_forwarding.html">Boost::Move</a> library by using <code>BOOST_FWD_REF</code> and <code>boost::forward</code>. Lets incorporate these utilities:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/smart_ptr.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/move/utility.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Factory</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">A0</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">BOOST_FWD_REF</span><span class="p">(</span><span class="n">A0</span><span class="p">)</span> <span class="n">a0</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a0</span><span class="p">)));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">A0</span><span class="p">,</span>
+</span><span class='line'>            <span class="k">typename</span> <span class="n">A1</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">BOOST_FWD_REF</span><span class="p">(</span><span class="n">A0</span><span class="p">)</span> <span class="n">a0</span><span class="p">,</span>
+</span><span class='line'>                  <span class="n">BOOST_FWD_REF</span><span class="p">(</span><span class="n">A1</span><span class="p">)</span> <span class="n">a1</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a0</span><span class="p">),</span>
+</span><span class='line'>                              <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a1</span><span class="p">)));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we get the output:</p>
+
+<pre><code>A Constructor
+B Constructor: 3
+3
+5
+</code></pre>
+
+<p>Thats better! Now that we know our code works, we can start to condense the pattern and let the preprocessor expand it out for us.</p>
+
+<p><a href="http://www.boost.org/doc/libs/1_58_0/libs/preprocessor/doc/index.html">Boost::Preprocessor</a> is a handy library that makes interacting with the preprocessor much easier. It introduces a bunch of macros and conventions that we can build upon to emulate features like variadic templates. And despite how it sounds, the final result is rather compact and readable.</p>
+
+<p>First, lets identify the patterns we want to condense. The first is the template parameter list:</p>
+
+<pre><code>template&lt;typename A0, typename A1&gt;
+</code></pre>
+
+<p>Boost has a macro specifically designed for this purpose: <code>BOOST_PP_ENUM_PARAMS</code>. It takes in a number and some text, and replicates the text by appending increasing numbers. For example:</p>
+
+<pre><code>#include &lt;boost/preprocessor.hpp&gt;
+BOOST_PP_ENUM_PARAMS(3, typename A)
+</code></pre>
+
+<p>Outputs (using the preprocessor <code>cpp main.cpp</code>):</p>
+
+<pre><code>typename A0 , typename A1 , typename A2
+</code></pre>
+
+<p>Simply wrap the template brackets around this to achieve our first piece:</p>
+
+<pre><code>#include &lt;boost/preprocessor.hpp&gt;
+template&lt;BOOST_PP_ENUM_PARAMS(3, typename A)&gt;
+</code></pre>
+
+<p>Outputs:</p>
+
+<pre><code>template&lt; typename A0 , typename A1 , typename A2&gt;
+</code></pre>
+
+<p>Remember that C++ does not care about whitespace. The preprocessor macros will tend to insert whitespace in odd places. Likewise, the preprocessor will output everything on one line without line breaks.</p>
+
+<p>The second pattern we see is the function parameters:</p>
+
+<pre><code>BOOST_FWD_REF(A0) a0, BOOST_FWD_REF(A1) a1
+</code></pre>
+
+<p>This one is slightly trickier, because it doesn&rsquo;t fit the above enumeration pattern. For this case, we will use a different macro: <code>BOOST_PP_REPEAT</code>. This macro operates by convention; it will repeat a specified macro N times as long as that macro takes arguments in a certain way. In addition, we will use <code>BOOST_PP_CAT</code> to concatenate strings together. By treating N as one of the strings, we can create an enumeration with the freedom of controlling the output format.</p>
+
+<pre><code>#include &lt;boost/preprocessor.hpp&gt;
+#define PARAMETERS(Z, N, D) BOOST_PP_CAT(A,N) BOOST_PP_CAT(a,N)
+BOOST_PP_REPEAT(3, PARAMETERS, ~)
+</code></pre>
+
+<p>Outputs:</p>
+
+<pre><code>A0 a0 A1 a1 A2 a2
+</code></pre>
+
+<p>What is going on here? The <code>(Z, N, D)</code> represents state, number, and data, respectively. Boost uses this convention to pass around the &ldquo;state&rdquo; of the macro (analogous to how the <code>this</code> pointer is the implicit first parameter to any method call), the iteration value, and any extraneous data. For our case, we don&rsquo;t need to pass any data into the macro, so we use the conventional placeholder <code>~</code> to denote &ldquo;void&rdquo;.  On each call of our defined macro, <code>N</code> is updated with the iteration count, and we can concatenate that to the letters <code>A</code> and <code>a</code> to form our type and value.</p>
+
+<p>But what about the commas? Boost has us covered here as well with <code>BOOST_PP_COMMA</code>:</p>
+
+<pre><code>#include &lt;boost/preprocessor.hpp&gt;
+#define PARAMETERS(Z, N, D) BOOST_PP_CAT(A,N) BOOST_PP_CAT(a,N) BOOST_PP_COMMA()
+BOOST_PP_REPEAT(3, PARAMETERS, ~)
+</code></pre>
+
+<p>Outputs:</p>
+
+<pre><code>A0 a0 , A1 a1 , A2 a2 ,
+</code></pre>
+
+<p>Hmm, not quite. There is a trailing comma that we need to get rid of. I&rsquo;ll admit that at this point I was pretty confused, until I learned the trick; Boost also provides <code>BOOST_PP_COMMA_IF</code>, which takes a condition argument and will only expand to a comma if the condition is not 0.</p>
+
+<p>Here is the trick: Instead of trying to eliminate the trailing comma, <em>prepend</em> the comma!</p>
+
+<pre><code>#include &lt;boost/preprocessor.hpp&gt;
+#define PARAMETERS(Z, N, D) BOOST_PP_COMMA_IF(N) BOOST_PP_CAT(A,N) BOOST_PP_CAT(a,N)
+BOOST_PP_REPEAT(3, PARAMETERS, ~)
+</code></pre>
+
+<p>Outputs:</p>
+
+<pre><code>A0 a0 , A1 a1 , A2 a2
+</code></pre>
+
+<p>Perfect!</p>
+
+<p>The final pattern is very similar to the second one:</p>
+
+<pre><code>#include &lt;boost/preprocessor.hpp&gt;
+#define FORWARD(Z, N, D) BOOST_PP_COMMA_IF(N) boost::forward&lt;BOOST_PP_CAT(A,N)&gt;(BOOST_PP_CAT(a,N))
+BOOST_PP_REPEAT(3, FORWARD, ~)
+</code></pre>
+
+<p>Outputs:</p>
+
+<pre><code>boost::forward&lt;A0&gt;(a0) , boost::forward&lt;A1&gt;(a1) , boost::forward&lt;A2&gt;(a2)
+</code></pre>
+
+<p>Armed with these tools, we can now simplify the factory:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Factory</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">NUM_PARAMETERS</span> <span class="mi">3</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">PARAMETERS</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span> <span class="n">BOOST_PP_COMMA_IF</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="n">BOOST_FWD_REF</span><span class="p">(</span> <span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">N</span><span class="p">))</span> <span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">FORWARD</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>    <span class="n">BOOST_PP_COMMA_IF</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">N</span><span class="p">)</span><span class="o">&gt;</span><span class="p">(</span><span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">N</span><span class="p">))</span>
+</span><span class='line'>  
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">EXPAND</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>                                            \
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="n">BOOST_PP_ENUM_PARAMS</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="k">typename</span> <span class="n">A</span><span class="p">)</span><span class="o">&gt;</span>                \
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">BOOST_PP_REPEAT</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">PARAMETERS</span><span class="p">,</span> <span class="o">~</span><span class="p">))</span> <span class="k">const</span>      \
+</span><span class='line'>   <span class="p">{</span>                                                            \
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">BOOST_PP_REPEAT</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">FORWARD</span><span class="p">,</span> <span class="o">~</span><span class="p">)));</span> \
+</span><span class='line'>   <span class="p">}</span>                                                            \
+</span><span class='line'>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">EXPAND</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">FORWARD</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">PARAMETERS</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">NUM_PARAMETERS</span>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It is always a good idea to undefine any macros you define after you are finished with them, since macros pollute the global namespace and you never know how they will interact with complex baselines.</p>
+
+<p>There is one thing left to do; expand out the macro. Unsurprisingly, Boost also provides a way to do this. This method involves setting up a loop and iteratively calling <code>#include</code> on the result, which will cause the preprocessor to literally paste the results inline with the code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Factory</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">NUM_PARAMETERS</span> <span class="mi">3</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">PARAMETERS</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span> <span class="n">BOOST_PP_COMMA_IF</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="n">BOOST_FWD_REF</span><span class="p">(</span> <span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">N</span><span class="p">))</span> <span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">FORWARD</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span>    <span class="n">BOOST_PP_COMMA_IF</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">N</span><span class="p">)</span><span class="o">&gt;</span><span class="p">(</span><span class="n">BOOST_PP_CAT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">N</span><span class="p">))</span>
+</span><span class='line'>  
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span> <span class="n">EXPAND</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>                                            \
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="n">BOOST_PP_ENUM_PARAMS</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="k">typename</span> <span class="n">A</span><span class="p">)</span><span class="o">&gt;</span>                \
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="n">BOOST_PP_REPEAT</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">PARAMETERS</span><span class="p">,</span> <span class="o">~</span><span class="p">))</span> <span class="k">const</span>      \
+</span><span class='line'>   <span class="p">{</span>                                                            \
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span><span class="n">BOOST_PP_REPEAT</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">FORWARD</span><span class="p">,</span> <span class="o">~</span><span class="p">)));</span> \
+</span><span class='line'>   <span class="p">}</span>                                                            \
+</span><span class='line'>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span>  <span class="n">BOOST_PP_LOCAL_MACRO</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="n">EXPAND</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">define</span>  <span class="n">BOOST_PP_LOCAL_LIMITS</span>   <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">NUM_PARAMETERS</span><span class="p">)</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">include</span> <span class="n">BOOST_PP_LOCAL_ITERATE</span><span class="p">()</span>
+</span><span class='line'>  
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">BOOST_PP_LOCAL_MACRO</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">BOOST_PP_LOCAL_LIMITS</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">EXPAND</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">FORWARD</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">PARAMETERS</span>
+</span><span class='line'>   <span class="err">#</span><span class="n">undef</span> <span class="n">NUM_PARAMETERS</span>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice that the loop iterates from 1 to N, instead of starting at 0. This is because putting 0 in the template parameter expansion will result in <code>template&lt;&gt;</code>, and the compiler will interpret this as template specialization. To get around this, the &ldquo;base case&rdquo; for a default constructor is coded outside of the macro.</p>
+
+<p>The preprocessor generates the following code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Factory</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span> <span class="k">typename</span> <span class="n">A0</span><span class="o">&gt;</span> <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span> <span class="k">const</span> <span class="n">A0</span> <span class="o">&amp;</span> <span class="n">a0</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a0</span><span class="p">)));</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span> <span class="k">typename</span> <span class="n">A0</span> <span class="p">,</span> <span class="k">typename</span> <span class="n">A1</span><span class="o">&gt;</span> <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span> <span class="k">const</span> <span class="n">A0</span> <span class="o">&amp;</span> <span class="n">a0</span> <span class="p">,</span> <span class="k">const</span> <span class="n">A1</span> <span class="o">&amp;</span> <span class="n">a1</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span> <span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a1</span><span class="p">)));</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span> <span class="k">typename</span> <span class="n">A0</span> <span class="p">,</span> <span class="k">typename</span> <span class="n">A1</span> <span class="p">,</span> <span class="k">typename</span> <span class="n">A2</span><span class="o">&gt;</span> <span class="n">Pointer</span> <span class="n">create</span><span class="p">(</span> <span class="k">const</span> <span class="n">A0</span> <span class="o">&amp;</span> <span class="n">a0</span> <span class="p">,</span> <span class="k">const</span> <span class="n">A1</span> <span class="o">&amp;</span> <span class="n">a1</span> <span class="p">,</span> <span class="k">const</span> <span class="n">A2</span> <span class="o">&amp;</span> <span class="n">a2</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">Pointer</span><span class="p">(</span><span class="k">new</span> <span class="n">Type</span><span class="p">(</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a0</span><span class="p">)</span> <span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a1</span><span class="p">)</span> <span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">A2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a2</span><span class="p">)));</span> <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The final step is to increase <code>NUM_PARAMETERS</code> to 10 (or whatever max number you want to support).</p>
+
+<p>The preprocessor is often disregarded in coding standards, however it is a powerful feature of C++ that should not be ignored.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-06-30T17:41:55-04:00" pubdate data-updated="true">Jun 30<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/05/21/boost-fusion-json-serializer/" title="Previous Post: Boost Fusion Json Serializer">&laquo; Boost Fusion Json Serializer</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/05/02/temporary-security-mirror/">Temporary Security Mirror</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/26/bitcoin-analogy/">A Simple Bitcoin Analogy</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/07/05/blogging-with-octopress/">Blogging with Octopress</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/06/30/parameter-forwarding/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
