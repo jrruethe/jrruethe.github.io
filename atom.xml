@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-06-30T21:11:21-04:00</updated>
+  <updated>2015-07-02T23:19:20-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,716 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Object Counter]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/07/01/object-counter/"/>
+    <updated>2015-07-01T17:47:47-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/07/01/object-counter</id>
+    <content type="html"><![CDATA[<p>This post presents a lightweight generic object counter in C++. Object counters count the number of objects that have been created, as well as how many bytes they are utilizing. They are a handy way to get a sense of application health programatically as well as detect memory leaks with unit tests.</p>
+
+<p>The code itself doesn&rsquo;t have any dependencies (not even Boost!). The example however uses Boost smart pointers, so you need the following installed to run it:</p>
+
+<ul>
+<li>libboost-dev</li>
+</ul>
+
+
+<p>This object counter is loosely modeled after Scott Meyer&rsquo;s<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> counter, with the following differences:</p>
+
+<ul>
+<li>Tracks creations as well as active objects, useful for determining if lots of copies are happening.</li>
+<li>Tracks allocations on the heap</li>
+<li>Tracks number of bytes allocated for the object</li>
+</ul>
+
+
+<p>The code itself is pretty straightforward:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;cstddef&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">ObjectCounter</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">Type</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">Count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">Count</span> <span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">Count</span> <span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">Count</span> <span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">Count</span> <span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">Count</span> <span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">Count</span> <span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">ObjectCounter</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">bytes_allocated</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Type</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">ObjectCounter</span><span class="p">(</span><span class="n">ObjectCounter</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">bytes_allocated</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Type</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="o">~</span><span class="n">ObjectCounter</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="o">--</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">bytes_allocated</span> <span class="o">-=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Type</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kt">void</span><span class="o">*</span> <span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">bytes</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">bytes_allocated_on_heap</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Type</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="n">bytes</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kt">void</span> <span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="o">--</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">bytes_allocated_on_heap</span> <span class="o">-=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Type</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">reset</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">objects_created</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">objects_created_on_heap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">objects_active</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">objects_active_on_heap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">bytes_allocated</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">bytes_allocated_on_heap</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">typename</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Count</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">typename</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Count</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">typename</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Count</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">typename</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Count</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">typename</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Count</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">typename</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">Count</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using the object counter is simple: just inherit from it, and everything else happens automatically.</p>
+
+<p>One very nice thing about this class is that it doesn&rsquo;t have any non-static data members. That means that inheriting from it allows the compiler to perform the <em>empty base optimization</em>, which means the inheriting object does not increase in size at all!</p>
+
+<blockquote><p><strong>No Virtual Destructor?</strong><br/>
+Technically, classes that are intended to be inherited are supposed to define a virtual destructor to ensure that the derived class&#8217; memory gets cleaned up if it is deleted through a pointer to the base class. Doing this causes the object counter to no longer be empty, and I don&rsquo;t want to give that up. The object counter has one purpose, and developers should by convention not pass around object counter pointers.</p></blockquote>
+
+<p>Time to test it out. Before that, I&rsquo;m going to introduce a little trick I learned from Evan Wallace<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> that gives us a nice Python-style print command to avoid all the <code>cout</code> boilerplate:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">namespace</span> <span class="n">__hidden__</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">struct</span> <span class="n">print</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">print</span><span class="p">()</span> <span class="o">:</span>
+</span><span class='line'>         <span class="n">space</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="o">~</span><span class="n">print</span><span class="p">()</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="n">print</span><span class="o">&amp;</span> <span class="k">operator</span><span class="p">,(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="k">if</span><span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39; &#39;</span><span class="p">;</span>
+</span><span class='line'>         <span class="k">else</span> <span class="n">space</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>         <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">t</span><span class="p">;</span>
+</span><span class='line'>         <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kt">bool</span> <span class="n">space</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define print __hidden__::print(),</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is a really clever trick that I would like to expand upon in a future post. Back to our test code:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">TestObject</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">char</span> <span class="n">byte</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">byte</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span> <span class="c1">// Store 4 bytes</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Object</span> <span class="o">:</span> <span class="k">public</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">char</span> <span class="n">byte</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">byte</span> <span class="n">data</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span> <span class="c1">// Store 4 bytes</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;Object size  :&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">TestObject</span><span class="p">)</span>           <span class="p">,</span> <span class="s">&quot;bytes&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;Counter size :&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span><span class="p">),</span> <span class="s">&quot;bytes&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;Total size   :&quot;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Object</span><span class="p">)</span>               <span class="p">,</span> <span class="s">&quot;bytes&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Increase scope</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Create an object on the stack</span>
+</span><span class='line'>      <span class="n">Object</span> <span class="n">a</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;Single:&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Create an array of objects on the stack</span>
+</span><span class='line'>      <span class="n">Object</span> <span class="n">b</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;Array:&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Create a vector of objects on the stack</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">c</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">c</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">Object</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;Vector:&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Copy an object</span>
+</span><span class='line'>      <span class="n">Object</span> <span class="n">d</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;Copy:&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="c1">// Objects are now gone</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;Out of Scope:&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">reset</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;Reset:&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Create an object on the heap</span>
+</span><span class='line'>   <span class="n">Object</span><span class="o">*</span> <span class="n">a_ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;New:&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Delete an object from the heap</span>
+</span><span class='line'>   <span class="k">delete</span> <span class="n">a_ptr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;Delete:&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Create a smart pointer</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">b_ptr</span><span class="p">(</span><span class="k">new</span> <span class="n">Object</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;Smart Pointer:&quot;</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="c1">// Smart pointer destroyed</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;Smart Pointer Destroyed:&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects created on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_created_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active          :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Objects active on heap  :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">objects_active_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated         :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot; - Bytes allocated on heap :&quot;</span><span class="p">,</span> <span class="n">ObjectCounter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;::</span><span class="n">bytes_allocated_on_heap</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">print</span> <span class="s">&quot;&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This gives the following output:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">Object size</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4 bytes</span>
+</span><span class='line'><span class="l-Scalar-Plain">Counter size</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1 bytes</span>
+</span><span class='line'><span class="l-Scalar-Plain">Total size</span>   <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4 bytes</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Single</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Array</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">3</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">3</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">12</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Vector</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">5</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">16</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Copy</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">6</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">5</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">20</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Out of Scope</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">6</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Reset</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">New</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Delete</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Smart Pointer</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Smart Pointer Destroyed</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects created on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active</span>          <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Objects active on heap</span>  <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated</span>         <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Bytes allocated on heap</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Everything looks correct, but take a look at line 22 of the output. This is a case where a temporary copy happened when loading the object into the vector. These are cases where C++11&rsquo;s move semantics are able to help. The object counter&rsquo;s copy constructor could be modified to also track copies being made, that is left as an exercise for the reader.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://ptgmedia.pearsoncmg.com/imprint_downloads/informit/aw/meyerscddemo/demo/MAGAZINE/CO_FRAME.HTM">Counting Objects in C++ by Scott Meyers</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="http://madebyevan.com/obscure-cpp-features/">Obscure C++ Features by Evan Wallace</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Parameter Forwarding]]></title>
@@ -6873,396 +7583,6 @@ You can access the Web UI at 127.0.0.1:8888</p>
 
 <p>All done! Now you can right click on any folder in Nautilus and open a terminator window.<br/>
 The reason the symlink is needed is because <code>nautilus-open-terminal</code> is hardcoded to use <code>gnome-terminal</code> by default, but <code>terminator</code> is much better.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Blogging With Octopress]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/"/>
-    <updated>2014-07-05T20:51:27-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress</id>
-    <content type="html"><![CDATA[<h3>Before you continue</h3>
-
-<p>Grab all the dependencies:</p>
-
-<pre><code>sudo apt-get install ruby bundler git  
-sudo gem install rake --version 0.9.2.2
-git clone git://github.com/imathis/octopress.git blog  
-cd blog  
-bundle install  
-</code></pre>
-
-<p>You may have a newer <code>rake</code> installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.</p>
-
-<pre><code>alias rake="rake _0.9.2.2_"
-</code></pre>
-
-<hr />
-
-<h3>Starting Fresh</h3>
-
-<p>Use these instructions if you are creating a blog for the first time.</p>
-
-<ol>
-<li><p>Install the blog</p>
-
-<pre><code>rake install  
-</code></pre></li>
-<li><p>Create the Github repository</p>
-
-<p>Go to <a href="https://github.com/repositories/new">Github</a>, create a new repository of the format <code>username.github.io</code></p></li>
-<li><p>Set up deployment to Github Pages</p>
-
-<pre><code>rake setup_github_pages
-rake generate
-rake deploy
-</code></pre></li>
-<li><p>Commit the source</p>
-
-<pre><code>git add .
-git commit -m 'your message'
-git push origin source
-</code></pre></li>
-<li><p>Add some customizations</p>
-
-<p>I personally use the following third party plugins:</p>
-
-<ul>
-<li><a href="https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside">Bitcoin</a> : Add a QR code for Bitcoin Donations</li>
-<li><a href="https://github.com/aycabta/octopress-file-binder">File Binder</a> : Easily attach an image to a post</li>
-<li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
-<li><a href="https://github.com/mguentner/octolayer">Octolayer</a> : Embed maps into posts</li>
-<li><a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Responsive Video Embed</a> : Embed Youtube videos into posts</li>
-</ul>
-</li>
-<li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
-<li><p>Configure your _config.yml file</p>
-
-<p>Set the following options:</p>
-
-<ul>
-<li>URL</li>
-<li>Title</li>
-<li>Subtitle</li>
-<li>Author</li>
-</ul>
-
-
-<p>Also scroll down to the bottom and set up the following sections:</p>
-
-<ul>
-<li>Github</li>
-<li>Twitter</li>
-<li>Disqus</li>
-</ul>
-</li>
-<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
-</ol>
-
-
-<hr />
-
-<h3>Continuing from an existing repository</h3>
-
-<p>Use these instructions if you are continuing a blog that has already been created.</p>
-
-<ol>
-<li><p>Install the dependencies</p>
-
-<pre><code>sudo apt-get install ruby bundler git ruby-gsl
-sudo gem install rake --version 0.9.2.2
-</code></pre></li>
-<li><p>Clone the repository</p>
-
-<pre><code>git clone -b source git@github.com:username/username.github.io.git blog
-</code></pre></li>
-<li><p>Install the octopress dependencies</p>
-
-<pre><code>bundle install
-</code></pre></li>
-<li><p>Set up Github Pages</p>
-
-<pre><code>rake setup_github_pages
-</code></pre></li>
-<li><p>Sync the deployment</p>
-
-<pre><code>$ cd _deploy/
-$ git pull origin master
-$ git add index.html
-$ git commit -m 'Deployment'
-</code></pre></li>
-<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
-</ol>
-
-
-<hr />
-
-<h3>Creating a post</h3>
-
-<p>To create a new post:</p>
-
-<pre><code>rake new_post["title"]
-</code></pre>
-
-<p>Then you can preview your work:</p>
-
-<pre><code>rake generate
-rake preview
-</code></pre>
-
-<p>Open your browser to <code>127.0.0.1:4000</code> and make sure your page looks the way you want.<br/>
-To finalize your changes:</p>
-
-<pre><code>git add source/_posts/date-title.markdown
-git commit -m 'Message'
-git push origin source
-rake deploy
-</code></pre>
-
-<p>Next, you want to make sure that you re-pull after the deployment is complete, or you will run into problems when creating your next post:</p>
-
-<pre><code>git pull
-cd _deploy/
-git pull
-cd -
-</code></pre>
-
-<p>Go to <code>username.github.com</code> and check out your page.</p>
-
-<hr />
-
-<h3>Scripting the difficult pieces</h3>
-
-<p>If you look at the <a href="">source for my blog</a>, you will see a small number of scripts that make managing the blog even easier.</p>
-
-<ul>
-<li>install.sh : Simply clone the repo and run this to get everything set up</li>
-<li>sync.sh : Synchronizes the repository with Github if a change was made on a different machine</li>
-<li>new.sh Post Title : Make a new post with the specified title</li>
-<li>preview.sh : Auto generate and start the web server for 127.0.0.1:4000</li>
-<li>deploy.sh : Deploy to Github Pages</li>
-</ul>
-
-
-<hr />
-
-<h3>Embedding Content</h3>
-
-<h4>Code</h4>
-
-<p>It is easy to embed any text file found in the source/downloads/code folder.<br/>
-Octopress even supports syntax highlighting, and a handy download link.</p>
-
-<pre><code>{% include_code lang:yaml filename.ext %}
-</code></pre>
-
-<p>lang can be any of the following:</p>
-
-<ul>
-<li>ruby</li>
-<li>yaml</li>
-<li>bash</li>
-<li>python</li>
-<li>json</li>
-<li>c++</li>
-</ul>
-
-
-<p>For example:</p>
-
-<pre><code>{% include_code lang:ruby address-to-hash.rb %}
-</code></pre>
-
-<p>Results in:</p>
-
-<figure class='code'><figcaption><span> (address-to-hash.rb)</span> <a href='http://jrruethe.github.io/downloads/code/address-to-hash.rb'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># address-to-hash.rb</span>
-</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
-</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
-</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
-</span><span class='line'><span class="c1"># (at your option) any later version.</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
-</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
-</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Get the address</span>
-</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
-</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
-</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
-</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
-</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
-</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
-</span><span class='line'>   <span class="n">s</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Get the hex payload</span>
-</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
-</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can also embed code content directly into a markdown file by enclosing it with codeblocks:</p>
-
-<pre><code>{% codeblock lang:json %}
-
-{
-   "one" : "1",
-   "two" : "2"
-}
-
-{% endcodeblock %}  
-</code></pre>
-
-<p>Results in:</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
-</span><span class='line'>   <span class="nt">&quot;one&quot;</span> <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
-</span><span class='line'>   <span class="nt">&quot;two&quot;</span> <span class="p">:</span> <span class="s2">&quot;2&quot;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This is better than the normal 4-space indent because you get syntax highlighting and line numbers. Compare:</p>
-
-<pre><code>{
-   "one" : "1",
-   "two" : "2"
-}
-</code></pre>
-
-<hr />
-
-<h4>Image</h4>
-
-<p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>. The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
-
-<p>To embed this image, use the tag like this:</p>
-
-<pre><code>{% img center ./01.png %}
-</code></pre>
-
-<p>Which results in this<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:
-<img class="center" src="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png"></p>
-
-<hr />
-
-<h4>Video</h4>
-
-<p>Embedding a youtube video can be done by grabbing the video id from the url:<br/>
-<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong></a></p>
-
-<p>Use the following tag:</p>
-
-<pre><code>{% youtube dQw4w9WgXcQ %}
-</code></pre>
-
-<p>Here is the result:</p>
-
-<div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
-
-
-<hr />
-
-<h4>Map</h4>
-
-<p>Embedding a map can be done with the following tag:</p>
-
-<pre><code>{% map lat lon zoomLevel "markerTitle" "description" %}
-</code></pre>
-
-<p>A simple example is shown here:</p>
-
-<pre><code>{% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
-</code></pre>
-
-<p>And here is the result:</p>
-
-<div class='map'><div style='height:420px' id='map1'></div><div class='mapCaption'>Map Data: <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors <a href='http://www.openstreetmap.org/copyright'>License</a> - Tiles Courtesy of <a href='http://www.mapquest.com/' target='_blank'>MapQuest</a><img src='http://developer.mapquest.com/content/osm/mq_logo.png'></div></div>
-
-
-<script type='text/javascript'>jQuery(document).ready(function() {initmap('map1',37.7577,-122.4376,13,'','');});</script>
-
-
-<hr />
-
-<h4>Footnotes</h4>
-
-<p>Footnotes are good for attributing content made by other people. Simply place an anchor <code>[^2]</code> where you want the link to the footnote to appear.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>
-Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a footnote</code>. The line above the footnotes is created automatically.</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p><a href="http://xkcd.com/">Randall Munrow, XKCD</a> licensed under CC-BY-NA 2.5<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-<li id="fn:2">
-<p>This is a footnote<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
 ]]></content>
   </entry>
   
