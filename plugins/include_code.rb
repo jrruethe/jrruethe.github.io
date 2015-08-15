@@ -21,21 +21,36 @@
 #
 
 require './plugins/pygments_code'
-require './plugins/raw'
 require 'pathname'
 
 module Jekyll
 
   class IncludeCodeTag < Liquid::Tag
     include HighlightCode
-    include TemplateWrapper
     def initialize(tag_name, markup, tokens)
       @title = nil
       @file = nil
-      if markup.strip =~ /\s*lang:(\S+)/i
-        @filetype = $1
-        markup = markup.strip.sub(/lang:\S+/i,'')
-      end
+
+      @lang = get_lang(markup)
+      markup = replace_lang(markup)
+
+      @linenos = get_linenos(markup)
+      markup = replace_linenos(markup)
+
+      @marks = get_marks(markup)
+      markup = replace_marks(markup)
+      
+      @start = get_start(markup)
+      markup = replace_start(markup)
+
+      @end = get_end(markup)
+      markup = replace_end(markup)
+
+      range = get_range(markup, @start, @end)
+      @start = range[:start]
+      @end = range[:start]
+      markup = replace_range(markup)
+
       if markup.strip =~ /(.*)?(\s+|^)(\/*\S+)/i
         @title = $1 || nil
         @file = $3
@@ -58,12 +73,17 @@ module Jekyll
 
       Dir.chdir(code_path) do
         code = file.read
-        @filetype = file.extname.sub('.','') if @filetype.nil?
+        length = code.lines.count
+        @end ||= length
+        return "#{file} is #{length} lines long, cannot begin at line #{@start}" if @start > length
+        return "#{file} is #{length} lines long, cannot read beyond line #{@end}" if @end > length
+        if @start > 1 or @end < length
+          code = code.split(/\n/).slice(@start -1, @end + 1 - @start).join("\n")
+        end
+        @lang = file.extname.sub('.','') unless @lang
         title = @title ? "#{@title} (#{file.basename})" : file.basename
         url = "/#{code_dir}/#{@file}"
-        source = "<figure class='code'><figcaption><span>#{title}</span> <a href='#{url}'>download</a></figcaption>\n"
-        source += "#{highlight(code, @filetype)}</figure>"
-        safe_wrap(source)
+        highlight(code, @lang, {caption: title, url: url, anchor: 'download', start: @start, marks: @marks, linenos: @linenos })
       end
     end
   end

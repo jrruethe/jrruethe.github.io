@@ -16,6 +16,8 @@ group :development do
   gem 'liquid', '~> 2.3.0'
   gem 'directory_watcher', '1.4.1'
   gem 'nokogiri', '~> 1.6.1'
+  
+  gem 'albino', '~> 1.3.3'
 end
 
 gem 'sinatra', '~> 1.4.2'
