@@ -116,7 +116,7 @@
 
 <p>To start, let&rsquo;s define a simplistic factory class as an example. Our factory for this example will not do much, except return the built object as a smart pointer.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -149,7 +149,7 @@
 
 <p>We can make a manual attempt at this first:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -212,7 +212,7 @@
 
 <p>Before that, lets test what we have so far:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -377,7 +377,7 @@ B Constructor: 3
 
 <p>Notice how the reference to <code>value</code> wasn&rsquo;t maintained. Boost addresses this issue in the <a href="http://www.boost.org/doc/libs/1_58_0/doc/html/move/construct_forwarding.html">Boost::Move</a> library by using <code>BOOST_FWD_REF</code> and <code>boost::forward</code>. Lets incorporate these utilities:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -540,7 +540,7 @@ BOOST_PP_REPEAT(3, FORWARD, ~)
 
 <p>Armed with these tools, we can now simplify the factory:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -605,7 +605,7 @@ BOOST_PP_REPEAT(3, FORWARD, ~)
 
 <p>There is one thing left to do; expand out the macro. Unsurprisingly, Boost also provides a way to do this. This method involves setting up a loop and iteratively calling <code>#include</code> on the result, which will cause the preprocessor to literally paste the results inline with the code:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -682,7 +682,7 @@ BOOST_PP_REPEAT(3, FORWARD, ~)
 
 <p>The preprocessor generates the following code:</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -808,6 +808,10 @@ BOOST_PP_REPEAT(3, FORWARD, ~)
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
       </li>
     
@@ -823,15 +827,15 @@ BOOST_PP_REPEAT(3, FORWARD, ~)
         <a href="/blog/2015/05/02/temporary-security-mirror/">Temporary Security Mirror</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/04/26/bitcoin-analogy/">A Simple Bitcoin Analogy</a>
-      </li>
-    
   </ul>
 </section>
 <section>
    <h1>Related Posts</h1>
    <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
    
       <li class="related">
       <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
@@ -847,10 +851,6 @@ BOOST_PP_REPEAT(3, FORWARD, ~)
    
       <li class="related">
       <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2014/07/05/blogging-with-octopress/">Blogging with Octopress</a>
       </li>
    
    </ul>

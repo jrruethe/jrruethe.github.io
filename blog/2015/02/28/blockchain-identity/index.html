@@ -181,121 +181,8 @@ Merkle Root: ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9
 
 <p>Now we need to put this data into a standard, machine readable format and sign it. First, use the following script to convert your yaml file into a normalized json file:</p>
 
-<figure class='code'><figcaption><span> (yaml-to-normalized-json.rb)</span> <a href='/downloads/code/yaml-to-normalized-json.rb'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
+<figure class='code'><figcaption><span> (yaml-to-normalized-json.rb)</span><a href='/downloads/code/yaml-to-normalized-json.rb' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># yaml-to-normalized-json.rb</span>
-</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
-</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
-</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
-</span><span class='line'><span class="c1"># (at your option) any later version.</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
-</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
-</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;yaml&#39;</span>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">String</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="c1"># Add a snakecase function to the String class</span>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">snakecase</span>
-</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[:\-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="c1"># Strip spaces and downcase</span>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">normalize</span>
-</span><span class='line'>      <span class="nb">self</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/[: \-]/</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">downcase</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>   <span class="c1"># Check if a string is a hex value</span>
-</span><span class='line'>   <span class="k">def</span> <span class="nf">is_hex?</span>
-</span><span class='line'>      <span class="sr">/^[0-9A-F]+$/i</span> <span class="o">===</span> <span class="nb">self</span><span class="o">.</span><span class="n">normalize</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Load the yaml file</span>
-</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">YAML</span><span class="o">.</span><span class="n">load_file</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Convert all keys to snakecase</span>
-</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[</span><span class="n">h</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span> <span class="o">[</span><span class="n">k</span><span class="o">.</span><span class="n">snakecase</span><span class="p">,</span> <span class="n">v</span><span class="o">]</span> <span class="p">}</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Normalize all hex values</span>
-</span><span class='line'><span class="n">h</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="o">|</span>
-</span><span class='line'>   <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">String</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">v</span><span class="o">.</span><span class="n">is_hex?</span>
-</span><span class='line'>      <span class="n">h</span><span class="o">[</span><span class="n">k</span><span class="o">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">normalize</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Sort the keys</span>
-</span><span class='line'><span class="n">h</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">[*</span><span class="n">h</span><span class="o">.</span><span class="n">sort</span><span class="o">.</span><span class="n">flatten</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Pretty print</span>
-</span><span class='line'><span class="nb">puts</span> <span class="no">JSON</span><span class="o">.</span><span class="n">pretty_generate</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -311,57 +198,8 @@ Merkle Root: ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9
 
 <p>The result should look something like this:</p>
 
-<figure class='code'><figcaption><span> (key.json.asc)</span> <a href='/downloads/code/key.json.asc'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
+<figure class='code'><figcaption><span> (key.json.asc)</span><a href='/downloads/code/key.json.asc' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA256</span>
-</span><span class='line'>
-</span><span class='line'><span class="p-Indicator">{</span>
-</span><span class='line'>  <span class="s">&quot;address&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;1LXWthRW8aqQSBddifWxwTDGPycT6Lom2Q&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;block&quot;</span><span class="p-Indicator">:</span> <span class="nv">345546</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;created&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;2014-06-14&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;email&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;jrruethe@gmail.com&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;fingerprint&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;4f4099f8276bdba5475a84464630bedc40b935fe&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;merkle_root&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;name&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;Joseph</span><span class="nv"> </span><span class="s">Ruether&quot;</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;size&quot;</span><span class="p-Indicator">:</span> <span class="nv">4096</span><span class="p-Indicator">,</span>
-</span><span class='line'>  <span class="s">&quot;type&quot;</span><span class="p-Indicator">:</span> <span class="s">&quot;RSA&quot;</span>
-</span><span class='line'><span class="p-Indicator">}</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
-</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v2</span>
-</span><span class='line'>
-</span><span class='line'><span class="l-Scalar-Plain">iQEcBAEBCAAGBQJU8dS0AAoJEB7MsgHDevApMCEH/3yFMcNErb92AtEdwShsvb1v</span>
-</span><span class='line'><span class="l-Scalar-Plain">IVWxL4aTqrs8AD7CxHEUNhxcZ56C2AyFW/8HkOMSCpbq9wG4Jxk8pohIiyQKYfTl</span>
-</span><span class='line'><span class="l-Scalar-Plain">TGGEYGELNDPgx/Pvlhb0jLBh8McnE8XdYseH2OXa3lfq4xOCqYKNiBOIcUmNZSar</span>
-</span><span class='line'><span class="l-Scalar-Plain">9fk4i3/Z47oN1Nwg7NohsCkoqNo9JBKH3Dc3ec2mlLktl83TQ7OcOfBCazdOaHOR</span>
-</span><span class='line'><span class="l-Scalar-Plain">+kk3WZb0wTyG+B6u5Kl8e0VJh+inDB83ol96hli/Ofhuvf29280VP3n784nDpLwY</span>
-</span><span class='line'><span class="l-Scalar-Plain">vg6pukSc3STD3em4hYOYU7OuBydbRe27I5w//E6IwntPoOG+dahzNPJcpFfvD4A=</span>
-</span><span class='line'><span class="l-Scalar-Plain">=/daq</span>
-</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -373,117 +211,8 @@ Merkle Root: ea31869aa04e3608450b45068b257ee396a6d2f6724f96593cd8d2c7f30a39d9
 
 <p>Now, use the following script to obtain the Bitcoin address that is associated with the hash of your signed key.json:</p>
 
-<figure class='code'><figcaption><span> (file-to-address.rb)</span> <a href='/downloads/code/file-to-address.rb'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
+<figure class='code'><figcaption><span> (file-to-address.rb)</span><a href='/downloads/code/file-to-address.rb' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># file-to-address.rb</span>
-</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
-</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
-</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
-</span><span class='line'><span class="c1"># (at your option) any later version.</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
-</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
-</span><span class='line'><span class="c1">#</span>
-</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
-</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">require</span> <span class="s1">&#39;digest&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Get the filename</span>
-</span><span class='line'><span class="n">filename</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Hash the file</span>
-</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="no">File</span><span class="o">.</span><span class="n">read</span> <span class="n">filename</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Take only the first 20 bytes</span>
-</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="nb">hash</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">39</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Prepend 0x00 to the hash</span>
-</span><span class='line'><span class="nb">hash</span> <span class="o">=</span> <span class="s2">&quot;00&quot;</span> <span class="o">+</span> <span class="nb">hash</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Calculate the checksum</span>
-</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="nb">hash</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="ss">Digest</span><span class="p">:</span><span class="ss">:SHA256</span><span class="o">.</span><span class="n">hexdigest</span> <span class="o">[</span><span class="n">checksum</span><span class="o">].</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;H*&quot;</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Pull out the first 4 bytes</span>
-</span><span class='line'><span class="n">checksum</span> <span class="o">=</span> <span class="n">checksum</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">7</span><span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">def</span> <span class="nf">encode_base58</span><span class="p">(</span><span class="n">hex</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">int_val</span> <span class="o">=</span> <span class="n">hex</span><span class="o">.</span><span class="n">to_i</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
-</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
-</span><span class='line'>   <span class="n">base58_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
-</span><span class='line'>   <span class="k">while</span> <span class="n">int_val</span> <span class="o">&gt;</span> <span class="mi">0</span>
-</span><span class='line'>      <span class="n">int_val</span><span class="p">,</span> <span class="n">remainder</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">divmod</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
-</span><span class='line'>      <span class="n">base58_val</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">[</span><span class="n">remainder</span><span class="o">]</span> <span class="o">+</span> <span class="n">base58_val</span>
-</span><span class='line'>   <span class="k">end</span>
-</span><span class='line'>   <span class="n">leading_zero_bytes</span>  <span class="o">=</span> <span class="p">(</span><span class="n">hex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([0]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span> <span class="o">/</span> <span class="mi">2</span>
-</span><span class='line'>   <span class="p">(</span><span class="s2">&quot;1&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">base58_val</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Generate the address</span>
-</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="n">encode_base58</span><span class="p">(</span><span class="nb">hash</span> <span class="o">+</span> <span class="n">checksum</span><span class="p">)</span>
-</span><span class='line'>
-</span><span class='line'><span class="nb">puts</span> <span class="n">address</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -600,6 +329,10 @@ Here you can validate that the Bitcoin address is legitimate, as well as decode 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
       </li>
     
@@ -615,10 +348,6 @@ Here you can validate that the Bitcoin address is legitimate, as well as decode 
         <a href="/blog/2015/05/02/temporary-security-mirror/">Temporary Security Mirror</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/04/26/bitcoin-analogy/">A Simple Bitcoin Analogy</a>
-      </li>
-    
   </ul>
 </section>
 <section>
@@ -627,6 +356,10 @@ Here you can validate that the Bitcoin address is legitimate, as well as decode 
    
       <li class="related">
       <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
       </li>
    
       <li class="related">
@@ -639,10 +372,6 @@ Here you can validate that the Bitcoin address is legitimate, as well as decode 
    
       <li class="related">
       <a href="/blog/2015/03/27/physical-blockchain-identity-card/">Physical Blockchain Identity Card</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
       </li>
    
    </ul>

@@ -105,123 +105,8 @@
 
 <div class="entry-content"><p>This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking.</p>
 
-<figure class='code'><figcaption><span> (generate_hashes.sh)</span> <a href='/downloads/code/generate_hashes.sh'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
+<figure class='code'><figcaption><span> (generate_hashes.sh)</span><a href='/downloads/code/generate_hashes.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># generate_hashes.rb</span>
-</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
-</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
-</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
-</span><span class='line'><span class="c"># (at your option) any later version.</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
-</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
-</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Usage: ./generate_hashes.sh [directory] [hash]</span>
-</span><span class='line'><span class="c"># Check the result with sha256sum -c &lt;result&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># See if a directory was defined</span>
-</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
-</span><span class='line'><span class="k">   </span><span class="nv">DIRECTORY</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
-</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="k">${</span><span class="nv">DIRECTORY</span><span class="k">}</span>/
-</span><span class='line'>
-</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$DIRECTORY</span> <span class="o">]</span>; <span class="k">then</span>
-</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $DIRECTORY&quot;</span>
-</span><span class='line'>      <span class="nb">exit </span>1
-</span><span class='line'>   <span class="k">fi</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>   <span class="c"># Use the current directory</span>
-</span><span class='line'>   <span class="nv">DIRECTORY</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
-</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="s1">&#39;\./&#39;</span>
-</span><span class='line'><span class="k">fi</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Hash type to use</span>
-</span><span class='line'><span class="nv">HASH</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">sha256</span><span class="k">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Generate the output filename</span>
-</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span>hashes.<span class="nv">$HASH</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Determine which program to use</span>
-</span><span class='line'><span class="nv">HASHER</span><span class="o">=</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span>sum
-</span><span class='line'>
-</span><span class='line'><span class="c"># Remove any existing hash file</span>
-</span><span class='line'>rm -f <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Find all files in the directory</span>
-</span><span class='line'><span class="c"># that do not have the output filename</span>
-</span><span class='line'><span class="c"># and hash them. Store the output in the target directory</span>
-</span><span class='line'>find <span class="nv">$DIRECTORY</span> -type f ! -name <span class="s2">&quot;$OUTPUT&quot;</span> -exec <span class="nv">$HASHER</span> <span class="o">{}</span> <span class="se">\;</span> &gt;&gt; <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Sort the output on the filename column</span>
-</span><span class='line'>sort -u -k2 -o <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Remove the directory from the listings</span>
-</span><span class='line'>sed -i <span class="s2">&quot;s@ $REPLACE@@g&quot;</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -412,6 +297,10 @@ hashes.sha256: OK
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
       </li>
     
@@ -425,10 +314,6 @@ hashes.sha256: OK
     
       <li class="post">
         <a href="/blog/2015/05/02/temporary-security-mirror/">Temporary Security Mirror</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/04/26/bitcoin-analogy/">A Simple Bitcoin Analogy</a>
       </li>
     
   </ul>
@@ -450,11 +335,11 @@ hashes.sha256: OK
       </li>
    
       <li class="related">
-      <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
       </li>
    
       <li class="related">
-      <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
+      <a href="/blog/2015/02/28/blockchain-identity/">Blockchain Identity</a>
       </li>
    
    </ul>
