@@ -23,6 +23,8 @@
 require './plugins/pygments_code'
 require 'pathname'
 
+require 'pry'
+
 module Jekyll
 
   class IncludeCodeTag < Liquid::Tag
@@ -48,7 +50,7 @@ module Jekyll
 
       range = get_range(markup, @start, @end)
       @start = range[:start]
-      @end = range[:start]
+      @end = range[:end]
       markup = replace_range(markup)
 
       if markup.strip =~ /(.*)?(\s+|^)(\/*\S+)/i
@@ -72,6 +74,7 @@ module Jekyll
       end
 
       Dir.chdir(code_path) do
+        # binding.pry
         code = file.read
         length = code.lines.count
         @end ||= length

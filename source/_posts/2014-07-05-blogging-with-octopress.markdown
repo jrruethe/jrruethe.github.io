@@ -200,7 +200,30 @@ Results in:
 
 {% endcodeblock %}	
 
-This is better than the normal 4-space indent because you get syntax highlighting and line numbers. Compare:
+A shortcut for this is to use 3 backticks followed by the language. Titles can also be added. In addition, both `codeblock` and backticks support highlighting line numbers with `mark`:
+{% raw %}
+    ``` json "This is my json" mark:1,3-4
+    
+    {
+       "one" : "1",
+       "two" : "2"
+    }
+    
+    ```
+{% endraw %}
+
+Results in:
+
+``` json "This is my json" mark:1,3-4
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+```
+
+This is better than the normal 4-space indent. Compare:
 
     {
        "one" : "1",
