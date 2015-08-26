@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of &hellip;">
+  <meta name="description" content="At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. It hooks into the kernel&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +74,83 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/25/enhanced-corefile-metadata/">Enhanced Corefile Metadata</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-25T22:26:50-04:00" pubdate data-updated="true">Jul 25<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/25/enhanced-corefile-metadata/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. <br/>
+It hooks into the kernel&rsquo;s corepattern mechanism to accept the core dump via stdin and extract information from the process before it is killed. It then runs GDB to produce a backtrace and grab the register contents.</p>
+
+<p><a href="https://github.com/jrruethe/corefile">Enhanced Corefile Metadata</a></p>
+
+<p>Here is a list of metadata that is written out on every core dump:</p>
+
+<ul>
+<li>Binary that crashed</li>
+<li>Corefile from the crash</li>
+<li>Signal causing the crash</li>
+<li>Original filepath</li>
+<li>Original file size</li>
+<li>MD5 checksum of the binary</li>
+<li>MD5 checksum of the corefile</li>
+<li>Creation, modification, and access times of the binary</li>
+<li>Hostname and PID of the crashed process</li>
+<li>User, group, and permissions of the crashed process</li>
+<li>The setuid bit</li>
+<li>Working directory of the process</li>
+<li>Invoked command line parameters</li>
+<li>Stack trace</li>
+<li>Memory Map</li>
+<li>Environment variables</li>
+<li>Frame information</li>
+<li>Register states</li>
+</ul>
+
+
+<p>This script is very useful for bug reports as well as devloping buffer overflow exploits.
+To install, save <code>corefile.rb</code> somewhere. Edit <code>/etc/sysctl.conf</code> and set the <code>kernel.core_pattern</code> parameter as follows:</p>
+
+<pre><code>kernel.core_pattern=|/path/to/corefile.rb %e %p %u %g %h %s
+</code></pre>
+
+<p><em>Take note of the pipe character!</em></p>
+
+<p>If you want to test it out, simply crash something.<br/>
+Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in <code>sysctl.conf</code>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1662,6 +1739,10 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
       </li>
     
@@ -1675,10 +1756,6 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
     
       <li class="post">
         <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
       </li>
     
   </ul>
