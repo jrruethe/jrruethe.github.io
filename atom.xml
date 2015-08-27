@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-08-26T07:21:25-04:00</updated>
+  <updated>2015-08-26T21:41:09-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -251,7 +251,7 @@ Destructor
 </span><span class='line'>   <span class="n">foo_ptr</span><span class="o">-&gt;~</span><span class="n">Foo</span><span class="p">();</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Deallocate the memory from the heap</span>
-</span><span class='line'>   <span class="k">delete</span> <span class="n">memory</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">free</span> <span class="n">memory</span><span class="p">;</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
