@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
    foo_ptr->~Foo();
 
    // Deallocate the memory from the heap
-   delete memory;
+   free memory;
 }
 
 {% endcodeblock %}
