@@ -83,8 +83,7 @@ Use these instructions if you are continuing a blog that has already been create
 
  1. Install the dependencies
  
-        sudo apt-get install ruby bundler git ruby-gsl
-        sudo gem install rake --version 0.9.2.2
+        sudo apt-get install ruby bundler git ruby-gsl zlib1g-dev
 
  1. Clone the repository
  
