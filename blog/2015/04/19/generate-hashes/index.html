@@ -1,0 +1,560 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Generate Hashes - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking. ( &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/04/19/generate-hashes">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Generate Hashes</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-19T14:51:57-04:00" pubdate data-updated="true">Apr 19<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking.</p>
+
+<figure class='code'><figcaption><span> (generate_hashes.sh)</span><a href='/downloads/code/generate_hashes.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># generate_hashes.rb</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Usage: ./generate_hashes.sh [directory] [hash]</span>
+</span><span class='line'><span class="c"># Check the result with sha256sum -c &lt;result&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># See if a directory was defined</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nv">DIRECTORY</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
+</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="k">${</span><span class="nv">DIRECTORY</span><span class="k">}</span>/
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$DIRECTORY</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $DIRECTORY&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Use the current directory</span>
+</span><span class='line'>   <span class="nv">DIRECTORY</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
+</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="s1">&#39;\./&#39;</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Hash type to use</span>
+</span><span class='line'><span class="nv">HASH</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">sha256</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generate the output filename</span>
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span>hashes.<span class="nv">$HASH</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Determine which program to use</span>
+</span><span class='line'><span class="nv">HASHER</span><span class="o">=</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span>sum
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remove any existing hash file</span>
+</span><span class='line'>rm -f <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Find all files in the directory</span>
+</span><span class='line'><span class="c"># that do not have the output filename</span>
+</span><span class='line'><span class="c"># and hash them. Store the output in the target directory</span>
+</span><span class='line'>find <span class="nv">$DIRECTORY</span> -type f ! -name <span class="s2">&quot;$OUTPUT&quot;</span> -exec <span class="nv">$HASHER</span> <span class="o">{}</span> <span class="se">\;</span> &gt;&gt; <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Sort the output on the filename column</span>
+</span><span class='line'>sort -u -k2 -o <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remove the directory from the listings</span>
+</span><span class='line'>sed -i <span class="s2">&quot;s@ $REPLACE@@g&quot;</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The following will show how to use it. First, we need some files:</p>
+
+<pre><code>$ ls
+generate_hashes.sh
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; 1.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0787343 s, 13.3 MB/s
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; 2.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0862146 s, 12.2 MB/s
+
+$ mkdir -p three/four
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; three/3.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0854334 s, 12.3 MB/s
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; three/four/4.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0783046 s, 13.4 MB/s
+
+$ ls *
+1.txt  2.txt  generate_hashes.sh
+
+three:
+3.txt  four
+</code></pre>
+
+<p>Calling the script without any arguments will generate the hashes in the current directory. The file is stored as hashes.hashtype, where hashtype defaults to sha256.</p>
+
+<pre><code>$ ./generate_hashes.sh 
+$ ls
+1.txt  2.txt  generate_hashes.sh  hashes.sha256  three
+
+$ cat hashes.sha256 
+3f27f253e357143105f9a29193141db5ad833b56299a4c4e4a30a2d19f4732a8 1.txt
+9dee9ed8f2c7a8533e764bc6963615537524d54292875e9fd858e9e0cd9b93b1 2.txt
+20a1cbbf5a21773d673c79d4d8e58e31c3766f87c0299aa5a8c669015504c9f0 generate_hashes.sh
+a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca three/3.txt
+bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 three/four/4.txt
+
+$ sha256sum -c hashes.sha256 
+1.txt: OK
+2.txt: OK
+generate_hashes.sh: OK
+three/3.txt: OK
+three/four/4.txt: OK
+</code></pre>
+
+<p>The first optional argument is the directory to hash. <code>.</code> is allowed.</p>
+
+<pre><code>$ rm hashes.sha256
+$ ls
+1.txt  2.txt  generate_hashes.sh  three
+$ ls three/
+3.txt  four
+
+$ ./generate_hashes.sh three/
+$ ls three/
+3.txt  four  hashes.sha256
+$ cat three/hashes.sha256 
+a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca 3.txt
+bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 four/4.txt
+</code></pre>
+
+<p>The second optional argument is the hash type to use:</p>
+
+<ul>
+<li>sha1</li>
+<li>sha224</li>
+<li>sha256 (default)</li>
+<li>sha384</li>
+<li>sha512</li>
+<li>md5</li>
+</ul>
+
+
+<p>Example:</p>
+
+<pre><code>$ ./generate_hashes.sh three/ sha1
+$ ls three/
+3.txt  four  hashes.sha1  hashes.sha256
+$ cat three/hashes.sha1
+fffdc438939ae0afa1f19569939dd3996a2d67bb 3.txt
+cec823c326525c23bba925d5d85b35a5ebbed62d four/4.txt
+deea8794a7aada412518d06df516c804389ef212 hashes.sha256
+
+$ cd three/
+$ sha1sum -c hashes.sha1
+3.txt: OK
+four/4.txt: OK
+hashes.sha256: OK
+</code></pre>
+
+<p>When distributing a large set of files or directory tree, it is best to generate the hashes in the root of the tree and sign the hashes.sha256 file with GPG.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-19T14:51:57-04:00" pubdate data-updated="true">Apr 19<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/04/11/verified-addresses/" title="Previous Post: Verified Addresses">&laquo; Verified Addresses</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/04/23/bitcoin-paper-wallets/" title="Next Post: Bitcoin Paper Wallets">Bitcoin Paper Wallets &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/04/19/generate-hashes/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/04/19/generate-hashes/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/04/19/generate-hashes/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
