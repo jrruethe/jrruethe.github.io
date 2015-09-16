@@ -1,0 +1,1301 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Placement New, Memory Dumps, and Alignment - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="Generally, in C++ there are three places you can store your data: On the stack (local variables)
+On the heap (new / delete)
+In the static data &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/08/23/placement-new">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Placement New, Memory Dumps, and Alignment</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-23T14:11:27-04:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Generally, in C++ there are three places you can store your data:</p>
+
+<ol>
+<li>On the stack (local variables)</li>
+<li>On the heap (new / delete)</li>
+<li>In the static data section (static variables)</li>
+</ol>
+
+
+<p>Normally, when using the heap, you would use the following command:</p>
+
+<pre><code>Foo* foo_ptr = new Foo();
+</code></pre>
+
+<p>This would invoke the following actions behind the scenes:</p>
+
+<ol>
+<li>Make an operating system call to allocate a chunk of memory of size <code>sizeof(Foo)</code></li>
+<li>Manage that memory with the heap</li>
+<li>Call the constructor of Foo to build an object at that memory location</li>
+<li>Initialize <code>foo_ptr</code> with the address of the object</li>
+</ol>
+
+
+<p>Later on, you would call:</p>
+
+<pre><code>delete foo_ptr;
+</code></pre>
+
+<p>This would:</p>
+
+<ol>
+<li>Call the destructor of Foo</li>
+<li>Have the heap give the memory back to the operating system</li>
+</ol>
+
+
+<p>This is how <code>new</code> and <code>delete</code> work, and most C++ programmers should be familiar with them.</p>
+
+<blockquote><p><strong>New and Malloc</strong><br/>
+You should never <code>delete</code> memory allocated with <code>malloc</code>, and you should never <code>free</code> memory allocated with <code>new</code>. <code>malloc</code> and <code>free</code> do raw memory allocations, while <code>new</code> and <code>delete</code> are also responsible for calling constructors and destructors.</p></blockquote>
+
+<h2>Placement New</h2>
+
+<p>C++ offers a different &ldquo;flavor&rdquo; of <code>new</code> called &ldquo;placement new&rdquo;. Placement new gives the user finer control about where the object gets constructed by allowing the object to be &ldquo;placed&rdquo; at a specified memory address; in other words, the heap allocation step is bypassed.</p>
+
+<p>Placement new has a few specialized uses. One is memory mapped I/O for embedded systems. This is used when an object must exist at a specific memory address in order for its members to be mapped to external sensors or control pins. Another use case is for memory pools, when the application is responsible for managing its memory instead of relying on the heap.</p>
+
+<p>The syntax for placement new is:</p>
+
+<pre><code>unsigned char memory[sizeof(Foo)];
+Foo* foo_ptr = new (memory) Foo();
+</code></pre>
+
+<p>In this example, <code>Foo</code> was constructed into the <code>memory</code> on the stack, instead of on the heap. It is important to understand that using placement new requires the developer to do its own memory management. <code>memory</code> must be large enough to contain a <code>Foo</code>, and you should never call <code>delete</code> on the pointer returned by placement new.</p>
+
+<blockquote><p><strong>Delete</strong><br/>
+Remember that <code>delete</code> calls the destructor, and has the heap give memory back to the operating system. However, the <code>memory</code> here isn&rsquo;t on the heap! Calling <code>delete</code> on <code>foo_ptr</code> will cause a crash.</p></blockquote>
+
+<p>If you think of placement new as simply a constructor call, then it follows that a &ldquo;placement delete&rdquo; would simply be a destructor call. And an explicit destructor call is exactly how to clean up after a placement new:</p>
+
+<pre><code>foo_ptr-&gt;~Foo();
+</code></pre>
+
+<p>You must not forget this step; it isn&rsquo;t a memory leak, but it would be a resource leak.</p>
+
+<p>Here is a more detailed (runnable) example:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;new&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;cstdio&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Foo</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span> <span class="n">value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Constructor&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="o">~</span><span class="n">Foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Destructor&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="c1">// Increase scope</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Allocate memory on the stack</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">memory</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Foo</span><span class="p">)];</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Construct a Foo inside that memory</span>
+</span><span class='line'>      <span class="n">Foo</span><span class="o">*</span> <span class="n">foo_ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">memory</span><span class="p">)</span> <span class="n">Foo</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Show that the memory addresses are the same</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">memory</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">foo_ptr</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Call the destructor explicitly</span>
+</span><span class='line'>      <span class="n">foo_ptr</span><span class="o">-&gt;~</span><span class="n">Foo</span><span class="p">();</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Memory has been deallocated from the stack</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This outputs:</p>
+
+<pre><code>Constructor
+0x00007FFFFFFFE280
+0x00007FFFFFFFE280
+Destructor
+</code></pre>
+
+<p>Note that the memory isn&rsquo;t required to be allocated on the stack; you can just as easily allocate the memory using malloc, and later deallocate the memory with free. In fact, you can think of the regular <code>new</code> call as performing the following actions:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;new&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;cstdio&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Foo</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span> <span class="n">value</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Constructor&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="o">~</span><span class="n">Foo</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Destructor&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Allocate memory on the heap</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Foo</span><span class="p">)));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Construct a Foo inside that memory</span>
+</span><span class='line'>   <span class="n">Foo</span><span class="o">*</span> <span class="n">foo_ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">memory</span><span class="p">)</span> <span class="n">Foo</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Show that the memory addresses are the same</span>
+</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">memory</span><span class="p">);</span>
+</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">foo_ptr</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Call the destructor explicitly</span>
+</span><span class='line'>   <span class="n">foo_ptr</span><span class="o">-&gt;~</span><span class="n">Foo</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Deallocate the memory from the heap</span>
+</span><span class='line'>   <span class="n">free</span> <span class="n">memory</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This outputs:</p>
+
+<pre><code>Constructor
+0x0000000000664370
+0x0000000000664370
+Destructor
+</code></pre>
+
+<h2>Dumping Memory</h2>
+
+<p>As I said earlier, placement new requires the developer to manage their own memory even more than usual. When working with memory on a low level like this, it becomes very useful to see a hex dump similar to the one created by GDB. With some inspiration<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>, I created a function that would pretty-print memory to an output stream:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">dump_memory</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span>
+</span><span class='line'>                 <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">size</span><span class="p">,</span>
+</span><span class='line'>                 <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">byte</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">uint</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Allow direct arithmetic on the pointer</span>
+</span><span class='line'>   <span class="n">uint</span> <span class="n">iptr</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">uint</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;-----------------------------------------------------------------------</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;%d bytes&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">size</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Get number of digits</span>
+</span><span class='line'>   <span class="n">uint</span> <span class="n">indent</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">log10</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Write the address offsets along the top row</span>
+</span><span class='line'>   <span class="c1">// Account for the indent of &quot;X bytes&quot;</span>
+</span><span class='line'>   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="mi">13</span> <span class="o">-</span> <span class="n">indent</span><span class="p">,</span> <span class="sc">&#39; &#39;</span><span class="p">);</span>
+</span><span class='line'>   <span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">16</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span>  <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span><span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;}</span>        <span class="c1">// Spaces between every 4 bytes</span>
+</span><span class='line'>      <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot; %2hhX&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// Write the address offset</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// If the object is not aligned</span>
+</span><span class='line'>   <span class="k">if</span><span class="p">(</span><span class="n">iptr</span> <span class="o">%</span> <span class="mi">16</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Print the first address</span>
+</span><span class='line'>      <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">0x%016lX:&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="n">iptr</span> <span class="o">&amp;</span> <span class="o">~</span><span class="mi">15</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Indent to the offset</span>
+</span><span class='line'>      <span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">iptr</span> <span class="o">%</span> <span class="mi">16</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;   &quot;</span><span class="p">;</span>
+</span><span class='line'>         <span class="k">if</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span><span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Dump the memory</span>
+</span><span class='line'>   <span class="k">for</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">,</span> <span class="o">++</span><span class="n">iptr</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// New line and address every 16 bytes, spaces every 4 bytes</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">iptr</span> <span class="o">%</span> <span class="mi">16</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span><span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">0x%016lX:&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">iptr</span><span class="p">;}</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">iptr</span> <span class="o">%</span>  <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span><span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Write the address contents</span>
+</span><span class='line'>      <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot; %02hhX&quot;</span><span class="p">)</span>
+</span><span class='line'>            <span class="o">%</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">uint</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">byte</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">iptr</span><span class="p">));</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">-----------------------------------------------------------------------&quot;</span>
+</span><span class='line'>      <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is an example of how to use it:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">Test</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="kt">char</span>  <span class="n">a</span><span class="p">;</span> <span class="c1">// 1 byte</span>
+</span><span class='line'>   <span class="kt">int</span>   <span class="n">b</span><span class="p">;</span> <span class="c1">// 4 bytes</span>
+</span><span class='line'>   <span class="kt">short</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// 2 bytes</span>
+</span><span class='line'>   <span class="kt">long</span>  <span class="n">d</span><span class="p">;</span> <span class="c1">// 8 bytes</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Test</span><span class="p">()</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">a</span><span class="p">(</span><span class="mh">0x11</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">b</span><span class="p">(</span><span class="mh">0x22222222</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">c</span><span class="p">(</span><span class="mh">0x3333</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">d</span><span class="p">(</span><span class="mh">0x4444444444444444</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">memory</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">)];</span>
+</span><span class='line'>   <span class="n">Test</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">memory</span><span class="p">)</span> <span class="n">Test</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">dump_memory</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">ptr</span><span class="o">-&gt;~</span><span class="n">Test</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And here is the output:</p>
+
+<pre><code>-----------------------------------------------------------------------
+24 bytes              0  1  2  3   4  5  6  7   8  9  A  B   C  D  E  F
+0x00007FFFFFFFE270:  11 FF FF FF  22 22 22 22  33 33 00 00  00 00 00 00
+0x00007FFFFFFFE280:  44 44 44 44  44 44 44 44
+-----------------------------------------------------------------------
+</code></pre>
+
+<blockquote><p><strong>Padding</strong><br/>
+If you are surprised by the output above, you may not be aware of padding. The compiler will add padding bytes between members in a structure to ensure that each member starts on a proper byte boundary. This means structures may take up more space than if they were packed tightly.</p>
+
+<p>Primitive types in a structure will be padded such that they are aligned on byte boundaries that match their size<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>:</p>
+
+<ul>
+<li>A char (one byte) will be 1-byte aligned.</li>
+<li>A short (two bytes) will be 2-byte aligned.</li>
+<li>An int (four bytes) will be 4-byte aligned.</li>
+<li>A long (eight bytes) will be 8-byte aligned.</li>
+<li>A float (four bytes) will be 4-byte aligned.</li>
+<li>A double (eight bytes) will be 8-byte aligned.</li>
+</ul>
+</blockquote>
+
+<p>When working with memory pools, the allocated memory will typically be larger than the object itself. It becomes useful to &ldquo;mark&rdquo; the memory with special byte patterns for ease of debugging. I like to use:</p>
+
+<ul>
+<li>0xCC for &ldquo;Clear&rdquo;</li>
+<li>0xAA for &ldquo;Allocated&rdquo;</li>
+<li>0xDD for &ldquo;Deallocated&rdquo;</li>
+</ul>
+
+
+<p>For example, lets allocate more memory than we need, and construct the object in the middle of the array. The markers will indicate what is happening:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="c1">// Get the size of our structure</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Reserve more memory than we need</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">memory</span><span class="p">[</span><span class="n">size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Fill that memory up with &quot;C&quot; for &quot;Cleared&quot;</span>
+</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="mh">0xCC</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">memory</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Determine where to construct the object</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Mark that area as &quot;Allocated&quot;</span>
+</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Construct an object offset into memory</span>
+</span><span class='line'>   <span class="n">Test</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="n">Test</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Lets see what it looks like</span>
+</span><span class='line'>   <span class="n">dump_memory</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Destroy the object</span>
+</span><span class='line'>   <span class="n">ptr</span><span class="o">-&gt;~</span><span class="n">Test</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Outputs:</p>
+
+<pre><code>-----------------------------------------------------------------------
+24 bytes              0  1  2  3   4  5  6  7   8  9  A  B   C  D  E  F
+0x00007FFFFFFFE220:                                         11 AA AA AA
+0x00007FFFFFFFE230:  22 22 22 22  33 33 AA AA  AA AA AA AA  44 44 44 44
+0x00007FFFFFFFE240:  44 44 44 44
+-----------------------------------------------------------------------
+</code></pre>
+
+<p>A couple things to notice here:</p>
+
+<ul>
+<li>Only the memory for the object is printed, that is why we don&rsquo;t see any <code>0xCC</code></li>
+<li>The object was offset 12 bytes into the memory</li>
+<li>The padding bytes are filled with <code>0xAA</code> as expected</li>
+</ul>
+
+
+<p>It would be kind of nice to see the memory around the object, to give us some context. One solution is to dump the <code>memory</code> variable instead of the <code>ptr</code> variable, but with large memory pools this can be too much to look at. Instead, lets just print some additional local context:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number marked'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">dump_memory_with_context</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span>
+</span><span class='line'>                              <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">size</span><span class="p">,</span>
+</span><span class='line'>                              <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="c1">// Allow direct arithmetic on the pointer</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">sptr</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span> <span class="c1">// Start pointer</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">eptr</span> <span class="o">=</span> <span class="n">sptr</span> <span class="o">+</span> <span class="n">size</span><span class="p">;</span>                          <span class="c1">// End pointer</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">sptr</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="mi">15</span><span class="p">;</span> <span class="c1">// Round down to the last multiple of 16</span>
+</span><span class='line'>   <span class="n">sptr</span> <span class="o">-=</span>  <span class="mi">16</span><span class="p">;</span> <span class="c1">// Step back one line for context</span>
+</span><span class='line'>   <span class="n">eptr</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="mi">15</span><span class="p">;</span> <span class="c1">// Round down to the last multiple of 16</span>
+</span><span class='line'>   <span class="n">eptr</span> <span class="o">+=</span>  <span class="mi">32</span><span class="p">;</span> <span class="c1">// Step forward one line for context</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Dump memory</span>
+</span><span class='line'>   <span class="n">dump_memory</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">sptr</span><span class="p">),</span> <span class="n">eptr</span> <span class="o">-</span> <span class="n">sptr</span><span class="p">,</span> <span class="n">os</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="c1">// Get the size of our structure</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Reserve more memory than we need</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">memory</span><span class="p">[</span><span class="n">size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Fill that memory up with &quot;C&quot; for &quot;Cleared&quot;</span>
+</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="mh">0xCC</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">memory</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Determine where to construct the object</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">size</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Mark that area as &quot;Allocated&quot;</span>
+</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Construct an object offset into memory</span>
+</span><span class='line'>   <span class="n">Test</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="n">Test</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Lets see what it looks like</span>
+</span><span class='line marked start end'>   <span class="n">dump_memory_with_context</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Destroy the object</span>
+</span><span class='line'>   <span class="n">ptr</span><span class="o">-&gt;~</span><span class="n">Test</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now we get:</p>
+
+<pre><code>-----------------------------------------------------------------------
+80 bytes              0  1  2  3   4  5  6  7   8  9  A  B   C  D  E  F
+0x00007FFFFFFFE210:  A0 E2 FF FF  FF 7F 00 00  6C 6B 40 00  00 00 00 00
+0x00007FFFFFFFE220:  CC CC CC CC  CC CC CC CC  CC CC CC CC  11 AA AA AA
+0x00007FFFFFFFE230:  22 22 22 22  33 33 AA AA  AA AA AA AA  44 44 44 44
+0x00007FFFFFFFE240:  44 44 44 44  CC CC CC CC  CC CC CC CC  CC CC CC CC
+0x00007FFFFFFFE250:  88 E3 FF FF  FF 7F 00 00  75 94 42 00  01 00 00 00
+-----------------------------------------------------------------------
+</code></pre>
+
+<p>This shows a local context memory dump that includes our object and the memory around it. Our markers can be clearly seen, as well as the object itself. In addition, we see some other garbage from the stack.</p>
+
+<h2>Alignment</h2>
+
+<p>In the last section, we constructed an object offset into our memory area, and the result was misaligned in the stack. This situation is not ideal.</p>
+
+<p>Memory alignment is important because while programmers think in terms of bytes, CPUs think in terms of words. On a 64-bit system, this means the CPU will load 8 bytes at a time from memory. If you have an unaligned member that straddles two words, the CPU needs to make twice as many memory accesses as it would have if the memory was properly aligned.<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></p>
+
+<p>GCC will typically handle memory alignment for you when allocating from the heap, but in the case of a memory pool it is up to the developer to handle it properly. There are two rules to follow when aligning memory addresses:</p>
+
+<ul>
+<li>The alignment boundary must be greater or equal to the size of a pointer</li>
+<li>The alignment boundary must be a power of 2</li>
+</ul>
+
+
+<p>One fast and generic method for aligning memory is to allocate a little bit more than needed in order to get to the next boundary, then store the original pointer in the space that was skipped over. It is important to keep the original pointer around because it will be needed when it is time to free that memory.</p>
+
+<p>Below is a modification of an alignment algorithm found in the Eigen<sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup> library. The following enhancements were made:</p>
+
+<ul>
+<li>Allow for user specified alignment</li>
+<li>Add compile time checks for alignment rules</li>
+<li>Provide a method for accessing the unaligned pointer</li>
+</ul>
+
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/mpl/assert.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/mpl/int.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/mpl/comparison.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/mpl/bitwise.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/mpl/arithmetic.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">bytes</span> <span class="o">=</span> <span class="mi">0</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Alignment</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="c1">// If an alignment is specified, it must be greater than or equal to</span>
+</span><span class='line'>   <span class="c1">// the size of a pointer.</span>
+</span><span class='line'>   <span class="n">BOOST_MPL_ASSERT</span><span class="p">((</span>
+</span><span class='line'>      <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">greater_equal</span><span class="o">&lt;</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">int_</span><span class="o">&lt;</span><span class="n">bytes</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">int_</span><span class="o">&lt;</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">&gt;</span>
+</span><span class='line'>   <span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// The alignment bytes must be a power of two</span>
+</span><span class='line'>   <span class="c1">// (n &amp; (n-1)) == 0</span>
+</span><span class='line'>   <span class="n">BOOST_MPL_ASSERT</span><span class="p">((</span>
+</span><span class='line'>      <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">equal_to</span><span class="o">&lt;</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">bitand_</span><span class="o">&lt;</span>
+</span><span class='line'>            <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">int_</span><span class="o">&lt;</span><span class="n">bytes</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">minus</span><span class="o">&lt;</span>
+</span><span class='line'>               <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">int_</span><span class="o">&lt;</span><span class="n">bytes</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>               <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">int_</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span>
+</span><span class='line'>            <span class="o">&gt;</span>
+</span><span class='line'>         <span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">mpl</span><span class="o">::</span><span class="n">int_</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">&gt;</span>
+</span><span class='line'>   <span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// In order for this to work, must allocate additional bytes</span>
+</span><span class='line'>   <span class="k">enum</span><span class="p">{</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Return an aligned pointer</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">align</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Round down to the previous multiple of X,</span>
+</span><span class='line'>      <span class="c1">// then move to the next multiple of X.</span>
+</span><span class='line'>      <span class="kt">void</span><span class="o">*</span> <span class="n">aligned_ptr</span> <span class="o">=</span>
+</span><span class='line'>         <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span>
+</span><span class='line'>            <span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+</span><span class='line'>               <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="p">(</span><span class="n">alignment</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+</span><span class='line'>            <span class="o">+</span> <span class="n">alignment</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Save the original pointer in the space we skipped over</span>
+</span><span class='line'>      <span class="o">*</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="n">aligned_ptr</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="n">aligned_ptr</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Retrieve the original pointer</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">unalign</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="o">*</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Specialize to not attempt alignment</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">enum</span><span class="p">{</span><span class="n">alignment</span> <span class="o">=</span> <span class="mi">0</span><span class="p">};</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">align</span>  <span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">){</span><span class="k">return</span> <span class="n">ptr</span><span class="p">;}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">unalign</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">){</span><span class="k">return</span> <span class="n">ptr</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using it is simple: Any pointer can be aligned, and any aligned pointer can be unaligned. However, it is important to remember that extra space must be allocated before attempting to align the pointer. The following example will show how to align a structure on a 16 byte boundary:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="c1">// Get the size of our structure</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Purposely offset the object by 8 bytes</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="mi">8</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Reserve size for our structure</span>
+</span><span class='line'>   <span class="c1">// plus alignment overhead</span>
+</span><span class='line'>   <span class="c1">// plus our test offset</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span> <span class="o">+</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">alignment</span> <span class="o">+</span> <span class="n">offset</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Print out the address of the malloc&#39;d memory pointer</span>
+</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Memory:          0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">memory</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Fill that memory up with &quot;C&quot; for &quot;Cleared&quot;</span>
+</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="mh">0xCC</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">memory</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Mark the object area as &quot;Allocated&quot;</span>
+</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="n">size</span> <span class="o">+</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">alignment</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Print out the address of where we will construct the object</span>
+</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Memory + Offset: 0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Construct an object offset into memory,</span>
+</span><span class='line'>   <span class="c1">// but use pointer alignment to realign it</span>
+</span><span class='line'>   <span class="n">Test</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">align</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">))</span> <span class="n">Test</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Print out the address of the aligned pointer</span>
+</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Ptr:             0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Print out the address of the unaligned pointer</span>
+</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Unaligned Ptr:   0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">unalign</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Lets see what it looks like</span>
+</span><span class='line'>   <span class="n">dump_memory_with_context</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Destroy the object</span>
+</span><span class='line'>   <span class="n">ptr</span><span class="o">-&gt;~</span><span class="n">Test</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Unalign the aligned pointer to get the original pointer back</span>
+</span><span class='line'>   <span class="c1">// then remove the offset to properly free</span>
+</span><span class='line'>   <span class="n">free</span><span class="p">(</span><span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">unalign</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="o">-</span> <span class="n">offset</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This outputs:</p>
+
+<pre><code>Memory:          0x00000000006648F0
+Memory + Offset: 0x00000000006648F8
+Ptr:             0x0000000000664900
+Unaligned Ptr:   0x00000000006648F8
+-----------------------------------------------------------------------
+64 bytes              0  1  2  3   4  5  6  7   8  9  A  B   C  D  E  F
+0x00000000006648F0:  CC CC CC CC  CC CC CC CC  F8 48 66 00  00 00 00 00
+0x0000000000664900:  11 AA AA AA  22 22 22 22  33 33 AA AA  AA AA AA AA
+0x0000000000664910:  44 44 44 44  44 44 44 44  AA AA AA AA  AA AA AA AA
+0x0000000000664920:  4B 00 00 00  00 00 00 00  31 00 00 00  00 00 00 00
+-----------------------------------------------------------------------
+</code></pre>
+
+<p>So what happened here? Here is the output color-coded:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/08/23/placement-new/01.png"></p>
+
+<ul>
+<li>Red: The debug markers</li>
+<li>Orange: The 16-byte aligned pointer address</li>
+<li>Yellow: The test object</li>
+<li>Green: The original unaligned / offset pointer address</li>
+<li>Blue: The beginning of the memory</li>
+</ul>
+
+
+<p>Now, remember that we offset the object 8 bytes into the beginning of the memory, which would be <code>0x006648F8</code>. The object was then aligned to the next 16-byte boundary, starting at <code>0x00664900</code> (16-byte aligned addresses always end in 0). In order to do this, an extra 16 bytes needed to be allocated, which can be seen with the red <code>0xAA</code> markers. Finally, the original pointer of <code>0x006648F8</code> was saved immediately before the aligned pointer in little endian (which in this case happens to have the same address as itself).</p>
+
+<blockquote><p><strong>Endianness</strong><br/>
+Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 bytes in a word)<sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>. The bytes can be ordered in one of two directions:</p>
+
+<ul>
+<li>Big Endian: The most significant byte is stored at the smallest memory address (the &ldquo;Big End&rdquo; first)</li>
+<li>Little Endian: The least significant byte is stored at the smallest memory address (the &ldquo;Little End&rdquo; first)</li>
+</ul>
+
+
+<p>Big Endian is the more intuitive method, as it matches reading left to right. It is chosen as the standard for transmitting words over a network, and is also known as &ldquo;Network Byte Order&rdquo;.</p>
+
+<p>Little Endian is more difficult for a human to read, but it has performance advantages and desirable properties. For example, a 32-bit memory location with content <code>4A 00 00 00</code> can be read at the same address as either 8-bit (value = <code>0x4A</code>), 16-bit (<code>0x004A</code>), or 32-bit (<code>0x0000004A</code>), all of which retain the same numeric value. Intel&rsquo;s x86/x64 architecture is little endian.</p>
+
+<p>It is important to be aware that endianness doesn&rsquo;t affect byte arrays or strings.</p></blockquote>
+
+<p>Here is what the memory would look like if we did the alignment without the forced 8 byte offset:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/08/23/placement-new/02.png"></p>
+
+<p>As you can see, even though the memory was already aligned, 16 bytes were wasted in order to get to the next aligned address. You can also see the original pointer address stored immediately before the aligned address. If we were doing 8 byte alignment, the extra 8 bytes that are wasted to align on the next boundary would contain the original address. Attempting to perform an alignment less than 8 means that there wouldn&rsquo;t be enough space for the original pointer; however, one of the rules of alignment states that the alignment must be greater than or equal to the size of a pointer, so we don&rsquo;t need to worry about that case.</p>
+
+<p>What about larger alignments? Here is what it would look like if we were doing 32-byte alignment with an 8 byte offset:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/08/23/placement-new/03.png"></p>
+
+<p>Generally, 32-byte alignment is unnecessary. There are cases where 16-byte alignment is needed though, such as when dealing with the SSE instructions on the CPU (for example, matrix multiplication with the Eigen library).</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://www.codinglabs.net/tutorial_memory_pool.aspx">Memory Pool Tutorial</a> &ndash; Marco Alamia<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="https://en.wikipedia.org/wiki/Data_structure_alignment">Data Structure Alignment</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p><a href="http://stackoverflow.com/questions/381244/purpose-of-memory-alignment">Purpose of Memory Alignment</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<li id="fn:4">
+<p><a href="https://github.com/RLovelett/eigen/blob/master/Eigen/src/Core/util/Memory.h">Eigen Handmade Aligned Malloc</a> &ndash; Benoit Jacob<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+<li id="fn:5">
+<p><a href="https://en.wikipedia.org/wiki/Endianness">Endianness</a><a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-23T14:11:27-04:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/23/placement-new/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/23/placement-new/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/" title="Previous Post: Yaml De/Serialization with Boost Fusion">&laquo; Yaml De/Serialization with Boost Fusion</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/23/placement-new/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/23/placement-new/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/08/23/placement-new/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/08/23/placement-new/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/08/23/placement-new/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/08/23/placement-new/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,2018 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Singletons - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="The Singleton pattern is a design pattern that restricts the instantiation of a class to one object. It is typically used for solving the problem of &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/08/02/singletons">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Singletons</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-02T15:55:58-04:00" pubdate data-updated="true">Aug 2<span>nd</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>The Singleton pattern is a design pattern that restricts the instantiation of a class to one object. It is typically used for solving the problem of resource contention, such that you need to manage a single instance of a resource. Singletons are misunderstood and difficult to implement correctly, hopefully this post can clear things up.</p>
+
+<p>It is known as an anti-pattern in that it is often misused or abused to the point where it can have a negative effect on a code base. Opponents to Singletons compare them to global variables, but that is not entirely true; As an object-oriented pattern, they can implement interfaces and be subclassed, which gives them more useful properties than a normal global. That said, Singletons are considered harmful<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> for a variety of reasons:</p>
+
+<ul>
+<li>Singletons make code hard to follow</li>
+<li>Singletons make code hard to test</li>
+<li>Singletons make code hard to maintain</li>
+<li>Singletons make code hard to secure</li>
+</ul>
+
+
+<p>The reason for this is because the use of a Singleton hides the dependency from the interface, giving program flow a path that is not easily visible.</p>
+
+<blockquote><p>Singletons are nothing more than global state. Global state makes it so your objects can secretly get hold of things which are not declared in their APIs, and, as a result, Singletons make your APIs into pathological liars. If you are the person who built the code originally, you know the true dependencies, but anyone who comes after you is baffled.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p></blockquote>
+
+<p>Note that there is a difference between having a single object and having a Singleton. Passing around a single instance to share among your classes via constructor references is known as dependency injection, and is a cleaner solution for most problems that a Singleton can solve. Take the following for example:</p>
+
+<pre><code>// Singleton approach
+Constructor(void)
+{
+    this-&gt;single_instance = Singleton::instance()
+}
+
+// Dependency Injection approach
+Constructor(SingleInstance&amp; instance) :
+    single_instance(instance)
+{
+
+}
+</code></pre>
+
+<p>With the second approach, it becomes very clear from the interface that the object depends on SingleInstance. This dependency is hidden with the first approach. The second approach can also be tested easier by subclassing the SingleInstance to make a testable version.</p>
+
+<p>Still, there are cases where Singletons are very useful:</p>
+
+<ul>
+<li>Debug Logging</li>
+<li>Memory Pools</li>
+<li>Factories
+
+<ul>
+<li><a href="https://sourcemaking.com/design_patterns/abstract_factory">Abstract Factory</a></li>
+<li><a href="https://sourcemaking.com/design_patterns/builder">Builder</a></li>
+<li><a href="https://sourcemaking.com/design_patterns/prototype">Prototype</a></li>
+</ul>
+</li>
+</ul>
+
+
+<p>In these types of situations, there is one object that has a single responsibility and must be accessible from anywhere. In particular, a memory pool using a Singleton is not very different from allocating memory from the heap using the global <code>::operator new</code>.</p>
+
+<p>Configuration is sometimes done with Singletons, however this isn&rsquo;t considered a good practice. Dependency injection is typically a better way to handle passing configuration through your program.</p>
+
+<h2>Creating a Singleton</h2>
+
+<p>Singletons conform to the following conditions<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>:</p>
+
+<ul>
+<li>Private static attribute in the class.</li>
+<li>Public static accessor function in the class.</li>
+<li>Perform creation on first use in the accessor function.</li>
+<li>All constructors are protected or private.</li>
+<li>Clients may only use the accessor function to manipulate the Singleton.</li>
+</ul>
+
+
+<p>Creating a Singleton is much harder than it appears, and there are very subtle considerations that are easy to miss or implement incorrectly. A few examples are:</p>
+
+<ul>
+<li>Lazy instantiation</li>
+<li>Proper destruction</li>
+<li>Thread safety</li>
+<li>Instruction reordering</li>
+</ul>
+
+
+<p>A first cut at a Singleton may look something like this:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">pointer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">T</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">*</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Running this produces the following output:</p>
+
+<pre><code>Beginning of main
+Hello!
+0x1e2a370 : 0x1e2a370
+</code></pre>
+
+<p>Notice the following:</p>
+
+<ul>
+<li>The constructor was only called once</li>
+<li>The addresses are the same, meaning there is only one object</li>
+<li>The destructor was never called</li>
+<li>The object was created lazily (on first request)</li>
+</ul>
+
+
+<blockquote><p><strong>Return a pointer or reference?</strong><br/>
+The advantage to returning a reference instead of a pointer is:</p>
+
+<ul>
+<li>You can be assured that there won&rsquo;t be a null pointer</li>
+<li>The user will be unable to delete the pointer</li>
+<li>No need to dereference to use overloaded operators</li>
+</ul>
+</blockquote>
+
+<p>This falls apart when multi-threading is introduced. Consider the following events:</p>
+
+<ol>
+<li>Thread 1 may get through line 8</li>
+<li>Thread 2 could pass all the way through to line 14</li>
+<li>Thread 1 then performs line 10 again</li>
+</ol>
+
+
+<p>This situation causes two <code>T</code>&rsquo;s plus a memory leak. Furthermore, both threads are now pointing at different objects.</p>
+
+<p>To make it thread safe, a mutex can be used:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number marked'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number marked'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number marked'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread/mutex.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line marked start end'>      <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">pointer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">T</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line marked start end'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">*</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line marked start end'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now, only one thread is able to pass line 10 at a time, making the logic that follows thread safe. However, mutexes are expensive to acquire, and every call to <code>instance</code> requires locking the mutex, even though it really only needs to be locked when the object needs to be created the very first time. So a common thing to do is check whether the instance needs to be created before locking the mutex:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number marked'>11</span>
+<span class='line-number marked'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number marked'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line marked start'>   <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line marked end'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">pointer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">T</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line marked start end'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This approach is called the Double-Checked Locking Pattern, or DCLP.</p>
+
+<h2>The Double-Checked Locking Pattern is Unsafe</h2>
+
+<p>Scott Meyers and Andrei Alexandrescu have discussed<sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup> the subtle issues with DCLP. Their paper as an interesting read; the problems boil down to the fact that the compiler may reorder instructions or the hardware may reorder memory accesses, and there was no way to express these constraints using the C++ language at the time (C++11 fixes these issues, as we will see later).</p>
+
+<p>For example, the compiler may do the following:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number marked'>17</span>
+<span class='line-number marked'>18</span>
+<span class='line-number marked'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line marked start'>         <span class="n">pointer</span> <span class="o">=</span>                     <span class="c1">// 3</span>
+</span><span class='line marked'>            <span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">));</span> <span class="c1">// 1</span>
+</span><span class='line marked end'>         <span class="k">new</span> <span class="p">(</span><span class="n">pointer</span><span class="p">)</span> <span class="n">T</span><span class="p">();</span>            <span class="c1">// 2</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here, the actual construction is broken down into three steps:</p>
+
+<ol>
+<li>Allocating memory for the object</li>
+<li>Constructing the object</li>
+<li>Assigning the pointer to the memory</li>
+</ol>
+
+
+<p>The paper claims that DCLP can only work if steps 1 and 2 are completed before step 3, however the compiler&rsquo;s optimizer is free to perform step 3 after step 1. This means there could be a brief moment where the pointer is pointing to allocated memory, but an unconstructed object. Imagine the following scenario:</p>
+
+<ol>
+<li>Thread 1 may get through line 10 (completing steps 1 and 3, but not 2)</li>
+<li>Thread 2 gets to line 3, passes the check, and skips to line 15, returning an unconstructed object</li>
+</ol>
+
+
+<p>This type of bug is very subtle and not obvious to the developer. Furthermore, these types of crashes are virtually impossible to track down.</p>
+
+<h2>Fixing the Double-Checked Locking Pattern</h2>
+
+<p>One way to get around the multi-threaded issues is to have one object for each thread, instead of one object globally. A per-thread Singleton<sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup> can be implemented like this:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/thread.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">ThreadSingleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>        <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">thread_specific_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">.</span><span class="n">get</span><span class="p">())</span>
+</span><span class='line'>        <span class="p">{</span>
+</span><span class='line'>           <span class="n">pointer</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">ThreadSingleton</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="n">run</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">ThreadSingleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">ThreadSingleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Thread 2: &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">boost</span><span class="o">::</span><span class="kr">thread</span> <span class="kr">thread</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="o">&amp;</span><span class="n">run</span><span class="p">);</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">ThreadSingleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">ThreadSingleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Thread 1: &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="kr">thread</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice how this method is closer to what we initially started with: A single check with no mutex. Because the thread specific pointer will never be accessed concurrently by multiple threads, this solution is inherently thread safe. Here are there results of running this code:</p>
+
+<pre><code>Beginning of main
+Hello!
+Thread 1: 0x17d96e0 : 0x17d96e0
+Hello!
+Thread 2: 0x7f7c500008c0 : 0x7f7c500008c0
+Goodbye!
+Goodbye!
+</code></pre>
+
+<p>As you can see, each thread creates (and destroys) its per-thread Singleton. You can see that each Singleton has a different address as well.</p>
+
+<blockquote><p><strong>Warning</strong><br/>
+Thread specific pointers should always be static. They use their address as the key to establish uniqueness. A program storing their thread specific pointer on the stack will have issues when two threads reach the same point in the program, because their addresses on the stack will match (remember that each thread has its own stack). This will cause the two pointers to believe they are pointing at the same<sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup>.</p></blockquote>
+
+<p>In some cases, this solution is acceptable. Most times, a true global Singleton is desired.</p>
+
+<p>The paper claims that the DCLP can be made safe with the addition of memory fences. These provide guarantees that reads will not be reordered before writes.
+The C++11 standard includes this capability, and Boost has made it available to C++03.
+In fact, Boost provides a solution in their documentation<sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup> (modified to match the templated format used earlier):</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number marked'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number marked'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number marked'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number marked'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number marked'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/atomic.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread/mutex.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line marked start end'>      <span class="n">T</span><span class="o">*</span> <span class="n">pointer</span> <span class="o">=</span> <span class="n">storage</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">memory_order_consume</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line marked start end'>         <span class="n">pointer</span> <span class="o">=</span> <span class="n">storage</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">memory_order_consume</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">pointer</span><span class="p">)</span>
+</span><span class='line'>         <span class="p">{</span>
+</span><span class='line'>            <span class="n">pointer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">T</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line marked start end'>            <span class="n">storage</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">pointer</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">memory_order_release</span><span class="p">);</span>
+</span><span class='line'>         <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line marked start end'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span> <span class="n">storage</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line marked start end'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">storage</span><span class="p">;</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Enhancing the Singleton</h2>
+
+<p>We still have the problem that the destructor is never called. The solution to this is to convert the raw pointer into a scoped_ptr. However, the atomics can only be used with primitive types. We need to apply some<sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup> transformations<sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup> to the code to decouple the atomic from the pointer:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/atomic.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread/mutex.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="kt">bool</span> <span class="n">created</span> <span class="o">=</span> <span class="n">storage</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">memory_order_consume</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">created</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="n">created</span> <span class="o">=</span> <span class="n">storage</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">memory_order_consume</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">created</span><span class="p">)</span>
+</span><span class='line'>         <span class="p">{</span>
+</span><span class='line'>            <span class="n">pointer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">T</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">storage</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">memory_order_release</span><span class="p">);</span>
+</span><span class='line'>         <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">*</span> <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">storage</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">*</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">storage</span><span class="p">;</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that the pointer is separated from the atomic, we can replace the pointer with the scoped pointer to get the following:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number marked'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number marked'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number marked'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// dclp.cpp</span>
+</span><span class='line'><span class="c1">// Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1">// it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1">// the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1">// (at your option) any later version.</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1">// GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1">// along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/atomic.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread/mutex.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/scoped_ptr.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="kt">bool</span> <span class="n">created</span> <span class="o">=</span> <span class="n">storage</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">memory_order_consume</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">created</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span><span class="o">::</span><span class="n">scoped_lock</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="n">created</span> <span class="o">=</span> <span class="n">storage</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">memory_order_consume</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">created</span><span class="p">)</span>
+</span><span class='line'>         <span class="p">{</span>
+</span><span class='line marked start end'>            <span class="n">pointer</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">storage</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">memory_order_release</span><span class="p">);</span>
+</span><span class='line'>         <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line marked start end'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">storage</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line marked start end'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">atomic</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">storage</span><span class="p">;</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">boost</span><span class="o">::</span><span class="n">mutex</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">mutex</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At this point we have a flexible and safe implementation of the DCLP. The output is:</p>
+
+<pre><code>Beginning of main
+Hello!
+0x19626e0 : 0x19626e0
+Goodbye!
+</code></pre>
+
+<h2>Boost Pool Method</h2>
+
+<p>As I mentioned, I needed a Singleton for a memory pool. Naturally, I decided to see how Boost handles this for their own pool. I searched for all the boost include files with Singleton in their name:</p>
+
+<pre><code>$ find /usr/include/boost/ -name '*singleton*' -type f
+
+/usr/include/boost/log/detail/singleton.hpp
+/usr/include/boost/test/utils/trivial_singleton.hpp
+/usr/include/boost/accumulators/numeric/detail/pod_singleton.hpp
+/usr/include/boost/thread/detail/singleton.hpp
+/usr/include/boost/pool/singleton_pool.hpp
+/usr/include/boost/serialization/singleton.hpp
+/usr/include/boost/interprocess/detail/windows_intermodule_singleton.hpp
+/usr/include/boost/interprocess/detail/intermodule_singleton.hpp
+/usr/include/boost/interprocess/detail/intermodule_singleton_common.hpp
+/usr/include/boost/interprocess/detail/portable_intermodule_singleton.hpp
+</code></pre>
+
+<p>Then I used my IDE to dive into each one and see how it was implemented:</p>
+
+<pre><code>#include &lt;boost/log/detail/singleton.hpp&gt;                      // Call once method
+#include &lt;boost/test/utils/trivial_singleton.hpp&gt;              // Meyer's method
+#include &lt;boost/accumulators/numeric/detail/pod_singleton.hpp&gt; // Static method
+#include &lt;boost/thread/detail/singleton.hpp&gt;                   // Meyer's method
+#include &lt;boost/pool/singleton_pool.hpp&gt;                       // Pool method
+#include &lt;boost/serialization/singleton.hpp&gt;                   // Meyer's method
+</code></pre>
+
+<p>The Meyer&rsquo;s method and the call once method will be discussed later. The static method is simply a wrapper to make something static and isn&rsquo;t particularly interesting:</p>
+
+<pre><code>template&lt;typename T&gt;
+struct pod_singleton
+{
+    static T instance;
+};
+
+template&lt;typename T&gt; 
+T pod_singleton&lt;T&gt;::instance;
+</code></pre>
+
+<p>The real interesting method, that I haven&rsquo;t seen anywhere else yet, is the Boost Pool method. The code included in the later versions of Boost (~1.55) is more difficult to read, however a version from 1.39<sup id="fnref:10"><a href="#fn:10" rel="footnote">10</a></sup> is very clear and well commented. The code is repeated below with some minor adjustments:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// Copyright (C) 2000 Stephen Cleary</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// Distributed under the Boost Software License, Version 1.0. (See</span>
+</span><span class='line'><span class="c1">// accompanying file LICENSE_1_0.txt or copy at</span>
+</span><span class='line'><span class="c1">// http://www.boost.org/LICENSE_1_0.txt)</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// See http://www.boost.org for updates, documentation, and revision history.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// The following helper classes are placeholders for a generic &quot;singleton&quot;</span>
+</span><span class='line'><span class="c1">//  class.  The classes below support usage of singletons, including use in</span>
+</span><span class='line'><span class="c1">//  program startup/shutdown code, AS LONG AS there is only one thread</span>
+</span><span class='line'><span class="c1">//  running before main() begins, and only one thread running after main()</span>
+</span><span class='line'><span class="c1">//  exits.</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// This class is also limited in that it can only provide singleton usage for</span>
+</span><span class='line'><span class="c1">//  classes with default constructors.</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// The design of this class is somewhat twisted, but can be followed by the</span>
+</span><span class='line'><span class="c1">//  calling inheritance.  Let us assume that there is some user code that</span>
+</span><span class='line'><span class="c1">//  calls &quot;singleton_default&lt;T&gt;::instance()&quot;.  The following (convoluted)</span>
+</span><span class='line'><span class="c1">//  sequence ensures that the same function will be called before main():</span>
+</span><span class='line'><span class="c1">//    instance() contains a call to create_object.do_nothing()</span>
+</span><span class='line'><span class="c1">//    Thus, object_creator is implicitly instantiated, and create_object</span>
+</span><span class='line'><span class="c1">//      must exist.</span>
+</span><span class='line'><span class="c1">//    Since create_object is a static member, its constructor must be</span>
+</span><span class='line'><span class="c1">//      called before main().</span>
+</span><span class='line'><span class="c1">//    The constructor contains a call to instance(), thus ensuring that</span>
+</span><span class='line'><span class="c1">//      instance() will be called before main().</span>
+</span><span class='line'><span class="c1">//    The first time instance() is called (i.e., before main()) is the</span>
+</span><span class='line'><span class="c1">//      latest point in program execution where the object of type T</span>
+</span><span class='line'><span class="c1">//      can be created.</span>
+</span><span class='line'><span class="c1">//    Thus, any call to instance() will auto-magically result in a call to</span>
+</span><span class='line'><span class="c1">//      instance() before main(), unless already present.</span>
+</span><span class='line'><span class="c1">//  Furthermore, since the instance() function contains the object, instead</span>
+</span><span class='line'><span class="c1">//  of the singleton_default class containing a static instance of the</span>
+</span><span class='line'><span class="c1">//  object, that object is guaranteed to be constructed (at the latest) in</span>
+</span><span class='line'><span class="c1">//  the first call to instance().  This permits calls to instance() from</span>
+</span><span class='line'><span class="c1">//  static code, even if that code is called before the file-scope objects</span>
+</span><span class='line'><span class="c1">//  in this file have been initialized.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// T must be: no-throw default constructible and no-throw destructible</span>
+</span><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Singleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">object_creator</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// This constructor does nothing more than ensure that instance()</span>
+</span><span class='line'>      <span class="c1">//  is called before main() begins, thus creating the static</span>
+</span><span class='line'>      <span class="c1">//  T object before multithreading race issues can come up.</span>
+</span><span class='line'>      <span class="n">object_creator</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="kr">inline</span> <span class="kt">void</span> <span class="n">do_nothing</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{}</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">object_creator</span> <span class="n">create_object</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">typedef</span> <span class="n">T</span> <span class="n">object_type</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// If, at any point (in user code), singleton_default&lt;T&gt;::instance()</span>
+</span><span class='line'>    <span class="c1">//  is called, then the following function is instantiated.</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">object_type</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// This is the object that we return a reference to.</span>
+</span><span class='line'>      <span class="c1">// It is guaranteed to be created before main() begins because of</span>
+</span><span class='line'>      <span class="c1">//  the next line.</span>
+</span><span class='line'>      <span class="k">static</span> <span class="n">object_type</span> <span class="n">obj</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// The following line does nothing else than force the instantiation</span>
+</span><span class='line'>      <span class="c1">//  of singleton_default&lt;T&gt;::create_object, whose constructor is</span>
+</span><span class='line'>      <span class="c1">//  called before main() begins.</span>
+</span><span class='line'>      <span class="n">create_object</span><span class="p">.</span><span class="n">do_nothing</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="n">obj</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">typename</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">object_creator</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">create_object</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the output:</p>
+
+<pre><code>Hello!
+Beginning of main
+0x64dc88 : 0x64dc88
+Goodbye!
+</code></pre>
+
+<p>Notice that this method does not use lazy instantiation, but rather it uses <em>eager instantiation</em>, meaning the Singleton is created before <code>main</code> is called. In addition, it properly calls the destructor and is thread safe without any locks or atomics. Despite the author describing this method as &ldquo;twisted&rdquo;, I think it is rather elegant. Unfortunately, it lacks the ability to do per-thread singletons, and its eager instantiation is a drawback.</p>
+
+<h2>Meyer&rsquo;s Method (C++11)</h2>
+
+<p>Things get much easier in C++11. Scott Meyers introduced a very simple and elegant Singleton back in 1996<sup id="fnref:11"><a href="#fn:11" rel="footnote">11</a></sup>:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">static</span> <span class="n">T</span> <span class="n">singleton</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">singleton</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>   <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Outputs:</p>
+
+<pre><code>Beginning of main
+Hello!
+0x64dc78 : 0x64dc78
+Goodbye!
+</code></pre>
+
+<p>This method is only thread safe with C++11 and up. It uses lazy instantiation, properly calls the destructor, and doesn&rsquo;t use any mutexes or atomics. With C++11, it is now considered the correct way to implement a Singleton.</p>
+
+<h2>Boost Call Once Method</h2>
+
+<p>Meyer&rsquo;s Singleton cannot be used in C++03, but we can get pretty close to it using Boost&rsquo;s <code>call_once</code> capabilities.</p>
+
+<blockquote><p><strong>boost::call_once</strong><br/>
+The call_once function and once_flag type (statically initialized to BOOST_ONCE_INIT) can be used to run a routine exactly once. This can be used to initialize data in a thread-safe manner.<sup id="fnref:12"><a href="#fn:12" rel="footnote">12</a></sup></p></blockquote>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/scoped_ptr.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread/once.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/noncopyable.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span> <span class="o">:</span> <span class="k">private</span> <span class="n">boost</span><span class="o">::</span><span class="n">noncopyable</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">boost</span><span class="o">::</span><span class="n">call_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">Singleton</span><span class="o">::</span><span class="n">create</span><span class="p">,</span> <span class="n">flag</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Singleton</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">pointer</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span> <span class="n">flag</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">flag</span> <span class="o">=</span> <span class="n">BOOST_ONCE_INIT</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Output:</p>
+
+<pre><code>Beginning of main
+Hello!
+0x1d20370 : 0x1d20370
+Goodbye!
+</code></pre>
+
+<h2>My Method</h2>
+
+<p>I&rsquo;m a pretty big fan of the <code>call_once</code> method:</p>
+
+<ul>
+<li>Avoids the complications of DCLP</li>
+<li>Aligns with the preferred C++11 standard method of achieving a Singleton</li>
+<li>Works with C++03</li>
+<li>Properly handles destruction</li>
+<li>Properly handles multi-threading</li>
+<li>Employs lazy instantiation</li>
+</ul>
+
+
+<p>With some clever manipulations, we can also get this to work as a per-thread singleton:</p>
+
+<ol>
+<li>Template the pointer type</li>
+<li>Store the once flag inside a pointer</li>
+<li>Move the code to a base class</li>
+<li>Specialize an implementation for each supported pointer type</li>
+<li>Thread specific pointers should check if their flag is null when getting an instance</li>
+</ol>
+
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// singleton.cpp</span>
+</span><span class='line'><span class="c1">// Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1">// it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1">// the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1">// (at your option) any later version.</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1">// but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1">// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1">// GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1">// along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;boost/scoped_ptr.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread/once.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread/tss.hpp&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/noncopyable.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">namespace</span> <span class="n">detail</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">P</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="k">class</span> <span class="nc">SingletonImpl</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span>
+</span><span class='line'>            <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">pointer_type</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="k">class</span> <span class="nc">SingletonBase</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>   <span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">reference</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span><span class="o">&amp;</span> <span class="n">flag</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">boost</span><span class="o">::</span><span class="n">call_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">SingletonBase</span><span class="o">::</span><span class="n">create</span><span class="p">,</span> <span class="n">flag</span><span class="p">);</span>
+</span><span class='line'>         <span class="k">return</span> <span class="o">*</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">static</span> <span class="kt">void</span> <span class="n">create</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="n">pointer</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="k">new</span> <span class="n">T</span><span class="p">());</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span> <span class="k">class</span> <span class="nc">P</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">SingletonBase</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">P</span><span class="o">&gt;::</span><span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="k">class</span> <span class="nc">SingletonImpl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">:</span> <span class="k">public</span> <span class="n">SingletonBase</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>   <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="k">return</span> <span class="n">SingletonImpl</span><span class="o">::</span><span class="n">reference</span><span class="p">(</span><span class="o">*</span><span class="n">once_flag_ptr</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span><span class="o">&gt;</span> <span class="n">once_flag_ptr</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">SingletonImpl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&gt;::</span><span class="n">once_flag_ptr</span><span class="p">(</span><span class="k">new</span> <span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="k">class</span> <span class="nc">SingletonImpl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">thread_specific_ptr</span><span class="o">&gt;</span>
+</span><span class='line'>      <span class="o">:</span> <span class="k">public</span> <span class="n">SingletonBase</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">thread_specific_ptr</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>   <span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">static</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">instance</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">once_flag_ptr</span><span class="p">.</span><span class="n">get</span><span class="p">())</span>
+</span><span class='line'>            <span class="n">once_flag_ptr</span><span class="p">.</span><span class="n">reset</span><span class="p">(</span><span class="k">new</span> <span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="k">return</span> <span class="n">SingletonImpl</span><span class="o">::</span><span class="n">reference</span><span class="p">(</span><span class="o">*</span><span class="n">once_flag_ptr</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">static</span> <span class="n">boost</span><span class="o">::</span><span class="n">thread_specific_ptr</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span><span class="o">&gt;</span> <span class="n">once_flag_ptr</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">boost</span><span class="o">::</span><span class="n">thread_specific_ptr</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">once_flag</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">SingletonImpl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">thread_specific_ptr</span><span class="o">&gt;::</span><span class="n">once_flag_ptr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">/////////////////////////////////////////////////////////////////////////////</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Singleton</span> <span class="o">:</span> <span class="k">public</span> <span class="n">detail</span><span class="o">::</span><span class="n">SingletonImpl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">scoped_ptr</span><span class="o">&gt;</span><span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">ThreadSingleton</span> <span class="o">:</span> <span class="k">public</span> <span class="n">detail</span><span class="o">::</span><span class="n">SingletonImpl</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">thread_specific_ptr</span><span class="o">&gt;</span><span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#include &lt;iostream&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;boost/thread.hpp&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Hello</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Hello!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'>   <span class="o">~</span><span class="n">Hello</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Goodbye!&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">void</span> <span class="n">run</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">ThreadSingleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">ThreadSingleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Thread 2: &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Beginning of main&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">boost</span><span class="o">::</span><span class="kr">thread</span> <span class="kr">thread</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="o">&amp;</span><span class="n">run</span><span class="p">);</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Hello</span><span class="o">&amp;</span> <span class="n">hello2</span> <span class="o">=</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Hello</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Thread 1: &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; : &quot;</span> <span class="o">&lt;&lt;</span> <span class="o">&amp;</span><span class="n">hello2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="kr">thread</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Outputs:</p>
+
+<pre><code>Beginning of main
+Hello!
+Thread 1: 0x109a700 : 0x109a700
+Hello!
+Thread 2: 0x7f9528000930 : 0x7f9528000930
+Goodbye!
+Goodbye!
+</code></pre>
+
+<p>And there you have it. Sometimes Singletons are good, sometimes they are evil, and sometimes they are difficult to implement correctly. Hopefully now you understand a little more about this pattern.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://www.object-oriented-security.org/lets-argue/singletons">Singletons Considered Harmful</a> &ndash; Kenton Varda<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="http://misko.hevery.com/2008/08/17/singletons-are-pathological-liars/">Singletons are Pathological Liars</a> &ndash; Misko Hevery<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p><a href="https://sourcemaking.com/design_patterns/singleton">Singleton Design Pattern</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<li id="fn:4">
+<p><a href="http://www.aristeia.com/Papers/DDJ_Jul_Aug_2004_revised.pdf">C++ and the Perils of Double-Checked Locking</a> &ndash; Scott Meyers and Andrei Alexandrescu<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+<li id="fn:5">
+<p><a href="http://www.gameafar.com/gaffer/singletons">Two Useful Singleton Templates</a> &ndash; Lachlan Orr<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
+<li id="fn:6">
+<p><a href="http://www.mr-edd.co.uk/blog/thread_specific_ptr_problem">A problem with boost::thread_specific_ptr</a> &ndash; Edd Dawson<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
+<li id="fn:7">
+<p><a href="http://www.boost.org/doc/libs/1_58_0/doc/html/atomic/usage_examples.html#boost_atomic.usage_examples.singleton">Boost Atomic Usage Examples</a><a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
+<li id="fn:8">
+<p><a href="http://preshing.com/20130922/acquire-and-release-fences/">Acquire and Release Fences</a> &ndash; Jeff Preshing<a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
+<li id="fn:9">
+<p><a href="http://stackoverflow.com/questions/30587666/is-this-implementation-of-double-checked-lock-pattern-dclp-in-c11-is-correct">Is this implementation of DCLP in C++11 correct?</a> &ndash; User TCS<a href="#fnref:9" rev="footnote">&#8617;</a></p></li>
+<li id="fn:10">
+<p><a href="http://www.boost.org/doc/libs/1_39_0/boost/pool/detail/singleton.hpp">Boost Pool Singleton</a> &ndash; Stephen Cleary<a href="#fnref:10" rev="footnote">&#8617;</a></p></li>
+<li id="fn:11">
+<p><a href="http://www.devarticles.com/c/a/Cplusplus/C-plus-plus-In-Theory-The-Singleton-Pattern-Part-I/4/">The Meyers Singleton</a> &ndash; Scott Meyers<a href="#fnref:11" rev="footnote">&#8617;</a></p></li>
+<li id="fn:12">
+<p><a href="http://www.boost.org/doc/libs/1_32_0/doc/html/call_once.html">Boost Call Once</a><a href="#fnref:12" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-02T15:55:58-04:00" pubdate data-updated="true">Aug 2<span>nd</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/02/singletons/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/02/singletons/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/07/01/object-counter/" title="Previous Post: Object Counter">&laquo; Object Counter</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/" title="Next Post: Yaml De/Serialization with Boost Fusion">Yaml De/Serialization with Boost Fusion &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/02/singletons/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/02/singletons/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/08/02/singletons/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/08/02/singletons/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/08/02/singletons/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/08/02/singletons/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

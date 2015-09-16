@@ -1,0 +1,578 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Temporary Security Mirror - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="Sometimes you need to perform a task in a secure way that leaves no trace on your computer. The traditional way of accomplishing this is to boot from &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Temporary Security Mirror</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-02T15:31:12-04:00" pubdate data-updated="true">May 2<span>nd</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Sometimes you need to perform a task in a secure way that leaves no trace on your computer. The traditional way of accomplishing this is to boot from a live CD like <a href="https://tails.boum.org/">Tails</a>. The problem with this is that you might need the software, drivers, or setup you have on your main operating system to accomplish the task. An example of this might be creating a Bitcoin Paper Wallet with a proprietary printer; it might be too difficult to set up the printer on a live CD for a one-off task.</p>
+
+<p>Below is a script that help for these specialized cases. It creates a secure mirror of your system that never touches the disk; anything you do is wiped away on shutdown. Best part is, you can use this from an already running system.</p>
+
+<p>This script will:</p>
+
+<ul>
+<li>Disable swap</li>
+<li>Do a read only bind mount of root</li>
+<li>Apply a tmpfs aufs layer over the read only root view</li>
+<li>Start an X server and chroot into the root view</li>
+</ul>
+
+
+<p>The end result is a temporary secure mirror of your running system.<br/>
+You need the following installed for this to work:</p>
+
+<ul>
+<li>aufs-tools</li>
+<li>Xephyr</li>
+<li>fluxbox</li>
+</ul>
+
+
+<p>Simply run <code>tsm.sh</code> and you will get a window of your running system, where anything you do is forgotten when closed. You will have access to all your files and devices. For more security, close any applications and disconnect your internet before running this script. When finished, close the window and restart your computer.</p>
+
+<figure class='code'><figcaption><span> (tsm.sh)</span><a href='/downloads/code/tsm.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># tsm.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Check to make sure we are running as root</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[[</span> <span class="nv">$EUID</span> -ne 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;This script must be run as root&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Define variables</span>
+</span><span class='line'><span class="nv">insecure_root</span><span class="o">=</span>insecure_root
+</span><span class='line'><span class="nv">tmpfs_redirect</span><span class="o">=</span>tmpfs_redirect
+</span><span class='line'><span class="nv">secure_root</span><span class="o">=</span>secure_root
+</span><span class='line'>
+</span><span class='line'><span class="c"># Disable Swap</span>
+</span><span class='line'>swapoff -a
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create the mount points</span>
+</span><span class='line'>mkdir -p <span class="nv">$insecure_root</span>
+</span><span class='line'>mkdir -p <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>mkdir -p <span class="nv">$secure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Clean up the mount points</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$insecure_root</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$secure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Bind mount the root directory</span>
+</span><span class='line'>mount --bind / <span class="nv">$insecure_root</span>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$insecure_root</span> <span class="o">||</span> umount -lf <span class="nv">$insecure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remount the root directory as read only</span>
+</span><span class='line'>mount -o remount,ro,bind <span class="nv">$insecure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a tmpfs filesystem</span>
+</span><span class='line'>mount -t tmpfs tmpfs <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$tmpfs_redirect</span> <span class="o">||</span> umount -lf <span class="nv">$tmpfs_redirect</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Aufs mount to redirect all </span>
+</span><span class='line'>mount -t aufs -o <span class="nv">br</span><span class="o">=</span><span class="nv">$tmpfs_redirect</span><span class="o">=</span>rw:<span class="nv">$insecure_root</span><span class="o">=</span>ro none <span class="nv">$secure_root</span>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span> <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the necessary filesystems in the chroot</span>
+</span><span class='line'>mount --bind /dev <span class="nv">$secure_root</span>/dev
+</span><span class='line'>mount -t proc none <span class="nv">$secure_root</span>/proc
+</span><span class='line'>mount -t sysfs none <span class="nv">$secure_root</span>/sys
+</span><span class='line'>mount -t devpts none <span class="nv">$secure_root</span>/dev/pts
+</span><span class='line'>
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/dev <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/dev
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/proc <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/proc
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/sys <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/sys
+</span><span class='line'>add_on_exit_reverse umount <span class="nv">$secure_root</span>/dev/pts <span class="o">||</span> umount -lf <span class="nv">$secure_root</span>/dev/pts
+</span><span class='line'>
+</span><span class='line'><span class="c"># Everything is set up, enter the chroot</span>
+</span><span class='line'><span class="nb">set</span> +e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Start the nested X server</span>
+</span><span class='line'>Xephyr -screen 1024x768 -name <span class="s2">&quot;Temporary Security Mirror&quot;</span> -title <span class="s2">&quot;Temporary Security Mirror&quot;</span> :1 &amp;
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for the X server to start</span>
+</span><span class='line'>sleep 5
+</span><span class='line'>
+</span><span class='line'><span class="c"># Chroot in and startx</span>
+</span><span class='line'>chroot <span class="nv">$secure_root</span> env <span class="nv">DISPLAY</span><span class="o">=</span>localhost:1 /usr/bin/fluxbox
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for things to settle down</span>
+</span><span class='line'>sleep 5
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-05-02T15:31:12-04:00" pubdate data-updated="true">May 2<span>nd</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/04/26/bitcoin-analogy/" title="Previous Post: A Simple Bitcoin Analogy">&laquo; A Simple Bitcoin Analogy</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/05/21/boost-fusion-json-serializer/" title="Next Post: Boost Fusion Json Serializer">Boost Fusion Json Serializer &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/05/02/temporary-security-mirror/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

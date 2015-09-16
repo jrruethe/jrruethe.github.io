@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# star
+# Copyright (C) 2015 Joe Ruether jrruethe@gmail.com
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# Creates a squashed truecrypt archive (star)
+
+# $1 = Directory to star
+
+# Stop on any error
+set -e
+
+# Declare an array of tasks to perform on exit
+declare -a on_exit_items
+
+# This function is run on exit
+function on_exit()
+{
+    for i in "${on_exit_items[@]}"
+    do
+        eval $i
+    done
+}
+
+# Add to the list of tasks to run on exit
+function add_on_exit()
+{
+    local n=${#on_exit_items[*]}
+    on_exit_items[$n]="$*"
+    if [[ $n -eq 0 ]]; then
+        trap on_exit EXIT
+    fi
+}
+
+# Make sure enough arguments were specified
+if [ -z $1 ]; then
+   echo "Usage: $0 <directory> [name]"
+   exit 1
+fi
+
+# Make sure the first argument is an existing directory
+if [ ! -d $1 ]; then
+   echo "Directory does not exist: $1"
+   exit 1
+fi
+
+# Save some variables
+directory=${1%/}
+name=${2-$directory}
+sfs=$name.sfs
+star=$name.star
+
+# Get the password
+echo -n 'Enter the password to use:'
+read -s password
+echo
+echo -n 'Repeat the password:'
+read -s password_repeat
+echo
+
+# Check that the passwords match
+if [ "$password" != "$password_repeat" ]; then
+   echo 'Passwords do not match'
+   exit 1
+fi
+
+# Squash the directory
+mksquashfs $directory $sfs -noappend -b 1048576 > /dev/null 2>&1
+
+# Clean this file up on exit
+add_on_exit shred -f $sfs
+
+# Get the size of the squashfs, add 512 blocks of size 512
+sfssize=`stat --printf="%s" $sfs`
+starsize=`expr $sfssize + 262144`
+
+# Make a truecrypt volume
+sudo truecrypt -t --non-interactive -c $star --size=$starsize --filesystem=none --encryption=AES --hash=SHA-512 --password=$password > /dev/null 2>&1
+
+# Mount the truecrypt volume
+sudo truecrypt -t --non-interactive --filesystem=none --password=$password $star > /dev/null 2>&1
+
+# Get the truecrypt device name
+starloc=`readlink -f $star`
+devname=`truecrypt -t --non-interactive -l | grep $starloc | awk '{print $3}'`
+
+# Unmount the volume on exit
+add_on_exit sudo truecrypt -t --non-interactive -d $starloc > /dev/null 2>&1
+
+# Copy the squashfs into the truecrypt volume
+sudo dd if=$sfs of=$devname bs=64K > /dev/null 2>&1
+
+# Set permissions
+sudo chmod 755 $star
+
+# Synchronize the filesystem
+sync
+
+echo 'Success'
+

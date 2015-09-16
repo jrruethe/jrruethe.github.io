@@ -1,0 +1,1125 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Squashed Truecrypt Archive - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="This post presents a script that can create a squashfs filesystem inside of a truecrypt container.
+This has many benefits over encrypted zip files as &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Squashed Truecrypt Archive</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-30T20:32:22-04:00" pubdate data-updated="true">Mar 30<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post presents a script that can create a squashfs filesystem inside of a truecrypt container.<br/>
+This has many benefits over encrypted zip files as well as normal truecrypt containers:</p>
+
+<ul>
+<li>Resulting file can be mounted and accessed directly
+
+<ul>
+<li>No need to &ldquo;unzip&rdquo; to the hard drive</li>
+<li>No chance for leaking unencrypted data to the hard drive</li>
+</ul>
+</li>
+<li>Achieve both good compression as well as strong encryption
+
+<ul>
+<li>Better compression ratio than NTFS, BTRFS, GZIP, BZIP2</li>
+</ul>
+</li>
+<li>Truecrypt container is only as large as it needs to be
+
+<ul>
+<li>No need to guess the approximate size of the compressed result before compressing</li>
+</ul>
+</li>
+<li>Resulting file is immutable
+
+<ul>
+<li>Making changes is still possible with an easy workaround, described below</li>
+</ul>
+</li>
+</ul>
+
+
+<p>First, the script. It is named <code>star</code>, for &ldquo;<strong>S</strong>quashed <strong>T</strong>ruecrypt <strong>AR</strong>chive&rdquo;. You will need the following to run it:</p>
+
+<ul>
+<li>squashfs-tools</li>
+<li>truecrypt</li>
+<li>aufs-tools</li>
+</ul>
+
+
+<figure class='code'><figcaption><span> (star)</span><a href='/downloads/code/star' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># star</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Creates a squashed truecrypt archive (star)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Directory to star</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;directory&gt; [name]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing directory</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">directory</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
+</span><span class='line'><span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="p">-</span><span class="nv">$directory</span><span class="k">}</span>
+</span><span class='line'><span class="nv">sfs</span><span class="o">=</span><span class="nv">$name</span>.sfs
+</span><span class='line'><span class="nv">star</span><span class="o">=</span><span class="nv">$name</span>.star
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the password</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Enter the password to use:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Repeat the password:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password_repeat
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Check that the passwords match</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$password&quot;</span> !<span class="o">=</span> <span class="s2">&quot;$password_repeat&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s1">&#39;Passwords do not match&#39;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Squash the directory</span>
+</span><span class='line'>mksquashfs <span class="nv">$directory</span> <span class="nv">$sfs</span> -noappend -b 1048576 &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Clean this file up on exit</span>
+</span><span class='line'>add_on_exit shred -f <span class="nv">$sfs</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the size of the squashfs, add 512 blocks of size 512</span>
+</span><span class='line'><span class="nv">sfssize</span><span class="o">=</span><span class="sb">`</span>stat --printf<span class="o">=</span><span class="s2">&quot;%s&quot;</span> <span class="nv">$sfs</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">starsize</span><span class="o">=</span><span class="sb">`</span>expr <span class="nv">$sfssize</span> + 262144<span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make a truecrypt volume</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive -c <span class="nv">$star</span> --size<span class="o">=</span><span class="nv">$starsize</span> --filesystem<span class="o">=</span>none --encryption<span class="o">=</span>AES --hash<span class="o">=</span>SHA-512 --password<span class="o">=</span><span class="nv">$password</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the truecrypt volume</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --filesystem<span class="o">=</span>none --password<span class="o">=</span><span class="nv">$password</span> <span class="nv">$star</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the truecrypt device name</span>
+</span><span class='line'><span class="nv">starloc</span><span class="o">=</span><span class="sb">`</span>readlink -f <span class="nv">$star</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">devname</span><span class="o">=</span><span class="sb">`</span>truecrypt -t --non-interactive -l | grep <span class="nv">$starloc</span> | awk <span class="s1">&#39;{print $3}&#39;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unmount the volume on exit</span>
+</span><span class='line'>add_on_exit sudo truecrypt -t --non-interactive -d <span class="nv">$starloc</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Copy the squashfs into the truecrypt volume</span>
+</span><span class='line'>sudo dd <span class="k">if</span><span class="o">=</span><span class="nv">$sfs</span> <span class="nv">of</span><span class="o">=</span><span class="nv">$devname</span> <span class="nv">bs</span><span class="o">=</span>64K &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Set permissions</span>
+</span><span class='line'>sudo chmod 755 <span class="nv">$star</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Synchronize the filesystem</span>
+</span><span class='line'>sync
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s1">&#39;Success&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is an example of how to use it:</p>
+
+<pre><code>$ mkdir secret_stuff
+$ dd if=/dev/urandom bs=1MB count=10 &gt; secret_stuff/secret_data.bin
+10+0 records in
+10+0 records out
+10000000 bytes (10 MB) copied, 0.741577 s, 13.5 MB/s
+
+$ ls
+secret_stuff  star
+
+$ ./star 
+Usage: ./star &lt;directory&gt; [name]
+
+$ ./star secret_stuff
+Enter the password to use:
+Repeat the password:
+Success
+
+$ ls
+secret_stuff  secret_stuff.star  star
+
+$ mkdir mnt
+$ sudo truecrypt -t secret_stuff.star 
+Enter mount directory [default]: mnt
+Enter password for /home/joe/Downloads/temp/secret_stuff.star: 
+Enter keyfile [none]: 
+Protect hidden volume (if any)? (y=Yes/n=No) [No]: 
+
+$ ls mnt/
+secret_data.bin
+
+$ sha256sum secret_stuff/secret_data.bin 
+5342d4e85a221df35c5beda80e7b93b609fca732b908b6fd43febfcc89c324ea  secret_stuff/secret_data.bin
+$ sha256sum mnt/secret_data.bin 
+5342d4e85a221df35c5beda80e7b93b609fca732b908b6fd43febfcc89c324ea  mnt/secret_data.bin
+</code></pre>
+
+<p>The resulting file is immutable. This may seem like a downside at first, but it can be beneficial. For example, it can be mounted by multiple users simultaneously when shared via Dropbox or Bittorrent Sync, and it is easy to version control.</p>
+
+<p>Making secure modifications to the archive is possible because the archive allows direct access via mounting. This is something that cannot be easily done with a normal zip file or tarball. By using a tmpfs filesystem as a writable aufs layer on top of the archive, edits can be made in memory that never touch the hard drive, so your encrypted data stays secure. Then, a new archive can be created from that tmpfs layer.</p>
+
+<p>Layers can be kept separate and treated as diffs (similar to how Docker containers operate), or they can be &ldquo;resquashed&rdquo; together for maximum compression. It all depends on the user&rsquo;s needs.</p>
+
+<p>Here is a script that mounts a tmpfs aufs layer on top of the archive to allow edits.</p>
+
+<figure class='code'><figcaption><span> (mount_star.sh)</span><a href='/downloads/code/mount_star.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># mount_star.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mounts a squashed truecrypt archive</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Star to mount</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;*.star&gt;&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">star_file</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">star_name</span><span class="o">=</span><span class="k">${</span><span class="nv">star_file</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'><span class="nv">star_old</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_old
+</span><span class='line'><span class="nv">star_changes</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_changes
+</span><span class='line'><span class="nv">star_new</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_new
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the password</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Enter the password:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make the directories</span>
+</span><span class='line'>mkdir -p <span class="nv">$star_old</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_old</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$star_changes</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_changes</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$star_new</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_new</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the star file</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$password</span> <span class="nv">$star_file</span> <span class="nv">$star_old</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$star_old</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the tmpfs</span>
+</span><span class='line'>sudo mount -t tmpfs tmpfs <span class="nv">$star_changes</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$star_changes</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the aufs</span>
+</span><span class='line'>sudo mount -t aufs -o <span class="nb">dirs</span><span class="o">=</span><span class="nv">$star_changes</span><span class="o">=</span>rw:<span class="nv">$star_old</span><span class="o">=</span>ro aufs <span class="nv">$star_new</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$star_new</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for user to continue</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Star is now mounted. Press Enter to unmount and exit&quot;</span>
+</span><span class='line'><span class="nb">read</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Use it like so:</p>
+
+<pre><code>$ ./mount_star.sh 
+Usage: ./mount_star.sh &lt;*.star&gt;
+
+$ ./mount_star.sh ./secret_stuff.star 
+Enter the password:
+Star is now mounted. Press Enter to unmount and exit
+</code></pre>
+
+<p>Now in another terminal, you can interact with the mounted volumes:</p>
+
+<pre><code>$ ls
+mount_star.sh  secret_stuff_changes  secret_stuff_old  starsecret_stuff_new  secret_stuff.star
+
+$ touch secret_stuff_old/lala
+touch: cannot touch ‘secret_stuff_old/lala’: Read-only file system
+
+$ touch secret_stuff_new/lala
+
+$ ls secret_stuff_new
+lala  secret_data.bin
+
+$ ls secret_stuff_changes/
+lala
+</code></pre>
+
+<p>Creating a new archive is as simple as star&#8217;ing the name_new branch. Creating a &ldquo;patch&rdquo; is as simple as star&#8217;ing the name_changes branch:</p>
+
+<pre><code>$ dd if=/dev/urandom bs=1MB count=10 &gt; secret_stuff_new/new_secret_data.bin10+0 records in
+10+0 records out
+10000000 bytes (10 MB) copied, 0.756202 s, 13.2 MB/s
+$ ls secret_stuff*
+secret_stuff.star
+
+secret_stuff_changes:
+lala  new_secret_data.bin
+
+secret_stuff_new:
+lala  new_secret_data.bin  secret_data.bin
+
+secret_stuff_old:
+secret_data.bin
+
+$ ./star secret_stuff_changes/
+Enter the password to use:
+Repeat the password:
+Success
+
+$ ls
+mount_star.sh  secret_stuff_changes.star  secret_stuff.star  star
+</code></pre>
+
+<p>Patch archives can be applied using aufs layers with the following script:</p>
+
+<figure class='code'><figcaption><span> (patch_star.sh)</span><a href='/downloads/code/patch_star.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># patch_star.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mounts a squashed truecrypt archive</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Star to mount</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;base *.star&gt; &lt;patch *.star&gt;&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the second argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$2</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $2&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">base_star</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">base_name</span><span class="o">=</span><span class="k">${</span><span class="nv">base_star</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Patch directory will be hidden</span>
+</span><span class='line'><span class="nv">patch_star</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">patch_name</span><span class="o">=</span>.<span class="k">${</span><span class="nv">patch_star</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the passwords</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s2">&quot;Enter the password for $1 :&quot;</span>
+</span><span class='line'><span class="nb">read</span> -s base_password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s2">&quot;Enter the password for $2 :&quot;</span>
+</span><span class='line'><span class="nb">read</span> -s patch_password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make the directories</span>
+</span><span class='line'>mkdir -p <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$base_name</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$patch_name</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$patch_name</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the base</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$base_password</span> <span class="nv">$base_star</span> <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$base_name</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the patch</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$patch_password</span> <span class="nv">$patch_star</span> <span class="nv">$patch_name</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$patch_name</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Apply the patch</span>
+</span><span class='line'>sudo mount -t aufs -o <span class="nb">dirs</span><span class="o">=</span><span class="nv">$patch_name</span><span class="o">=</span>ro:<span class="nv">$base_name</span><span class="o">=</span>ro aufs <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$base_name</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for user to continue</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Star is now mounted and patched. Press Enter to unmount and exit&quot;</span>
+</span><span class='line'><span class="nb">read</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here is how it works:</p>
+
+<pre><code>$ ./patch_star.sh 
+Usage: ./patch_star.sh &lt;base *.star&gt; &lt;patch *.star&gt;
+
+$ ./patch_star.sh secret_stuff.star secret_stuff_changes.star 
+Enter the password for secret_stuff.star :
+Enter the password for secret_stuff_changes.star :
+Star is now mounted and patched. Press Enter to unmount and exit
+
+ls
+mount_star.sh  patch_star.sh  secret_stuff  secret_stuff_changes.star  secret_stuff.star  star
+$ ls secret_stuff
+lala  new_secret_data.bin  secret_data.bin
+</code></pre>
+
+<p>This can be very handy for transferring small edits to a large archive across the network in a secure manner, without needing to retransfer the whole archive. The layering effect also acts as a poor man&rsquo;s version control. In the future, I would like to expand on this idea and write a script to manage the layers more convieniently and effectively, perhaps in a manner similar to Git or Docker.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-03-30T20:32:22-04:00" pubdate data-updated="true">Mar 30<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/03/29/protect-yourself-online/" title="Previous Post: Protect Yourself Online">&laquo; Protect Yourself Online</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/04/11/verified-addresses/" title="Next Post: Verified Addresses">Verified Addresses &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
