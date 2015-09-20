@@ -39,7 +39,7 @@ Anything inside the backticks get executed by the shell, except that the executi
 
 Typically you only want to install the base minimum dependencies when creating a Docker image, in order to keep the file size down. Disable recommends when installing packages to prevent bloat from creeping in.
 
-I generally do not do an `apt-get upgrade` when creating a Docker image. Any software I am trying to Dockerize will update whatever packages it needs naturally. This way I can stay to the original base image and keep the file size down.
+I generally do not do an `apt-get upgrade` when creating a Docker image. Any software I am trying to Dockerize will update whatever packages it needs naturally. This way I can stay close to the original base image and keep the file size down.
 
 Lastly, clean up after an installation, before all that garbage gets committed to a layer. This includes the package lists themselves, as they are no use once the image is created.
 
