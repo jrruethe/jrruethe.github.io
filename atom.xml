@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-09-20T14:47:01-04:00</updated>
+  <updated>2015-09-20T19:54:18-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,1534 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Dockerfile Generator]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/09/20/dockerfile-generator/"/>
+    <updated>2015-09-20T15:19:17-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/09/20/dockerfile-generator</id>
+    <content type="html"><![CDATA[<p>A lot of the Dockerfiles I write use the same template and tricks. I decided to write a ruby script to generate my Dockerfiles for me based on a minimal amount of input. I did this for a couple reasons:</p>
+
+<ul>
+<li>I wanted my images to be as small as possible</li>
+<li>I wanted consistent and readable Dockerfiles</li>
+<li>I wanted to make it easy to update my images</li>
+<li>I wanted all my images to be easy to port to the Raspberry Pi</li>
+</ul>
+
+
+<h2>Dockerfile Tricks</h2>
+
+<h3>Keeping the image small</h3>
+
+<p>Every command in a Dockerfile causes a layer to be committed. Once a layer is committed, files on that layer can be hidden, but not deleted. For that reason, it becomes advantageous to run multiple commands at a time. For example, don&rsquo;t do this:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>RUN apt-get update
+</span><span class='line'>RUN apt-get install -y build_essential
+</span><span class='line'>RUN apt-get clean
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Line 2 will download a bunch of packages and install them. Line 3 attempts to clean up the packages that were downloaded, but it&rsquo;s too late; they were already committed to the layer and can only be hidden. The overall image will be large because that layer still needs to be downloaded.</p>
+
+<p>A better approach is:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>RUN apt-get update <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>    apt-get install -y build_essential <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>    apt-get clean
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will run all three commands and apply the end result to a single layer, greatly reducing the image size.</p>
+
+<h4>The ADD command</h4>
+
+<p>The <code>ADD</code> command hinders our ability to keep the image small, because it will commit files to a layer without giving a chance to delete those files later. This is fine for files that are supposed to be permanently in the image, but what about temporary files? For example:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>ADD some_package.deb /
+</span><span class='line'>
+</span><span class='line'>RUN dpkg -i /some_package.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>    rm -f /some_package.deb
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The package removal will only hide the file; the image still contains the data on a lower layer.</p>
+
+<p>Instead, a better approach is to run a web server and download temporary files to your image, allowing the same <code>RUN</code> statement to later delete the temporary files. To do this, start a server before building your image:</p>
+
+<pre><code>python -m SimpleHTTPServer 8888
+</code></pre>
+
+<p>Then do the following in your Dockerfile:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>RUN wget http://&lt;ip_address&gt;:8888/package.deb <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>    <span class="o">(</span>dpkg -i package.deb <span class="o">||</span> <span class="nb">true</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>    apt-get -y -f install --no-install-recommends <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Replace <code>&lt;ip_address&gt;</code> with your <em>internal</em> ip address. To get that, use the following command:</p>
+
+<pre><code>ip route get 8.8.8.8 | awk '{print $NF; exit}'
+</code></pre>
+
+<h3>Keeping the Dockerfile readable</h3>
+
+<p>From the previous section, it stands to reason that putting all the commands on a single <code>RUN</code> statement will yield the smallest image (assuming you clean up after yourself). If there are a lot of commands, it can be difficult to read what is going on.</p>
+
+<p>One trick is to interleave comments into the <code>RUN</code> statement by using backticks. Another common thing to do is add blank lines using backslashes, and align all the backslashes to the right:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>RUN <span class="sb">`</span><span class="c"># Update package list`             &amp;&amp; \</span>
+</span><span class='line'>     apt-get update                     <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                           <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Install development tools`       &amp;&amp; \</span>
+</span><span class='line'>     apt-get install -y build_essential <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                           <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Delete cached packages`          &amp;&amp; \</span>
+</span><span class='line'>     apt-get clean
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The result is much more readable, but it is tedious to make sure all the spacing is correct.</p>
+
+<h2>Dockerfile Generator</h2>
+
+<p>Incorporating the above tricks, I wrote a Dockerfile generator to quickly create Dockerfiles for simple projects:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+<span class='line-number'>173</span>
+<span class='line-number'>174</span>
+<span class='line-number'>175</span>
+<span class='line-number'>176</span>
+<span class='line-number'>177</span>
+<span class='line-number'>178</span>
+<span class='line-number'>179</span>
+<span class='line-number'>180</span>
+<span class='line-number'>181</span>
+<span class='line-number'>182</span>
+<span class='line-number'>183</span>
+<span class='line-number'>184</span>
+<span class='line-number'>185</span>
+<span class='line-number'>186</span>
+<span class='line-number'>187</span>
+<span class='line-number'>188</span>
+<span class='line-number'>189</span>
+<span class='line-number'>190</span>
+<span class='line-number'>191</span>
+<span class='line-number'>192</span>
+<span class='line-number'>193</span>
+<span class='line-number'>194</span>
+<span class='line-number'>195</span>
+<span class='line-number'>196</span>
+<span class='line-number'>197</span>
+<span class='line-number'>198</span>
+<span class='line-number'>199</span>
+<span class='line-number'>200</span>
+<span class='line-number'>201</span>
+<span class='line-number'>202</span>
+<span class='line-number'>203</span>
+<span class='line-number'>204</span>
+<span class='line-number'>205</span>
+<span class='line-number'>206</span>
+<span class='line-number'>207</span>
+<span class='line-number'>208</span>
+<span class='line-number'>209</span>
+<span class='line-number'>210</span>
+<span class='line-number'>211</span>
+<span class='line-number'>212</span>
+<span class='line-number'>213</span>
+<span class='line-number'>214</span>
+<span class='line-number'>215</span>
+<span class='line-number'>216</span>
+<span class='line-number'>217</span>
+<span class='line-number'>218</span>
+<span class='line-number'>219</span>
+<span class='line-number'>220</span>
+<span class='line-number'>221</span>
+<span class='line-number'>222</span>
+<span class='line-number'>223</span>
+<span class='line-number'>224</span>
+<span class='line-number'>225</span>
+<span class='line-number'>226</span>
+<span class='line-number'>227</span>
+<span class='line-number'>228</span>
+<span class='line-number'>229</span>
+<span class='line-number'>230</span>
+<span class='line-number'>231</span>
+<span class='line-number'>232</span>
+<span class='line-number'>233</span>
+<span class='line-number'>234</span>
+<span class='line-number'>235</span>
+<span class='line-number'>236</span>
+<span class='line-number'>237</span>
+<span class='line-number'>238</span>
+<span class='line-number'>239</span>
+<span class='line-number'>240</span>
+<span class='line-number'>241</span>
+<span class='line-number'>242</span>
+<span class='line-number'>243</span>
+<span class='line-number'>244</span>
+<span class='line-number'>245</span>
+<span class='line-number'>246</span>
+<span class='line-number'>247</span>
+<span class='line-number'>248</span>
+<span class='line-number'>249</span>
+<span class='line-number'>250</span>
+<span class='line-number'>251</span>
+<span class='line-number'>252</span>
+<span class='line-number'>253</span>
+<span class='line-number'>254</span>
+<span class='line-number'>255</span>
+<span class='line-number'>256</span>
+<span class='line-number'>257</span>
+<span class='line-number'>258</span>
+<span class='line-number'>259</span>
+<span class='line-number'>260</span>
+<span class='line-number'>261</span>
+<span class='line-number'>262</span>
+<span class='line-number'>263</span>
+<span class='line-number'>264</span>
+<span class='line-number'>265</span>
+<span class='line-number'>266</span>
+<span class='line-number'>267</span>
+<span class='line-number'>268</span>
+<span class='line-number'>269</span>
+<span class='line-number'>270</span>
+<span class='line-number'>271</span>
+<span class='line-number'>272</span>
+<span class='line-number'>273</span>
+<span class='line-number'>274</span>
+<span class='line-number'>275</span>
+<span class='line-number'>276</span>
+<span class='line-number'>277</span>
+<span class='line-number'>278</span>
+<span class='line-number'>279</span>
+<span class='line-number'>280</span>
+<span class='line-number'>281</span>
+<span class='line-number'>282</span>
+<span class='line-number'>283</span>
+<span class='line-number'>284</span>
+<span class='line-number'>285</span>
+<span class='line-number'>286</span>
+<span class='line-number'>287</span>
+<span class='line-number'>288</span>
+<span class='line-number'>289</span>
+<span class='line-number'>290</span>
+<span class='line-number'>291</span>
+<span class='line-number'>292</span>
+<span class='line-number'>293</span>
+<span class='line-number'>294</span>
+<span class='line-number'>295</span>
+<span class='line-number'>296</span>
+<span class='line-number'>297</span>
+<span class='line-number'>298</span>
+<span class='line-number'>299</span>
+<span class='line-number'>300</span>
+<span class='line-number'>301</span>
+<span class='line-number'>302</span>
+<span class='line-number'>303</span>
+<span class='line-number'>304</span>
+<span class='line-number'>305</span>
+<span class='line-number'>306</span>
+<span class='line-number'>307</span>
+<span class='line-number'>308</span>
+<span class='line-number'>309</span>
+<span class='line-number'>310</span>
+<span class='line-number'>311</span>
+<span class='line-number'>312</span>
+<span class='line-number'>313</span>
+<span class='line-number'>314</span>
+<span class='line-number'>315</span>
+<span class='line-number'>316</span>
+<span class='line-number'>317</span>
+<span class='line-number'>318</span>
+<span class='line-number'>319</span>
+<span class='line-number'>320</span>
+<span class='line-number'>321</span>
+<span class='line-number'>322</span>
+<span class='line-number'>323</span>
+<span class='line-number'>324</span>
+<span class='line-number'>325</span>
+<span class='line-number'>326</span>
+<span class='line-number'>327</span>
+<span class='line-number'>328</span>
+<span class='line-number'>329</span>
+<span class='line-number'>330</span>
+<span class='line-number'>331</span>
+<span class='line-number'>332</span>
+<span class='line-number'>333</span>
+<span class='line-number'>334</span>
+<span class='line-number'>335</span>
+<span class='line-number'>336</span>
+<span class='line-number'>337</span>
+<span class='line-number'>338</span>
+<span class='line-number'>339</span>
+<span class='line-number'>340</span>
+<span class='line-number'>341</span>
+<span class='line-number'>342</span>
+<span class='line-number'>343</span>
+<span class='line-number'>344</span>
+<span class='line-number'>345</span>
+<span class='line-number'>346</span>
+<span class='line-number'>347</span>
+<span class='line-number'>348</span>
+<span class='line-number'>349</span>
+<span class='line-number'>350</span>
+<span class='line-number'>351</span>
+<span class='line-number'>352</span>
+<span class='line-number'>353</span>
+<span class='line-number'>354</span>
+<span class='line-number'>355</span>
+<span class='line-number'>356</span>
+<span class='line-number'>357</span>
+<span class='line-number'>358</span>
+<span class='line-number'>359</span>
+<span class='line-number'>360</span>
+<span class='line-number'>361</span>
+<span class='line-number'>362</span>
+<span class='line-number'>363</span>
+<span class='line-number'>364</span>
+<span class='line-number'>365</span>
+<span class='line-number'>366</span>
+<span class='line-number'>367</span>
+<span class='line-number'>368</span>
+<span class='line-number'>369</span>
+<span class='line-number'>370</span>
+<span class='line-number'>371</span>
+<span class='line-number'>372</span>
+<span class='line-number'>373</span>
+<span class='line-number'>374</span>
+<span class='line-number'>375</span>
+<span class='line-number'>376</span>
+<span class='line-number'>377</span>
+<span class='line-number'>378</span>
+<span class='line-number'>379</span>
+<span class='line-number'>380</span>
+<span class='line-number'>381</span>
+<span class='line-number'>382</span>
+<span class='line-number'>383</span>
+<span class='line-number'>384</span>
+<span class='line-number'>385</span>
+<span class='line-number'>386</span>
+<span class='line-number'>387</span>
+<span class='line-number'>388</span>
+<span class='line-number'>389</span>
+<span class='line-number'>390</span>
+<span class='line-number'>391</span>
+<span class='line-number'>392</span>
+<span class='line-number'>393</span>
+<span class='line-number'>394</span>
+<span class='line-number'>395</span>
+<span class='line-number'>396</span>
+<span class='line-number'>397</span>
+<span class='line-number'>398</span>
+<span class='line-number'>399</span>
+<span class='line-number'>400</span>
+<span class='line-number'>401</span>
+<span class='line-number'>402</span>
+<span class='line-number'>403</span>
+<span class='line-number'>404</span>
+<span class='line-number'>405</span>
+<span class='line-number'>406</span>
+<span class='line-number'>407</span>
+<span class='line-number'>408</span>
+<span class='line-number'>409</span>
+<span class='line-number'>410</span>
+<span class='line-number'>411</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># dockerfile-generator.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s2">&quot;set&quot;</span>
+</span><span class='line'><span class="nb">require</span> <span class="s2">&quot;yaml&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Dockerfile</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@from</span>       <span class="o">=</span> <span class="s2">&quot;phusion/baseimage:0.9.16&quot;</span>
+</span><span class='line'>    <span class="vi">@maintainer</span> <span class="o">=</span> <span class="s2">&quot;Joe Ruether&quot;</span>
+</span><span class='line'>    <span class="vi">@user</span>       <span class="o">=</span> <span class="s2">&quot;user&quot;</span>
+</span><span class='line'>    <span class="vi">@service</span>    <span class="o">=</span> <span class="kp">nil</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@requirements</span> <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@packages</span>     <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@volumes</span>      <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>    <span class="vi">@ports</span>        <span class="o">=</span> <span class="no">Set</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Files to add before and after the run command</span>
+</span><span class='line'>    <span class="vi">@adds</span>       <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="vi">@configures</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Command lists for the run section</span>
+</span><span class='line'>    <span class="vi">@begin_commands</span>        <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="vi">@pre_install_commands</span>  <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="vi">@install_commands</span>      <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="vi">@post_install_commands</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="vi">@run_commands</span>          <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="vi">@end_commands</span>          <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Set if deb packages need dependencies to be resolved</span>
+</span><span class='line'>    <span class="vi">@deb_flag</span> <span class="o">=</span> <span class="kp">false</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Used to download deb files from the host  </span>
+</span><span class='line'>    <span class="vi">@ip_address</span> <span class="o">=</span> <span class="sb">`ip route get 8.8.8.8 | awk &#39;{print $NF; exit}&#39;`</span><span class="o">.</span><span class="n">chomp</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">##############################################################################</span>
+</span><span class='line'>  <span class="kp">public</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># string ()</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">finalize</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;FROM </span><span class="si">#{</span><span class="vi">@from</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;MAINTAINER </span><span class="si">#{</span><span class="vi">@maintainer</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="vi">@ports</span><span class="o">.</span><span class="n">each</span><span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;EXPOSE </span><span class="si">#{</span><span class="nb">p</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="o">!</span><span class="vi">@ports</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="vi">@adds</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="o">!</span><span class="vi">@adds</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">build_run_command</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="vi">@configures</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="o">!</span><span class="vi">@configures</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>    <span class="vi">@volumes</span><span class="o">.</span><span class="n">each</span><span class="p">{</span><span class="o">|</span><span class="n">v</span><span class="o">|</span> <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;VOLUME </span><span class="si">#{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="o">!</span><span class="vi">@volumes</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;ENTRYPOINT [</span><span class="se">\&quot;</span><span class="s2">/sbin/my_init</span><span class="se">\&quot;</span><span class="s2">]&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">set_user</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@user</span> <span class="o">=</span> <span class="n">user</span>
+</span><span class='line'>    <span class="n">add_begin_command</span> <span class="n">comment</span> <span class="s2">&quot;Adjusting user permissions&quot;</span>
+</span><span class='line'>    <span class="n">add_begin_command</span> <span class="s2">&quot;usermod -u 1000 </span><span class="si">#{</span><span class="n">user</span><span class="si">}</span><span class="s2"> &amp;&amp; groupmod -g 1000 </span><span class="si">#{</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>    <span class="n">add_begin_command</span> <span class="n">blank</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">set_service</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@service</span> <span class="o">=</span> <span class="n">service</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string, string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@adds</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;ADD </span><span class="si">#{</span><span class="n">source</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">destination</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string, string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@configures</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;ADD </span><span class="si">#{</span><span class="n">source</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">destination</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (int)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">expose</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@ports</span><span class="o">.</span><span class="n">add</span> <span class="n">port</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string, string, string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_repository</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">deb</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">add_pre_install_command</span> <span class="n">comment</span> <span class="s2">&quot;Adding </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> repository&quot;</span>
+</span><span class='line'>    <span class="n">add_pre_install_command</span> <span class="s2">&quot;wget -O - </span><span class="si">#{</span><span class="n">key</span><span class="si">}</span><span class="s2"> | apt-key add -&quot;</span> <span class="k">if</span> <span class="n">key</span>
+</span><span class='line'>    <span class="n">add_pre_install_command</span> <span class="s2">&quot;echo &#39;</span><span class="si">#{</span><span class="n">deb</span><span class="si">}</span><span class="s2">&#39; &gt;&gt; /etc/apt/sources.list.d/</span><span class="si">#{</span><span class="nb">name</span><span class="o">.</span><span class="n">downcase</span><span class="si">}</span><span class="s2">.list&quot;</span>
+</span><span class='line'>    <span class="n">add_pre_install_command</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@requirements</span><span class="o">.</span><span class="n">add</span> <span class="s2">&quot;wget&quot;</span>
+</span><span class='line'>    <span class="vi">@requirements</span><span class="o">.</span><span class="n">add</span> <span class="s2">&quot;ssl-cert&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string, string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_ppa</span><span class="p">(</span><span class="nb">name</span><span class="p">,</span> <span class="n">ppa</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">add_pre_install_command</span> <span class="n">comment</span> <span class="s2">&quot;Adding </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2"> PPA&quot;</span>
+</span><span class='line'>    <span class="n">add_pre_install_command</span> <span class="s2">&quot;add-apt-repository -y </span><span class="si">#{</span><span class="n">ppa</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>    <span class="n">add_pre_install_command</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@requirements</span><span class="o">.</span><span class="n">add</span> <span class="s2">&quot;software-properties-common&quot;</span>
+</span><span class='line'>    <span class="vi">@requirements</span><span class="o">.</span><span class="n">add</span> <span class="s2">&quot;python-software-properties&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">install_package</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@packages</span><span class="o">.</span><span class="n">add</span> <span class="n">package</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">install_deb</span><span class="p">(</span><span class="n">deb</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">add_install_command</span> <span class="n">comment</span> <span class="s2">&quot;Installing deb package&quot;</span>
+</span><span class='line'>    <span class="n">add_install_command</span> <span class="s2">&quot;wget http://</span><span class="si">#{</span><span class="vi">@ip_address</span><span class="si">}</span><span class="s2">:8888/</span><span class="si">#{</span><span class="n">deb</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>    <span class="n">add_install_command</span> <span class="s2">&quot;(dpkg -i </span><span class="si">#{</span><span class="n">deb</span><span class="si">}</span><span class="s2"> || true)&quot;</span>
+</span><span class='line'>    <span class="n">add_install_command</span> <span class="n">blank</span>
+</span><span class='line'>    <span class="n">add_post_install_command</span> <span class="s2">&quot;rm -f </span><span class="si">#{</span><span class="n">deb</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@packages</span><span class="o">.</span><span class="n">add</span> <span class="s2">&quot;wget&quot;</span>
+</span><span class='line'>    <span class="vi">@deb_flag</span> <span class="o">=</span> <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">command</span><span class="o">.</span><span class="n">strip!</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">command</span><span class="o">.</span><span class="n">start_with?</span> <span class="s2">&quot;#&quot;</span>
+</span><span class='line'>      <span class="n">add_run_command</span> <span class="n">comment</span> <span class="n">command</span><span class="o">[</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">].</span><span class="n">strip</span>
+</span><span class='line'>    <span class="k">elsif</span> <span class="n">command</span><span class="o">.</span><span class="n">match</span> <span class="sr">/^\s*$/</span>
+</span><span class='line'>      <span class="n">add_run_command</span> <span class="n">blank</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">add_run_command</span> <span class="n">command</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># void (string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">add_volume</span><span class="p">(</span><span class="n">volume</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">add_end_command</span> <span class="n">comment</span> <span class="s2">&quot;Fixing permission errors for volume&quot;</span>
+</span><span class='line'>    <span class="n">add_end_command</span> <span class="s2">&quot;chown -R </span><span class="si">#{</span><span class="vi">@user</span><span class="si">}</span><span class="s2">:</span><span class="si">#{</span><span class="vi">@user</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="n">volume</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>    <span class="n">add_end_command</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="vi">@volumes</span><span class="o">.</span><span class="n">add</span> <span class="n">volume</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">##############################################################################</span>
+</span><span class='line'>  <span class="kp">private</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># string (string)</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">comment</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</span><span class='line'>    <span class="s2">&quot;`</span><span class="se">\#</span><span class="s2"> </span><span class="si">#{</span><span class="n">string</span><span class="si">}</span><span class="s2">`&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># string ()</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">blank</span>
+</span><span class='line'>    <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># [string] ([string])</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_install_command</span><span class="p">(</span><span class="n">packages</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Convert the set to an array</span>
+</span><span class='line'>    <span class="n">packages</span> <span class="o">=</span> <span class="n">packages</span><span class="o">.</span><span class="n">to_a</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Specify the command</span>
+</span><span class='line'>    <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;apt-get install -y --no-install-recommends&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Make an array of paddings</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">command</span><span class="o">.</span><span class="n">length</span><span class="p">()</span><span class="o">]</span> <span class="o">*</span> <span class="n">packages</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Overwrite the first line with the command</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="n">command</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Append the packages and backslashes to each line</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">zip</span><span class="p">(</span><span class="n">packages</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">{</span><span class="o">|</span><span class="n">l</span><span class="p">,</span> <span class="nb">p</span><span class="o">|</span> <span class="n">l</span> <span class="o">+=</span> <span class="s2">&quot; </span><span class="si">#{</span><span class="nb">p</span><span class="si">}</span><span class="s2"> </span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Convert the backslash on the last line to &quot;&amp;&amp; \&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">[-</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="n">lines</span><span class="o">[-</span><span class="mi">1</span><span class="o">][</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">2</span><span class="o">]</span> <span class="o">+</span> <span class="s2">&quot;&amp;&amp; </span><span class="se">\\</span><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Add comment and blank</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">comment</span><span class="p">(</span><span class="s2">&quot;Installing packages&quot;</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># string ()</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_run_command</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Any packages that were requirements can be removed from the packages list</span>
+</span><span class='line'>    <span class="vi">@packages</span> <span class="o">=</span> <span class="vi">@packages</span><span class="o">.</span><span class="n">difference</span> <span class="vi">@requirements</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="n">begin_commands</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># If required packages were specified</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">!</span><span class="vi">@requirements</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>      <span class="c1"># Update the package list</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Updating Package List&quot;</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;apt-get update&quot;</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Install requirements</span>
+</span><span class='line'>      <span class="n">lines</span> <span class="o">+=</span> <span class="n">build_install_command</span> <span class="vi">@requirements</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Run pre-install commands</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="n">pre_install_commands</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Add apt-cacher proxy</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Adding apt-cacher-ng proxy&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;echo &#39;Acquire::http { Proxy </span><span class="se">\&quot;</span><span class="s2">http://172.17.42.1:3142</span><span class="se">\&quot;</span><span class="s2">; };&#39; &gt; /etc/apt/apt.conf.d/01proxy&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Update</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Updating Package List&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;apt-get update&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Install packages</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="n">build_install_command</span> <span class="vi">@packages</span> <span class="k">unless</span> <span class="vi">@packages</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Run install commands</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="n">install_commands</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># If manual deb packages were specified</span>
+</span><span class='line'>    <span class="k">if</span> <span class="vi">@deb_flag</span>
+</span><span class='line'>      <span class="c1"># Resolve their dependencies</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Installing deb package dependencies&quot;</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;apt-get -y -f install --no-install-recommends&quot;</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Run post-install commands</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">!</span><span class="vi">@post_install_commands</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Removing temporary files&quot;</span>
+</span><span class='line'>      <span class="n">lines</span> <span class="o">+=</span> <span class="n">post_install_commands</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Clean up</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Cleaning up after installation&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;apt-get clean &amp;&amp; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Remove apt-cacher proxy</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Removing apt-cacher-ng proxy&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;rm -f /etc/apt/apt.conf.d/01proxy&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Run commands</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="n">run_commands</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span> <span class="k">if</span> <span class="o">!</span><span class="vi">@run_commands</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Enable service on startup</span>
+</span><span class='line'>    <span class="k">if</span> <span class="vi">@service</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">comment</span> <span class="s2">&quot;Enable service on startup&quot;</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="s2">&quot;sed -i </span><span class="se">\&quot;</span><span class="s2">s@exit 0@service </span><span class="si">#{</span><span class="vi">@service</span><span class="si">}</span><span class="s2"> start@g</span><span class="se">\&quot;</span><span class="s2"> /etc/rc.local&quot;</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">push</span> <span class="n">blank</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># End commands</span>
+</span><span class='line'>    <span class="n">lines</span> <span class="o">+=</span> <span class="n">end_commands</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Determine the longest line</span>
+</span><span class='line'>    <span class="n">longest_length</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">max_by</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:length</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># For each line</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">collect</span> <span class="k">do</span> <span class="o">|</span><span class="n">l</span><span class="o">|</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Determine how many spaces needed to indent</span>
+</span><span class='line'>      <span class="n">length_to_extend</span> <span class="o">=</span> <span class="n">longest_length</span> <span class="o">-</span> <span class="n">l</span><span class="o">.</span><span class="n">length</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Indent the line</span>
+</span><span class='line'>      <span class="n">length_to_extend</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">start_with?</span> <span class="s2">&quot;`&quot;</span>
+</span><span class='line'>      <span class="n">l</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">start_with?</span><span class="p">(</span><span class="s2">&quot;`&quot;</span><span class="p">)</span> <span class="p">?</span> <span class="mi">4</span> <span class="p">:</span> <span class="mi">5</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Add or Extend end markers </span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">end_with?</span> <span class="s2">&quot; &amp;&amp; </span><span class="se">\\</span><span class="s2">&quot;</span>
+</span><span class='line'>        <span class="n">length_to_extend</span> <span class="o">+=</span> <span class="mi">5</span>
+</span><span class='line'>        <span class="n">l</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">length_to_extend</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">elsif</span> <span class="n">l</span><span class="o">.</span><span class="n">end_with?</span> <span class="s2">&quot; </span><span class="se">\\</span><span class="s2">&quot;</span>
+</span><span class='line'>        <span class="n">length_to_extend</span> <span class="o">+=</span> <span class="mi">5</span>
+</span><span class='line'>        <span class="n">l</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">length_to_extend</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="n">l</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="n">length_to_extend</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">l</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot; &amp;&amp; </span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># First line should start with &quot;RUN&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;RUN&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Last line should not end with marker</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">[-</span><span class="mi">1</span><span class="o">].</span><span class="n">gsub!</span> <span class="s2">&quot; &amp;&amp; </span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">[-</span><span class="mi">1</span><span class="o">].</span><span class="n">gsub!</span> <span class="s2">&quot; </span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Last line might be blank now, do it again</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">lines</span><span class="o">[-</span><span class="mi">1</span><span class="o">].</span><span class="n">match</span> <span class="sr">/^\s*$/</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">.</span><span class="n">delete_at</span> <span class="o">-</span><span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Last line should not end with marker</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">[-</span><span class="mi">1</span><span class="o">].</span><span class="n">gsub!</span> <span class="s2">&quot; &amp;&amp; </span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>      <span class="n">lines</span><span class="o">[-</span><span class="mi">1</span><span class="o">].</span><span class="n">gsub!</span> <span class="s2">&quot; </span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Make a string</span>
+</span><span class='line'>    <span class="n">lines</span><span class="o">.</span><span class="n">join</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">##############################################################################</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Some metaprogramming to handle the various command lists</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">handle</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">class_eval</span><span class="p">(</span><span class="s2">&quot;def </span><span class="si">#{</span><span class="n">arg</span><span class="si">}</span><span class="s2">;@</span><span class="si">#{</span><span class="n">arg</span><span class="si">}</span><span class="s2">;end&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">class_eval</span><span class="p">(</span><span class="s2">&quot;def add_</span><span class="si">#{</span><span class="n">arg</span><span class="o">[</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">2</span><span class="o">]</span><span class="si">}</span><span class="s2">(val);@</span><span class="si">#{</span><span class="n">arg</span><span class="si">}</span><span class="s2">.push val;end&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">handle</span> <span class="ss">:begin_commands</span>
+</span><span class='line'>  <span class="n">handle</span> <span class="ss">:pre_install_commands</span>
+</span><span class='line'>  <span class="n">handle</span> <span class="ss">:install_commands</span>
+</span><span class='line'>  <span class="n">handle</span> <span class="ss">:post_install_commands</span>
+</span><span class='line'>  <span class="n">handle</span> <span class="ss">:run_commands</span>
+</span><span class='line'>  <span class="n">handle</span> <span class="ss">:end_commands</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">################################################################################</span>
+</span><span class='line'><span class="c1"># Parse Dockerfile.yml</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">dockerfile</span> <span class="o">=</span> <span class="no">Dockerfile</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="n">yaml</span> <span class="o">=</span> <span class="ss">YAML</span><span class="p">:</span><span class="ss">:load_file</span><span class="p">(</span><span class="s2">&quot;Dockerfile.yml&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse User tag</span>
+</span><span class='line'><span class="n">dockerfile</span><span class="o">.</span><span class="n">set_user</span> <span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;User&quot;</span><span class="o">]</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;User&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Service tag</span>
+</span><span class='line'><span class="n">dockerfile</span><span class="o">.</span><span class="n">set_service</span> <span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Service&quot;</span><span class="o">]</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Service&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Add tag</span>
+</span><span class='line'><span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Add&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">is_a?</span> <span class="no">Hash</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">add</span> <span class="n">i</span><span class="o">.</span><span class="n">first</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">first</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">add</span> <span class="n">i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Add&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Repositories tag</span>
+</span><span class='line'><span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Repositories&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">r</span><span class="o">|</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">r</span><span class="o">[</span><span class="s2">&quot;URL&quot;</span><span class="o">].</span><span class="n">start_with?</span> <span class="s2">&quot;deb &quot;</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">add_repository</span><span class="p">(</span><span class="n">r</span><span class="o">[</span><span class="s2">&quot;Name&quot;</span><span class="o">]</span><span class="p">,</span> <span class="n">r</span><span class="o">[</span><span class="s2">&quot;URL&quot;</span><span class="o">]</span><span class="p">,</span> <span class="n">r</span><span class="o">[</span><span class="s2">&quot;Key&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="n">r</span><span class="o">[</span><span class="s2">&quot;URL&quot;</span><span class="o">].</span><span class="n">start_with?</span> <span class="s2">&quot;ppa:&quot;</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">add_ppa</span><span class="p">(</span><span class="n">r</span><span class="o">[</span><span class="s2">&quot;Name&quot;</span><span class="o">]</span><span class="p">,</span> <span class="n">r</span><span class="o">[</span><span class="s2">&quot;URL&quot;</span><span class="o">]</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Repositories&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Install tag</span>
+</span><span class='line'><span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Install&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">package</span><span class="o">|</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">end_with?</span> <span class="s2">&quot;.deb&quot;</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">install_deb</span> <span class="n">package</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">install_package</span> <span class="n">package</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Install&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Run tag</span>
+</span><span class='line'><span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Run&quot;</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">line</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">dockerfile</span><span class="o">.</span><span class="n">run</span> <span class="n">line</span>
+</span><span class='line'><span class="k">end</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Run&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Configure tag</span>
+</span><span class='line'><span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Configure&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">is_a?</span> <span class="no">Hash</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">add</span> <span class="n">i</span><span class="o">.</span><span class="n">first</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span> <span class="n">i</span><span class="o">.</span><span class="n">first</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">dockerfile</span><span class="o">.</span><span class="n">add</span> <span class="n">i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Configure&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Expose tag</span>
+</span><span class='line'><span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Expose&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">port</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">dockerfile</span><span class="o">.</span><span class="n">expose</span> <span class="n">port</span>
+</span><span class='line'><span class="k">end</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Expose&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Parse Volumes tag</span>
+</span><span class='line'><span class="n">yaml</span><span class="o">[</span><span class="s2">&quot;Volumes&quot;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">volume</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">dockerfile</span><span class="o">.</span><span class="n">add_volume</span> <span class="n">volume</span>
+</span><span class='line'><span class="k">end</span> <span class="k">if</span> <span class="n">yaml</span><span class="o">.</span><span class="n">has_key?</span> <span class="s2">&quot;Volumes&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Output Dockerfile</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">dockerfile</span><span class="o">.</span><span class="n">finalize</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Run it from a directory that contains a <code>Dockerfile.yml</code> and it will print out a Dockerfile:</p>
+
+<pre><code>ruby dockerfile-generator.rb &gt; Dockerfile
+</code></pre>
+
+<h3>Dockerfile.yml Specifications</h3>
+
+<p>A simplified Dockerfile specification can be put into <code>Dockerfile.yml</code>. The supported items are explained below. All items are optional.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="c1"># Specify a user that the service will run as, used for fixing permissions on volumes.</span>
+</span><span class='line'><span class="l-Scalar-Plain">User</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www-data</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Specify the service that will run on startup.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Service</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">apache2</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Adds a file to / or the specified destination.</span>
+</span><span class='line'><span class="c1"># Tar files are automatically unpacked.</span>
+</span><span class='line'><span class="c1"># Remote files are allowed.</span>
+</span><span class='line'><span class="c1"># Files are added before any commands are run.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Add</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">root_filesystem.tar</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Foo.txt</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/home/user/</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">http://www.foo.com/Foo.txt</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/home/user/bar.txt</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Add Repositories and PPAs.</span>
+</span><span class='line'><span class="c1"># URLs are either a complete deb line in sources.list format or a PPA.</span>
+</span><span class='line'><span class="c1"># Keys are optional.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Repositories</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Owncloud</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">deb http://download.opensuse.org/repositories/isv:/ownCloud:/community/xUbuntu_14.04/ /</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Key</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://download.opensuse.org/repositories/isv:ownCloud:community/xUbuntu_14.04/Release.key</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Bitcoin</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">ppa:bitcoin/bitcoin</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Install packages or deb files.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Install</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">build_essential</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">some_package.deb</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Run commands verbatim in bash format. Note the pipe character.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Run</span><span class="p-Indicator">:</span> <span class="p-Indicator">|</span>
+</span><span class='line'> <span class="no"># This is a comment</span>
+</span><span class='line'> <span class="no">echo Hello</span>
+</span><span class='line'>
+</span><span class='line'> <span class="no"># Another comment</span>
+</span><span class='line'> <span class="no">rm -rf /</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Exactly the same as Add, however files are added AFTER commands are run.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Configure</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">root_filesystem.tar</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Foo.txt</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/home/user/</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">http://www.foo.com/Foo.txt</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/home/user/bar.txt</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Ports to expose.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Expose</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">80</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">443</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Volumes to expose to the host.</span>
+</span><span class='line'><span class="l-Scalar-Plain">Volumes</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">/var/www/owncloud</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">/mnt</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Examples</h3>
+
+<p>Making a Dockerfile is really easy with this generator. The generated Dockerfile will automatically use an <code>apt-cacher-ng</code> container for downloading packages, which is handy if you are making a lot of images or rebuilding often. Therefore, remember to run the <code>apt-cacher-ng</code> container before building other images. Also remember to run the python web server if you are installing deb packages manually.</p>
+
+<h4>Apt-cacher-ng</h4>
+
+<p>First step is to create the <code>apt-cacher-ng</code> image so it can be used to build other images. Below is the <code>Dockerfile.yml</code>:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">User</span>   <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">apt-cacher-ng</span>
+</span><span class='line'><span class="l-Scalar-Plain">Service</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">apt-cacher-ng</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Install</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">apt-cacher-ng</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Expose</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">3142</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Volumes</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">/var/cache/apt-cacher-ng</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Thats it! Generating the Dockerfile yields (scroll to the right to see the <code>&amp;&amp; \</code> markers):</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>FROM phusion/baseimage:0.9.16
+</span><span class='line'>MAINTAINER Joe Ruether
+</span><span class='line'>
+</span><span class='line'>EXPOSE 3142
+</span><span class='line'>
+</span><span class='line'>RUN <span class="sb">`</span><span class="c"># Adjusting user permissions`                                                            &amp;&amp; \</span>
+</span><span class='line'>     usermod -u 1000 apt-cacher-ng <span class="o">&amp;&amp;</span> groupmod -g 1000 apt-cacher-ng                          <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Adding apt-cacher-ng proxy`                                                            &amp;&amp; \</span>
+</span><span class='line'>     <span class="nb">echo</span> <span class="s1">&#39;Acquire::http { Proxy &quot;http://172.17.42.1:3142&quot;; };&#39;</span> &gt; /etc/apt/apt.conf.d/01proxy <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Updating Package List`                                                                 &amp;&amp; \</span>
+</span><span class='line'>     apt-get update                                                                           <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing packages`                                                                   &amp;&amp; \</span>
+</span><span class='line'>     apt-get install -y --no-install-recommends apt-cacher-ng                                 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Cleaning up after installation`                                                        &amp;&amp; \</span>
+</span><span class='line'>     apt-get clean <span class="o">&amp;&amp;</span> rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*                           <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Removing apt-cacher-ng proxy`                                                          &amp;&amp; \</span>
+</span><span class='line'>     rm -f /etc/apt/apt.conf.d/01proxy                                                        <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Enable service on startup`                                                             &amp;&amp; \</span>
+</span><span class='line'>     sed -i <span class="s2">&quot;s@exit 0@service apt-cacher-ng start@g&quot;</span> /etc/rc.local                            <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Fixing permission errors for volume`                                                   &amp;&amp; \</span>
+</span><span class='line'>     chown -R apt-cacher-ng:apt-cacher-ng /var/cache/apt-cacher-ng
+</span><span class='line'>
+</span><span class='line'>VOLUME /var/cache/apt-cacher-ng
+</span><span class='line'>
+</span><span class='line'>ENTRYPOINT <span class="o">[</span><span class="s2">&quot;/sbin/my_init&quot;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since it obviously cannot use <code>apt-cacher-ng</code> to build itself, simply remove those lines for this image:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>FROM phusion/baseimage:0.9.16
+</span><span class='line'>MAINTAINER Joe Ruether
+</span><span class='line'>
+</span><span class='line'>EXPOSE 3142
+</span><span class='line'>
+</span><span class='line'>RUN <span class="sb">`</span><span class="c"># Updating Package List`                                                                 &amp;&amp; \</span>
+</span><span class='line'>     apt-get update                                                                           <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing packages`                                                                   &amp;&amp; \</span>
+</span><span class='line'>     apt-get install -y --no-install-recommends apt-cacher-ng                                 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Cleaning up after installation`                                                        &amp;&amp; \</span>
+</span><span class='line'>     apt-get clean <span class="o">&amp;&amp;</span> rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*                           <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Enable service on startup`                                                             &amp;&amp; \</span>
+</span><span class='line'>     sed -i <span class="s2">&quot;s@exit 0@service apt-cacher-ng start@g&quot;</span> /etc/rc.local                            <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Fixing permission errors for volume`                                                   &amp;&amp; \</span>
+</span><span class='line'>     chown -R apt-cacher-ng:apt-cacher-ng /var/cache/apt-cacher-ng
+</span><span class='line'>
+</span><span class='line'>VOLUME /var/cache/apt-cacher-ng
+</span><span class='line'>
+</span><span class='line'>ENTRYPOINT <span class="o">[</span><span class="s2">&quot;/sbin/my_init&quot;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Owncloud</h4>
+
+<p>Lets try something a little more complicated. Here, I present two Owncloud images. The first one is built using the latest code in the repository, while the second is built with specifically downloaded versions of deb files.</p>
+
+<h5>Latest From Repository</h5>
+
+<p>Dockerfile.yml:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">User</span>   <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www-data</span>
+</span><span class='line'><span class="l-Scalar-Plain">Service</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">apache2</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Repositories</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Owncloud</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">deb http://download.opensuse.org/repositories/isv:/ownCloud:/community/xUbuntu_14.04/ /</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Key</span> <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://download.opensuse.org/repositories/isv:ownCloud:community/xUbuntu_14.04/Release.key</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Install</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">owncloud</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Run</span><span class="p-Indicator">:</span> <span class="p-Indicator">|</span>
+</span><span class='line'> <span class="no"># Enable SSL</span>
+</span><span class='line'> <span class="no">a2enmod ssl &amp;&amp; a2ensite default-ssl</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Expose</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">443</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Volumes</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">/var/www/owncloud</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">/mnt</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Generated Dockerfile:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>FROM phusion/baseimage:0.9.16
+</span><span class='line'>MAINTAINER Joe Ruether
+</span><span class='line'>
+</span><span class='line'>EXPOSE 443
+</span><span class='line'>
+</span><span class='line'>RUN <span class="sb">`</span><span class="c"># Updating Package List`                                                                                                                &amp;&amp; \</span>
+</span><span class='line'>     apt-get update                                                                                                                          <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing packages`                                                                                                                  &amp;&amp; \</span>
+</span><span class='line'>     apt-get install -y --no-install-recommends wget                                                                                            <span class="se">\</span>
+</span><span class='line'>                                                ssl-cert                                                                                     <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Adding Owncloud repository`                                                                                                           &amp;&amp; \</span>
+</span><span class='line'>     wget -O - http://download.opensuse.org/repositories/isv:ownCloud:community/xUbuntu_14.04/Release.key | apt-key add -                    <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>     <span class="nb">echo</span> <span class="s1">&#39;deb http://download.opensuse.org/repositories/isv:/ownCloud:/community/xUbuntu_14.04/ /&#39;</span> &gt;&gt; /etc/apt/sources.list.d/owncloud.list <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Adding apt-cacher-ng proxy`                                                                                                           &amp;&amp; \</span>
+</span><span class='line'>     <span class="nb">echo</span> <span class="s1">&#39;Acquire::http { Proxy &quot;http://172.17.42.1:3142&quot;; };&#39;</span> &gt; /etc/apt/apt.conf.d/01proxy                                                <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Updating Package List`                                                                                                                &amp;&amp; \</span>
+</span><span class='line'>     apt-get update                                                                                                                          <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing packages`                                                                                                                  &amp;&amp; \</span>
+</span><span class='line'>     apt-get install -y --no-install-recommends owncloud                                                                                     <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Cleaning up after installation`                                                                                                       &amp;&amp; \</span>
+</span><span class='line'>     apt-get clean <span class="o">&amp;&amp;</span> rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*                                                                          <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Removing apt-cacher-ng proxy`                                                                                                         &amp;&amp; \</span>
+</span><span class='line'>     rm -f /etc/apt/apt.conf.d/01proxy                                                                                                       <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Enable SSL`                                                                                                                           &amp;&amp; \</span>
+</span><span class='line'>     a2enmod ssl <span class="o">&amp;&amp;</span> a2ensite default-ssl                                                                                                     <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Enable service on startup`                                                                                                            &amp;&amp; \</span>
+</span><span class='line'>     sed -i <span class="s2">&quot;s@exit 0@service apache2 start@g&quot;</span> /etc/rc.local                                                                                 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Fixing permission errors for volume`                                                                                                  &amp;&amp; \</span>
+</span><span class='line'>     chown -R www-data:www-data /var/www/owncloud                                                                                            <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                                                                <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Fixing permission errors for volume`                                                                                                  &amp;&amp; \</span>
+</span><span class='line'>     chown -R www-data:www-data /mnt
+</span><span class='line'>
+</span><span class='line'>VOLUME /var/www/owncloud
+</span><span class='line'>VOLUME /mnt
+</span><span class='line'>
+</span><span class='line'>ENTRYPOINT <span class="o">[</span><span class="s2">&quot;/sbin/my_init&quot;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h5>Specific Version</h5>
+
+<p>Dockerfile.yml:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">User</span>   <span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www-data</span>
+</span><span class='line'><span class="l-Scalar-Plain">Service</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">apache2</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Install</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">owncloud_8.1.3-13.1_all.deb</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">owncloud-server_8.1.3-13.1_all.deb</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">owncloud-config-apache_8.1.3-13.1_all.deb</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Run</span><span class="p-Indicator">:</span> <span class="p-Indicator">|</span>
+</span><span class='line'> <span class="no"># Enable SSL</span>
+</span><span class='line'> <span class="no">a2enmod ssl &amp;&amp; a2ensite default-ssl</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Expose</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">443</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">Volumes</span><span class="p-Indicator">:</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">/var/www/owncloud</span>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">/mnt</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Generated Dockerfile:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>FROM phusion/baseimage:0.9.16
+</span><span class='line'>MAINTAINER Joe Ruether
+</span><span class='line'>
+</span><span class='line'>EXPOSE 443
+</span><span class='line'>
+</span><span class='line'>RUN <span class="sb">`</span><span class="c"># Adding apt-cacher-ng proxy`                                                            &amp;&amp; \</span>
+</span><span class='line'>     <span class="nb">echo</span> <span class="s1">&#39;Acquire::http { Proxy &quot;http://172.17.42.1:3142&quot;; };&#39;</span> &gt; /etc/apt/apt.conf.d/01proxy <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Updating Package List`                                                                 &amp;&amp; \</span>
+</span><span class='line'>     apt-get update                                                                           <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing packages`                                                                   &amp;&amp; \</span>
+</span><span class='line'>     apt-get install -y --no-install-recommends wget                                          <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing deb package`                                                                &amp;&amp; \</span>
+</span><span class='line'>     wget http://192.168.1.106:8888/owncloud_8.1.3-13.1_all.deb                               <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>     <span class="o">(</span>dpkg -i owncloud_8.1.3-13.1_all.deb <span class="o">||</span> <span class="nb">true</span><span class="o">)</span>                                            <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing deb package`                                                                &amp;&amp; \</span>
+</span><span class='line'>     wget http://192.168.1.106:8888/owncloud-server_8.1.3-13.1_all.deb                        <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>     <span class="o">(</span>dpkg -i owncloud-server_8.1.3-13.1_all.deb <span class="o">||</span> <span class="nb">true</span><span class="o">)</span>                                     <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing deb package`                                                                &amp;&amp; \</span>
+</span><span class='line'>     wget http://192.168.1.106:8888/owncloud-config-apache_8.1.3-13.1_all.deb                 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>     <span class="o">(</span>dpkg -i owncloud-config-apache_8.1.3-13.1_all.deb <span class="o">||</span> <span class="nb">true</span><span class="o">)</span>                              <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Installing deb package dependencies`                                                   &amp;&amp; \</span>
+</span><span class='line'>     apt-get -y -f install --no-install-recommends                                            <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Removing temporary files`                                                              &amp;&amp; \</span>
+</span><span class='line'>     rm -f owncloud_8.1.3-13.1_all.deb                                                        <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>     rm -f owncloud-server_8.1.3-13.1_all.deb                                                 <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>     rm -f owncloud-config-apache_8.1.3-13.1_all.deb                                          <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Cleaning up after installation`                                                        &amp;&amp; \</span>
+</span><span class='line'>     apt-get clean <span class="o">&amp;&amp;</span> rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*                           <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Removing apt-cacher-ng proxy`                                                          &amp;&amp; \</span>
+</span><span class='line'>     rm -f /etc/apt/apt.conf.d/01proxy                                                        <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Enable SSL`                                                                            &amp;&amp; \</span>
+</span><span class='line'>     a2enmod ssl <span class="o">&amp;&amp;</span> a2ensite default-ssl                                                      <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Enable service on startup`                                                             &amp;&amp; \</span>
+</span><span class='line'>     sed -i <span class="s2">&quot;s@exit 0@service apache2 start@g&quot;</span> /etc/rc.local                                  <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Fixing permission errors for volume`                                                   &amp;&amp; \</span>
+</span><span class='line'>     chown -R www-data:www-data /var/www/owncloud                                             <span class="o">&amp;&amp;</span> <span class="se">\</span>
+</span><span class='line'>                                                                                                 <span class="se">\</span>
+</span><span class='line'>    <span class="sb">`</span><span class="c"># Fixing permission errors for volume`                                                   &amp;&amp; \</span>
+</span><span class='line'>     chown -R www-data:www-data /mnt
+</span><span class='line'>
+</span><span class='line'>VOLUME /var/www/owncloud
+</span><span class='line'>VOLUME /mnt
+</span><span class='line'>
+</span><span class='line'>ENTRYPOINT <span class="o">[</span><span class="s2">&quot;/sbin/my_init&quot;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, this script is pretty handy for quickly creating Docker images that are consistent and readable while maintaining a small image size.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Screenshots in Qubes]]></title>
@@ -12519,195 +14047,6 @@ Here you can validate that the Bitcoin address is legitimate, as well as decode 
 <p>All that is left to do is send some bitcoin to that address. Use <a href="https://blockchain.info/">Blockchain.info</a> to capture the transaction details as proof of the file&rsquo;s existence:</p>
 
 <p><a href="https://blockchain.info/tx/68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d">Transaction: 68cbd46b5b1b5ac4ce3369c04a0366da733182b6a7b329317aa1c87feb46f96d</a></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Cryptography Primer]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/"/>
-    <updated>2014-10-25T14:48:28-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/10/25/cryptography-primer</id>
-    <content type="html"><![CDATA[<p>Digital cryptography is used everywhere on your computer, both online and offline, to keep your secrets safe.
-This is a simplified explanation of how cryptography accomplishes this task.</p>
-
-<p>The three fundamental building blocks to modern cryptography are:</p>
-
-<ul>
-<li>Symmetric Encryption</li>
-<li>Asymmetric Encryption</li>
-<li>Hashes</li>
-</ul>
-
-
-<h2>Symmetric Encryption</h2>
-
-<p>Symmetric encryption is the most intuitive form of encryption. The basic analogy is a lock and key. Keys are used together with an encryption algorithm to encrypt, or lock, a file. The resulting file is unreadable, and indistinguishable from random garbage data.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png"><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
-
-<p>A key is just a long string of bits. Passwords supplied by a user are either used as a key directly, or are used to derive a key. With symmetric encryption, the same key is used to both encrypt and decrypt a file.</p>
-
-<blockquote><p>All data is represented in binary, a string of 0&rsquo;s and 1&rsquo;s. Data alone is meaningless without structure; it all depends on how you interpret it. For example, the number <code>65</code> in binary can be represented like this: <code>01000001</code>, but if you interpret that value using the ASCII system, it becomes the letter <code>A</code>. The text <code>Hi</code> is encoded in ASCII as <code>0100100001101001</code>. If it were interpreted as two 8 bit numbers, it would be <code>(72, 105)</code>. If it were interpreted as one large number, it would be <code>18537</code>. Entire files containing text can also be interpreted as one very large number.</p></blockquote>
-
-<p>An example of a symmetric encryption algorithm is AES: Advanced Encryption Standard. It is certified by the US government to secure secret documents.</p>
-
-<p>Here is how symmetric encryption is performed via the GPG program on Linux, using a password of &lsquo;ABC&rsquo;:</p>
-
-<pre><code>echo This is a secret | gpg --cipher-algo AES256 --symmetric | base64
-
-jA0ECQMCjJkl5YwkaXFg0kQBjrmXBnt3sajSix4eihU/l+273UBtRabS7LFZ7Ln3R8ux0wzU
-bm9IZUuAunUNnF2RYG3HC2qa7bNtlefb/Hbp+xtYjw==
-</code></pre>
-
-<p>To decrypt, simply repeat the same command, but backwards, using the same password of &lsquo;ABC&rsquo;:</p>
-
-<pre><code>echo jA0ECQMCjJkl5YwkaXFg0kQBjrmXBnt3sajSix4eihU/l+273UBtRabS7LFZ7Ln3R8ux0wzU\
-bm9IZUuAunUNnF2RYG3HC2qa7bNtlefb/Hbp+xtYjw== | base64 -d | gpg --cipher-algo AES256
-
-gpg: AES256 encrypted data
-gpg: encrypted with 1 passphrase
-This is a secret
-</code></pre>
-
-<p>Symmetric encryption algorithms are fast and secure, even with a relatively small key size (128 &ndash; 256 bits). For this reason, they play an important role in secure communications. Their downfall, however, is key distribution; they are prone to a man-in-the-middle attack unless the keys are distributed on a separate medium.</p>
-
-<h2>Man in the Middle attacks</h2>
-
-<p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves in between you and the other person. This is different than just sniffing or eavesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png"><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
-
-<p>To combat this attack, encryption can be used. If Alice and Bob had the same key, they could communicate securely by encrypting their messages before sending them to the other, and decrypting them upon receipt. This prevents Eve from reading the actual message. However, in order to communicate, they need to have the same key. Either Alice or Bob can generate the key, but the difficulty is transferring the key to the other without Eve intercepting it. The only secure solution is for them to pre-share the key across some other medium, such as a phone call or in person. This exchange is cumbersome, as it must be done before each session. In addition, the key cannot be reused across different sessions; If Eve were to ever obtain the key to a single session, she could also infiltrate all the other sessions, including recordings of past sessions.</p>
-
-<h2>Asymmetric Encryption</h2>
-
-<p>Asymmetric encryption is different from symmetric encryption in that it utilizes two keys; one key performs the encryption while the other performs the decryption. The key that performs the encryption cannot be used to perform the decryption; the paired key must be used. It is important to note that either key can perform the encryption step, and the other key will undo it.</p>
-
-<p>This behavior has some very useful implications. One of the keys can be selected to be the <code>private</code> key, which must be kept secure such that no one else knows it. The remaining key will become the <code>public</code> key, which can be posted online, sent to others, etc. This method is known as <code>public key cryptography</code>, and it solves the key distribution problem encountered with symmetric encryption.</p>
-
-<p>Alice will generate a key-pair and keep the private key to herself, while sending her public key to Bob. Likewise, Bob will generate his key-pair and send his public key to Alice while keeping his private key to himself. When Alice wants to talk to Bob, she can use Bob&rsquo;s public key to perform the encryption. Only Bob will be able to decrypt the message, since he is the only one who has the private key. Bob can then respond to Alice by using her public key to encrypt his response.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png"><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></p>
-
-<p>Asymmetric encryption algorithms, such as RSA, are slow and require much larger keys to achieve the same security that AES provides (2048 &ndash; 4096 bits). This means that using asymmetric encryption for an entire conversation is inefficient. For this reason, a hybrid approach is used. A user will generate a random symmetric key intended for one time use, called a session key, and encrypt it using the public asymmetric key of the recipient. The receiver will use their private asymmetric key to obtain the symmetric session key. Now that both users have the same symmetric key, they can use symmetric encryption to communicate.</p>
-
-<p>But how does Bob know that the key actually came from Alice? What if Eve was the one who actually sent him the session key? After all, Bob&rsquo;s public key is public; anyone can use it. We need to introduce the 3rd fundamental technology first.</p>
-
-<h2>Hashes</h2>
-
-<p>Unlike the other two, a hash is not an encryption method. Hashes are also known as message digests or fingerprints. They are one-way functions, meaning that they cannot be reversed or undone; given the output, it is impossible to derive the input.</p>
-
-<p>Any two messages that contain the exact same data will produce the exact same hash, or fingerprint. Similarly, if even a single bit is different, the hash will be completely different. Hash algorithms employ an avalanche technique such that a small change to the input produces a large change in the output. Finally, hash algorithms always produce the same size output regardless of the size of the input.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png"><sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></p>
-
-<p>Here are some examples, using the SHA-256 algorithm (Secure Hash Algorithm):</p>
-
-<pre><code>echo This is a message | sha256sum
-
-6afa89a2ed3ff1f33150c8c897c3c49775b4fb91fa923b790533a0f26c956a88
-
-# Notice that a single letter difference completely changes the output
-echo This is b message | sha256sum
-
-0c9bf9d4f05d174783676acbdd50ffde59bffa5f17eaf0557500c3070678ff5b
-</code></pre>
-
-<p>Hashes are very useful. They are often used as checksums to ensure that a message was transferred without getting corrupted. For example, a website offering a download may also list its hash. After the user downloads the file, they can recalculate the hash. If their result matches the website&rsquo;s listing, they can be assured that they have the exact same file that the website served; there was no corruption during the download.</p>
-
-<p>Hashes are also used to hide passwords. When you sign up for a website and enter a password, the website will take the hash of your password and store the hash. Later on when you want to log in, you enter your password again. The website takes the hash again and compares it to their stored hash. If the two hashes match, you are allowed to log in. If the website gets hacked and their database of hashes is retrieved, the attacker cannot get your password (because hashes cannot be reversed).</p>
-
-<p>It is important to choose a strong password, however. Attackers can still attempt to retrieve your password by performing a dictionary attack. An attacker will take a large dictionary of words and calculate their hashes. They then compare their list of hashes to the list of hashes retrieved from the website. If they find a match, they can look back at their input list to determine which word produced the hash. This is a brute force method for obtaining your password. It is important to see that it isn&rsquo;t that the hash was reversed, rather that multiple inputs were tried until the desired output was found. There are protections against this type of attack, such as salting, but that is out of the scope of this primer.</p>
-
-<h2>Digital Signatures</h2>
-
-<p>Now, back to our previous question; How can Bob be assured that a message came from Alice? Because of the way asymmetric encryption works, Alice can also encrypt a message using her own private key. The resulting cyphertext can be decrypted by anyone, since the corresponding public key is publicly available. However, the cyphertext could only have been created by Alice, because she is the only one who has the private key. This is called a digital signature; Alice <em>signs</em> a message by encrypting it with her private key.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png"><sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></p>
-
-<p>Because asymmetric encryption keys are so large (which causes the resulting cyphertext to be large), it is not practical to encrypt an entire message, especially if that message is large. Instead, the hash of the message is encrypted, and the message itself is sent in plaintext (unencrypted). Anyone can read the message and compute it&rsquo;s hash. Then, they use Alice&rsquo;s public key to decrypt the signature connected to the message to obtain the hash that Alice encrypted. If the two hashes match, then the message was not tampered with, and the user can be certain that the message originated from Alice.</p>
-
-<h2>Secure Communication</h2>
-
-<p>Putting these concepts together, here is how secure communication can be established:</p>
-
-<p>Alice and Bob each generate asymmetric key pairs. They take a hash of their public key and encrypt it with their private key. They then attach the result to the public key itself. This is called self-signing their public key.</p>
-
-<p>Alice and Bob share their public keys with each other. One of them generates a random session key and encrypts it with their private key. They take the result and encrypt it with the public key of the recipient.</p>
-
-<p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any eavesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png"><sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></p>
-
-<p>However, there is still one thing missing which makes this communication vulnerable to a man in the middle attack. If Eve is able to tamper with the initial handshake, where the public keys are exchanged, she could pass fake public keys to each side. Alice would think that she received Bob&rsquo;s public key, when in fact she received Eve&rsquo;s public key. Her entire communication would be with Eve directly, who is impersonating Bob, but is also passing the messages to Bob after reading them. Neither is aware that this is happening.</p>
-
-<p>In other words, you can securely communicate with someone and be assured that no one else can eavesdrop, but you cannot be certain about who you are actually communicating with.</p>
-
-<p>The signatures on the keys don&rsquo;t give any additional information on their own; they only claim that the holder of the private key trusts the public key. The missing piece to the security is linking an identity to the public key, so you know which key belongs to who. Once you can trust that you are securely communicating with the correct person, you win!</p>
-
-<h2>Digital Certificates</h2>
-
-<p>A digital certificate is an identity linked to a public key, and signed by someone trustworthy. An identity in this case can be something as simple as a name or email address, or it can be as complicated as a photo of a license / passport or fingerprints. It is a means of uniquely identifying and verifying an individual or organization.</p>
-
-<p>A digital certificate links an identity to a public key. Certificates can be signed with many different signatures, as well as a self-signature (the owner of the public key). Certificates play an important role in creating a network of trust. Remember, anyone can create an identity and public key, and they can sign their own certificate. This means that while the link between the public key and identity is real, the identity itself could be fabricated. Trust in a certificate is established by obtaining signatures from trustworthy entities.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png"><sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></p>
-
-<p>There are currently two models for establishing trust in digital certificates. One of them is a hierarchial centralized method which uses a <code>root certificate authority</code> that must be completely trusted, while the other is a decentralized <code>web of trust</code> that gives each person full control of their trust.</p>
-
-<h2>Root Certificate Authority</h2>
-
-<p>This is a centralized system that focuses completely around the root authority. The root authority is responsible for performing background checks to verify an identity, and signs off on the certificate if the identity is legitimate. Root authorities can sign the certificates of sub-authorities, which in turn are granted the same responsibilities and signing powers. Anyone can request that an authority sign their certificate, which usually involves payment of a fee, to grant the trust of the root authority to their certificate.</p>
-
-<p>If you can find a chain of signatures from a certificate back to the root authority, and you trust the root authority, then you can trust the certificate. This trust model is all or nothing, meaning that as long as the root authority is trusted, every chain originating at the root authority is trusted regardless of the number of links.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png"><sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></p>
-
-<p>Most of the internet works using this model. Your web browser comes with preinstalled certificates for the major root authorities, which sign the certificates of all the websites you interact with. There are flaws with this model, however. Security is a &ldquo;weakest link&rdquo; type of problem; A chain ending at the root authority doesn&rsquo;t mean that the entire chain is solid. It could be that a sub-authority does not properly perform its background checks, resulting in that sub-authority being the weakest link. If that sub-authority signs a fabricated certificate, there is no way for you to know not to trust it. The owner of the certificate could masquerade as their false identity and impersonate a target.</p>
-
-<p>In addition to this, well funded organizations such as the NSA can take control of a root authority and sign whichever certificates they want, essentially breaking the entire model.</p>
-
-<h2>Web of Trust</h2>
-
-<p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convenient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png"><sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></p>
-
-<p>In the web of trust model, you are responsible for verifying that the identity of the certificate matches the identity of the certificate holder. This is typically done in person or over some other medium besides the one being used with the certificate (such as the phone). You would ask the person to present their certificate as well as some reputable identification, such as a passport or drivers license, and sign the certificate if the identities match. Chains are formed transitively by signing a certificate when someone has signed your own certificate.</p>
-
-<p>For example, if Alice signs Bob&rsquo;s certificate, and Bob sign&rsquo;s Carol&rsquo;s certificate, then Alice can reasonably trust that Carol&rsquo;s certificate is authentic. Even though she hasn&rsquo;t necessarily met Carol, Alice trusts that Bob performed the necessary identity checks. Alice&rsquo;s trust in Carol can be increased if there are other chains that link the two together. If Alice also signed Dave&rsquo;s certificate, and Dave also signed Carol&rsquo;s certificate, then Carol has two signatures from people that Alice trusts, further increasing the odds that Carol really is who she says she is (from Alice&rsquo;s point of view).</p>
-
-<p>It is important to note that it isn&rsquo;t the number of signatures that determines trust, it is the number of chains. For example, Eve can create 100 fake identities and have them all sign her certificate, but that doesn&rsquo;t mean that Eve can be trusted.</p>
-
-<p>In this model, each additional link degrades trust; A certificate 2 steps away can typically be trusted more than a certificate 5 steps away. If everyone is creating chains from themselves to everyone else, a web of trust is formed, hence the name.</p>
-
-<h2>Trust</h2>
-
-<p>Secure communication is possible if you can establish trust in the other person&rsquo;s identity. How does one go about establishing this trust? I will cover this in a future post.</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx <a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-<li id="fn:2">
-<p>http://www.cs.ucla.edu/classes/winter13/cs111/scribe/17b/ (http://fearlessweb.trendmicro.com/2012/tips-and-tricks/what-are-man-in-the-middle-attacks-and-how-can-i-protect-myself-from-them/)<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
-<li id="fn:3">
-<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
-<li id="fn:4">
-<p>http://computersecuritypsh.wikia.com/wiki/File:Hash_Function.png<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
-<li id="fn:5">
-<p>http://oz.stern.nyu.edu/fall99/readings/security/<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
-<li id="fn:6">
-<p>http://www.embedded.com/design/safety-and-security/4230829/2/Securing-your-apps-with-Public-Key-Cryptography&mdash;-Digital-Signature<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
-<li id="fn:7">
-<p>https://commons.wikimedia.org/wiki/File:Digital_Signature_diagram.svg<a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
-<li id="fn:8">
-<p>http://www.hill2dot0.com/wiki/index.php?title=Image:G1662_CA-Hierarchies-and-Cr.jpg<a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
-<li id="fn:9">
-<p>http://books.gigatux.nl/mirror/securitytools/ddu/ch09lev1sec1.html<a href="#fnref:9" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
 ]]></content>
   </entry>
   
