@@ -200,7 +200,8 @@ Airgapping means the machine is never connected to the internet. It is completel
 
 <h2>Fixing Nautilus in Debian <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></h2>
 
-<p>Replace the contents of <code>/usr/bin/qubes-desktop-run</code> in your Debian templates with the following:</p>
+<p>After updating, Nautilus won&rsquo;t open due to a dbus error.
+To fix this, replace the contents of <code>/usr/bin/qubes-desktop-run</code> in your Debian templates with the following:</p>
 
 <figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -243,9 +244,12 @@ Airgapping means the machine is never connected to the internet. It is completel
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>Note that this has already been fixed in the upstream repo, and may not be needed in the future.</p>
+
 <h2>Fixing Terminal in Debian <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></h2>
 
-<p>After upgrading, run the following commands as root in your Debian templates:</p>
+<p>After upgrading, the locale&rsquo;s might get messed up, causing <code>gnome-terminal</code> to not load.
+Run the following commands as root in your Debian templates:</p>
 
 <pre><code>localedef -f UTF-8 -i en_US -c en_US.UTF-8
 update-locale LC_ALL=en_US.UTF-8
@@ -253,7 +257,8 @@ update-locale LC_ALL=en_US.UTF-8
 
 <h2>Fixing Copy To VM <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></h2>
 
-<p>Install <code>python-gtk2</code> in all your Debian templates:</p>
+<p>The secure copy-to-vm scripts require the Python GTK bindings, but they are not installed by default.
+Install <code>python-gtk2</code> in all your Debian templates:</p>
 
 <pre><code>apt-get install python-gtk2
 </code></pre>
@@ -408,6 +413,8 @@ sudo yum install qubes-tor
         <a class="basic-alignment left" href="/blog/2015/08/23/placement-new/" title="Previous Post: Placement New, Memory Dumps, and Alignment">&laquo; Placement New, Memory Dumps, and Alignment</a>
       
       
+        <a class="basic-alignment right" href="/blog/2015/09/17/screenshots-in-qubes/" title="Next Post: Screenshots in Qubes">Screenshots in Qubes &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -445,6 +452,10 @@ sudo yum install qubes-tor
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/09/17/screenshots-in-qubes/">Screenshots in Qubes</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a>
       </li>
     
@@ -458,10 +469,6 @@ sudo yum install qubes-tor
     
       <li class="post">
         <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
       </li>
     
   </ul>

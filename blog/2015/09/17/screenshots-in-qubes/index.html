@@ -1,0 +1,551 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Screenshots in Qubes - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="One of the security concepts of Qubes is that all work is done in separate VMs. The &ldquo;admin console&rdquo; for the Xen hypervisor is known as &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/license">License</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Screenshots in Qubes</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-17T18:51:55-04:00" pubdate data-updated="true">Sep 17<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>One of the security concepts of Qubes is that all work is done in separate VMs. The &ldquo;admin console&rdquo; for the Xen hypervisor is known as <code>dom0</code> and is responsible for managing the desktop environment. <code>dom0</code> is never supposed to interact with the other VMs, usb devices, or the network.</p>
+
+<p>However, when taking a screenshot, they are inevitably stored inside <code>dom0</code>. What can be done about this?</p>
+
+<p>Laurent Ghugonis<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> shared a very handy script for taking a screenshot and sending it to a VM<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>. You can find that script below. I have a few minor edits, but Laurent gets all the credit:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Take screenshot(s) in Qubes Dom0 and copy to AppVM</span>
+</span><span class='line'><span class="c"># Dependencies: scrot (sudo qubes-dom0-update scrot)</span>
+</span><span class='line'><span class="c"># My KDE shortcuts:</span>
+</span><span class='line'><span class="c"># Meta-C       : qvm-screenshot.sh -s -n</span>
+</span><span class='line'><span class="c"># Meta-Shift-C : qvm-screenshot.sh -s -n -m</span>
+</span><span class='line'><span class="c"># Meta-Alt-C   : qvm-screenshot.sh -s -q</span>
+</span><span class='line'><span class="c"># 2013, Laurent Ghigonis &lt;laurent@p1sec.com&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Modified 2015, Joe Ruether &lt;jrruethe@gmail.com&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">DOM0_SHOTS_DIR</span><span class="o">=</span><span class="nv">$HOME</span>/Pictures
+</span><span class='line'><span class="nv">APPVM_SHOTS_DIR</span><span class="o">=</span>/home/user/Pictures
+</span><span class='line'><span class="nv">QUBES_DOM0_APPVMS</span><span class="o">=</span>/var/lib/qubes/appvms/
+</span><span class='line'>
+</span><span class='line'>usage<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;$program [-hlmqs]&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-m : take multiple shots&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-n : after screenshot, run nautilus in AppVM&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-q : only take screenshot, no blabla&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-s : select window&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">program</span><span class="o">=</span><span class="s2">&quot;`basename $0`&quot;</span>
+</span><span class='line'><span class="nv">mode_multi</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">mode_nautilus</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">mode_select</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">opts</span><span class="o">=</span><span class="s2">&quot;$(getopt -o hmnqs -n &quot;</span><span class="nv">$program</span><span class="s2">&quot; -- &quot;</span><span class="nv">$@</span><span class="s2">&quot;)&quot;</span>
+</span><span class='line'><span class="nv">err</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'><span class="nb">eval set</span> -- <span class="s2">&quot;$opts&quot;</span>
+</span><span class='line'><span class="k">while </span><span class="nb">true</span>; <span class="k">do case</span> <span class="nv">$1</span> in
+</span><span class='line'>   -h<span class="o">)</span> usage; <span class="nb">exit </span>1 ;;
+</span><span class='line'>   -q<span class="o">)</span> <span class="nv">mode_quick</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -m<span class="o">)</span> <span class="nv">mode_multi</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -n<span class="o">)</span> <span class="nv">mode_nautilus</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -s<span class="o">)</span> <span class="nv">mode_select</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   --<span class="o">)</span> <span class="nb">shift</span>; <span class="nb">break</span> ;;
+</span><span class='line'><span class="k">esac done</span>
+</span><span class='line'><span class="o">[[</span> <span class="nv">$err</span> -ne 0 <span class="o">]]</span> <span class="o">&amp;&amp;</span> usage <span class="o">&amp;&amp;</span> <span class="nb">exit </span>1
+</span><span class='line'>
+</span><span class='line'><span class="nv">shotslist</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</span><span class='line'>mkdir -p <span class="nv">$DOM0_SHOTS_DIR</span> <span class="o">||</span><span class="nb">exit </span>1
+</span><span class='line'><span class="k">while </span><span class="nb">true</span>; <span class="k">do</span>
+</span><span class='line'><span class="k">   </span><span class="nv">d</span><span class="o">=</span><span class="sb">`</span>date +<span class="s2">&quot;%Y%m%d%H%M%S&quot;</span><span class="sb">`</span>
+</span><span class='line'>   <span class="nv">shotname</span><span class="o">=</span><span class="nv">$d</span>.png
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="nv">$mode_select</span> -eq 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] making shot, click on a window&quot;</span>
+</span><span class='line'>      scrot <span class="nv">$@</span> -s -b <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span> <span class="o">||</span><span class="nb">break</span>
+</span><span class='line'><span class="nb">   </span><span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] making shot of root window&quot;</span>
+</span><span class='line'>      scrot <span class="nv">$@</span> <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span> <span class="o">||</span><span class="nb">break</span>
+</span><span class='line'><span class="nb">   </span><span class="k">fi</span>
+</span><span class='line'>   <span class="o">[[</span> <span class="nv">$mode_quick</span> -eq 1 <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">exit </span>1
+</span><span class='line'>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;[-] saving $DOM0_SHOTS_DIR/$shotname&quot;</span>
+</span><span class='line'>   mv <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$tmpname</span> <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="nv">shotslist</span><span class="o">=</span><span class="s2">&quot;${shotslist}${shotname}:&quot;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="o">[[</span> <span class="nv">$mode_multi</span> -eq 1 <span class="o">]]</span> <span class="o">&amp;&amp;</span> kdialog --yesno <span class="s2">&quot;Other shot ?&quot;</span> <span class="o">||</span> <span class="nb">break</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">choice</span><span class="o">=</span><span class="sb">`</span>ls <span class="nv">$QUBES_DOM0_APPVMS</span> |sed <span class="s1">&#39;s/\([^ ]*\)/\1 \1/g&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">appvm</span><span class="o">=</span><span class="sb">`</span>kdialog --menu <span class="s2">&quot;Select destination AppVM&quot;</span> <span class="nv">$choice</span> --title <span class="s2">&quot;$program&quot;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> X<span class="s2">&quot;$appvm&quot;</span> !<span class="o">=</span> X<span class="s2">&quot;&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   if</span> <span class="o">[</span> <span class="nv">$mode_nautilus</span> -eq 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] running nautilus in AppVM&quot;</span>
+</span><span class='line'>      qvm-run <span class="nv">$appvm</span> <span class="s2">&quot;nautilus $APPVM_SHOTS_DIR&quot;</span>
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;[-] copy to AppVM $appvm&quot;</span>
+</span><span class='line'>   qvm-run <span class="nv">$appvm</span> <span class="s2">&quot;mkdir -p $APPVM_SHOTS_DIR&quot;</span>
+</span><span class='line'>   <span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;:&quot;</span>; <span class="k">for </span>shot in <span class="nv">$shotslist</span>; <span class="k">do</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] copying $APPVM_SHOTS_DIR/$shot&quot;</span>
+</span><span class='line'>      cat <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shot</span> <span class="se">\</span>
+</span><span class='line'>         |qvm-run --pass-io <span class="nv">$appvm</span> <span class="s2">&quot;cat &gt; $APPVM_SHOTS_DIR/$shot&quot;</span>
+</span><span class='line'>      rm -f <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shot</span>
+</span><span class='line'>   <span class="k">done</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;no AppVM name provided&quot;</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;[*] done&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Save this script in the home directory of <code>dom0</code> as <code>qvm-screenshot.sh</code>. You can run the following commands in a <code>dom0</code> terminal, assuming the script was downloaded inside a VM named <code>Work</code>:</p>
+
+<pre><code>qvm-run --pass-io Work 'cat ~/Downloads/qvm-screenshot.sh' &gt; ~/qvm-screenshot.sh
+chmod 755 ~/qvm-screenshot.sh
+</code></pre>
+
+<p>Next, open up Start &ndash;> System Tools &ndash;> System Settings, and select &ldquo;Shortcuts and Gestures&rdquo;</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/01.png"></p>
+
+<p>I use &ldquo;Print Screen&rdquo; and &ldquo;Print Window&rdquo;, tied to the <code>PrtSc</code> and <code>Ctrl+PrtSc</code> keys respectively. Print Screen simply takes a screenshot of the entire desktop, while Print Window only captures the window that is clicked on after the keypress. You can see my setup at the bottom of this post.</p>
+
+<p>Activating the keypress will yield the following window:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/02.png"></p>
+
+<p>Simply select the VM you want the screenshot saved to, and it will appear in that VM&rsquo;s Pictures folder.</p>
+
+<p>Also, if you are interested, Laurent also shared a script for recording video of the desktop<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/03.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/04.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/05.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/06.png"></p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ">https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenrecord.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenrecord.sh</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-17T18:51:55-04:00" pubdate data-updated="true">Sep 17<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/09/12/setting-up-qubes/" title="Previous Post: Setting up Qubes">&laquo; Setting up Qubes</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<a href="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/" alt="post-qrcode"></a>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/09/17/screenshots-in-qubes/">Screenshots in Qubes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
+	<font size=2>
+	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
+	</font>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

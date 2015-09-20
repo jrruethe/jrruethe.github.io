@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless. I decided I &hellip;">
+  <meta name="description" content="One of the security concepts of Qubes is that all work is done in separate VMs. The &ldquo;admin console&rdquo; for the Xen hypervisor is known as &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +74,259 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/17/screenshots-in-qubes/">Screenshots in Qubes</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-17T18:51:55-04:00" pubdate data-updated="true">Sep 17<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/09/17/screenshots-in-qubes/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>One of the security concepts of Qubes is that all work is done in separate VMs. The &ldquo;admin console&rdquo; for the Xen hypervisor is known as <code>dom0</code> and is responsible for managing the desktop environment. <code>dom0</code> is never supposed to interact with the other VMs, usb devices, or the network.</p>
+
+<p>However, when taking a screenshot, they are inevitably stored inside <code>dom0</code>. What can be done about this?</p>
+
+<p>Laurent Ghugonis<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> shared a very handy script for taking a screenshot and sending it to a VM<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>. You can find that script below. I have a few minor edits, but Laurent gets all the credit:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Take screenshot(s) in Qubes Dom0 and copy to AppVM</span>
+</span><span class='line'><span class="c"># Dependencies: scrot (sudo qubes-dom0-update scrot)</span>
+</span><span class='line'><span class="c"># My KDE shortcuts:</span>
+</span><span class='line'><span class="c"># Meta-C       : qvm-screenshot.sh -s -n</span>
+</span><span class='line'><span class="c"># Meta-Shift-C : qvm-screenshot.sh -s -n -m</span>
+</span><span class='line'><span class="c"># Meta-Alt-C   : qvm-screenshot.sh -s -q</span>
+</span><span class='line'><span class="c"># 2013, Laurent Ghigonis &lt;laurent@p1sec.com&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Modified 2015, Joe Ruether &lt;jrruethe@gmail.com&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">DOM0_SHOTS_DIR</span><span class="o">=</span><span class="nv">$HOME</span>/Pictures
+</span><span class='line'><span class="nv">APPVM_SHOTS_DIR</span><span class="o">=</span>/home/user/Pictures
+</span><span class='line'><span class="nv">QUBES_DOM0_APPVMS</span><span class="o">=</span>/var/lib/qubes/appvms/
+</span><span class='line'>
+</span><span class='line'>usage<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;$program [-hlmqs]&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-m : take multiple shots&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-n : after screenshot, run nautilus in AppVM&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-q : only take screenshot, no blabla&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-s : select window&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">program</span><span class="o">=</span><span class="s2">&quot;`basename $0`&quot;</span>
+</span><span class='line'><span class="nv">mode_multi</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">mode_nautilus</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">mode_select</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">opts</span><span class="o">=</span><span class="s2">&quot;$(getopt -o hmnqs -n &quot;</span><span class="nv">$program</span><span class="s2">&quot; -- &quot;</span><span class="nv">$@</span><span class="s2">&quot;)&quot;</span>
+</span><span class='line'><span class="nv">err</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'><span class="nb">eval set</span> -- <span class="s2">&quot;$opts&quot;</span>
+</span><span class='line'><span class="k">while </span><span class="nb">true</span>; <span class="k">do case</span> <span class="nv">$1</span> in
+</span><span class='line'>   -h<span class="o">)</span> usage; <span class="nb">exit </span>1 ;;
+</span><span class='line'>   -q<span class="o">)</span> <span class="nv">mode_quick</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -m<span class="o">)</span> <span class="nv">mode_multi</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -n<span class="o">)</span> <span class="nv">mode_nautilus</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -s<span class="o">)</span> <span class="nv">mode_select</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   --<span class="o">)</span> <span class="nb">shift</span>; <span class="nb">break</span> ;;
+</span><span class='line'><span class="k">esac done</span>
+</span><span class='line'><span class="o">[[</span> <span class="nv">$err</span> -ne 0 <span class="o">]]</span> <span class="o">&amp;&amp;</span> usage <span class="o">&amp;&amp;</span> <span class="nb">exit </span>1
+</span><span class='line'>
+</span><span class='line'><span class="nv">shotslist</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</span><span class='line'>mkdir -p <span class="nv">$DOM0_SHOTS_DIR</span> <span class="o">||</span><span class="nb">exit </span>1
+</span><span class='line'><span class="k">while </span><span class="nb">true</span>; <span class="k">do</span>
+</span><span class='line'><span class="k">   </span><span class="nv">d</span><span class="o">=</span><span class="sb">`</span>date +<span class="s2">&quot;%Y%m%d%H%M%S&quot;</span><span class="sb">`</span>
+</span><span class='line'>   <span class="nv">shotname</span><span class="o">=</span><span class="nv">$d</span>.png
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="nv">$mode_select</span> -eq 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] making shot, click on a window&quot;</span>
+</span><span class='line'>      scrot <span class="nv">$@</span> -s -b <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span> <span class="o">||</span><span class="nb">break</span>
+</span><span class='line'><span class="nb">   </span><span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] making shot of root window&quot;</span>
+</span><span class='line'>      scrot <span class="nv">$@</span> <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span> <span class="o">||</span><span class="nb">break</span>
+</span><span class='line'><span class="nb">   </span><span class="k">fi</span>
+</span><span class='line'>   <span class="o">[[</span> <span class="nv">$mode_quick</span> -eq 1 <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">exit </span>1
+</span><span class='line'>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;[-] saving $DOM0_SHOTS_DIR/$shotname&quot;</span>
+</span><span class='line'>   mv <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$tmpname</span> <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="nv">shotslist</span><span class="o">=</span><span class="s2">&quot;${shotslist}${shotname}:&quot;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="o">[[</span> <span class="nv">$mode_multi</span> -eq 1 <span class="o">]]</span> <span class="o">&amp;&amp;</span> kdialog --yesno <span class="s2">&quot;Other shot ?&quot;</span> <span class="o">||</span> <span class="nb">break</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">choice</span><span class="o">=</span><span class="sb">`</span>ls <span class="nv">$QUBES_DOM0_APPVMS</span> |sed <span class="s1">&#39;s/\([^ ]*\)/\1 \1/g&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">appvm</span><span class="o">=</span><span class="sb">`</span>kdialog --menu <span class="s2">&quot;Select destination AppVM&quot;</span> <span class="nv">$choice</span> --title <span class="s2">&quot;$program&quot;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> X<span class="s2">&quot;$appvm&quot;</span> !<span class="o">=</span> X<span class="s2">&quot;&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   if</span> <span class="o">[</span> <span class="nv">$mode_nautilus</span> -eq 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] running nautilus in AppVM&quot;</span>
+</span><span class='line'>      qvm-run <span class="nv">$appvm</span> <span class="s2">&quot;nautilus $APPVM_SHOTS_DIR&quot;</span>
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;[-] copy to AppVM $appvm&quot;</span>
+</span><span class='line'>   qvm-run <span class="nv">$appvm</span> <span class="s2">&quot;mkdir -p $APPVM_SHOTS_DIR&quot;</span>
+</span><span class='line'>   <span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;:&quot;</span>; <span class="k">for </span>shot in <span class="nv">$shotslist</span>; <span class="k">do</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] copying $APPVM_SHOTS_DIR/$shot&quot;</span>
+</span><span class='line'>      cat <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shot</span> <span class="se">\</span>
+</span><span class='line'>         |qvm-run --pass-io <span class="nv">$appvm</span> <span class="s2">&quot;cat &gt; $APPVM_SHOTS_DIR/$shot&quot;</span>
+</span><span class='line'>      rm -f <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shot</span>
+</span><span class='line'>   <span class="k">done</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;no AppVM name provided&quot;</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;[*] done&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Save this script in the home directory of <code>dom0</code> as <code>qvm-screenshot.sh</code>. You can run the following commands in a <code>dom0</code> terminal, assuming the script was downloaded inside a VM named <code>Work</code>:</p>
+
+<pre><code>qvm-run --pass-io Work 'cat ~/Downloads/qvm-screenshot.sh' &gt; ~/qvm-screenshot.sh
+chmod 755 ~/qvm-screenshot.sh
+</code></pre>
+
+<p>Next, open up Start &ndash;> System Tools &ndash;> System Settings, and select &ldquo;Shortcuts and Gestures&rdquo;</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/01.png"></p>
+
+<p>I use &ldquo;Print Screen&rdquo; and &ldquo;Print Window&rdquo;, tied to the <code>PrtSc</code> and <code>Ctrl+PrtSc</code> keys respectively. Print Screen simply takes a screenshot of the entire desktop, while Print Window only captures the window that is clicked on after the keypress. You can see my setup at the bottom of this post.</p>
+
+<p>Activating the keypress will yield the following window:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/02.png"></p>
+
+<p>Simply select the VM you want the screenshot saved to, and it will appear in that VM&rsquo;s Pictures folder.</p>
+
+<p>Also, if you are interested, Laurent also shared a script for recording video of the desktop<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/03.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/04.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/05.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/06.png"></p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ">https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenrecord.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenrecord.sh</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -203,7 +456,8 @@ Airgapping means the machine is never connected to the internet. It is completel
 
 <h2>Fixing Nautilus in Debian <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></h2>
 
-<p>Replace the contents of <code>/usr/bin/qubes-desktop-run</code> in your Debian templates with the following:</p>
+<p>After updating, Nautilus won&rsquo;t open due to a dbus error.
+To fix this, replace the contents of <code>/usr/bin/qubes-desktop-run</code> in your Debian templates with the following:</p>
 
 <figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -246,9 +500,12 @@ Airgapping means the machine is never connected to the internet. It is completel
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>Note that this has already been fixed in the upstream repo, and may not be needed in the future.</p>
+
 <h2>Fixing Terminal in Debian <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></h2>
 
-<p>After upgrading, run the following commands as root in your Debian templates:</p>
+<p>After upgrading, the locale&rsquo;s might get messed up, causing <code>gnome-terminal</code> to not load.
+Run the following commands as root in your Debian templates:</p>
 
 <pre><code>localedef -f UTF-8 -i en_US -c en_US.UTF-8
 update-locale LC_ALL=en_US.UTF-8
@@ -256,7 +513,8 @@ update-locale LC_ALL=en_US.UTF-8
 
 <h2>Fixing Copy To VM <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></h2>
 
-<p>Install <code>python-gtk2</code> in all your Debian templates:</p>
+<p>The secure copy-to-vm scripts require the Python GTK bindings, but they are not installed by default.
+Install <code>python-gtk2</code> in all your Debian templates:</p>
 
 <pre><code>apt-get install python-gtk2
 </code></pre>
@@ -9533,207 +9791,6 @@ Bob: Sounds great! Which locker number is yours?</p></blockquote>
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-04-23T19:18:12-04:00" pubdate data-updated="true">Apr 23<span>rd</span>, 2015</time>
-        
-           | <a href="/blog/2015/04/23/bitcoin-paper-wallets/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Paper wallets are a form of <em>cold storage</em>, meaning that the private key has never touched a computer with internet access. This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself. For that reason, this is a tutorial to create a paper wallet in a secure fashion.</p>
-
-<p>A repository of paper wallet generators can be found <a href="https://github.com/jrruethe/paper_wallet">here</a>. You can choose to use my repository directly if you wish, but I recommend going straight to the source.
-There are many options with different formats and templates, however I highly recommend bitcoinpaperwallet.com.</p>
-
-<p><em>I am in no way affiliated with bitcoinpaperwallet.com, just a satisfied customer.</em></p>
-
-<hr />
-
-<h3><a href="https://bitcoinpaperwallet.com/">BitcoinPaperWallet.com</a> (<a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a>)</h3>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/01.jpg"></p>
-
-<p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!</p>
-
-<p>Features:</p>
-
-<ul>
-<li>&ldquo;Butterfly&rdquo; design secures the private key</li>
-<li>Resistant to candling</li>
-<li>Supports <a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a> encryption</li>
-<li>Private key encoded in <a href="https://en.bitcoin.it/wiki/Wallet_import_format">Wallet Import Format</a></li>
-<li>Designed to be printed in landscape mode, but works in portrait mode as well</li>
-<li>Double sided</li>
-<li>2x wallets per sheet</li>
-<li>Notes section on the back</li>
-<li>Public key visible when closed</li>
-</ul>
-
-
-<p>Additional Options:</p>
-
-<ul>
-<li><a href="https://bitcoinpaperwallet.com/">Security Stickers</a> 2in x .5in (<a href="http://www.amazon.com/gp/product/B00MWCCN7C">Alternative</a>)*</li>
-<li><a href="https://bitcoinpaperwallet.com/">Waterproof Bag</a> 6in x 3in (<a href="http://www.amazon.com/Clear-Lock-Bags-Case-1000/dp/B0040003E4">Alternative</a>)</li>
-<li><a href="http://www.amazon.com/dp/B004PX7ZTC">Teslin Paper</a> (Inkjet Printers)</li>
-<li><a href="http://www.amazon.com/gp/product/B004UI335W/">Revlar Paper</a> (Laser Printers)</li>
-<li><a href="http://www.amazon.com/gp/product/B00ENI0NI4">Scratch Off Stickers</a> 1in x 1in</li>
-<li><a href="http://www.amazon.com/gp/product/B00BWU3HNY">Laminating Pouches</a> 8.9in x 11.4in</li>
-<li><a href="http://www.amazon.com/gp/product/B0010JEJPC">Laminator</a></li>
-</ul>
-
-
-<blockquote><p>*The official security stickers from bitcoinpaperwallet.com are serialized in pairs, meaning you get two of each number. This is best because each paper wallet requires two stickers, so the numbers match. The alternative link only provides one sticker for each number.</p></blockquote>
-
-<p>Dimensions:</p>
-
-<ul>
-<li>Landscape: 5.5in x 2.5in (Slightly smaller than a dollar bill)</li>
-<li>Portrait: 4in x 2in (Slightly bigger than a standard business card)</li>
-<li>QR Codes: 1in x 1in (About the size of a quarter)</li>
-</ul>
-
-
-<p>For additional artworks, check out <a href="http://libertywallet.liberty.me/2015/03/18/liberty-wallet/">Liberty Paper Wallet</a> (<a href="https://github.com/SimonBelmond/libertypaperwallet">Github</a>).</p>
-
-<hr />
-
-<h3>Protecting your paper wallet</h3>
-
-<p>Paper wallets are extremely vulnerable to water.
-Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/03.jpg"></p>
-
-<p>Paper wallets are also extremely vulnerable to fire.
-However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.</p>
-
-<blockquote><p>Remember, if you lose your paper wallet, or it is damaged, you lose all the coins stored at that address!</p></blockquote>
-
-<hr />
-
-<h3>How to properly create a paper wallet</h3>
-
-<p>Paper wallets need to be created offline on a secure machine. For this tutorial, I will be using a <a href="https://tails.boum.org/">Tails</a> Live CD. Grab the ISO and burn it to a disk.</p>
-
-<p>Save a <a href="https://github.com/cantonbecker/bitcoinpaperwallet/archive/master.zip">copy of bitcoinpaperwallet</a> onto a USB drive.</p>
-
-<ol>
-<li>Shutdown your computer and boot from the CD.</li>
-<li>When the Tails welcome box appears, select &ldquo;More Options&rdquo;.</li>
-<li>Enter an administrator password of your choice and login.</li>
-<li>Wait for tor to become ready.</li>
-</ol>
-
-
-<blockquote><p>For this tutorial, in order to get screenshots I am using a virtual machine. Do not use a virtual machine when doing this for real!</p></blockquote>
-
-<p>Before creating the paper wallet, you will want to ensure that your printer works correctly. You need a printer that is directly connected to your machine; don&rsquo;t use a network printer (you shouldn&rsquo;t be connected to any network). If possible, use a dumb printer, and try to ensure that your printer does not save a copy of printouts to internal memory. Use this time to get any drivers you need from the internet.</p>
-
-<p>From the <code>Applications</code> menu, select <code>System Tools -&gt; Administration -&gt; Printing</code>.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/04.png"></p>
-
-<p>Add your printer. Open up Tor Browser and ensure that you can print a webpage.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/05.png"></p>
-
-<p>Time to disconnect from the internet. Unplug the ethernet cord, turn off any wireless cards or routers as necessary. Verify that you are not online.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/06.png"></p>
-
-<ol>
-<li>Insert your usb drive</li>
-<li>Copy the github zip file to the <code>Tor Browser</code> folder on the filesystem</li>
-<li>Remove the usb drive</li>
-<li>Unpack the zip file</li>
-</ol>
-
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/07.png"></p>
-
-<p>Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! &ldquo;Brain wallets&rdquo; may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/08.png"></p>
-
-<blockquote><p><strong>BIP38 Encryption?</strong><br/>
-There are pros and cons to encrypting your paper wallet. Encryption adds an extra layer of security by requiring a passphrase before being able to import the private key again, which is great if the paper wallet ever gets stolen. However if the passphrase is forgotten, the coins are lost forever. The passphrase is one more thing to remember / write down, which means it is one more thing to secure. In addition, some wallet software does not support BIP38, which may make reimporting difficult. Finally, it is important to realize that BIP38 encryption will NOT help if you chose an insecure passphrase for a brain wallet. In general, BIP38 encryption is recommended.</p></blockquote>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/09.png"></p>
-
-<p>You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/10.jpg" width="400" height="600"></p>
-
-<p>Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/11.png"></p>
-
-<p>Shutdown your Tails environment. It will wipe your ram for you.</p>
-
-<p>Cut out each design by following the lines on the front. Fold the wallets and apply the stickers.</p>
-
-<blockquote><p>If you have a laser printer, you will want to include a small 1in x 1in square of paper between the private key and the candling pattern when folding the paper. Later on, we will be laminating the paper wallet, and the heat can cause the toner on each side of the fold to fuse together.</p></blockquote>
-
-<p>Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/12.jpg" width="400" height="600"></p>
-
-<p>Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/13.jpg" width="400" height="600"></p>
-
-<hr />
-
-<h3>How to properly use a paper wallet</h3>
-
-<p>You can scan the public key into Electrum or Mycelium as a watch-only wallet to keep track of your funds. Eventually you will want to spend the funds.</p>
-
-<p>First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the &ldquo;Private Key / Withdraw&rdquo; line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/14.jpg"></p>
-
-<p>Now comes the important part. The funds must be &ldquo;swept&rdquo; into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.</p>
-
-<blockquote><p><strong>Change?</strong><br/>
-When spending Bitcoins, <em>ALL</em> coins from that address are moved to new addresses.
-The destination address will get the desired amount, and any remaining amount will be sent to a &ldquo;change&rdquo; address. If no &ldquo;change&rdquo; address is specified, the remaining amount will go to the miner that solves the block. Normally, an electronic wallet manages this for you behind the scenes, however when using a paper wallet directly, you will not have this control. This is why the entire balance of a paper wallet should be &ldquo;swept&rdquo; into an electronic wallet before spending.<br/>
-Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p></blockquote>
-
-<p>Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/15.jpg"></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -9767,6 +9824,10 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/09/17/screenshots-in-qubes/">Screenshots in Qubes</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a>
       </li>
     
@@ -9780,10 +9841,6 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
     
       <li class="post">
         <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
       </li>
     
   </ul>

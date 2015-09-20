@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2015-09-15T21:06:38-04:00</updated>
+  <updated>2015-09-20T14:47:01-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,229 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Screenshots in Qubes]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/"/>
+    <updated>2015-09-17T18:51:55-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes</id>
+    <content type="html"><![CDATA[<p>One of the security concepts of Qubes is that all work is done in separate VMs. The &ldquo;admin console&rdquo; for the Xen hypervisor is known as <code>dom0</code> and is responsible for managing the desktop environment. <code>dom0</code> is never supposed to interact with the other VMs, usb devices, or the network.</p>
+
+<p>However, when taking a screenshot, they are inevitably stored inside <code>dom0</code>. What can be done about this?</p>
+
+<p>Laurent Ghugonis<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> shared a very handy script for taking a screenshot and sending it to a VM<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>. You can find that script below. I have a few minor edits, but Laurent gets all the credit:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Take screenshot(s) in Qubes Dom0 and copy to AppVM</span>
+</span><span class='line'><span class="c"># Dependencies: scrot (sudo qubes-dom0-update scrot)</span>
+</span><span class='line'><span class="c"># My KDE shortcuts:</span>
+</span><span class='line'><span class="c"># Meta-C       : qvm-screenshot.sh -s -n</span>
+</span><span class='line'><span class="c"># Meta-Shift-C : qvm-screenshot.sh -s -n -m</span>
+</span><span class='line'><span class="c"># Meta-Alt-C   : qvm-screenshot.sh -s -q</span>
+</span><span class='line'><span class="c"># 2013, Laurent Ghigonis &lt;laurent@p1sec.com&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Modified 2015, Joe Ruether &lt;jrruethe@gmail.com&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">DOM0_SHOTS_DIR</span><span class="o">=</span><span class="nv">$HOME</span>/Pictures
+</span><span class='line'><span class="nv">APPVM_SHOTS_DIR</span><span class="o">=</span>/home/user/Pictures
+</span><span class='line'><span class="nv">QUBES_DOM0_APPVMS</span><span class="o">=</span>/var/lib/qubes/appvms/
+</span><span class='line'>
+</span><span class='line'>usage<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;$program [-hlmqs]&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-m : take multiple shots&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-n : after screenshot, run nautilus in AppVM&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-q : only take screenshot, no blabla&quot;</span>
+</span><span class='line'>   <span class="nb">echo</span> -e <span class="s2">&quot;\t-s : select window&quot;</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">program</span><span class="o">=</span><span class="s2">&quot;`basename $0`&quot;</span>
+</span><span class='line'><span class="nv">mode_multi</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">mode_nautilus</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">mode_select</span><span class="o">=</span>0
+</span><span class='line'><span class="nv">opts</span><span class="o">=</span><span class="s2">&quot;$(getopt -o hmnqs -n &quot;</span><span class="nv">$program</span><span class="s2">&quot; -- &quot;</span><span class="nv">$@</span><span class="s2">&quot;)&quot;</span>
+</span><span class='line'><span class="nv">err</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'><span class="nb">eval set</span> -- <span class="s2">&quot;$opts&quot;</span>
+</span><span class='line'><span class="k">while </span><span class="nb">true</span>; <span class="k">do case</span> <span class="nv">$1</span> in
+</span><span class='line'>   -h<span class="o">)</span> usage; <span class="nb">exit </span>1 ;;
+</span><span class='line'>   -q<span class="o">)</span> <span class="nv">mode_quick</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -m<span class="o">)</span> <span class="nv">mode_multi</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -n<span class="o">)</span> <span class="nv">mode_nautilus</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   -s<span class="o">)</span> <span class="nv">mode_select</span><span class="o">=</span>1; <span class="nb">shift</span> ;;
+</span><span class='line'>   --<span class="o">)</span> <span class="nb">shift</span>; <span class="nb">break</span> ;;
+</span><span class='line'><span class="k">esac done</span>
+</span><span class='line'><span class="o">[[</span> <span class="nv">$err</span> -ne 0 <span class="o">]]</span> <span class="o">&amp;&amp;</span> usage <span class="o">&amp;&amp;</span> <span class="nb">exit </span>1
+</span><span class='line'>
+</span><span class='line'><span class="nv">shotslist</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+</span><span class='line'>mkdir -p <span class="nv">$DOM0_SHOTS_DIR</span> <span class="o">||</span><span class="nb">exit </span>1
+</span><span class='line'><span class="k">while </span><span class="nb">true</span>; <span class="k">do</span>
+</span><span class='line'><span class="k">   </span><span class="nv">d</span><span class="o">=</span><span class="sb">`</span>date +<span class="s2">&quot;%Y%m%d%H%M%S&quot;</span><span class="sb">`</span>
+</span><span class='line'>   <span class="nv">shotname</span><span class="o">=</span><span class="nv">$d</span>.png
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="nv">$mode_select</span> -eq 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] making shot, click on a window&quot;</span>
+</span><span class='line'>      scrot <span class="nv">$@</span> -s -b <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span> <span class="o">||</span><span class="nb">break</span>
+</span><span class='line'><span class="nb">   </span><span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] making shot of root window&quot;</span>
+</span><span class='line'>      scrot <span class="nv">$@</span> <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span> <span class="o">||</span><span class="nb">break</span>
+</span><span class='line'><span class="nb">   </span><span class="k">fi</span>
+</span><span class='line'>   <span class="o">[[</span> <span class="nv">$mode_quick</span> -eq 1 <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="nb">exit </span>1
+</span><span class='line'>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;[-] saving $DOM0_SHOTS_DIR/$shotname&quot;</span>
+</span><span class='line'>   mv <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$tmpname</span> <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shotname</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="nv">shotslist</span><span class="o">=</span><span class="s2">&quot;${shotslist}${shotname}:&quot;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="o">[[</span> <span class="nv">$mode_multi</span> -eq 1 <span class="o">]]</span> <span class="o">&amp;&amp;</span> kdialog --yesno <span class="s2">&quot;Other shot ?&quot;</span> <span class="o">||</span> <span class="nb">break</span>
+</span><span class='line'><span class="k">done</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">choice</span><span class="o">=</span><span class="sb">`</span>ls <span class="nv">$QUBES_DOM0_APPVMS</span> |sed <span class="s1">&#39;s/\([^ ]*\)/\1 \1/g&#39;</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">appvm</span><span class="o">=</span><span class="sb">`</span>kdialog --menu <span class="s2">&quot;Select destination AppVM&quot;</span> <span class="nv">$choice</span> --title <span class="s2">&quot;$program&quot;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> X<span class="s2">&quot;$appvm&quot;</span> !<span class="o">=</span> X<span class="s2">&quot;&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   if</span> <span class="o">[</span> <span class="nv">$mode_nautilus</span> -eq 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] running nautilus in AppVM&quot;</span>
+</span><span class='line'>      qvm-run <span class="nv">$appvm</span> <span class="s2">&quot;nautilus $APPVM_SHOTS_DIR&quot;</span>
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;[-] copy to AppVM $appvm&quot;</span>
+</span><span class='line'>   qvm-run <span class="nv">$appvm</span> <span class="s2">&quot;mkdir -p $APPVM_SHOTS_DIR&quot;</span>
+</span><span class='line'>   <span class="nv">IFS</span><span class="o">=</span><span class="s2">&quot;:&quot;</span>; <span class="k">for </span>shot in <span class="nv">$shotslist</span>; <span class="k">do</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;[-] copying $APPVM_SHOTS_DIR/$shot&quot;</span>
+</span><span class='line'>      cat <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shot</span> <span class="se">\</span>
+</span><span class='line'>         |qvm-run --pass-io <span class="nv">$appvm</span> <span class="s2">&quot;cat &gt; $APPVM_SHOTS_DIR/$shot&quot;</span>
+</span><span class='line'>      rm -f <span class="nv">$DOM0_SHOTS_DIR</span>/<span class="nv">$shot</span>
+</span><span class='line'>   <span class="k">done</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;no AppVM name provided&quot;</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;[*] done&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Save this script in the home directory of <code>dom0</code> as <code>qvm-screenshot.sh</code>. You can run the following commands in a <code>dom0</code> terminal, assuming the script was downloaded inside a VM named <code>Work</code>:</p>
+
+<pre><code>qvm-run --pass-io Work 'cat ~/Downloads/qvm-screenshot.sh' &gt; ~/qvm-screenshot.sh
+chmod 755 ~/qvm-screenshot.sh
+</code></pre>
+
+<p>Next, open up Start &ndash;> System Tools &ndash;> System Settings, and select &ldquo;Shortcuts and Gestures&rdquo;</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/01.png"></p>
+
+<p>I use &ldquo;Print Screen&rdquo; and &ldquo;Print Window&rdquo;, tied to the <code>PrtSc</code> and <code>Ctrl+PrtSc</code> keys respectively. Print Screen simply takes a screenshot of the entire desktop, while Print Window only captures the window that is clicked on after the keypress. You can see my setup at the bottom of this post.</p>
+
+<p>Activating the keypress will yield the following window:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/02.png"></p>
+
+<p>Simply select the VM you want the screenshot saved to, and it will appear in that VM&rsquo;s Pictures folder.</p>
+
+<p>Also, if you are interested, Laurent also shared a script for recording video of the desktop<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/03.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/04.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/05.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/17/screenshots-in-qubes/06.png"></p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ">https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenrecord.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenrecord.sh</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Setting Up Qubes]]></title>
@@ -115,7 +338,8 @@ Airgapping means the machine is never connected to the internet. It is completel
 
 <h2>Fixing Nautilus in Debian <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></h2>
 
-<p>Replace the contents of <code>/usr/bin/qubes-desktop-run</code> in your Debian templates with the following:</p>
+<p>After updating, Nautilus won&rsquo;t open due to a dbus error.
+To fix this, replace the contents of <code>/usr/bin/qubes-desktop-run</code> in your Debian templates with the following:</p>
 
 <figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -158,9 +382,12 @@ Airgapping means the machine is never connected to the internet. It is completel
 </span></code></pre></td></tr></table></div></figure>
 
 
+<p>Note that this has already been fixed in the upstream repo, and may not be needed in the future.</p>
+
 <h2>Fixing Terminal in Debian <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></h2>
 
-<p>After upgrading, run the following commands as root in your Debian templates:</p>
+<p>After upgrading, the locale&rsquo;s might get messed up, causing <code>gnome-terminal</code> to not load.
+Run the following commands as root in your Debian templates:</p>
 
 <pre><code>localedef -f UTF-8 -i en_US -c en_US.UTF-8
 update-locale LC_ALL=en_US.UTF-8
@@ -168,7 +395,8 @@ update-locale LC_ALL=en_US.UTF-8
 
 <h2>Fixing Copy To VM <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></h2>
 
-<p>Install <code>python-gtk2</code> in all your Debian templates:</p>
+<p>The secure copy-to-vm scripts require the Python GTK bindings, but they are not installed by default.
+Install <code>python-gtk2</code> in all your Debian templates:</p>
 
 <pre><code>apt-get install python-gtk2
 </code></pre>
@@ -12480,149 +12708,6 @@ echo This is b message | sha256sum
 </ol>
 </div>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[PDF Generation With Ruby and Pocket]]></title>
-    <link href="http://jrruethe.github.io/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/"/>
-    <updated>2014-08-16T23:14:33-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2014/08/16/pdf-generation-with-ruby-and-pocket</id>
-    <content type="html"><![CDATA[<p>One thing I like to do when I&rsquo;m browsing the internet is save each interesting page I come across. I do this by printing the page to a PDF. This is better than saving a bookmark because articles on the internet have a tendency to go down when you need them most. In addition, I use <a href="http://getpocket.com/a/queue/list/">Pocket</a> to save articles while browsing with my phone or work computer, where I cannot print to PDF. It is easy to export your Pocket articles to an HTML file, and it is easy to parse that file to extract the links.</p>
-
-<p>First, we need some things.</p>
-
-<pre><code>sudo apt-get install ruby cups-pdf wkhtmltopdf xdg-utils pcmanfm recoll
-gem install pdfkit nokogiri
-</code></pre>
-
-<p>I use LXDE, and <code>xdg-open</code> forwards requests though <code>pcmanfm</code>, so it needs to be installed. For indexing the PDFs, <code>recoll</code> is very useful and allows for quickly searching for content.</p>
-
-<p>I wrote a small ruby script to take a URL and generate a PDF. It uses PDFKit under the hood, which in turn uses <code>wkhtmltopdf</code> to do the PDF generation. <code>wkhtmltopdf</code> has a tendency to get hung up on some pages, especially if Java is involved, and the normal ruby call to PDFKit will freeze until <code>wkhtmltopdf</code> is killed. I found out the hard way that the standard <code>Timeout</code> module in ruby isn&rsquo;t enough; the <code>wkhtmltopdf</code> process needs to be killed directly. I do this by using a timer thread and a small <code>killall</code> function:</p>
-
-<pre><code># Kill a process by name
-def killall(name)
-
-   # For each process
-   Dir['/proc/[0-9]*/cmdline'].each do |p|
-
-      # Check to see if the command line invocation matches the given name
-      if File.read(p).match name
-
-         # Grab the PID
-         pid = p.split('/')[2].to_i
-
-         # Kill the process
-         Process.kill("SIGKILL", pid)
-      end
-   end
-end
-</code></pre>
-
-<p>Note that this will only work on Linux, since it is crawling the Kernel&rsquo;s <code>proc</code> filesystem.<br/>
-With that function available, here is a small PDF generation class as a wrapper around PDFKit:</p>
-
-<pre><code>require 'pdfkit'
-
-# A wrapper around PDFKit that generates PDFs from URLs
-# It uses wkhtmltopdf under the hood.
-# wkhtmltopdf can sometimes hang, this wrapper takes care of that
-# so PDF generation can be autmomated
-class PdfGenerator
-
-   def initialize
-      PDFKit.configure do |config|
-         config.default_options[:load_error_handling] = 'ignore'
-         config.default_options[:load_media_error_handling] = 'ignore'
-      end
-   end
-
-   # Convert a webpage to a PDF file
-   # Returns true if successful, false if there was an error or a timeout
-   def from_url(url, output_filename)
-
-      retval = true
-
-      # Run the PDF generation in a thread
-      # so we can kill it after some amount of time
-      process_thread = Thread.new do
-         begin
-            puts "Processing " + url
-            kit = PDFKit.new(url)
-            kit.to_file(output_filename)
-         rescue
-            puts "Failed to process " + url
-            retval = false
-         end
-      end
-
-      # Start a timer to kill the process thread
-      # if it takes too long
-      timeout_thread = Thread.new do
-         sleep 60
-         if process_thread.alive?
-            killall "wkhtmltopdf"
-            process_thread.kill
-            puts "Timed out"
-            retval = false
-         end
-      end
-
-      # Wait for the process thread to end
-      process_thread.join
-      timeout_thread.kill
-
-      if retval
-         puts "Successfully processed " + url
-      end
-
-      return retval
-
-   end
-
-end
-</code></pre>
-
-<p>The next step is to parse out the Pocket export file to get the title and links. Here is some code for that:</p>
-
-<pre><code>require 'nokogiri'
-
-# Create a PDF generator
-pdf_generator = PdfGenerator.new
-
-# Open the pocket export file
-page = Nokogiri::HTML(open("ril_export.html"))
-
-# Parse out the links
-links = page.css('a')
-
-# For each link
-links.each do |link|
-
-   title = link.text
-   url = link['href']
-
-   # Sanitize the title to be a valid filename
-   title.gsub!(/[^0-9A-Za-z.\-]/, '_')
-   title.downcase!
-
-   # Specify the output filename using the title
-   output_filename = title + '.pdf'
-
-   # Skip any files that have already been processed
-   if File.exist?(output_filename)
-      next
-   end
-
-   # Generate the PDF
-   result = pdf_generator.from_url(url, output_filename)
-
-end
-</code></pre>
-
-<p>The end result will be that all your Pocket articles will be printed to PDF! Very nice and easy to automate.</p>
-
-<p>But what to do with all these PDFs? Recoll is a simple indexer that can quickly search them for the content you are looking for. After a large collection of links have been built up, you will have your own little offline internet database at your fingertips.</p>
 ]]></content>
   </entry>
   
