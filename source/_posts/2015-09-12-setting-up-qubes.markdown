@@ -92,7 +92,8 @@ For the most part, Qubes works great out of the box, however there are a few thi
 
 ## Fixing Nautilus in Debian [^1]
 
-Replace the contents of `/usr/bin/qubes-desktop-run` in your Debian templates with the following:
+After updating, Nautilus won't open due to a dbus error. 
+To fix this, replace the contents of `/usr/bin/qubes-desktop-run` in your Debian templates with the following:
 
 {% codeblock lang:python %}
 #!/usr/bin/python
@@ -116,15 +117,19 @@ if __name__ == "__main__":
     main(*sys.argv) 
 {% endcodeblock %}
 
+Note that this has already been fixed in the upstream repo, and may not be needed in the future.
+
 ## Fixing Terminal in Debian [^2]
 
-After upgrading, run the following commands as root in your Debian templates:
+After upgrading, the locale's might get messed up, causing `gnome-terminal` to not load.
+Run the following commands as root in your Debian templates:
 
     localedef -f UTF-8 -i en_US -c en_US.UTF-8
     update-locale LC_ALL=en_US.UTF-8
     
 ## Fixing Copy To VM [^3]
 
+The secure copy-to-vm scripts require the Python GTK bindings, but they are not installed by default.
 Install `python-gtk2` in all your Debian templates:
 
     apt-get install python-gtk2
