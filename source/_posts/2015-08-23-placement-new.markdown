@@ -430,7 +430,7 @@ Below is a modification of an alignment algorithm found in the Eigen[^4] library
 #include <boost/mpl/arithmetic.hpp>
 
 template<std::size_t bytes = 0>
-struct Alignment
+struct boundary
 {
    // If an alignment is specified, it must be greater than or equal to
    // the size of a pointer.
@@ -457,22 +457,30 @@ struct Alignment
    ));
 
    // In order for this to work, must allocate additional bytes
-   enum{alignment = bytes};
+   enum{value = bytes};
+
+   // Get the next aligned pointer
+   static void* next(void* ptr)
+   {
+   	// Round down to the previous multiple of X,
+		// then move to the next multiple of X.
+		return
+			reinterpret_cast<void*>(
+				(reinterpret_cast<std::size_t>(ptr)
+					& ~(std::size_t(value - 1)))
+				+ value);
+   }
 
    // Return an aligned pointer
    static void* align(void* ptr)
    {
-      // Round down to the previous multiple of X,
-      // then move to the next multiple of X.
-      void* aligned_ptr =
-         reinterpret_cast<void*>(
-            (reinterpret_cast<std::size_t>(ptr)
-               & ~(std::size_t(alignment - 1)))
-            + alignment);
+   	// Get the next aligned pointer
+      void* aligned_ptr = next(ptr);
 
       // Save the original pointer in the space we skipped over
       *(reinterpret_cast<void**>(aligned_ptr) - 1) = ptr;
 
+      // Return the aligned pointer
       return aligned_ptr;
    }
 
@@ -485,16 +493,17 @@ struct Alignment
 
 // Specialize to not attempt alignment
 template<>
-struct Alignment<0>
+struct boundary<0>
 {
-   enum{alignment = 0};
+   enum{value = 0};
+   static void* next   (void* ptr){return ptr;}
    static void* align  (void* ptr){return ptr;}
    static void* unalign(void* ptr){return ptr;}
 };
 
 {% endcodeblock %}
 
-Using it is simple: Any pointer can be aligned, and any aligned pointer can be unaligned. However, it is important to remember that extra space must be allocated before attempting to align the pointer. The following example will show how to align a structure on a 16 byte boundary:
+Using it is simple: Any pointer can be aligned on a boundary, and any aligned pointer can be unaligned. However, it is important to remember that extra space must be allocated before attempting to align the pointer. The following example will show how to align a structure on a 16 byte boundary:
 
 {% codeblock lang:c++ %}
 
@@ -509,7 +518,7 @@ int main(int argc, char* argv[])
    // Reserve size for our structure
    // plus alignment overhead
    // plus our test offset
-   unsigned char* memory = static_cast<unsigned char*>(malloc(size + Alignment<16>::alignment + offset));
+   unsigned char* memory = static_cast<unsigned char*>(malloc(size + boundary<16>::value + offset));
 
    // Print out the address of the malloc'd memory pointer
    printf("Memory:          0x%016lX\n", memory);
@@ -518,20 +527,20 @@ int main(int argc, char* argv[])
    memset(memory, 0xCC, sizeof(memory));
 
    // Mark the object area as "Allocated"
-   memset(memory + offset, 0xAA, size + Alignment<16>::alignment);
+   memset(memory + offset, 0xAA, size + boundary<16>::value);
 
    // Print out the address of where we will construct the object
    printf("Memory + Offset: 0x%016lX\n", memory + offset);
 
    // Construct an object offset into memory,
    // but use pointer alignment to realign it
-   Test* ptr = new (Alignment<16>::align(memory + offset)) Test();
+   Test* ptr = new (boundary<16>::align(memory + offset)) Test();
 
    // Print out the address of the aligned pointer
    printf("Ptr:             0x%016lX\n", static_cast<void*>(ptr));
 
    // Print out the address of the unaligned pointer
-   printf("Unaligned Ptr:   0x%016lX\n", Alignment<16>::unalign(ptr));
+   printf("Unaligned Ptr:   0x%016lX\n", boundary<16>::unalign(ptr));
 
    // Lets see what it looks like
    dump_memory_with_context(ptr, sizeof(Test));
@@ -541,7 +550,7 @@ int main(int argc, char* argv[])
 
    // Unalign the aligned pointer to get the original pointer back
    // then remove the offset to properly free
-   free(Alignment<16>::unalign(ptr) - offset);
+   free(boundary<16>::unalign(ptr) - offset);
 }
 
 {% endcodeblock %}

@@ -4,12 +4,14 @@
 
 set -e
 
+PATH=/home/user/Downloads/bin:$PATH
+
 # Disable preview mode
 rm -f .preview-mode
 
 # Deploy
-rake _0.9.2.2_ generate
-rake _0.9.2.2_ deploy
+rake generate
+rake deploy
 
 # Resync to prevent problems later
 ./sync.sh
