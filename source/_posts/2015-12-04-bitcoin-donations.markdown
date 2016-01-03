@@ -4,7 +4,6 @@ title: "Bitcoin Donations"
 date: 2015-12-04 20:37:39 -0500
 comments: true
 categories: 
-published: false
 ---
 
 Its that time of year again, and I am reminded by the large banner at the top of Wikipedia. I have some spare change lying around, and I feel like showing my support to fellow programmers who maintain the software I use every day.
@@ -13,22 +12,22 @@ I am a strong supporter of Bitcoin and naturally I wanted to use it for donation
 
 First, I compiled a list of the major OSS software products I rely on, as well as projects I truely believe in, and found the donation pages for each. I discovered that many of them do provide a way to pay with Bitcoin; however, the methods, formats, and requirements varied greatly. This is a perfect opportunity to provide a review on how easy or difficult it is to donate Bitcoin to websites today. I took my list and trimmed it down to a small subset of different examples. This post will be reviewing the Bitcoin donation methods for the following sites:
 
- - Armory
- - Debian
- - Eclipse
- - Electronic Frontier Foundation
- - Freedom of the Press Foundation
- - Free Software Foundation
- - Mozilla
- - Qubes
- - RiseUp
- - Veracrypt
- - Wikipedia
+ - [Armory](https://bitcoinarmory.com/contact/)
+ - [Debian](http://www.debian.org/donations)
+ - [Eclipse](https://www.eclipse.org/donate/)
+ - [Electronic Frontier Foundation](https://supporters.eff.org/donate)
+ - [Freedom of the Press Foundation](https://freedom.press/donate)
+ - [Free Software Foundation](https://my.fsf.org/donate/)
+ - [Mozilla](https://donate.mozilla.org/en-US/give-bitcoin/)
+ - [Qubes](https://www.qubes-os.org/donate/)
+ - [RiseUp](https://www.qubes-os.org/donate/)
+ - [Veracrypt](https://veracrypt.codeplex.com/wikipage?title=Bitcoin%20Donation)
+ - [Wikipedia](https://wikimediafoundation.org/wiki/Ways_to_Give#bitcoin)
 
 ---
 ## Doing it the right way
 
-I must really commend the Free Software Foundation. Of all the sites I reviewed, I feel the FSF is the only one who is doing it "right".
+I must really commend the Free Software Foundation and Qubes. Of all the sites I reviewed, I feel these sites are the only ones who are doing it "right".
 
  - All additional information is optional
  - A static Bitcoin address is displayed on the main donation page
@@ -38,8 +37,6 @@ I must really commend the Free Software Foundation. Of all the sites I reviewed,
 {% img center ./01.png %}
 
 I want to bring special attention to this last point. Bitcoin addresses are almost impossible to remember and have no identifying features to link them to the owner. Hackers could exploit a website and change the address server-side, or a MitM attack could allow the address to be spoofed on the client side (the latter is especially true if using Tor, where the exit node can replace webpage content). For these reasons, Bitcoin addresses displayed on webpages should have an accompanying GPG signature to prove ownership and eliminate the risk of tampering.
-
-I would also like to note that Qubes was the only other site that provided a signature for their address, in the form of a signed message on the mailing list. I cannot stress enough how much this signature is appreciated. I recommend making the signature available directly on the donation page.
 
 A special mention to the folks at Armory. They have set up a [donation matching program](https://bitcoinarmory.com/donation-match-list/), where they provide [signed addresses](https://s3.amazonaws.com/bitcoinarmory-simulnotes/signed_donation_addresses.txt) and a method for [verifying the signatures](https://bitcoinarmory.com/donation-matching/#verify-donation-addresses). Curiously, they do not sign their [own address](https://bitcoinarmory.com/contact/) on their website (even though it can be obtained from their software).
 
