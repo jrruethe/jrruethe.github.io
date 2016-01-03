@@ -67,8 +67,9 @@ In the static data &hellip;">
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/blog/about">About</a></li>
   <li><a href="/blog/license">License</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/contact">Contact</a></li>
 </ul>
 
 </nav>
@@ -830,6 +831,15 @@ If you are surprised by the output above, you may not be aware of padding. The c
 <span class='line-number'>66</span>
 <span class='line-number'>67</span>
 <span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
 </pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;boost/mpl/assert.hpp&gt;</span>
 </span><span class='line'><span class="cp">#include &lt;boost/mpl/int.hpp&gt;</span>
 </span><span class='line'><span class="cp">#include &lt;boost/mpl/comparison.hpp&gt;</span>
@@ -837,7 +847,7 @@ If you are surprised by the output above, you may not be aware of padding. The c
 </span><span class='line'><span class="cp">#include &lt;boost/mpl/arithmetic.hpp&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">bytes</span> <span class="o">=</span> <span class="mi">0</span><span class="o">&gt;</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">Alignment</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">boundary</span>
 </span><span class='line'><span class="p">{</span>
 </span><span class='line'>   <span class="c1">// If an alignment is specified, it must be greater than or equal to</span>
 </span><span class='line'>   <span class="c1">// the size of a pointer.</span>
@@ -864,22 +874,30 @@ If you are surprised by the output above, you may not be aware of padding. The c
 </span><span class='line'>   <span class="p">));</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// In order for this to work, must allocate additional bytes</span>
-</span><span class='line'>   <span class="k">enum</span><span class="p">{</span><span class="n">alignment</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">};</span>
+</span><span class='line'>   <span class="k">enum</span><span class="p">{</span><span class="n">value</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Get the next aligned pointer</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">next</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Round down to the previous multiple of X,</span>
+</span><span class='line'>      <span class="c1">// then move to the next multiple of X.</span>
+</span><span class='line'>      <span class="k">return</span>
+</span><span class='line'>          <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span>
+</span><span class='line'>              <span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+</span><span class='line'>                  <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+</span><span class='line'>              <span class="o">+</span> <span class="n">value</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Return an aligned pointer</span>
 </span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">align</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">)</span>
 </span><span class='line'>   <span class="p">{</span>
-</span><span class='line'>      <span class="c1">// Round down to the previous multiple of X,</span>
-</span><span class='line'>      <span class="c1">// then move to the next multiple of X.</span>
-</span><span class='line'>      <span class="kt">void</span><span class="o">*</span> <span class="n">aligned_ptr</span> <span class="o">=</span>
-</span><span class='line'>         <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span>
-</span><span class='line'>            <span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
-</span><span class='line'>               <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="p">(</span><span class="n">alignment</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
-</span><span class='line'>            <span class="o">+</span> <span class="n">alignment</span><span class="p">);</span>
+</span><span class='line'>      <span class="c1">// Get the next aligned pointer</span>
+</span><span class='line'>      <span class="kt">void</span><span class="o">*</span> <span class="n">aligned_ptr</span> <span class="o">=</span> <span class="n">next</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>      <span class="c1">// Save the original pointer in the space we skipped over</span>
 </span><span class='line'>      <span class="o">*</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">**&gt;</span><span class="p">(</span><span class="n">aligned_ptr</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">;</span>
 </span><span class='line'>
+</span><span class='line'>      <span class="c1">// Return the aligned pointer</span>
 </span><span class='line'>      <span class="k">return</span> <span class="n">aligned_ptr</span><span class="p">;</span>
 </span><span class='line'>   <span class="p">}</span>
 </span><span class='line'>
@@ -892,16 +910,17 @@ If you are surprised by the output above, you may not be aware of padding. The c
 </span><span class='line'>
 </span><span class='line'><span class="c1">// Specialize to not attempt alignment</span>
 </span><span class='line'><span class="k">template</span><span class="o">&lt;&gt;</span>
-</span><span class='line'><span class="k">struct</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">boundary</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span>
 </span><span class='line'><span class="p">{</span>
-</span><span class='line'>   <span class="k">enum</span><span class="p">{</span><span class="n">alignment</span> <span class="o">=</span> <span class="mi">0</span><span class="p">};</span>
+</span><span class='line'>   <span class="k">enum</span><span class="p">{</span><span class="n">value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">};</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">next</span>   <span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">){</span><span class="k">return</span> <span class="n">ptr</span><span class="p">;}</span>
 </span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">align</span>  <span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">){</span><span class="k">return</span> <span class="n">ptr</span><span class="p">;}</span>
 </span><span class='line'>   <span class="k">static</span> <span class="kt">void</span><span class="o">*</span> <span class="n">unalign</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">){</span><span class="k">return</span> <span class="n">ptr</span><span class="p">;}</span>
 </span><span class='line'><span class="p">};</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Using it is simple: Any pointer can be aligned, and any aligned pointer can be unaligned. However, it is important to remember that extra space must be allocated before attempting to align the pointer. The following example will show how to align a structure on a 16 byte boundary:</p>
+<p>Using it is simple: Any pointer can be aligned on a boundary, and any aligned pointer can be unaligned. However, it is important to remember that extra space must be allocated before attempting to align the pointer. The following example will show how to align a structure on a 16 byte boundary:</p>
 
 <figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -959,7 +978,7 @@ If you are surprised by the output above, you may not be aware of padding. The c
 </span><span class='line'>   <span class="c1">// Reserve size for our structure</span>
 </span><span class='line'>   <span class="c1">// plus alignment overhead</span>
 </span><span class='line'>   <span class="c1">// plus our test offset</span>
-</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span> <span class="o">+</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">alignment</span> <span class="o">+</span> <span class="n">offset</span><span class="p">));</span>
+</span><span class='line'>   <span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">unsigned</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">malloc</span><span class="p">(</span><span class="n">size</span> <span class="o">+</span> <span class="n">boundary</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">+</span> <span class="n">offset</span><span class="p">));</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Print out the address of the malloc&#39;d memory pointer</span>
 </span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Memory:          0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">memory</span><span class="p">);</span>
@@ -968,20 +987,20 @@ If you are surprised by the output above, you may not be aware of padding. The c
 </span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="mh">0xCC</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">memory</span><span class="p">));</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Mark the object area as &quot;Allocated&quot;</span>
-</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="n">size</span> <span class="o">+</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">alignment</span><span class="p">);</span>
+</span><span class='line'>   <span class="n">memset</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="mh">0xAA</span><span class="p">,</span> <span class="n">size</span> <span class="o">+</span> <span class="n">boundary</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Print out the address of where we will construct the object</span>
 </span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Memory + Offset: 0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">);</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Construct an object offset into memory,</span>
 </span><span class='line'>   <span class="c1">// but use pointer alignment to realign it</span>
-</span><span class='line'>   <span class="n">Test</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">align</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">))</span> <span class="n">Test</span><span class="p">();</span>
+</span><span class='line'>   <span class="n">Test</span><span class="o">*</span> <span class="n">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="p">(</span><span class="n">boundary</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">align</span><span class="p">(</span><span class="n">memory</span> <span class="o">+</span> <span class="n">offset</span><span class="p">))</span> <span class="n">Test</span><span class="p">();</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Print out the address of the aligned pointer</span>
 </span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Ptr:             0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Print out the address of the unaligned pointer</span>
-</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Unaligned Ptr:   0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">unalign</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
+</span><span class='line'>   <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Unaligned Ptr:   0x%016lX</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">boundary</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">unalign</span><span class="p">(</span><span class="n">ptr</span><span class="p">));</span>
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Lets see what it looks like</span>
 </span><span class='line'>   <span class="n">dump_memory_with_context</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">Test</span><span class="p">));</span>
@@ -991,7 +1010,7 @@ If you are surprised by the output above, you may not be aware of padding. The c
 </span><span class='line'>
 </span><span class='line'>   <span class="c1">// Unalign the aligned pointer to get the original pointer back</span>
 </span><span class='line'>   <span class="c1">// then remove the offset to properly free</span>
-</span><span class='line'>   <span class="n">free</span><span class="p">(</span><span class="n">Alignment</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">unalign</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="o">-</span> <span class="n">offset</span><span class="p">);</span>
+</span><span class='line'>   <span class="n">free</span><span class="p">(</span><span class="n">boundary</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;::</span><span class="n">unalign</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="o">-</span> <span class="n">offset</span><span class="p">);</span>
 </span><span class='line'><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -1132,45 +1151,49 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
 <aside class="sidebar">
   
     <section>
+  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
-<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
 <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/23/placement-new/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/23/placement-new/" >Tweet</a>
 </section>
 <section>
 <h1>Link to this page</h1>
+<br>
+<center>
 <a href="http://jrruethe.github.io/blog/2015/08/23/placement-new/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/08/23/placement-new/" alt="post-qrcode"></a>
+</center>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+        <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/09/17/screenshots-in-qubes/">Screenshots in Qubes</a>
+        <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a>
+        <a href="/blog/2015/11/25/memory-blocks/">Memory Blocks</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+        <a href="/blog/2015/11/24/google-test/">Google Test</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+        <a href="/blog/2015/11/23/aligned-heap/">Aligned Heap</a>
       </li>
     
   </ul>
@@ -1196,7 +1219,7 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
       </li>
    
       <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
       </li>
    
    </ul>
@@ -1233,10 +1256,17 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
 
 <section>
 	<h1>Bitcoin Donations</h1>
-	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
-	<font size=2>
-	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
-	</font>
+	<br>
+	<center>
+	<a href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m"><img src="http://blockchain.info/qr?data=187gRAhdyD2KaAhMND92RQMqQQMQtW678m&size=150" alt="Bitcoin"></a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">187gRAhdyD2KaAhMN</a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">D92RQMqQQMQtW678m</a>
+	<br>
+	<a href="/downloads/code/bitcoin.txt.asc">Proof</a>
+	<br><br>
+   <div id="coindesk-widget" data-align="center"></div>
+   <script type="text/javascript" src="//widget.coindesk.com/bpiticker/coindesk-widget.min.js?aa4aca"></script>
+	</center>
 </section>
 
   
@@ -1248,13 +1278,13 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
   <footer role="contentinfo"><p>
   <span class="license">
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+   - Copyright &copy; 2016 - Joe Ruether - All rights reserved with the following exceptions:
   <br>
    - All embedded code on this page licensed under
     <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
     or a later version unless otherwise noted
   <br>
-   - All non-code text content on this page licensed under
+   - All non-code text/image content on this page licensed under
     <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
     or a later version unless otherwise noted
   </span>

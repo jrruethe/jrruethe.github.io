@@ -9,8 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Below you can find a copy of my new GPG key. 4096R/0x4630BEDC40B935FE 2014-06-14 [expires: 2015-06-14]
-Key fingerprint = 4F40 99F8 276B DBA5 475A &hellip;">
+  <meta name="description" content="At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. It hooks into the kernel&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,8 +65,9 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A &hellip;">
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/blog/about">About</a></li>
   <li><a href="/blog/license">License</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/contact">Contact</a></li>
 </ul>
 
 </nav>
@@ -75,6 +75,976 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/25/enhanced-corefile-metadata/">Enhanced Corefile Metadata</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-25T22:26:50-04:00" pubdate data-updated="true">Jul 25<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/25/enhanced-corefile-metadata/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. <br/>
+It hooks into the kernel&rsquo;s corepattern mechanism to accept the core dump via stdin and extract information from the process before it is killed. It then runs GDB to produce a backtrace and grab the register contents.</p>
+
+<p><a href="https://github.com/jrruethe/corefile">Enhanced Corefile Metadata</a></p>
+
+<p>Here is a list of metadata that is written out on every core dump:</p>
+
+<ul>
+<li>Binary that crashed</li>
+<li>Corefile from the crash</li>
+<li>Signal causing the crash</li>
+<li>Original filepath</li>
+<li>Original file size</li>
+<li>MD5 checksum of the binary</li>
+<li>MD5 checksum of the corefile</li>
+<li>Creation, modification, and access times of the binary</li>
+<li>Hostname and PID of the crashed process</li>
+<li>User, group, and permissions of the crashed process</li>
+<li>The setuid bit</li>
+<li>Working directory of the process</li>
+<li>Invoked command line parameters</li>
+<li>Stack trace</li>
+<li>Memory Map</li>
+<li>Environment variables</li>
+<li>Frame information</li>
+<li>Register states</li>
+</ul>
+
+
+<p>This script is very useful for bug reports as well as devloping buffer overflow exploits.
+To install, save <code>corefile.rb</code> somewhere. Edit <code>/etc/sysctl.conf</code> and set the <code>kernel.core_pattern</code> parameter as follows:</p>
+
+<pre><code>kernel.core_pattern=|/path/to/corefile.rb %e %p %u %g %h %s
+</code></pre>
+
+<p><em>Take note of the pipe character!</em></p>
+
+<p>If you want to test it out, simply crash something.<br/>
+Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in <code>sysctl.conf</code>.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Installing Bittorrent Sync on Debian</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-06T14:51:39-04:00" pubdate data-updated="true">Jul 6<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of all, the files are only ever stored on machines <em>you</em> choose; there is no &ldquo;cloud&rdquo; or third party servers.</p>
+
+<p>I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. Unfortunately, it is not open source, however I am still a fan of this software.</p>
+
+<p>There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.<br/>
+First you need to go get the software:</p>
+
+<ul>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/i386">32 Bit</a></li>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/x64">64 Bit</a></li>
+</ul>
+
+
+<p>I suggest unpacking it to /opt/btsync:</p>
+
+<pre><code>mkdir /opt/btsync
+mv btsync_x64.tar.gz /opt/btsync
+cd /opt/btsync
+tar xzvf ./btsync_x64.tar.gz
+</code></pre>
+
+<p>Next, create a configuration file:</p>
+
+<pre><code>./btsync --dump-sample-config &gt; btsync.conf
+</code></pre>
+
+<p>You need to make one change to the config file, and that is the storage path.<br/>
+Look for where it says <code>/home/user/.sync</code> and change <code>user</code> to your username.<br/>
+You might be interested in adding a password to the Web UI, which is where you will do all your folder management from. You can find thhat setting near the bottom of the config file.</p>
+
+<p>Next, you want to create an init script. Copy the following to <code>/etc/init.d/btsync</code>:</p>
+
+<pre><code>#! /bin/sh
+# /etc/init.d/btsync
+#
+
+# Carry out specific functions when asked to by the system
+case "$1" in
+start)
+    # /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root
+    /bin/su user -c '/opt/btsync/btsync --config /opt/btsync/btsync.conf' # Run as user
+    ;;
+stop)
+    killall btsync
+    ;;
+*)
+    echo "Usage: /etc/init.d/btsync {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
+</code></pre>
+
+<p>Finally, run the following commands to finish the installation:</p>
+
+<pre><code>chmod 755 /etc/init.d/btsync
+update-rc.d btsync defaults
+mkdir ~/.sync
+/etc/init.d/btsync start
+</code></pre>
+
+<p>Thats it! Bittorrent Sync is installed, and will automatically run every time your machine boots.<br/>
+You can access the Web UI at 127.0.0.1:8888</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/06/open-terminator-from-nautilus/">Open Terminator From Nautilus</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-06T14:22:25-04:00" pubdate data-updated="true">Jul 6<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/06/open-terminator-from-nautilus/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/06/open-terminator-from-nautilus/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This is just a little trick to get the ability to open a Terminator terminal at any location from Nautilus by right clicking on a folder.</p>
+
+<p>First install the dependencies:</p>
+
+<pre><code>sudo apt-get install nautilus-open-terminal terminator
+</code></pre>
+
+<p>Next, <em>uninstall</em> <code>gnome-terminal</code>:</p>
+
+<pre><code>sudo apt-get remove gnome-terminal
+</code></pre>
+
+<p>Finally, create a symlink to <code>terminator</code> from <code>gnome-terminal</code>:</p>
+
+<pre><code>sudo ln -s /usr/bin/terminator /usr/bin/gnome-terminal
+</code></pre>
+
+<p>All done! Now you can right click on any folder in Nautilus and open a terminator window.<br/>
+The reason the symlink is needed is because <code>nautilus-open-terminal</code> is hardcoded to use <code>gnome-terminal</code> by default, but <code>terminator</code> is much better.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/05/blogging-with-octopress/">Blogging With Octopress</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T20:51:27-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/05/blogging-with-octopress/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Before you continue</h3>
+
+<p>Grab all the dependencies:</p>
+
+<pre><code>sudo apt-get install ruby bundler git  
+sudo gem install rake --version 0.9.2.2
+git clone git://github.com/imathis/octopress.git blog  
+cd blog  
+bundle install  
+</code></pre>
+
+<p>You may have a newer <code>rake</code> installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.</p>
+
+<pre><code>alias rake="rake _0.9.2.2_"
+</code></pre>
+
+<hr />
+
+<h3>Starting Fresh</h3>
+
+<p>Use these instructions if you are creating a blog for the first time.</p>
+
+<ol>
+<li><p>Install the blog</p>
+
+<pre><code>rake install  
+</code></pre></li>
+<li><p>Create the Github repository</p>
+
+<p>Go to <a href="https://github.com/repositories/new">Github</a>, create a new repository of the format <code>username.github.io</code></p></li>
+<li><p>Set up deployment to Github Pages</p>
+
+<pre><code>rake setup_github_pages
+rake generate
+rake deploy
+</code></pre></li>
+<li><p>Commit the source</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre></li>
+<li><p>Add some customizations</p>
+
+<p>I personally use the following third party plugins:</p>
+
+<ul>
+<li><a href="https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside">Bitcoin</a> : Add a QR code for Bitcoin Donations</li>
+<li><a href="https://github.com/aycabta/octopress-file-binder">File Binder</a> : Easily attach an image to a post</li>
+<li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
+<li><a href="https://github.com/mguentner/octolayer">Octolayer</a> : Embed maps into posts</li>
+<li><a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Responsive Video Embed</a> : Embed Youtube videos into posts</li>
+</ul>
+</li>
+<li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
+<li><p>Configure your _config.yml file</p>
+
+<p>Set the following options:</p>
+
+<ul>
+<li>URL</li>
+<li>Title</li>
+<li>Subtitle</li>
+<li>Author</li>
+</ul>
+
+
+<p>Also scroll down to the bottom and set up the following sections:</p>
+
+<ul>
+<li>Github</li>
+<li>Twitter</li>
+<li>Disqus</li>
+</ul>
+</li>
+<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
+</ol>
+
+
+<hr />
+
+<h3>Continuing from an existing repository</h3>
+
+<p>Use these instructions if you are continuing a blog that has already been created.</p>
+
+<ol>
+<li><p>Install the dependencies</p>
+
+<pre><code>sudo apt-get install ruby bundler git ruby-gsl zlib1g-dev
+</code></pre></li>
+<li><p>Clone the repository</p>
+
+<pre><code>git clone -b source git@github.com:username/username.github.io.git blog
+</code></pre></li>
+<li><p>Install the octopress dependencies</p>
+
+<pre><code>bundle install
+</code></pre></li>
+<li><p>Set up Github Pages</p>
+
+<pre><code>rake setup_github_pages
+</code></pre></li>
+<li><p>Sync the deployment</p>
+
+<pre><code>$ cd _deploy/
+$ git pull origin master
+$ git add index.html
+$ git commit -m 'Deployment'
+</code></pre></li>
+<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
+</ol>
+
+
+<hr />
+
+<h3>Creating a post</h3>
+
+<p>To create a new post:</p>
+
+<pre><code>rake new_post["title"]
+</code></pre>
+
+<p>Then you can preview your work:</p>
+
+<pre><code>rake generate
+rake preview
+</code></pre>
+
+<p>Open your browser to <code>127.0.0.1:4000</code> and make sure your page looks the way you want.<br/>
+To finalize your changes:</p>
+
+<pre><code>git add source/_posts/date-title.markdown
+git commit -m 'Message'
+git push origin source
+rake deploy
+</code></pre>
+
+<p>Next, you want to make sure that you re-pull after the deployment is complete, or you will run into problems when creating your next post:</p>
+
+<pre><code>git pull
+cd _deploy/
+git pull
+cd -
+</code></pre>
+
+<p>Go to <code>username.github.com</code> and check out your page.</p>
+
+<hr />
+
+<h3>Scripting the difficult pieces</h3>
+
+<p>If you look at the <a href="">source for my blog</a>, you will see a small number of scripts that make managing the blog even easier.</p>
+
+<ul>
+<li>install.sh : Simply clone the repo and run this to get everything set up</li>
+<li>sync.sh : Synchronizes the repository with Github if a change was made on a different machine</li>
+<li>new.sh Post Title : Make a new post with the specified title</li>
+<li>preview.sh : Auto generate and start the web server for 127.0.0.1:4000</li>
+<li>deploy.sh : Deploy to Github Pages</li>
+</ul>
+
+
+<hr />
+
+<h3>Embedding Content</h3>
+
+<h4>Code</h4>
+
+<p>It is easy to embed any text file found in the source/downloads/code folder.<br/>
+Octopress even supports syntax highlighting, and a handy download link.</p>
+
+<pre><code>{% include_code lang:yaml filename.ext %}
+</code></pre>
+
+<p>lang can be any of the following:</p>
+
+<ul>
+<li>ruby</li>
+<li>yaml</li>
+<li>bash</li>
+<li>python</li>
+<li>json</li>
+<li>c++</li>
+</ul>
+
+
+<p>For example:</p>
+
+<pre><code>{% include_code lang:ruby address-to-hash.rb %}
+</code></pre>
+
+<p>Results in:</p>
+
+<figure class='code'><figcaption><span> (address-to-hash.rb)</span><a href='/downloads/code/address-to-hash.rb' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># address-to-hash.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>   <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the hex payload</span>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can also embed code content directly into a markdown file by enclosing it with codeblocks:</p>
+
+<pre><code>{% codeblock lang:json %}
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+{% endcodeblock %}  
+</code></pre>
+
+<p>Results in:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="nt">&quot;one&quot;</span> <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+</span><span class='line'>   <span class="nt">&quot;two&quot;</span> <span class="p">:</span> <span class="s2">&quot;2&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>A shortcut for this is to use 3 backticks followed by the language. Titles can also be added. In addition, both <code>codeblock</code> and backticks support highlighting line numbers with <code>mark</code>:</p>
+
+<pre><code>``` json "This is my json" mark:1,3-4
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+```
+</code></pre>
+
+<p>Results in:</p>
+
+<figure class='code'><figcaption><span>&#8220;This is my json&#8221;</span></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number marked'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number marked'>3</span>
+<span class='line-number marked'>4</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line marked start end'><span class="p">{</span>
+</span><span class='line'>   <span class="nt">&quot;one&quot;</span> <span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+</span><span class='line marked start'>   <span class="nt">&quot;two&quot;</span> <span class="p">:</span> <span class="s2">&quot;2&quot;</span>
+</span><span class='line marked end'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This is better than the normal 4-space indent. Compare:</p>
+
+<pre><code>{
+   "one" : "1",
+   "two" : "2"
+}
+</code></pre>
+
+<hr />
+
+<h4>Image</h4>
+
+<p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>. The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
+
+<p>To embed this image, use the tag like this:</p>
+
+<pre><code>{% img center ./01.png %}
+</code></pre>
+
+<p>Which results in this<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:
+<img class="center" src="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png"></p>
+
+<hr />
+
+<h4>Video</h4>
+
+<p>Embedding a youtube video can be done by grabbing the video id from the url:<br/>
+<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong></a></p>
+
+<p>Use the following tag:</p>
+
+<pre><code>{% youtube dQw4w9WgXcQ %}
+</code></pre>
+
+<p>Here is the result:</p>
+
+<div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
+
+
+<hr />
+
+<h4>Map</h4>
+
+<p>Embedding a map can be done with the following tag:</p>
+
+<pre><code>{% map lat lon zoomLevel "markerTitle" "description" %}
+</code></pre>
+
+<p>A simple example is shown here:</p>
+
+<pre><code>{% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
+</code></pre>
+
+<p>And here is the result:</p>
+
+<div class='map'><div style='height:420px' id='map1'></div><div class='mapCaption'>Map Data: <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors <a href='http://www.openstreetmap.org/copyright'>License</a> - Tiles Courtesy of <a href='http://www.mapquest.com/' target='_blank'>MapQuest</a><img src='http://developer.mapquest.com/content/osm/mq_logo.png'></div></div>
+
+
+<script type='text/javascript'>jQuery(document).ready(function() {initmap('map1',37.7577,-122.4376,13,'','');});</script>
+
+
+<hr />
+
+<h4>Footnotes</h4>
+
+<p>Footnotes are good for attributing content made by other people. Simply place an anchor <code>[^2]</code> where you want the link to the footnote to appear.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>
+Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a footnote</code>. The line above the footnotes is created automatically.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://xkcd.com/">Randall Munrow, XKCD</a> licensed under CC-BY-NA 2.5<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>This is a footnote<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/05/connecting-to-wireless-from-the-command-line/">Connecting to Wireless From the Command Line</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T20:22:15-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/05/connecting-to-wireless-from-the-command-line/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>It can be tricky to figure out how to connect to a wireless network via the command line.<br/>
+However, the steps are simple. Below is a script to do all the work for you.</p>
+
+<pre><code>#!/bin/bash
+# Connect to a wireless network secured with WPA2
+# Usage: ./connect.sh &lt;SSID&gt;
+# Run this as root
+
+# Parse command line arguments
+SSID=$1
+
+# Ensure the interface is up
+ifconfig wlan0 up
+
+# Create a configuration file
+echo Enter the passphrase for $SSID:
+wpa_passphrase $SSID &gt; ./wpa.conf
+
+# Connect to the access point
+wpa_supplicant -Dwext -iwlan0 -c./wpa.conf -B
+
+# Obtain an IP address
+dhclient -r
+dhclient wlan0
+
+# Test the connection
+ping -c 1 www.google.com
+</code></pre>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Debian on the Lenovo Thinkpad Yoga</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T20:03:39-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Many of the features of the Lenovo Thinkpad Yoga work out of the box with a fresh install of Debian Testing.
+Keep in mind that I am using Kernel 3.14.1-amd64</p>
+
+<h3>Wireless</h3>
+
+<p>Wireless does work well, but you need to install the firmware package from the repositories.</p>
+
+<pre><code>apt-get install firmware-iwlwifi
+</code></pre>
+
+<p>Getting this was tricky, because there are no ethernet ports on the system, and the wireless is not recognised at install time.<br/>
+I had to use a usb-ethernet adapter and plug it into my router.<br/>
+After installing the package and rebooting, wireless works great.</p>
+
+<h3>Touchscreen</h3>
+
+<p>Touchscreen works out of the box for left clicking and dragging.<br/>
+Multitouch does not seem to work out of the box, I am unable to two-finger-scroll nor pinch-zoom in Chromium.
+Also, holding down your finger for right click does not work.</p>
+
+<h3>Wacom Stylus</h3>
+
+<p>The stylus works out of the box, including clicking and dragging. There is a little button on the stylus, and if you hold it down while you touch the screen it does a right-click.<br/>
+By installing <code>gnome-control-center</code> you can calibrate the touchscreen with the stylus.</p>
+
+<h3>Touchpad</h3>
+
+<p>The Synaptics Touchpad works out of the box for the most part. However, tap-to-click doesn&rsquo;t work.
+Clicking the entire touchpad down with one finger is a left-click, while clicking the entire touchpad down with two fingers is a right click.<br/>
+Dragging while holding the touchpad down works for multiple selection and moving files around.<br/>
+Two-finger scroll works out of the box.<br/>
+I haven&rsquo;t figured out how to do a middle-click.</p>
+
+<p>I tried using <code>gnome-control-center</code> to enable tap-to-click, but was unsuccessful. I don&rsquo;t think the lack of this feature hinders usability in any way.</p>
+
+<p>Also, the little red pointer nub works as well. You need to click the touchpad with your thumb, and there is no real way to do a right click while using the red pointer nub.</p>
+
+<h3>Sound</h3>
+
+<p>Sound works out of the box, however it is muted at installation.<br/>
+I found the easiest way to fix this is to install PulseAudio Volume Control (<code>pavucontrol</code>) and unmute the speakers.</p>
+
+<h3>Bluetooth</h3>
+
+<p>Bluetooth seemed to work out of the box as well. I did install the <code>bluetooth</code> and <code>blueman</code> packages to use it.</p>
+
+<h3>Webcam</h3>
+
+<p>The webcam works out of the box.</p>
+
+<h3>Function Keys</h3>
+
+<p>The brightness keys (F5 / F6) work out of the box, but there is no OSD / HUD.<br/>
+The wireless key (F8) also works without any configuration needed.</p>
+
+<p>The webcam buttom (F7) seems to work, but there is a caveat:</p>
+
+<ol>
+<li>Start webcam with QtQr</li>
+<li>See webcam active</li>
+<li>Press F7</li>
+<li>See webcam get immediately disabled</li>
+<li>Without pressing F7 again, start the webcam</li>
+<li>The webcam is active again</li>
+</ol>
+
+
+<p>So the button can &ldquo;kill&rdquo; an active webcam, but it cannot prevent the webcam from activating again.</p>
+
+<p>The sound control buttons (F1 / F2 / F3) do not seem to do anything out of the box.
+Likewise, F9-F12 didn&rsquo;t seem to do anything either.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/">onename.io/jrruethe</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-20T21:58:58-04:00" pubdate data-updated="true">Jun 20<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/06/20/onename-dot-io-slash-jrruethe/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Onename.io is a decentralized identity system that allows someone to:</p>
+
+<ul>
+<li>Claim a unique, global username</li>
+<li>Unify your online presence with one username and profile</li>
+<li>Own your online identity &amp; data</li>
+<li>Store your profile in the blockchain</li>
+<li>Allow anyone to easily look up your PGP public key</li>
+<li>Share Bitcoin QR codes</li>
+</ul>
+
+
+<p>It uses Namecoin under the hood. Namecoin is a key-value store that utilizes the blockchain as a decentralized database. All authorization is done via public key cryptography, so an individual is in 100% control of their data in the database.</p>
+
+<p>I am a huge fan of decentralized systems, such as:</p>
+
+<ul>
+<li>Bitcoin</li>
+<li>Namecoin / Onename</li>
+<li>Git</li>
+<li>GPG</li>
+</ul>
+
+
+<p>Onename.io gives me a way to link all this together into my own little decentralized profile:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/01.png"></p>
+
+<p>Of course, each of those entities also have their own links, many pointing back at Onename.io for verification. So the web really looks more like this:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2014/06/20/onename-dot-io-slash-jrruethe/02.png"></p>
+
+<p>The following is proof that I am the owner of my <a href="https://onename.io/jrruethe">Onename.io</a> account:</p>
+
+<figure class='code'><figcaption><span> (verifymyonename.txt.asc)</span><a href='/downloads/code/verifymyonename.txt.asc' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA512</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#verifymyonename +jrruethe</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQIcBAEBCgAGBQJTpOeMAAoJEInJf5BWENx2TjAP/2LkdSVqiP/xhS03rxCDPBFE</span>
+</span><span class='line'><span class="l-Scalar-Plain">DmsQ1d4r4M3wlBRyp08BQUCS1mAl3sRmkwCnoAB9rpN6hOZusZKF3iStq4u7AQJf</span>
+</span><span class='line'><span class="l-Scalar-Plain">zc5mhfHp878pj+HnNpdBHURTBK6jm+IWxBaGABMawaxMvoPbUZi3IPCy00KFgfWr</span>
+</span><span class='line'><span class="l-Scalar-Plain">bS+VuIe1SN7DTW2/ecdfHJY5BHrsln/dOzSPZAINcfW/p7Xp8aRDRPrX7Anl/YP8</span>
+</span><span class='line'><span class="l-Scalar-Plain">CerrMNwiA6ELHQSd0OW9gdO6xK9z/8u/Le8tXfuSIplu8qomgZOYfnBYzHmqVBvj</span>
+</span><span class='line'><span class="l-Scalar-Plain">sIbQjwQO9i5BsAQC24HC/3er7mJcaSvio1+LLHAXAvB+Dk4xlErDOLurQaWK0cNA</span>
+</span><span class='line'><span class="l-Scalar-Plain">4vbaYvQ/mEIMBrE40g57OyFYDh8/xcFsaXcuZarUJvXhOh9NAMHhweIm/TwOiPda</span>
+</span><span class='line'><span class="l-Scalar-Plain">A2mfPlZfi+jHdv7vnVOrWAjJwWpgbNUeSNk7K311X9cGrKVl3c2y17VIrZT5V4Pt</span>
+</span><span class='line'><span class="l-Scalar-Plain">sx9asMJGSPqYt8+wV6jpw+CRBWDpQgGjLhcStz1JxJb+7rKzNyUFM8RLUd0bAHkb</span>
+</span><span class='line'><span class="l-Scalar-Plain">XlXW4ZOHrN2foMXXE4jQuGQOXJ+Hkx1STCd5LGD4wsGEn8mDMU+AzB4tsmh6YOgt</span>
+</span><span class='line'><span class="l-Scalar-Plain">LwZSpxmJbUX090MRZm8NFsCMn8u4ItdRYqpO3AB9f0Nh1yKtcqIwIW11sIFVoO2u</span>
+</span><span class='line'><span class="l-Scalar-Plain">OENFIIkWuDkpqtlFlS4i</span>
+</span><span class='line'><span class="l-Scalar-Plain">=ZqmE</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -747,45 +1717,49 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 <aside class="sidebar">
   
     <section>
+  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
-<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
 <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/page/4/index.html" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/page/4/index.html" >Tweet</a>
 </section>
 <section>
 <h1>Link to this page</h1>
+<br>
+<center>
 <a href="http://jrruethe.github.io/blog/page/4/index.html"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/page/4/index.html" alt="post-qrcode"></a>
+</center>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+        <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/09/17/screenshots-in-qubes/">Screenshots in Qubes</a>
+        <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a>
+        <a href="/blog/2015/11/25/memory-blocks/">Memory Blocks</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+        <a href="/blog/2015/11/24/google-test/">Google Test</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+        <a href="/blog/2015/11/23/aligned-heap/">Aligned Heap</a>
       </li>
     
   </ul>
@@ -828,10 +1802,17 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
 
 <section>
 	<h1>Bitcoin Donations</h1>
-	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
-	<font size=2>
-	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
-	</font>
+	<br>
+	<center>
+	<a href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m"><img src="http://blockchain.info/qr?data=187gRAhdyD2KaAhMND92RQMqQQMQtW678m&size=150" alt="Bitcoin"></a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">187gRAhdyD2KaAhMN</a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">D92RQMqQQMQtW678m</a>
+	<br>
+	<a href="/downloads/code/bitcoin.txt.asc">Proof</a>
+	<br><br>
+   <div id="coindesk-widget" data-align="center"></div>
+   <script type="text/javascript" src="//widget.coindesk.com/bpiticker/coindesk-widget.min.js?aa4aca"></script>
+	</center>
 </section>
 
   
@@ -842,13 +1823,13 @@ Key fingerprint = 4F40 99F8 276B DBA5 475A  8446 4630 BEDC 40B9 35FE
   <footer role="contentinfo"><p>
   <span class="license">
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+   - Copyright &copy; 2016 - Joe Ruether - All rights reserved with the following exceptions:
   <br>
    - All embedded code on this page licensed under
     <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
     or a later version unless otherwise noted
   <br>
-   - All non-code text content on this page licensed under
+   - All non-code text/image content on this page licensed under
     <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
     or a later version unless otherwise noted
   </span>

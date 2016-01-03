@@ -1,0 +1,936 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Stopwatch - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="Object counters and memory pools are great ways to monitor the memory usage of your program from within. It can also be useful to monitor the amount &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/11/14/stopwatch">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/license">License</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/contact">Contact</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Stopwatch</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-14T11:37:52-05:00" pubdate data-updated="true">Nov 14<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Object counters and memory pools are great ways to monitor the memory usage of your program from within. It can also be useful to monitor the amount of time being spent executing from within your program. This post presents a stopwatch that can provide statistics on how long something takes to run.</p>
+
+<p>This project will require the following libraries to compile:</p>
+
+<ul>
+<li>libboost-chrono-dev</li>
+<li>libboost-thread-dev</li>
+<li>libboost-system-dev</li>
+</ul>
+
+
+<p>The idea with the stopwatch is to provide simple <code>start</code> and <code>stop</code> methods to monitor execution time, and store statistics that can be programatically accessed. Two stopwatch types will be presented: a static stopwatch and an instantiatable stopwatch. Each has its uses, with advantages and disadvantages:</p>
+
+<ul>
+<li>Static stopwatches can be differentiated using tags, and can be accessed anywhere</li>
+<li>Object stopwatches can be managed at runtime, but must be passed around to be effective</li>
+</ul>
+
+
+<p>First, we must define the statistics that will be managed:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">Statistics</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">Count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Count</span>  <span class="n">last</span><span class="p">;</span>    <span class="c1">// Last measured difference</span>
+</span><span class='line'>   <span class="n">Count</span>  <span class="n">min</span><span class="p">;</span>     <span class="c1">// Minimum measured difference</span>
+</span><span class='line'>   <span class="n">Count</span>  <span class="n">max</span><span class="p">;</span>     <span class="c1">// Maximum measured difference</span>
+</span><span class='line'>   <span class="n">Count</span>  <span class="n">samples</span><span class="p">;</span> <span class="c1">// Number of samples taken</span>
+</span><span class='line'>   <span class="n">Count</span>  <span class="n">total</span><span class="p">;</span>   <span class="c1">// Total measured difference</span>
+</span><span class='line'>   <span class="kt">double</span> <span class="n">average</span><span class="p">;</span> <span class="c1">// Average measured difference</span>
+</span><span class='line'>   <span class="n">Count</span>  <span class="n">mark</span><span class="p">;</span>    <span class="c1">// Time when started</span>
+</span><span class='line'>   <span class="kt">bool</span>   <span class="n">running</span><span class="p">;</span> <span class="c1">// Flag indicating that the stopwatch is running</span>
+</span><span class='line'>   <span class="kt">bool</span>   <span class="n">cleared</span><span class="p">;</span> <span class="c1">// Flag indicating that the stopwatch is cleared</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Statistics</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">last</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">min</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">samples</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">total</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">average</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">mark</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">running</span><span class="p">(</span><span class="kc">false</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">cleared</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">friend</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="n">Statistics</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">stats</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; - Last    : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">stats</span><span class="p">.</span><span class="n">last</span>    <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>         <span class="o">&lt;&lt;</span> <span class="s">&quot; - Min     : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">stats</span><span class="p">.</span><span class="n">min</span>     <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>         <span class="o">&lt;&lt;</span> <span class="s">&quot; - Max     : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">stats</span><span class="p">.</span><span class="n">max</span>     <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>         <span class="o">&lt;&lt;</span> <span class="s">&quot; - Average : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">stats</span><span class="p">.</span><span class="n">average</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>         <span class="o">&lt;&lt;</span> <span class="s">&quot; - Total   : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">stats</span><span class="p">.</span><span class="n">total</span>   <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class='line'>         <span class="o">&lt;&lt;</span> <span class="s">&quot; - Samples : &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">stats</span><span class="p">.</span><span class="n">samples</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, we need the actual implementation to track those statistics. It will provide <code>start</code>, <code>stop</code>, and <code>reset</code>, and will utilize a clock to get the timestamps to measure. Both the static and object types will utilize this implementation:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">ClockT</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">StopwatchImplementation</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">ClockT</span> <span class="n">Clock</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">Count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">_start</span><span class="p">(</span><span class="n">Statistics</span><span class="o">&amp;</span> <span class="n">stats</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">mark</span> <span class="o">=</span> <span class="n">_clock</span><span class="p">();</span> <span class="c1">// Get the current time</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>  <span class="c1">// Stopwatch is now running</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">_stop</span><span class="p">(</span><span class="n">Statistics</span><span class="o">&amp;</span> <span class="n">stats</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Only update the statistics if the stopwatch was running</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">stats</span><span class="p">.</span><span class="n">running</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="c1">// No longer running</span>
+</span><span class='line'>         <span class="n">stats</span><span class="p">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="c1">// Grab the current time</span>
+</span><span class='line'>         <span class="n">Count</span> <span class="n">now</span> <span class="o">=</span> <span class="n">_clock</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="c1">// Calculate the difference while avoiding overflow</span>
+</span><span class='line'>         <span class="n">stats</span><span class="p">.</span><span class="n">last</span> <span class="o">=</span> <span class="n">now</span> <span class="o">&gt;</span> <span class="n">stats</span><span class="p">.</span><span class="n">mark</span>
+</span><span class='line'>                      <span class="o">?</span> <span class="n">now</span> <span class="o">-</span> <span class="n">stats</span><span class="p">.</span><span class="n">mark</span>
+</span><span class='line'>                      <span class="o">:</span> <span class="n">stats</span><span class="p">.</span><span class="n">mark</span> <span class="o">-</span> <span class="n">now</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="c1">// Keep track of the total and samples</span>
+</span><span class='line'>         <span class="n">stats</span><span class="p">.</span><span class="n">total</span> <span class="o">+=</span> <span class="n">stats</span><span class="p">.</span><span class="n">last</span><span class="p">;</span>
+</span><span class='line'>         <span class="o">++</span><span class="n">stats</span><span class="p">.</span><span class="n">samples</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="c1">// Do not take a min from a cleared state, or it will be zero</span>
+</span><span class='line'>         <span class="n">stats</span><span class="p">.</span><span class="n">min</span> <span class="o">=</span> <span class="n">stats</span><span class="p">.</span><span class="n">cleared</span>
+</span><span class='line'>                     <span class="o">?</span> <span class="n">stats</span><span class="p">.</span><span class="n">last</span>
+</span><span class='line'>                     <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">stats</span><span class="p">.</span><span class="n">min</span><span class="p">,</span> <span class="n">stats</span><span class="p">.</span><span class="n">last</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="c1">// Get the max</span>
+</span><span class='line'>         <span class="n">stats</span><span class="p">.</span><span class="n">max</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">stats</span><span class="p">.</span><span class="n">max</span><span class="p">,</span> <span class="n">stats</span><span class="p">.</span><span class="n">last</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="c1">// Calculate the average</span>
+</span><span class='line'>         <span class="n">stats</span><span class="p">.</span><span class="n">average</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">stats</span><span class="p">.</span><span class="n">total</span><span class="p">)</span> <span class="o">/</span>
+</span><span class='line'>                         <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="n">stats</span><span class="p">.</span><span class="n">samples</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>         <span class="c1">// No longer cleared</span>
+</span><span class='line'>         <span class="n">stats</span><span class="p">.</span><span class="n">cleared</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">_reset</span><span class="p">(</span><span class="n">Statistics</span><span class="o">&amp;</span> <span class="n">stats</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">last</span>    <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">min</span>     <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">max</span>     <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">samples</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">total</span>   <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">average</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">mark</span>    <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">stats</span><span class="p">.</span><span class="n">cleared</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">_print</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>                      <span class="n">Statistics</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">stats</span><span class="p">,</span>
+</span><span class='line'>                      <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">name</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;:</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">stats</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">Clock</span> <span class="n">_clock</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You will notice that the clock has been completely abstracted away from the stopwatch implementation, allowing any functor to be plugged in. By default, we will use <code>boost::chrono::high_resolution_clock</code> with configurable units. Here is the clock implementation:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Resolution</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Clock</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">Count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Clock</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="c1">// Initialize the reference to creation time</span>
+</span><span class='line'>      <span class="n">_duration_reference</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">())</span>
+</span><span class='line'>   <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Count</span> <span class="k">operator</span><span class="p">()(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Return the difference between now and the reference in the resolution units</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">Count</span><span class="o">&gt;</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">Resolution</span><span class="o">&gt;</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">_duration_reference</span><span class="p">).</span><span class="n">count</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>   <span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">time_point</span> <span class="n">_duration_reference</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>There are many different configurations that the clock can use:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">Clock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">hours</span><span class="o">&gt;</span>        <span class="n">HourClock</span><span class="p">;</span>
+</span><span class='line'><span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">Clock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">minutes</span><span class="o">&gt;</span>      <span class="n">MinuteClock</span><span class="p">;</span>
+</span><span class='line'><span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">Clock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="o">&gt;</span>      <span class="n">SecondClock</span><span class="p">;</span>
+</span><span class='line'><span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">Clock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="o">&gt;</span> <span class="n">MillisecondClock</span><span class="p">;</span>
+</span><span class='line'><span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">Clock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="o">&gt;</span> <span class="n">MicrosecondClock</span><span class="p">;</span>
+</span><span class='line'><span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">Clock</span><span class="o">&lt;</span><span class="n">boost</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">nanoseconds</span><span class="o">&gt;</span>  <span class="n">NanosecondClock</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that we have all the pieces, time to make the static and object stopwatch types. First, the static one. It is a static class with a template parameter that allows static instantiations to be differentiated. All methods are static and forwarded to the base class:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">TagT</span>   <span class="o">=</span> <span class="kt">void</span><span class="p">,</span>             <span class="c1">// Specify a tag for &quot;compile-time&quot; instances</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">ClockT</span> <span class="o">=</span> <span class="n">MicrosecondClock</span><span class="o">&gt;</span> <span class="c1">// Default to the microsecond clock</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Stopwatch</span> <span class="o">:</span> <span class="k">public</span> <span class="n">detail</span><span class="o">::</span><span class="n">StopwatchImplementation</span><span class="o">&lt;</span><span class="n">ClockT</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">TagT</span>   <span class="n">Tag</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">ClockT</span> <span class="n">Clock</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">Stopwatch</span><span class="o">&lt;</span><span class="n">Tag</span><span class="p">,</span> <span class="n">Clock</span><span class="o">&gt;</span> <span class="n">Self</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">StopwatchImplementation</span><span class="o">&lt;</span><span class="n">Clock</span><span class="o">&gt;</span> <span class="n">Base</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span> <span class="n">Count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Forward to the base implementation</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">start</span> <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">Base</span><span class="o">::</span><span class="n">_start</span> <span class="p">(</span><span class="n">_statistics</span><span class="p">);}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">stop</span>  <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">Base</span><span class="o">::</span><span class="n">_stop</span>  <span class="p">(</span><span class="n">_statistics</span><span class="p">);}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">reset</span> <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="n">Base</span><span class="o">::</span><span class="n">_reset</span> <span class="p">(</span><span class="n">_statistics</span><span class="p">);}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="kt">void</span> <span class="n">print</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">Base</span><span class="o">::</span><span class="n">_print</span><span class="p">(</span><span class="n">name</span><span class="p">(),</span> <span class="n">_statistics</span><span class="p">,</span> <span class="n">os</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Accessors</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">last</span>    <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">last</span><span class="p">;}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">min</span>     <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">min</span><span class="p">;}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">max</span>     <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">max</span><span class="p">;}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">samples</span> <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">samples</span><span class="p">;}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">total</span>   <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">total</span><span class="p">;}</span>
+</span><span class='line'>   <span class="k">static</span> <span class="kr">inline</span> <span class="kt">double</span> <span class="n">average</span> <span class="p">(</span><span class="kt">void</span><span class="p">){</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">average</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">static</span> <span class="n">detail</span><span class="o">::</span><span class="n">Statistics</span> <span class="n">_statistics</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Return the name of the tag as a string</span>
+</span><span class='line'>   <span class="k">static</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">boost</span><span class="o">::</span><span class="n">units</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="n">demangle</span><span class="p">(</span><span class="k">typeid</span><span class="p">(</span><span class="n">Tag</span><span class="p">).</span><span class="n">name</span><span class="p">());</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Prevent this class from being instantiated</span>
+</span><span class='line'>   <span class="n">Stopwatch</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice how the tag type defaults to <code>void</code>. We want to specialize the stopwatch for the void type and allow the specialization to act as the object stopwatch. This allows us to omit the tag type to instantiate an object:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// Specialize on the void tag to allow creating instances</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">ClockT</span> <span class="o">=</span> <span class="n">MicrosecondClock</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Stopwatch</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">,</span> <span class="n">ClockT</span><span class="o">&gt;</span> <span class="o">:</span> <span class="k">public</span> <span class="n">detail</span><span class="o">::</span><span class="n">StopwatchImplementation</span><span class="o">&lt;</span><span class="n">ClockT</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">ClockT</span>                                 <span class="n">Clock</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">Stopwatch</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">,</span> <span class="n">Clock</span><span class="o">&gt;</span>                 <span class="n">Self</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">detail</span><span class="o">::</span><span class="n">StopwatchImplementation</span><span class="o">&lt;</span><span class="n">Clock</span><span class="o">&gt;</span> <span class="n">Base</span><span class="p">;</span>
+</span><span class='line'>   <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="kt">long</span>                     <span class="n">Count</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">Stopwatch</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">tag</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">_tag</span><span class="p">(</span><span class="n">tag</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Forward to the base implementation</span>
+</span><span class='line'>   <span class="kt">void</span> <span class="n">start</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span><span class="n">Base</span><span class="o">::</span><span class="n">_start</span> <span class="p">(</span><span class="n">_statistics</span><span class="p">);}</span>
+</span><span class='line'>   <span class="kt">void</span> <span class="n">stop</span>  <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span><span class="n">Base</span><span class="o">::</span><span class="n">_stop</span>  <span class="p">(</span><span class="n">_statistics</span><span class="p">);}</span>
+</span><span class='line'>   <span class="kt">void</span> <span class="n">reset</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span><span class="n">Base</span><span class="o">::</span><span class="n">_reset</span> <span class="p">(</span><span class="n">_statistics</span><span class="p">);}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="kt">void</span> <span class="n">print</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">Base</span><span class="o">::</span><span class="n">_print</span><span class="p">(</span><span class="n">_tag</span><span class="p">,</span> <span class="n">_statistics</span><span class="p">,</span> <span class="n">os</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">friend</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="n">Self</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="n">obj</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">os</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Accessors</span>
+</span><span class='line'>   <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">last</span>    <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">last</span><span class="p">;}</span>
+</span><span class='line'>   <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">min</span>     <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">min</span><span class="p">;}</span>
+</span><span class='line'>   <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">max</span>     <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">max</span><span class="p">;}</span>
+</span><span class='line'>   <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">samples</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">samples</span><span class="p">;}</span>
+</span><span class='line'>   <span class="kr">inline</span> <span class="n">Count</span>  <span class="n">total</span>   <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">total</span><span class="p">;}</span>
+</span><span class='line'>   <span class="kr">inline</span> <span class="kt">double</span> <span class="n">average</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_statistics</span><span class="p">.</span><span class="n">average</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// The tag for this object</span>
+</span><span class='line'>   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">_tag</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// A statistics object specifically for this stopwatch instance</span>
+</span><span class='line'>   <span class="n">detail</span><span class="o">::</span><span class="n">Statistics</span> <span class="n">_statistics</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>We are all set! Time to test it out:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// Define a tag</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Static</span><span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">using</span> <span class="k">namespace</span> <span class="n">stopwatch</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">Stopwatch</span><span class="o">&lt;</span><span class="n">Static</span><span class="p">,</span> <span class="n">MillisecondClock</span><span class="o">&gt;</span> <span class="n">static_stopwatch</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">Stopwatch</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">,</span> <span class="n">MillisecondClock</span><span class="o">&gt;</span> <span class="n">object_stopwatch</span><span class="p">(</span><span class="s">&quot;Object&quot;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="n">static_stopwatch</span><span class="o">::</span><span class="n">start</span><span class="p">();</span>
+</span><span class='line'>      <span class="n">object_stopwatch</span><span class="p">.</span><span class="n">start</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">boost</span><span class="o">::</span><span class="n">this_thread</span><span class="o">::</span><span class="n">sleep</span><span class="p">(</span><span class="n">boost</span><span class="o">::</span><span class="n">posix_time</span><span class="o">::</span><span class="n">milliseconds</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">static_stopwatch</span><span class="o">::</span><span class="n">stop</span><span class="p">();</span>
+</span><span class='line'>      <span class="n">object_stopwatch</span><span class="p">.</span><span class="n">stop</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">static_stopwatch</span><span class="o">::</span><span class="n">print</span><span class="p">();</span>
+</span><span class='line'>  <span class="n">object_stopwatch</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To compile this, run the following command:</p>
+
+<pre><code>g++ stopwatch.cpp -l boost_chrono -l boost_system -l boost_thread
+</code></pre>
+
+<p>The output I get is:</p>
+
+<pre><code>Static:
+ - Last    : 10
+ - Min     : 10
+ - Max     : 11
+ - Average : 10.19
+ - Total   : 1019
+ - Samples : 100
+Object:
+ - Last    : 10
+ - Min     : 10
+ - Max     : 11
+ - Average : 10.19
+ - Total   : 1019
+ - Samples : 100
+</code></pre>
+
+<p>As you can see, both types give the same results.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-14T11:37:52-05:00" pubdate data-updated="true">Nov 14<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/14/stopwatch/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/14/stopwatch/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/09/20/dockerfile-generator/" title="Previous Post: Dockerfile Generator">&laquo; Dockerfile Generator</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/11/22/allocators/" title="Next Post: C++ Allocators">C++ Allocators &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/14/stopwatch/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/14/stopwatch/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<br>
+<center>
+<a href="http://jrruethe.github.io/blog/2015/11/14/stopwatch/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/11/14/stopwatch/" alt="post-qrcode"></a>
+</center>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/memory-blocks/">Memory Blocks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/24/google-test/">Google Test</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/aligned-heap/">Aligned Heap</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/11/22/allocators/">C++ Allocators</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<br>
+	<center>
+	<a href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m"><img src="http://blockchain.info/qr?data=187gRAhdyD2KaAhMND92RQMqQQMQtW678m&size=150" alt="Bitcoin"></a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">187gRAhdyD2KaAhMN</a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">D92RQMqQQMQtW678m</a>
+	<br>
+	<a href="/downloads/code/bitcoin.txt.asc">Proof</a>
+	<br><br>
+   <div id="coindesk-widget" data-align="center"></div>
+   <script type="text/javascript" src="//widget.coindesk.com/bpiticker/coindesk-widget.min.js?aa4aca"></script>
+	</center>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2016 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text/image content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/11/14/stopwatch/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/11/14/stopwatch/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

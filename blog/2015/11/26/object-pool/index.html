@@ -1,0 +1,1130 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Object Pool - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices. Malloc is typically an expensive &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/11/26/object-pool">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/license">License</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/contact">Contact</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Object Pool</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-26T16:11:06-05:00" pubdate data-updated="true">Nov 26<span>th</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices. Malloc is typically an expensive call, especially for multiple small allocations, so significant performance improvements can be gained by managing memory directly. The object pool presented here is compatible with C++03, supports all standard containers, and offers O(1) amortized allocation and deallocation with configurable growth, limits, and alignment.</p>
+
+<p>The pool works by allocating blocks of memory, partitioning them for the object type and alignment, then pushing all the addresses onto a stack representing available slots. Each allocation pops an address off the stack, each deallocation pushes an allocation onto the stack. When the stack is empty, another block is allocated and added to the linked list of blocks.</p>
+
+<h2>Stack</h2>
+
+<p>The primary component of the object pool is the stack of addresses that represent free memory slots for objects. However, this isn&rsquo;t implemented like a typical stack; rather, the stack itself is interleaved through the free slots of the memory block. This means no additional memory is required; the data structure that manages the free memory is stored <em>within</em> the free memory it is managing! Each free slot, which would normally be zeroed out, instead points to the next free slot. Pushing and popping simply involves overwriting these pointers.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">stack</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">T</span><span class="o">*</span>       <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">pointer</span><span class="o">*</span> <span class="n">metapointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">stack</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">_top</span><span class="p">(</span><span class="nb">NULL</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">_size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">push</span><span class="p">(</span><span class="n">pointer</span> <span class="n">ptr</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Store the current pointer at the given address</span>
+</span><span class='line'>      <span class="o">*</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">metapointer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span> <span class="o">=</span> <span class="n">_top</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Advance the pointer</span>
+</span><span class='line'>      <span class="n">_top</span> <span class="o">=</span> <span class="n">ptr</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Increment the size</span>
+</span><span class='line'>      <span class="o">++</span><span class="n">_size</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">pointer</span> <span class="n">pop</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">empty</span><span class="p">()){</span><span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">out_of_range</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Pop the top of the stack</span>
+</span><span class='line'>      <span class="n">pointer</span> <span class="n">retval</span> <span class="o">=</span> <span class="n">_top</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Step back to the previous address</span>
+</span><span class='line'>      <span class="n">_top</span> <span class="o">=</span> <span class="o">*</span><span class="p">(</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">metapointer</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_top</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Decrement the size</span>
+</span><span class='line'>      <span class="o">--</span><span class="n">_size</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Return the next free address</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">retval</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">pointer</span> <span class="n">top</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_top</span><span class="p">;}</span>
+</span><span class='line'>  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_size</span><span class="p">;}</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">empty</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">pointer</span> <span class="n">_top</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">_size</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Node</h2>
+
+<p>If the object pool were statically sized, then only a single memory block would be required, and no linked list would be needed. However, to support growth, each memory block is treated as a node in a linked list, allowing for a dynamic number of blocks (and therefore a dynamic amount of allocated memory).</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">node</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">T</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">_object</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">node</span><span class="o">*</span> <span class="n">link</span><span class="p">(</span><span class="n">node</span><span class="o">*</span> <span class="n">next</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="n">_next</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">_next</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">node</span><span class="o">*</span> <span class="n">next</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">_next</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">node</span><span class="p">(</span><span class="n">U</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">arg</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">_object</span><span class="p">(</span><span class="n">arg</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">_next</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">node</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">_object</span><span class="p">(),</span>
+</span><span class='line'>      <span class="n">_next</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">T</span> <span class="n">_object</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">node</span><span class="o">*</span> <span class="n">_next</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Growth</h2>
+
+<p>The growth of the pool can be controlled via a template parameter. This parameter is a functor that takes the current size of the pool and returns the new size that the pool should grow to. I provide functors to do exponential growth (like a vector) or linear growth, but it is easy to add a custom one to fine tune growth for your application.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">growth</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">virtual</span> <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="k">operator</span><span class="p">()(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span> <span class="k">const</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">exponential</span> <span class="o">:</span> <span class="k">public</span> <span class="n">growth</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="k">operator</span><span class="p">()(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">increment</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">linear</span> <span class="o">:</span> <span class="k">public</span> <span class="n">growth</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="k">operator</span><span class="p">()(</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">increment</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Pool</h2>
+
+<p>Finally, the pieces can all be put together to create the object pool. Allocation and deallocation consists of pushing and popping from the stack. If the stack is ever emptied, the pool grows by another block. The pool uses lazy allocation and has an efficient copy constructor to allow for quick rebinding; necessary for the standard containers.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span>
+</span><span class='line'>          <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">align</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span><span class='line'>          <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">initial_size</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>          <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">final_size</span> <span class="o">=</span> <span class="n">max_allocations</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span>
+</span><span class='line'>          <span class="k">typename</span> <span class="n">growth</span> <span class="o">=</span> <span class="n">exponential</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">pool</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">boundary</span><span class="o">&lt;</span><span class="n">align</span><span class="o">&gt;</span> <span class="n">alignment</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">pad</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">align</span><span class="o">&gt;</span> <span class="n">padding</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">enum</span><span class="p">{</span><span class="n">unit</span> <span class="o">=</span> <span class="n">padding</span><span class="o">::</span><span class="n">value</span><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Satisfy the allocator traits</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">type</span>              <span class="n">value_type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span><span class="o">*</span>       <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span> <span class="k">const</span><span class="o">*</span> <span class="n">const_pointer</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span><span class="o">&amp;</span>       <span class="n">reference</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">const_reference</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>       <span class="n">size_type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">ptrdiff_t</span>    <span class="n">difference_type</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">byte</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">pointer</span><span class="o">*</span> <span class="n">metapointer</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">rebind</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">typedef</span> <span class="n">pool</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="n">align</span><span class="p">,</span> <span class="n">initial_size</span><span class="p">,</span> <span class="n">final_size</span><span class="p">,</span> <span class="n">growth</span><span class="o">&gt;</span> <span class="n">other</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">grow</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Update the capacity</span>
+</span><span class='line'>      <span class="n">_capacity</span> <span class="o">=</span> <span class="n">_size</span> <span class="o">?</span> <span class="n">_growth</span><span class="p">(</span><span class="n">_size</span><span class="p">)</span> <span class="o">:</span> <span class="n">initial_size</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Cap at the final size</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">_size</span> <span class="o">+</span> <span class="n">_capacity</span> <span class="o">&gt;</span> <span class="n">final_size</span><span class="p">)</span> <span class="n">_capacity</span> <span class="o">=</span> <span class="n">final_size</span> <span class="o">-</span> <span class="n">_size</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Bail out if we hit the upper limit</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">_capacity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">bad_alloc</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Add this new capacity to our total size</span>
+</span><span class='line'>      <span class="n">_size</span> <span class="o">+=</span> <span class="n">_capacity</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Allocate a new block of memory as a linked list node</span>
+</span><span class='line'>      <span class="n">_current</span> <span class="o">=</span> <span class="n">_current</span><span class="o">-&gt;</span><span class="n">link</span><span class="p">(</span><span class="k">new</span> <span class="n">node</span><span class="o">&lt;</span><span class="n">block</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_capacity</span> <span class="o">*</span> <span class="n">unit</span> <span class="o">+</span> <span class="n">alignment</span><span class="o">::</span><span class="n">value</span><span class="p">));</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Access the memory</span>
+</span><span class='line'>      <span class="kt">void</span><span class="o">*</span> <span class="n">memory</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_current</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Shift context to the new memory block</span>
+</span><span class='line'>      <span class="n">_context</span> <span class="o">=</span> <span class="n">partition</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">align</span><span class="o">&gt;</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">_capacity</span> <span class="o">*</span> <span class="n">unit</span> <span class="o">+</span> <span class="n">alignment</span><span class="o">::</span><span class="n">value</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Push the slots to the stack</span>
+</span><span class='line'>      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">_capacity</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="n">_free</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_context</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">pointer</span> <span class="n">allocate</span><span class="p">(</span><span class="n">size_type</span> <span class="n">count</span><span class="p">,</span> <span class="n">const_pointer</span> <span class="n">hint</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// If we are out of slots, add more</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">_free</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="n">grow</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Return the next slot</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">_free</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">deallocate</span><span class="p">(</span><span class="n">pointer</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size_type</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Push this pointer onto the free list</span>
+</span><span class='line'>      <span class="n">_free</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">size_type</span> <span class="n">max_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// This pool only supports allocating one object at a time</span>
+</span><span class='line'>      <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">pool</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">_head</span><span class="p">(),</span>
+</span><span class='line'>      <span class="n">_current</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_head</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">_size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">_capacity</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">pool</span><span class="p">(</span><span class="n">pool</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="n">align</span><span class="p">,</span> <span class="n">initial_size</span><span class="p">,</span> <span class="n">final_size</span><span class="p">,</span> <span class="n">growth</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">_head</span><span class="p">(),</span>
+</span><span class='line'>      <span class="n">_current</span><span class="p">(</span><span class="o">&amp;</span><span class="n">_head</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">_size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">_capacity</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">~</span><span class="n">pool</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Start at the initial block</span>
+</span><span class='line'>      <span class="n">node</span><span class="o">&lt;</span><span class="n">block</span><span class="o">&gt;*</span> <span class="n">current</span> <span class="o">=</span> <span class="n">_head</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Iterate through each block</span>
+</span><span class='line'>      <span class="k">while</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="c1">// Get the next block</span>
+</span><span class='line'>          <span class="n">node</span><span class="o">&lt;</span><span class="n">block</span><span class="o">&gt;*</span> <span class="n">next</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="c1">// Delete the current block</span>
+</span><span class='line'>          <span class="k">delete</span> <span class="n">current</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="c1">// Advance to the next block</span>
+</span><span class='line'>          <span class="n">current</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">node</span><span class="o">&lt;</span><span class="n">block</span><span class="o">&gt;</span>  <span class="n">_head</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">node</span><span class="o">&lt;</span><span class="n">block</span><span class="o">&gt;*</span> <span class="n">_current</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">_size</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">size_t</span> <span class="n">_capacity</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">partition</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">align</span><span class="o">&gt;</span> <span class="n">_context</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">stack</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">_free</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">growth</span> <span class="n">_growth</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Stateless</h2>
+
+<p>C++03 allocators are required to be stateless. The standard containers do not accept an allocator instance, rather they construct one themselves. This means that two <code>std::set</code>s of type T will each maintain their own allocator. Clearly, the above pool is not stateless, however we can emulate that behavior by using a singleton. In this manner, there will only ever be one instance of the pool for each type, and all the containers will share the same pool.</p>
+
+<p>This is implemented using a <code>stateless</code> allocator adapter. Each call to allocate / deallocate is routed through a singleton to the underlying policy.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span>
+</span><span class='line'>          <span class="k">typename</span> <span class="n">Policy</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">stateless</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Forward typedefs</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">type</span>              <span class="n">value_type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span><span class="o">*</span>       <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span> <span class="k">const</span><span class="o">*</span> <span class="n">const_pointer</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span><span class="o">&amp;</span>       <span class="n">reference</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">const_reference</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>       <span class="n">size_type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">ptrdiff_t</span>    <span class="n">difference_type</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="k">struct</span> <span class="n">rebind</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">typedef</span> <span class="n">stateless</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="k">typename</span> <span class="n">Policy</span><span class="o">::</span><span class="k">template</span> <span class="n">rebind</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;::</span><span class="n">other</span><span class="o">&gt;</span> <span class="n">other</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">stateless</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="p">,</span> <span class="k">typename</span> <span class="n">PolicyU</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">stateless</span><span class="p">(</span><span class="n">stateless</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="n">PolicyU</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">pointer</span> <span class="n">allocate</span><span class="p">(</span><span class="n">size_type</span> <span class="n">count</span><span class="p">,</span> <span class="n">const_pointer</span> <span class="n">hint</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Policy</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">().</span><span class="n">allocate</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">hint</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">deallocate</span><span class="p">(</span><span class="n">pointer</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size_type</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Policy</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">().</span><span class="n">deallocate</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">size_type</span> <span class="n">max_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">Singleton</span><span class="o">&lt;</span><span class="n">Policy</span><span class="o">&gt;::</span><span class="n">instance</span><span class="p">().</span><span class="n">max_size</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Hybrid</h2>
+
+<p>One caveat to the object pool is that it only supports the allocation of a single object at a time. This means the object pool will not work for <code>vector</code>s and some implementations of <code>deque</code>, because these data structures allocate multiple contiguous objects at a time. However, the point of the object pool is to alleviate performance issues related to multiple calls of malloc with small sizes. Vectors do this automatically, so the object pool cannot improve their performance.</p>
+
+<p>Rather than trying to remember which data structures and implementations the pool supports, it would be better to allow the pool to support <em>all</em> the containers. To do this, a <code>hybrid</code> allocator adapter is used that forwards all allocations of a single object to the pool, and all allocations of multiple objects to the heap.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span>
+</span><span class='line'>          <span class="k">typename</span> <span class="n">S</span><span class="p">,</span>
+</span><span class='line'>          <span class="k">typename</span> <span class="n">M</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">hybrid</span> <span class="o">:</span> <span class="k">public</span> <span class="n">S</span><span class="p">,</span>
+</span><span class='line'>                  <span class="k">public</span> <span class="n">M</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Template parameters</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">S</span> <span class="n">single</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">M</span> <span class="n">multiple</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Satisfy the allocator traits</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">type</span>              <span class="n">value_type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span><span class="o">*</span>       <span class="n">pointer</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span> <span class="k">const</span><span class="o">*</span> <span class="n">const_pointer</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span><span class="o">&amp;</span>       <span class="n">reference</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">value_type</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">const_reference</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">size_t</span>       <span class="n">size_type</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">ptrdiff_t</span>    <span class="n">difference_type</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">rebind</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">typedef</span> <span class="n">hybrid</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span>
+</span><span class='line'>                          <span class="k">typename</span>   <span class="n">single</span><span class="o">::</span><span class="k">template</span> <span class="n">rebind</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;::</span><span class="n">other</span><span class="p">,</span>
+</span><span class='line'>                          <span class="k">typename</span> <span class="n">multiple</span><span class="o">::</span><span class="k">template</span> <span class="n">rebind</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;::</span><span class="n">other</span>
+</span><span class='line'>                        <span class="o">&gt;</span> <span class="n">other</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">hybrid</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="p">,</span>
+</span><span class='line'>              <span class="k">typename</span> <span class="n">SinglePolicyU</span><span class="p">,</span>
+</span><span class='line'>              <span class="k">typename</span> <span class="n">MultiplePolicyU</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">hybrid</span><span class="p">(</span><span class="n">hybrid</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span>
+</span><span class='line'>                    <span class="n">SinglePolicyU</span><span class="p">,</span>
+</span><span class='line'>                    <span class="n">MultiplePolicyU</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">single</span><span class="p">(</span><span class="n">other</span><span class="p">),</span>
+</span><span class='line'>      <span class="n">multiple</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Resolve ambiguities by forwarding allocation / deallocation</span>
+</span><span class='line'>  <span class="c1">// requests to the proper policy</span>
+</span><span class='line'>  <span class="n">pointer</span> <span class="n">allocate</span><span class="p">(</span><span class="n">size_type</span> <span class="n">count</span><span class="p">,</span> <span class="n">const_pointer</span> <span class="n">hint</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">single</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">hint</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">multiple</span><span class="o">::</span><span class="n">allocate</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">hint</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">deallocate</span><span class="p">(</span><span class="n">pointer</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size_type</span> <span class="n">count</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="n">single</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>          <span class="n">multiple</span><span class="o">::</span><span class="n">deallocate</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">size_type</span> <span class="n">max_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">multiple</span><span class="o">::</span><span class="n">max_size</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Final Result</h2>
+
+<p>The pool and all of it&rsquo;s pieces are very configurable, but a good set of defaults can be selected that will work just fine for most cases. It is best to take all the policies, traits, and adapters, and fold them all together into a single struct or typedef to make it easier to use. Then, it can be simply plugged into the allocator template parameter of any standard container.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">fast_allocator</span> <span class="o">:</span> <span class="k">public</span>
+</span><span class='line'>   <span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span>
+</span><span class='line'>               <span class="n">hybrid</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">stateless</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span>
+</span><span class='line'>                                     <span class="n">pool</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span>
+</span><span class='line'>                                        <span class="mi">16</span><span class="p">,</span>
+</span><span class='line'>                                        <span class="mi">16</span><span class="p">,</span>
+</span><span class='line'>                                        <span class="n">max_allocations</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span>
+</span><span class='line'>                                        <span class="n">exponential</span>
+</span><span class='line'>                                       <span class="o">&gt;</span>
+</span><span class='line'>                                    <span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">heap</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span>
+</span><span class='line'>                             <span class="mi">16</span>
+</span><span class='line'>                             <span class="o">&gt;</span>
+</span><span class='line'>                       <span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>              <span class="n">object_traits</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'>              <span class="o">&gt;</span>
+</span><span class='line'><span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="n">Foo</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">fast_allocator</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">PooledFooSet</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-26T16:11:06-05:00" pubdate data-updated="true">Nov 26<span>th</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/26/object-pool/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/26/object-pool/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/25/memory-blocks/" title="Previous Post: Memory Blocks">&laquo; Memory Blocks</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/12/04/bitcoin-donations/" title="Next Post: Bitcoin Donations">Bitcoin Donations &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/26/object-pool/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/26/object-pool/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<br>
+<center>
+<a href="http://jrruethe.github.io/blog/2015/11/26/object-pool/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/11/26/object-pool/" alt="post-qrcode"></a>
+</center>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/memory-blocks/">Memory Blocks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/24/google-test/">Google Test</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/aligned-heap/">Aligned Heap</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/11/22/allocators/">C++ Allocators</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<br>
+	<center>
+	<a href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m"><img src="http://blockchain.info/qr?data=187gRAhdyD2KaAhMND92RQMqQQMQtW678m&size=150" alt="Bitcoin"></a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">187gRAhdyD2KaAhMN</a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">D92RQMqQQMQtW678m</a>
+	<br>
+	<a href="/downloads/code/bitcoin.txt.asc">Proof</a>
+	<br><br>
+   <div id="coindesk-widget" data-align="center"></div>
+   <script type="text/javascript" src="//widget.coindesk.com/bpiticker/coindesk-widget.min.js?aa4aca"></script>
+	</center>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2016 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text/image content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/11/26/object-pool/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/11/26/object-pool/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

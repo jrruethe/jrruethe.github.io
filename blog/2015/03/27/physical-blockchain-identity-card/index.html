@@ -65,8 +65,9 @@
 <ul class="main-navigation">
   <li><a href="/">Blog</a></li>
   <li><a href="/blog/archives">Archives</a></li>
-  <li><a href="/blog/about">About</a></li>
   <li><a href="/blog/license">License</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/contact">Contact</a></li>
 </ul>
 
 </nav>
@@ -257,45 +258,49 @@ Here is the back, and containing the most important part of the document:</p>
 <aside class="sidebar">
   
     <section>
+  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
-<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
 <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/" >Tweet</a>
 </section>
 <section>
 <h1>Link to this page</h1>
+<br>
+<center>
 <a href="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/" alt="post-qrcode"></a>
+</center>
 </section>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+        <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/09/17/screenshots-in-qubes/">Screenshots in Qubes</a>
+        <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a>
+        <a href="/blog/2015/11/25/memory-blocks/">Memory Blocks</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+        <a href="/blog/2015/11/24/google-test/">Google Test</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization With Boost Fusion</a>
+        <a href="/blog/2015/11/23/aligned-heap/">Aligned Heap</a>
       </li>
     
   </ul>
@@ -358,10 +363,17 @@ Here is the back, and containing the most important part of the document:</p>
 
 <section>
 	<h1>Bitcoin Donations</h1>
-	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg"><img src="http://blockchain.info/qr?data=1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg&size=150" alt="Bitcoin"></a>
-	<font size=2>
-	<a href="bitcoin:1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg">1A1dsHXAaDcfLzEbiA99u3uBq9PDzw4Hkg</a>
-	</font>
+	<br>
+	<center>
+	<a href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m"><img src="http://blockchain.info/qr?data=187gRAhdyD2KaAhMND92RQMqQQMQtW678m&size=150" alt="Bitcoin"></a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">187gRAhdyD2KaAhMN</a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">D92RQMqQQMQtW678m</a>
+	<br>
+	<a href="/downloads/code/bitcoin.txt.asc">Proof</a>
+	<br><br>
+   <div id="coindesk-widget" data-align="center"></div>
+   <script type="text/javascript" src="//widget.coindesk.com/bpiticker/coindesk-widget.min.js?aa4aca"></script>
+	</center>
 </section>
 
   
@@ -373,13 +385,13 @@ Here is the back, and containing the most important part of the document:</p>
   <footer role="contentinfo"><p>
   <span class="license">
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-   - Copyright &copy; 2015 - Joe Ruether - All rights reserved with the following exceptions:
+   - Copyright &copy; 2016 - Joe Ruether - All rights reserved with the following exceptions:
   <br>
    - All embedded code on this page licensed under
     <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
     or a later version unless otherwise noted
   <br>
-   - All non-code text content on this page licensed under
+   - All non-code text/image content on this page licensed under
     <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
     or a later version unless otherwise noted
   </span>

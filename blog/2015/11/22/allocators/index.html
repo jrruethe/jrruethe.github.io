@@ -1,0 +1,880 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>C++ Allocators - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="This post will discuss how to make a STL compliant allocator. All of the standard containers support a 2nd (or 3rd) template parameter to specify the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2015/11/22/allocators">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/license">License</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/contact">Contact</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">C++ Allocators</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-22T16:10:49-05:00" pubdate data-updated="true">Nov 22<span>nd</span>, 2015</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>This post will discuss how to make a STL compliant allocator.</p>
+
+<p>All of the standard containers support a 2nd (or 3rd) template parameter to specify the allocator that should be used. Each container allocates memory to store the objects it contains, and it uses the allocator to obtain the memory required for this storage. By using a custom allocator, you can remain in control of how memory is managed.</p>
+
+<p>Custom allocators are useful for a variety of cases:</p>
+
+<ul>
+<li>Reducing system call overhead when requesting multiple small memory blocks</li>
+<li>Improving cache efficiency by keeping memory contiguous</li>
+<li>Using standard containers with memory-mapped io, or a memory-mapped file for persistent containers</li>
+<li>Maintaining 100% control of memory for embedded systems or game development</li>
+</ul>
+
+
+<p>Wikipedia summarizes it well<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:</p>
+
+<blockquote><p>One of the main reasons for writing a custom allocator is performance. Utilizing a specialized custom allocator may substantially improve the performance or memory usage, or both, of the program. The default allocator uses operator new to allocate memory. This is often implemented as a thin layer around the C heap allocation functions, which are usually optimized for infrequent allocation of large memory blocks. This approach may work well with containers that mostly allocate large chunks of memory, like vector and deque. However, for containers that require frequent allocations of small objects, such as map and list, using the default allocator is generally slow. Other common problems with a malloc-based allocator include poor locality of reference, and excessive memory fragmentation.</p></blockquote>
+
+<p>The allocators discussed in this post are meant to be used with C++03. C++11 adds more support for custom allocators, and makes them easier to implement. Furthermore, C++03 allocators are compatible with C++11, but not the other way around.</p>
+
+<p>Creating a custom allocator may seem difficult, but the core concept is pretty simple. Here are the basic rules:</p>
+
+<ul>
+<li>Cannot have state (C++03 only)</li>
+<li>Must support certain typedefs and methods</li>
+<li>Must support type rebinding</li>
+<li>Allocators of the same type must compare equally</li>
+</ul>
+
+
+<p>No state also means no virtual functions, as the vtable can be considered state. Normal inheritance is okay, however it is generally considered bad practice to derive from std::allocator. Instead, we will create our own allocator using policies and traits. The methods that need to be implemented can be separated into two categories: those that are related to the allocator, and those that are related to the object being allocated. This distinction defines the policy and traits we will implement.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
+
+<blockquote><p><strong>Policies and Traits</strong><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup><br/>
+Policies are classes (or class templates) to inject behavior into a parent class, typically through inheritance. By decomposing a parent interface into orthogonal (independent) dimensions, policy classes form the building blocks of more complex interfaces. Traits are class templates to extract properties from a generic type. Traits are often used in template-metaprogramming and SFINAE tricks to overload a function template based on a type condition.</p></blockquote>
+
+<h3>Object Traits</h3>
+
+<p>The first thing to define is the object traits. This structure is responsible for creating and destroying objects, as well as returning the address of an object. Note that classes support overriding the &ldquo;address-of&rdquo; operator, so the object traits will need to be specialized for those classes. The object traits can also be specialized for a type to keep track of the number of instantiations using the allocator, much like the object counter works.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">object_traits</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">typedef</span> <span class="n">T</span> <span class="n">type</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="k">struct</span> <span class="n">rebind</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="k">typedef</span> <span class="n">object_traits</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">other</span><span class="p">;</span>
+</span><span class='line'>   <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Constructor</span>
+</span><span class='line'>   <span class="n">object_traits</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Copy Constructor</span>
+</span><span class='line'>   <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>   <span class="n">object_traits</span><span class="p">(</span><span class="n">object_traits</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Address of object</span>
+</span><span class='line'>   <span class="n">type</span><span class="o">*</span>       <span class="n">address</span><span class="p">(</span><span class="n">type</span><span class="o">&amp;</span>       <span class="n">obj</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">&amp;</span><span class="n">obj</span><span class="p">;}</span>
+</span><span class='line'>   <span class="n">type</span> <span class="k">const</span><span class="o">*</span> <span class="n">address</span><span class="p">(</span><span class="n">type</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="o">&amp;</span><span class="n">obj</span><span class="p">;}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Construct object</span>
+</span><span class='line'>   <span class="kt">void</span> <span class="n">construct</span><span class="p">(</span><span class="n">type</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">type</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">ref</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// In-place copy construct</span>
+</span><span class='line'>      <span class="k">new</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span> <span class="n">type</span><span class="p">(</span><span class="n">ref</span><span class="p">);</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Destroy object</span>
+</span><span class='line'>   <span class="kt">void</span> <span class="n">destroy</span><span class="p">(</span><span class="n">type</span><span class="o">*</span> <span class="n">ptr</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>   <span class="p">{</span>
+</span><span class='line'>      <span class="c1">// Call destructor</span>
+</span><span class='line'>      <span class="n">ptr</span><span class="o">-&gt;~</span><span class="n">type</span><span class="p">();</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Rebinding</h3>
+
+<p>Notice the special <code>rebind</code> struct in the above code. This is a convention used by the STL to allow for chainging the type of the allocator. For example, when you make a <code>std::list&lt;T&gt;</code>, internally the type is being rebound to <code>std::list&lt;Node&lt;T&gt; &gt;</code>, because lists store nodes that contain a T, not the T itself. To support this, the allocator itself must support rebinding such that memory is allocated for the node, not just T.</p>
+
+<h3>Allocator Traits</h3>
+
+<p>The allocator policies require a certain set of typedefs to be present. In most cases, they can all be derived from the type of the allocator, so it makes sense to use a macro:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#define ALLOCATOR_TRAITS(T)                \</span>
+</span><span class='line'><span class="cp">typedef T                 type;            \</span>
+</span><span class='line'><span class="cp">typedef type              value_type;      \</span>
+</span><span class='line'><span class="cp">typedef value_type*       pointer;         \</span>
+</span><span class='line'><span class="cp">typedef value_type const* const_pointer;   \</span>
+</span><span class='line'><span class="cp">typedef value_type&amp;       reference;       \</span>
+</span><span class='line'><span class="cp">typedef value_type const&amp; const_reference; \</span>
+</span><span class='line'><span class="cp">typedef std::size_t       size_type;       \</span>
+</span><span class='line'><span class="cp">typedef std::ptrdiff_t    difference_type; \</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Allocator Policy</h3>
+
+<p>Next, the actual allocator policy needs to be defined. The allocator policy is responsible for allocating and deallocating memory. For this example, a simple heap allocator will work. The functionality will mimic that of the standard allocator:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">max_allocations</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">enum</span><span class="p">{</span><span class="n">value</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">size_t</span><span class="o">&gt;</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">)};</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">heap</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ALLOCATOR_TRAITS</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">rebind</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">typedef</span> <span class="n">heap</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="n">other</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Default Constructor</span>
+</span><span class='line'>  <span class="n">heap</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Copy Constructor</span>
+</span><span class='line'>  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">heap</span><span class="p">(</span><span class="n">heap</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Allocate memory</span>
+</span><span class='line'>  <span class="n">pointer</span> <span class="n">allocate</span><span class="p">(</span><span class="n">size_type</span> <span class="n">count</span><span class="p">,</span> <span class="n">const_pointer</span> <span class="cm">/* hint */</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="n">max_size</span><span class="p">()){</span><span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">bad_alloc</span><span class="p">();}</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">pointer</span><span class="o">&gt;</span><span class="p">(</span><span class="o">::</span><span class="k">operator</span> <span class="k">new</span><span class="p">(</span><span class="n">count</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">type</span><span class="p">),</span> <span class="o">::</span><span class="n">std</span><span class="o">::</span><span class="n">nothrow</span><span class="p">));</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Delete memory</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">deallocate</span><span class="p">(</span><span class="n">pointer</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size_type</span> <span class="cm">/* count */</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="o">::</span><span class="k">operator</span> <span class="k">delete</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Max number of objects that can be allocated in one call</span>
+</span><span class='line'>  <span class="n">size_type</span> <span class="n">max_size</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="n">max_allocations</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Allocator</h3>
+
+<p>Now that we have all the pieces, it is time to bring them all together. The actual allocator class is nothing more than a wrapper to combine the above into one common place. The key to the allocator wrapper is that it inherits from the allocator policy and object traits, thus the combination satisfies all the requirements for a compliant allocator.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#define FORWARD_ALLOCATOR_TRAITS(C)                  \</span>
+</span><span class='line'><span class="cp">typedef typename C::value_type      value_type;      \</span>
+</span><span class='line'><span class="cp">typedef typename C::pointer         pointer;         \</span>
+</span><span class='line'><span class="cp">typedef typename C::const_pointer   const_pointer;   \</span>
+</span><span class='line'><span class="cp">typedef typename C::reference       reference;       \</span>
+</span><span class='line'><span class="cp">typedef typename C::const_reference const_reference; \</span>
+</span><span class='line'><span class="cp">typedef typename C::size_type       size_type;       \</span>
+</span><span class='line'><span class="cp">typedef typename C::difference_type difference_type; \</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">PolicyT</span> <span class="o">=</span> <span class="n">heap</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">TraitsT</span> <span class="o">=</span> <span class="n">object_traits</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">allocator</span> <span class="o">:</span> <span class="k">public</span> <span class="n">PolicyT</span><span class="p">,</span>
+</span><span class='line'>                  <span class="k">public</span> <span class="n">TraitsT</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Template parameters</span>
+</span><span class='line'>    <span class="k">typedef</span> <span class="n">PolicyT</span> <span class="n">Policy</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">typedef</span> <span class="n">TraitsT</span> <span class="n">Traits</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">FORWARD_ALLOCATOR_TRAITS</span><span class="p">(</span><span class="n">Policy</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">rebind</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>       <span class="k">typedef</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span>
+</span><span class='line'>                         <span class="k">typename</span> <span class="n">Policy</span><span class="o">::</span><span class="k">template</span> <span class="n">rebind</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;::</span><span class="n">other</span><span class="p">,</span>
+</span><span class='line'>                         <span class="k">typename</span> <span class="n">Traits</span><span class="o">::</span><span class="k">template</span> <span class="n">rebind</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;::</span><span class="n">other</span>
+</span><span class='line'>                        <span class="o">&gt;</span> <span class="n">other</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Constructor</span>
+</span><span class='line'>    <span class="n">allocator</span><span class="p">(</span><span class="kt">void</span><span class="p">){}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Copy Constructor</span>
+</span><span class='line'>    <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="p">,</span>
+</span><span class='line'>             <span class="k">typename</span> <span class="n">PolicyU</span><span class="p">,</span>
+</span><span class='line'>             <span class="k">typename</span> <span class="n">TraitsU</span><span class="o">&gt;</span>
+</span><span class='line'>    <span class="n">allocator</span><span class="p">(</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">PolicyU</span><span class="p">,</span>
+</span><span class='line'>                        <span class="n">TraitsU</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>       <span class="n">Policy</span><span class="p">(</span><span class="n">other</span><span class="p">),</span>
+</span><span class='line'>       <span class="n">Traits</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">{}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Notice how the rebinding structure works here; the policy and traits classes are both rebound to the new type when the overall allocator is rebound.</p>
+
+<h3>Equality operators</h3>
+
+<p>The STL uses the equality operator to determine if memory allocated by one allocator can be deallocated with another. Normally, a heap allocator can be used interchangably between types, so the equality operator would return true. However, with this allocator framework, different policies can be plugged in, and some policies may not be interchangable. Therefore, the equality operator will default to false. Specializations of the equality operators can be made for specific policies to register equality, such as he heap policy:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// Two allocators are not equal unless a specialization says so</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsT</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">U</span><span class="p">,</span> <span class="k">typename</span> <span class="n">PolicyU</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsU</span><span class="o">&gt;</span>
+</span><span class='line'><span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="n">TraitsT</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">left</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">allocator</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="n">PolicyU</span><span class="p">,</span> <span class="n">TraitsU</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">right</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Also implement inequality</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsT</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">U</span><span class="p">,</span> <span class="k">typename</span> <span class="n">PolicyU</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsU</span><span class="o">&gt;</span>
+</span><span class='line'><span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="n">TraitsT</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">left</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">allocator</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="n">PolicyU</span><span class="p">,</span> <span class="n">TraitsU</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">right</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="n">left</span> <span class="o">==</span> <span class="n">right</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Comparing an allocator to anything else should not show equality</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsT</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">OtherAllocator</span><span class="o">&gt;</span>
+</span><span class='line'><span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="n">TraitsT</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">left</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">OtherAllocator</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">right</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Also implement inequality</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsT</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">OtherAllocator</span><span class="o">&gt;</span>
+</span><span class='line'><span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">PolicyT</span><span class="p">,</span> <span class="n">TraitsT</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">left</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">OtherAllocator</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">right</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="n">left</span> <span class="o">==</span> <span class="n">right</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Specialize for the heap policy</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsT</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">U</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsU</span><span class="o">&gt;</span>
+</span><span class='line'><span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">heap</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">TraitsT</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">left</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">allocator</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="n">heap</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">TraitsU</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">right</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Also implement inequality</span>
+</span><span class='line'><span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsT</span><span class="p">,</span>
+</span><span class='line'>         <span class="k">typename</span> <span class="n">U</span><span class="p">,</span> <span class="k">typename</span> <span class="n">TraitsU</span><span class="o">&gt;</span>
+</span><span class='line'><span class="kt">bool</span> <span class="k">operator</span><span class="o">!=</span><span class="p">(</span><span class="n">allocator</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">heap</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">TraitsT</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">left</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">allocator</span><span class="o">&lt;</span><span class="n">U</span><span class="p">,</span> <span class="n">heap</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">TraitsU</span><span class="o">&gt;</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">right</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>   <span class="k">return</span> <span class="o">!</span><span class="p">(</span><span class="n">left</span> <span class="o">==</span> <span class="n">right</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Using the Allocator</h3>
+
+<p>Using the allocator is simple, just pass it into the 2nd (or 3rd) template parameter of a container. Remember that some containers (like <code>set</code>) have a second template parameter that accepts a comparator.</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cp">#include &lt;set&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">Example</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">Example</span><span class="p">(</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="o">:</span>
+</span><span class='line'>      <span class="n">value</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">bool</span> <span class="k">operator</span><span class="o">&lt;</span><span class="p">(</span><span class="n">Example</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="n">other</span><span class="p">.</span><span class="n">value</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Increase scope</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="n">Example</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;</span><span class="n">Example</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">allocator</span><span class="o">&lt;</span><span class="n">Example</span><span class="p">,</span> <span class="n">heap</span><span class="o">&lt;</span><span class="n">Example</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">foo</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">foo</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">Example</span><span class="p">(</span><span class="mi">3</span><span class="p">));</span>
+</span><span class='line'>      <span class="n">foo</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">Example</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+</span><span class='line'>      <span class="n">foo</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">Example</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
+</span><span class='line'>      <span class="n">foo</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">Example</span><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="c1">// Leaving scope</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And that is how to make an allocator! A future blog post will discuss different policies that can be created.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://stackoverflow.com/questions/14718055/what-is-the-difference-between-a-trait-and-a-policy/14723986#14723986">What is the difference between a trait and a policy?</a> &ndash; TemplateRex<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="http://www.codeproject.com/Articles/4795/C-Standard-Allocator-An-Introduction-and-Implement">C++ Standard Allocator, An Introduction and Implementation</a> &ndash; Lai Shiaw San Kent<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p><a href="https://en.wikipedia.org/wiki/Allocator_%28C%2B%2B%29#Custom_allocators">Allocator (C++)</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-22T16:10:49-05:00" pubdate data-updated="true">Nov 22<span>nd</span>, 2015</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/22/allocators/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/22/allocators/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/14/stopwatch/" title="Previous Post: Stopwatch">&laquo; Stopwatch</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/11/23/aligned-heap/" title="Next Post: Aligned Heap">Aligned Heap &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/22/allocators/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/22/allocators/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<br>
+<center>
+<a href="http://jrruethe.github.io/blog/2015/11/22/allocators/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/11/22/allocators/" alt="post-qrcode"></a>
+</center>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/memory-blocks/">Memory Blocks</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/24/google-test/">Google Test</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/aligned-heap/">Aligned Heap</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<br>
+	<center>
+	<a href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m"><img src="http://blockchain.info/qr?data=187gRAhdyD2KaAhMND92RQMqQQMQtW678m&size=150" alt="Bitcoin"></a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">187gRAhdyD2KaAhMN</a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">D92RQMqQQMQtW678m</a>
+	<br>
+	<a href="/downloads/code/bitcoin.txt.asc">Proof</a>
+	<br><br>
+   <div id="coindesk-widget" data-align="center"></div>
+   <script type="text/javascript" src="//widget.coindesk.com/bpiticker/coindesk-widget.min.js?aa4aca"></script>
+	</center>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2016 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text/image content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2015/11/22/allocators/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2015/11/22/allocators/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
