@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2016-01-03T18:41:30-05:00</updated>
+  <updated>2016-01-12T21:56:02-05:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,179 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin Donation Proofs]]></title>
+    <link href="http://jrruethe.github.io/blog/2016/01/12/bitcoin-donation-proofs/"/>
+    <updated>2016-01-12T21:15:49-05:00</updated>
+    <id>http://jrruethe.github.io/blog/2016/01/12/bitcoin-donation-proofs</id>
+    <content type="html"><![CDATA[<p>As promised in my <a href="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/">previous post</a>, I made some donations to show my support for open source software projects that accept Bitcoin. Below you will find the proofs.</p>
+
+<p>Thank you all for everything you do, it is greatly appreciated and does not go unnoticed. Keep up the great work!</p>
+
+<blockquote><p>Some sites did not provide static addresses. Donations to sites utilizing dynamic addresses are not listed, to prevent accidential reuse of those temporary addresses.</p></blockquote>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+</pre></td><td class='code'><pre><code class='plain'><span class='line'>-----BEGIN PGP SIGNED MESSAGE-----
+</span><span class='line'>Hash: SHA1
+</span><span class='line'>
+</span><span class='line'> - Date        : 2015/12/19
+</span><span class='line'>   Recipient   : Whonix
+</span><span class='line'>   Source      : https://www.whonix.org/wiki/Donate
+</span><span class='line'>   Address     : 1JgzCCSox56Sh4NnQJqRiwoxKi8oVSZBEd
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : 186bec9c1ffb9f6aaf30acb029b3640cdb5b3ca64ca8c96e6d3525ee925be13a
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $10 to Whonix on Dec 19th, 2015"
+</span><span class='line'>   
+</span><span class='line'> - Date        : 2015/12/19
+</span><span class='line'>   Recipient   : Rumble
+</span><span class='line'>   Source      : http://disruptedsystems.org/
+</span><span class='line'>   Address     : 1PXXMinxQgYUPXzZq6BixZpJTFeiCLqDqD
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : 900fe2a9eb4c050d51cdc0c554b0ccb19e9060c6ee74367597ca30156b5bf24d
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $5 to Rumble on Dec 19th, 2015"
+</span><span class='line'>
+</span><span class='line'> - Date        : 2015/12/19
+</span><span class='line'>   Recipient   : Armory
+</span><span class='line'>   Source      : https://bitcoinarmory.com/contact/
+</span><span class='line'>   Address     : 1ArmoryXcfq7TnCSuZa9fQjRYwJ4bkRKfv
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : caeb52f8689ab152ba183675882c4a2176dbd95f7c01558905b6c74ed8a1f798
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $10 to Armory on Dec 19th, 2015"
+</span><span class='line'>
+</span><span class='line'> - Date        : 2015/12/18
+</span><span class='line'>   Recipient   : Tails
+</span><span class='line'>   Source      : https://tails.boum.org/contribute/how/donate/index.en.html
+</span><span class='line'>   Address     : 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : 179c3b282b395ebde1282e5faea23695c3e3deb3eaeb617e1ff65c2720eb60c4
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $10 to Tails on Dec 18th, 2015"
+</span><span class='line'>
+</span><span class='line'> - Date        : 2015/12/18
+</span><span class='line'>   Recipient   : Veracrypt
+</span><span class='line'>   Source      : https://veracrypt.codeplex.com/wikipage?title=Bitcoin%20Donation
+</span><span class='line'>   Address     : 1NRoPQsm8by5iWyMMmHQy3P5takur3kYgG
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : ae1e57806c194a4bd2fd22f9a1c003ec6e82062c0197d18c2c06f5f0a65f2466
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $10 to Veracrypt on Dec 18th, 2015"  
+</span><span class='line'>
+</span><span class='line'> - Date        : 2015/12/18
+</span><span class='line'>   Recipient   : KeepassX
+</span><span class='line'>   Source      : https://www.keepassx.org/donate
+</span><span class='line'>   Address     : 1Lij3AvejBSbP58HM7uRmnuGcUpPWddPGt
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : 727747188f5ac883bb20c3724bef6532b4e0b8663d6ed899ab437c7192d66008
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $10 to KeepassX on Dec 18th, 2015"
+</span><span class='line'>
+</span><span class='line'> - Date        : 2015/12/18
+</span><span class='line'>   Recipient   : Free Software Foundation
+</span><span class='line'>   Source      : https://my.fsf.org/donate
+</span><span class='line'>   Address     : 1PC9aZC4hNX2rmmrt7uHTfYAS3hRbph4UN
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : eb4c3ca8cb2dc255c6e65c97a9528e7140b569b336ddfea190d7a9d8523e26a6
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $10 to the Free Software Foundation on Dec 18th, 2015" 
+</span><span class='line'>
+</span><span class='line'> - Date        : 2015/12/18
+</span><span class='line'>   Recipient   : Qubes
+</span><span class='line'>   Source      : https://www.qubes-os.org/donate/
+</span><span class='line'>   Address     : 14zockMSKKp5MK6X2cHJ3mQwm9MwYsJ39j
+</span><span class='line'>   Amount      : 0.021
+</span><span class='line'>   Transaction : f1eb94f2a14b33bcd33884da7d9eab314a967b9eb514e599604d518195f05140
+</span><span class='line'>   Message     : "I, Joe Ruether, donated $10 to Qubes on Dec 18th, 2015"
+</span><span class='line'>
+</span><span class='line'>-----BEGIN PGP SIGNATURE-----
+</span><span class='line'>Version: GnuPG v1
+</span><span class='line'>
+</span><span class='line'>iQEcBAEBAgAGBQJWlbpPAAoJEB7MsgHDevApgdoIAKekXgfkkUdnlV21kgAfSVBp
+</span><span class='line'>6RZmSYhsYwPBK968qPLcHiRXHH4U42mRP4PKXcj4ylwED4KQVW432VKrz6/F7EuA
+</span><span class='line'>Vm9QOjEAesb7gEfLOfI6eoC20aWRR3Y2DOsSOK1tlXm8jK+gv9RshvfBeLVnvF4s
+</span><span class='line'>ZAQ8yUOjHyD77j8TKHF5vNMBf0OVnpJxXjS06/93zTpk16z21O+y2YmFpEOkZdPV
+</span><span class='line'>tK4OmXv25DzlSUKIabhCEkYGfrfn0zbjfX+NEnAKxhdX5kdBMaKiL1vlMUAFptLg
+</span><span class='line'>i6iZQYArzxFD+rGj64DqBLzPXbgEQWztVG8cJ0tKHWRZ9K/xFXBIsmBnAHIsd3s=
+</span><span class='line'>=UnE4
+</span><span class='line'>-----END PGP SIGNATURE-----</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Bitcoin Donations]]></title>
@@ -1331,7 +1504,7 @@ A
 </ul>
 
 
-<p>Note that <code>libgtest-dev</code> includes the headers and sources, but not the compiled libraries. Follow the instructions below to compile and install the libraries[^1}:</p>
+<p>Note that <code>libgtest-dev</code> includes the headers and sources, but not the compiled libraries. Follow the instructions below to compile and install the libraries<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:</p>
 
 <pre><code>cd /tmp
 mkdir build
@@ -1423,12 +1596,14 @@ sudo mv libgtest* /usr/lib/
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Google Test is a great way to ensure that your code is working properly. I often use Google Test with a relaxed form of <em>Test Driven Development</em><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>.</p>
+<p>Google Test is a great way to ensure that your code is working properly. I often use Google Test with a relaxed form of <em>Test Driven Development</em><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>.</p>
 <div class="footnotes">
 <hr/>
 <ol>
 <li id="fn:1">
-<p><a href="https://en.wikipedia.org/wiki/Test-driven_development">Test Driven Development</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<p><a href="http://askubuntu.com/questions/145887/why-no-library-files-installed-for-google-test">Why no library files installed for google test?</a> &ndash; Wojciech Migda <a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="https://en.wikipedia.org/wiki/Test-driven_development">Test Driven Development</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
 </ol>
 </div>
 
@@ -13858,236 +14033,6 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
 <p>Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.</p>
 
 <p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/15.jpg"></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Generate Hashes]]></title>
-    <link href="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/"/>
-    <updated>2015-04-19T14:51:57-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2015/04/19/generate-hashes</id>
-    <content type="html"><![CDATA[<p>This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking.</p>
-
-<figure class='code'><figcaption><span> (generate_hashes.sh)</span><a href='http://jrruethe.github.io/downloads/code/generate_hashes.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># generate_hashes.rb</span>
-</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
-</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
-</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
-</span><span class='line'><span class="c"># (at your option) any later version.</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
-</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
-</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Usage: ./generate_hashes.sh [directory] [hash]</span>
-</span><span class='line'><span class="c"># Check the result with sha256sum -c &lt;result&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># See if a directory was defined</span>
-</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
-</span><span class='line'><span class="k">   </span><span class="nv">DIRECTORY</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
-</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="k">${</span><span class="nv">DIRECTORY</span><span class="k">}</span>/
-</span><span class='line'>
-</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$DIRECTORY</span> <span class="o">]</span>; <span class="k">then</span>
-</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $DIRECTORY&quot;</span>
-</span><span class='line'>      <span class="nb">exit </span>1
-</span><span class='line'>   <span class="k">fi</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>   <span class="c"># Use the current directory</span>
-</span><span class='line'>   <span class="nv">DIRECTORY</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
-</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="s1">&#39;\./&#39;</span>
-</span><span class='line'><span class="k">fi</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Hash type to use</span>
-</span><span class='line'><span class="nv">HASH</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">sha256</span><span class="k">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Generate the output filename</span>
-</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span>hashes.<span class="nv">$HASH</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Determine which program to use</span>
-</span><span class='line'><span class="nv">HASHER</span><span class="o">=</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span>sum
-</span><span class='line'>
-</span><span class='line'><span class="c"># Remove any existing hash file</span>
-</span><span class='line'>rm -f <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Find all files in the directory</span>
-</span><span class='line'><span class="c"># that do not have the output filename</span>
-</span><span class='line'><span class="c"># and hash them. Store the output in the target directory</span>
-</span><span class='line'>find <span class="nv">$DIRECTORY</span> -type f ! -name <span class="s2">&quot;$OUTPUT&quot;</span> -exec <span class="nv">$HASHER</span> <span class="o">{}</span> <span class="se">\;</span> &gt;&gt; <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Sort the output on the filename column</span>
-</span><span class='line'>sort -u -k2 -o <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Remove the directory from the listings</span>
-</span><span class='line'>sed -i <span class="s2">&quot;s@ $REPLACE@@g&quot;</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The following will show how to use it. First, we need some files:</p>
-
-<pre><code>$ ls
-generate_hashes.sh
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; 1.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0787343 s, 13.3 MB/s
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; 2.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0862146 s, 12.2 MB/s
-
-$ mkdir -p three/four
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; three/3.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0854334 s, 12.3 MB/s
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; three/four/4.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0783046 s, 13.4 MB/s
-
-$ ls *
-1.txt  2.txt  generate_hashes.sh
-
-three:
-3.txt  four
-</code></pre>
-
-<p>Calling the script without any arguments will generate the hashes in the current directory. The file is stored as hashes.hashtype, where hashtype defaults to sha256.</p>
-
-<pre><code>$ ./generate_hashes.sh 
-$ ls
-1.txt  2.txt  generate_hashes.sh  hashes.sha256  three
-
-$ cat hashes.sha256 
-3f27f253e357143105f9a29193141db5ad833b56299a4c4e4a30a2d19f4732a8 1.txt
-9dee9ed8f2c7a8533e764bc6963615537524d54292875e9fd858e9e0cd9b93b1 2.txt
-20a1cbbf5a21773d673c79d4d8e58e31c3766f87c0299aa5a8c669015504c9f0 generate_hashes.sh
-a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca three/3.txt
-bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 three/four/4.txt
-
-$ sha256sum -c hashes.sha256 
-1.txt: OK
-2.txt: OK
-generate_hashes.sh: OK
-three/3.txt: OK
-three/four/4.txt: OK
-</code></pre>
-
-<p>The first optional argument is the directory to hash. <code>.</code> is allowed.</p>
-
-<pre><code>$ rm hashes.sha256
-$ ls
-1.txt  2.txt  generate_hashes.sh  three
-$ ls three/
-3.txt  four
-
-$ ./generate_hashes.sh three/
-$ ls three/
-3.txt  four  hashes.sha256
-$ cat three/hashes.sha256 
-a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca 3.txt
-bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 four/4.txt
-</code></pre>
-
-<p>The second optional argument is the hash type to use:</p>
-
-<ul>
-<li>sha1</li>
-<li>sha224</li>
-<li>sha256 (default)</li>
-<li>sha384</li>
-<li>sha512</li>
-<li>md5</li>
-</ul>
-
-
-<p>Example:</p>
-
-<pre><code>$ ./generate_hashes.sh three/ sha1
-$ ls three/
-3.txt  four  hashes.sha1  hashes.sha256
-$ cat three/hashes.sha1
-fffdc438939ae0afa1f19569939dd3996a2d67bb 3.txt
-cec823c326525c23bba925d5d85b35a5ebbed62d four/4.txt
-deea8794a7aada412518d06df516c804389ef212 hashes.sha256
-
-$ cd three/
-$ sha1sum -c hashes.sha1
-3.txt: OK
-four/4.txt: OK
-hashes.sha256: OK
-</code></pre>
-
-<p>When distributing a large set of files or directory tree, it is best to generate the hashes in the root of the tree and sign the hashes.sha256 file with GPG.</p>
 ]]></content>
   </entry>
   

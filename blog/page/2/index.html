@@ -9,9 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Generally, in C++ there are three places you can store your data: On the stack (local variables)
-On the heap (new / delete)
-In the static data &hellip;">
+  <meta name="description" content="I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless. I decided I &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +75,307 @@ In the static data &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/12/setting-up-qubes/">Setting Up Qubes</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-09-12T11:35:50-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/09/12/setting-up-qubes/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless. I decided I wanted to write about my setup and how to fix the minor problems I encountered. As a test, this entire post was written using Qubes, as a way for me to prove to myself that I could still be productive and have an easy-to-use system while remaining secure.</p>
+
+<h2>Understanding Qubes</h2>
+
+<p>Qubes is not a distribution of Linux. Rather, it is a set of tools built on top of the Xen hypervisor, allowing you to interoperate between multiple isolated virtual machines. Each virtual machine is &ldquo;paravirtualized&rdquo;, meaning they all share a common Linux kernel but have separated filesystems, devices, etc. Furthermore, the filesystems are layered such that multiple separate VMs can share a common underlying template to save storage space. In my mind, this is similar in concept to how Docker works. Unlike Docker, which utilizes Linux kernel namespaces, Qubes utilizes hardware enforced isolation via virtualization capabilities in the CPU, so it is much more secure.</p>
+
+<p>The main interface is called <code>dom0</code>, and acts as an administration panel for Xen, allowing the user to easily manage and manipulate the various virtual machines. Each virtual machine is given a color so the user can visually assess which security domain they are working in at all times. The Qubes tools allow for secure file/clipboard copying between VMs, controlled networking, and seamless application interaction; You will barely even notice that you are working with a series of virtual machines under the hood.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/01.png"></p>
+
+<p>It is important to understand that Qubes grants the ability to easily create a secure computing environment, but it relies heavily on the user to utilize best practices; it will not prevent foolish mistakes. The user must be mindful about keeping data and connections isolated; Qubes helps you do it effectively.</p>
+
+<p>Read more about Qubes <a href="https://www.qubes-os.org/doc/SimpleIntro/">here</a>.</p>
+
+<h2>Considerations before migrating to Qubes</h2>
+
+<p>Qubes 3.0 works very well and is very usable. Its VM management and interaction tool are well done, easy to use, and non-intrusive. However, using Qubes comes with a significant drawback:</p>
+
+<ul>
+<li>No non-mass-storage USB devices in VMs</li>
+</ul>
+
+
+<p>Do not misunderstand; Mass storage devices such as flash drives and external hard drives (block devices) work flawlessly and can be assigned to any VM very easily. However, devices such as USB network cards or Yubikey smartcards do not work in the VMs.</p>
+
+<p>The USB devices do work in <code>dom0</code>, meaning that USB keyboards and mice are fine. It would be dangerous to connect a USB network card to <code>dom0</code>, because <code>dom0</code> should be airgapped.</p>
+
+<blockquote><p><strong>Airgapped</strong><br/>
+Airgapping means the machine is never connected to the internet. It is completely isolated, as in &ldquo;separated by a gap of air&rdquo;. Most of the time, airgapping refers to two physically separated machines, however in the case of Qubes it refers a virtual machine separated from the network. Ideally, files are only ever copied <em>into</em> the airgapped machine, never out of it.</p></blockquote>
+
+<p>There are various hints on the forums that people have gotten this to work, but it seems to be hardware dependent. My laptop has two USB controllers; one dedicated to the touchscreen (which also works flawlessly, by the way), the other dedicated to the external ports. This means that if I assign my USB controller to a VM, <em>only</em> that VM has access to those devices. This interferes with my USB wireless mouse. In theory, this should be OK. In practice, I haven&rsquo;t been able to get my VMs to boot when they have the USB controller assigned to them, and I don&rsquo;t seem to be able to reassign the USB controller back to <code>dom0</code> easily.</p>
+
+<p>However, these issues are fairly easy for me to work around. If I need 3G/4G modem, I use a mobile wireless hotspot and just connect to the Wifi. Similarily, my printer is network enabled, so I don&rsquo;t need to connect it via USB. As for Yubikeys, the &ldquo;keyboard&rdquo; capabilities work out of the box, and Qubes&#8217; Split-GPG functionality can substitute the smartcard functionality of the Yubikey.</p>
+
+<p>Read more about these considerations <a href="https://www.qubes-os.org/doc/UserFaq/">here</a>.</p>
+
+<h2>Getting Qubes</h2>
+
+<p>Simply download <code>Qubes-R3.0-rc2-x86_64-DVD.iso</code> from <a href="https://www.qubes-os.org/doc/QubesDownloads/">here</a>. Be sure to also grab the signature file. Before attempting to burn / install Qubes, you should <a href="https://www.qubes-os.org/doc/VerifyingSignatures/">verify the signatures</a>.</p>
+
+<h2>Installing Qubes</h2>
+
+<p>The installer is pretty straightforward. I chose to do manual partitioning, with a <code>boot</code> drive of 2GB using <code>ext4</code> and a <code>root</code> drive taking the remaining space using <code>btrfs</code> and <code>luks</code> encryption. My plan in the future is to have a Tails iso available for booting from the <code>boot</code> drive. My disk has limited space, so I chose <code>btrfs</code> for its compression abilities. Finally, be sure to also install the <code>fedora-21</code> and <code>debian-8</code> templates.</p>
+
+<h2>Creating Domains</h2>
+
+<p>The first thing I do is clone the standard <code>fedora-21</code> and <code>debian-8</code> templates, such that I always have a fresh working fallback in case something goes wrong when modifying them. I typically use two separate <code>debian-8</code> templates; one for a minimal image that won&rsquo;t change often, and one for an &ldquo;experimental&rdquo; image that I install various software to.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/02.png"></p>
+
+<p>I like to have a few primary domains:</p>
+
+<ul>
+<li>Personal (Yellow): My configured browser, email, instant messaging, and blogging setup.</li>
+<li>Work (Orange): Stuff I am working on, experiments, etc.</li>
+<li>Vault (Green): Passwords, keys, sensitive files.</li>
+</ul>
+
+
+<p>Qubes is all about isolation. My sensitive files are isolated away to the Vault, which has no network access and never touches a USB drive. I use Qubes&#8217; secure file copying from another trusted VM to put things into the Vault.</p>
+
+<p>Other secondary domains include the system proxies, Whonix, and a VM dedicated to Tor:</p>
+
+<ul>
+<li>sys-net (Red): Manages the network devices, has direct internet access</li>
+<li>sys-firewall (Green): A trusted firewall that grants other VMs internet access</li>
+<li>sys-tor (Green): A Tor proxy that grants other VMs Tor access</li>
+<li>sys-gpg (Green): A special domain for GPG subkey storage</li>
+<li>sys-whonix (Violet): The Whonix gateway</li>
+<li>Tor (Orange): Special domain containing only a web browser configured to use Tor</li>
+<li>Whonix (Violet): The Whonix workstation</li>
+</ul>
+
+
+<p>Here is a diagram of how the VM &ldquo;inheritance&rdquo; is set up:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/03.png"></p>
+
+<p>As you can see, I have multiple domains that I use at a &ldquo;personal&rdquo; level, so they share the same template, which I try to keep minimal and stable. Separate from that is my &ldquo;testing&rdquo; template that I do my work in. This typically involves installing experimental software, or development tools / libraries that I don&rsquo;t want cluttering up my personal domain.</p>
+
+<p>Here is a diagram of how the VM networking is set up:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/04.png"></p>
+
+<p>There are a couple things to note here:</p>
+
+<ul>
+<li>All domains get network access from the firewall. This isolates the system from the internet as much as possible.</li>
+<li>Sensitive VMs such as <code>sys-gpg</code> and the <code>Vault</code> do not (and will never have) network access. This keeps them airgapped.</li>
+<li>The Whonix templates must access the internet through the Whonix gateway, otherwise they won&rsquo;t be able to update.</li>
+</ul>
+
+
+<p>For the most part, Qubes works great out of the box, however there are a few things that need small fixes, especially after performing the first software update in <code>dom0</code> and the template VMs.</p>
+
+<h2>Fixing Nautilus in Debian <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></h2>
+
+<p>After updating, Nautilus won&rsquo;t open due to a dbus error.
+To fix this, replace the contents of <code>/usr/bin/qubes-desktop-run</code> in your Debian templates with the following:</p>
+
+<figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="c">#!/usr/bin/python</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">from</span> <span class="nn">gi.repository</span> <span class="kn">import</span> <span class="n">Gio</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">dbus</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">myname</span><span class="p">,</span> <span class="n">desktop</span><span class="p">,</span> <span class="o">*</span><span class="n">files</span><span class="p">):</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">launcher</span> <span class="o">=</span> <span class="n">Gio</span><span class="o">.</span><span class="n">DesktopAppInfo</span><span class="o">.</span><span class="n">new_from_filename</span><span class="p">(</span><span class="n">desktop</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">activatable</span> <span class="o">=</span> <span class="n">launcher</span><span class="o">.</span><span class="n">get_boolean</span><span class="p">(</span><span class="s">&#39;DBusActivatable&#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">activatable</span><span class="p">:</span>
+</span><span class='line'>        <span class="n">bus</span> <span class="o">=</span> <span class="n">dbus</span><span class="o">.</span><span class="n">SessionBus</span><span class="p">()</span>
+</span><span class='line'>        <span class="nb">id</span> <span class="o">=</span> <span class="n">launcher</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span>
+</span><span class='line'>        <span class="nb">id</span> <span class="o">=</span> <span class="nb">id</span><span class="p">[:</span><span class="o">-</span><span class="mi">8</span><span class="p">]</span>
+</span><span class='line'>        <span class="n">bus</span><span class="o">.</span><span class="n">start_service_by_name</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span class='line'>    <span class="n">main</span><span class="p">(</span><span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that this has already been fixed in the upstream repo, and may not be needed in the future.</p>
+
+<h2>Fixing Terminal in Debian <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></h2>
+
+<p>After upgrading, the locale&rsquo;s might get messed up, causing <code>gnome-terminal</code> to not load.
+Run the following commands as root in your Debian templates:</p>
+
+<pre><code>localedef -f UTF-8 -i en_US -c en_US.UTF-8
+update-locale LC_ALL=en_US.UTF-8
+</code></pre>
+
+<h2>Fixing Copy To VM <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></h2>
+
+<p>The secure copy-to-vm scripts require the Python GTK bindings, but they are not installed by default.
+Install <code>python-gtk2</code> in all your Debian templates:</p>
+
+<pre><code>apt-get install python-gtk2
+</code></pre>
+
+<h2>Fixing Copy / Paste <sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></h2>
+
+<p>In the terminal, <code>Ctrl-Shift-c</code> and <code>Ctrl-Shift-v</code> are mapped to copy and paste.
+However, in Qubes, these are mapped to the global cross-vm copy-paste commands.
+Lets change the Qubes shortcut keys to use the little &ldquo;Windows&rdquo; key next to the Alt key.</p>
+
+<p>In <code>dom0</code>, edit <code>/etc/qubes/guid.conf</code> to uncomment and set the following lines:</p>
+
+<pre><code>secure_copy_sequence = "Mod4-c";
+secure_paste_sequence = "Mod4-v";
+</code></pre>
+
+<h2>Installing Tor <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></h2>
+
+<p>The instructions from the Qubes website are pretty straightforward, but I will replicate them here by using the GUI instead of the command line.</p>
+
+<p>First create a copy of the standard <code>fedora-21</code> template:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/05.png"></p>
+
+<p>Next, create a <code>sys-tor</code> proxy VM from that template:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/06.png"></p>
+
+<p>In a <code>dom0</code> terminal, enter the following commands:</p>
+
+<pre><code>qvm-service sys-tor -d qubes-netwatcher
+qvm-service sys-tor -d qubes-firewall
+qvm-service sys-tor -e qubes-tor
+</code></pre>
+
+<p>Fire up the <code>fedora-21-tor</code> template and install Tor:</p>
+
+<pre><code>sudo yum install qubes-tor-repo
+sudo yum install qubes-tor
+</code></pre>
+
+<p>Now all you need to do is make a normal VM and use <code>sys-tor</code> as your network:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/07.png"></p>
+
+<p>Note that while this gives you access to Tor, it isn&rsquo;t necessarily optimized for privacy. For that you will want Whonix.</p>
+
+<h2>Installing Whonix <sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></h2>
+
+<p>The Whonix developers have done a great job making Whonix templates that are super easy to install. Simply run the following in a <code>dom0</code> terminal:</p>
+
+<pre><code>sudo qubes-dom0-update --enablerepo=qubes-templates-community qubes-template-whonix-gw qubes-template-whonix-ws
+</code></pre>
+
+<p>Once that command completes, you will have two new templates available: <code>whonix-gw</code> and <code>whonix-ws</code>, for the gateway and workstation respectively.</p>
+
+<p>This is where things get slightly confusing. You need to create a VM that uses the gateway template, and use <em>that</em> as the network for the template itself in order to update it. Set up a VM like this:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/08.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/09.png"></p>
+
+<p>Then, set up your <code>whonix-gw</code> template like this:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/10.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/11.png"></p>
+
+<p>Finally, set up your <code>whonix-ws</code> template like this:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/12.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/13.png"></p>
+
+<p>After that, you can shutdown those three VMs and create the workstation VM:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/14.png">
+<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/15.png"></p>
+
+<p>Fire it up and it will automatically start the gateway. Both VMs will do their thing and synchronize to the network.</p>
+
+<h2>Split GPG <sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></h2>
+
+<p>In a future blog post I will go through more detail about Qubes&#8217; Split-GPG capability.</p>
+
+<h2>Screenshots <sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></h2>
+
+<p>How did I get all those nifty screenshots? I&rsquo;ll show you in a future blog post.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="https://groups.google.com/forum/#!searchin/qubes-users/nautilus/qubes-users/cUTu9xQGvI0/OiT8t8BcCgAJ">https://groups.google.com/forum/#!searchin/qubes-users/nautilus/qubes-users/cUTu9xQGvI0/OiT8t8BcCgAJ</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="https://groups.google.com/forum/#!topic/qubes-users/CuC-El1qoss">https://groups.google.com/forum/#!topic/qubes-users/CuC-El1qoss</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<li id="fn:3">
+<p><a href="https://groups.google.com/forum/#!topic/qubes-users/say__leey3o">https://groups.google.com/forum/#!topic/qubes-users/say__leey3o</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<li id="fn:4">
+<p><a href="https://github.com/QubesOS/qubes-gui-daemon/blob/master/gui-daemon/xside.c">https://github.com/QubesOS/qubes-gui-daemon/blob/master/gui-daemon/xside.c</a><a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+<li id="fn:5">
+<p><a href="https://www.qubes-os.org/doc/UserDoc/TorVM/">https://www.qubes-os.org/doc/UserDoc/TorVM/</a><a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
+<li id="fn:6">
+<p><a href="https://www.whonix.org/wiki/Qubes/Binary_Install">https://www.whonix.org/wiki/Qubes/Binary_Install</a><a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
+<li id="fn:7">
+<p><a href="https://www.qubes-os.org/doc/UserDoc/SplitGpg/">https://www.qubes-os.org/doc/UserDoc/SplitGpg/</a><a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
+<li id="fn:8">
+<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh</a><a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -9459,266 +9758,6 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2015/04/19/generate-hashes/">Generate Hashes</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2015-04-19T14:51:57-04:00" pubdate data-updated="true">Apr 19<span>th</span>, 2015</time>
-        
-           | <a href="/blog/2015/04/19/generate-hashes/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking.</p>
-
-<figure class='code'><figcaption><span> (generate_hashes.sh)</span><a href='/downloads/code/generate_hashes.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-<span class='line-number'>38</span>
-<span class='line-number'>39</span>
-<span class='line-number'>40</span>
-<span class='line-number'>41</span>
-<span class='line-number'>42</span>
-<span class='line-number'>43</span>
-<span class='line-number'>44</span>
-<span class='line-number'>45</span>
-<span class='line-number'>46</span>
-<span class='line-number'>47</span>
-<span class='line-number'>48</span>
-<span class='line-number'>49</span>
-<span class='line-number'>50</span>
-<span class='line-number'>51</span>
-<span class='line-number'>52</span>
-<span class='line-number'>53</span>
-<span class='line-number'>54</span>
-<span class='line-number'>55</span>
-<span class='line-number'>56</span>
-<span class='line-number'>57</span>
-<span class='line-number'>58</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># generate_hashes.rb</span>
-</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
-</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
-</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
-</span><span class='line'><span class="c"># (at your option) any later version.</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
-</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
-</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
-</span><span class='line'><span class="c">#</span>
-</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
-</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Usage: ./generate_hashes.sh [directory] [hash]</span>
-</span><span class='line'><span class="c"># Check the result with sha256sum -c &lt;result&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># See if a directory was defined</span>
-</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
-</span><span class='line'><span class="k">   </span><span class="nv">DIRECTORY</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
-</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="k">${</span><span class="nv">DIRECTORY</span><span class="k">}</span>/
-</span><span class='line'>
-</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$DIRECTORY</span> <span class="o">]</span>; <span class="k">then</span>
-</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $DIRECTORY&quot;</span>
-</span><span class='line'>      <span class="nb">exit </span>1
-</span><span class='line'>   <span class="k">fi</span>
-</span><span class='line'><span class="k">else</span>
-</span><span class='line'>   <span class="c"># Use the current directory</span>
-</span><span class='line'>   <span class="nv">DIRECTORY</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
-</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="s1">&#39;\./&#39;</span>
-</span><span class='line'><span class="k">fi</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Hash type to use</span>
-</span><span class='line'><span class="nv">HASH</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">sha256</span><span class="k">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Generate the output filename</span>
-</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span>hashes.<span class="nv">$HASH</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Determine which program to use</span>
-</span><span class='line'><span class="nv">HASHER</span><span class="o">=</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span>sum
-</span><span class='line'>
-</span><span class='line'><span class="c"># Remove any existing hash file</span>
-</span><span class='line'>rm -f <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Find all files in the directory</span>
-</span><span class='line'><span class="c"># that do not have the output filename</span>
-</span><span class='line'><span class="c"># and hash them. Store the output in the target directory</span>
-</span><span class='line'>find <span class="nv">$DIRECTORY</span> -type f ! -name <span class="s2">&quot;$OUTPUT&quot;</span> -exec <span class="nv">$HASHER</span> <span class="o">{}</span> <span class="se">\;</span> &gt;&gt; <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Sort the output on the filename column</span>
-</span><span class='line'>sort -u -k2 -o <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span><span class='line'>
-</span><span class='line'><span class="c"># Remove the directory from the listings</span>
-</span><span class='line'>sed -i <span class="s2">&quot;s@ $REPLACE@@g&quot;</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The following will show how to use it. First, we need some files:</p>
-
-<pre><code>$ ls
-generate_hashes.sh
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; 1.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0787343 s, 13.3 MB/s
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; 2.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0862146 s, 12.2 MB/s
-
-$ mkdir -p three/four
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; three/3.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0854334 s, 12.3 MB/s
-
-$ dd if=/dev/urandom bs=1024k count=1 &gt; three/four/4.txt
-1+0 records in
-1+0 records out
-1048576 bytes (1.0 MB) copied, 0.0783046 s, 13.4 MB/s
-
-$ ls *
-1.txt  2.txt  generate_hashes.sh
-
-three:
-3.txt  four
-</code></pre>
-
-<p>Calling the script without any arguments will generate the hashes in the current directory. The file is stored as hashes.hashtype, where hashtype defaults to sha256.</p>
-
-<pre><code>$ ./generate_hashes.sh 
-$ ls
-1.txt  2.txt  generate_hashes.sh  hashes.sha256  three
-
-$ cat hashes.sha256 
-3f27f253e357143105f9a29193141db5ad833b56299a4c4e4a30a2d19f4732a8 1.txt
-9dee9ed8f2c7a8533e764bc6963615537524d54292875e9fd858e9e0cd9b93b1 2.txt
-20a1cbbf5a21773d673c79d4d8e58e31c3766f87c0299aa5a8c669015504c9f0 generate_hashes.sh
-a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca three/3.txt
-bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 three/four/4.txt
-
-$ sha256sum -c hashes.sha256 
-1.txt: OK
-2.txt: OK
-generate_hashes.sh: OK
-three/3.txt: OK
-three/four/4.txt: OK
-</code></pre>
-
-<p>The first optional argument is the directory to hash. <code>.</code> is allowed.</p>
-
-<pre><code>$ rm hashes.sha256
-$ ls
-1.txt  2.txt  generate_hashes.sh  three
-$ ls three/
-3.txt  four
-
-$ ./generate_hashes.sh three/
-$ ls three/
-3.txt  four  hashes.sha256
-$ cat three/hashes.sha256 
-a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca 3.txt
-bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 four/4.txt
-</code></pre>
-
-<p>The second optional argument is the hash type to use:</p>
-
-<ul>
-<li>sha1</li>
-<li>sha224</li>
-<li>sha256 (default)</li>
-<li>sha384</li>
-<li>sha512</li>
-<li>md5</li>
-</ul>
-
-
-<p>Example:</p>
-
-<pre><code>$ ./generate_hashes.sh three/ sha1
-$ ls three/
-3.txt  four  hashes.sha1  hashes.sha256
-$ cat three/hashes.sha1
-fffdc438939ae0afa1f19569939dd3996a2d67bb 3.txt
-cec823c326525c23bba925d5d85b35a5ebbed62d four/4.txt
-deea8794a7aada412518d06df516c804389ef212 hashes.sha256
-
-$ cd three/
-$ sha1sum -c hashes.sha1
-3.txt: OK
-four/4.txt: OK
-hashes.sha256: OK
-</code></pre>
-
-<p>When distributing a large set of files or directory tree, it is best to generate the hashes in the root of the tree and sign the hashes.sha256 file with GPG.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -9758,6 +9797,10 @@ hashes.sha256: OK
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/01/12/bitcoin-donation-proofs/">Bitcoin Donation Proofs</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
       </li>
     
@@ -9771,10 +9814,6 @@ hashes.sha256: OK
     
       <li class="post">
         <a href="/blog/2015/11/24/google-test/">Google Test</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/23/aligned-heap/">Aligned Heap</a>
       </li>
     
   </ul>
