@@ -16,7 +16,7 @@ On Debian based systems, you will want to install the following packages:
  - build-essential
  - cmake
 
-Note that `libgtest-dev` includes the headers and sources, but not the compiled libraries. Follow the instructions below to compile and install the libraries[^1}:
+Note that `libgtest-dev` includes the headers and sources, but not the compiled libraries. Follow the instructions below to compile and install the libraries[^1]:
 
     cd /tmp
     mkdir build
