@@ -9,7 +9,9 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking. ( &hellip;">
+  <meta name="description" content="Imagine there are a group of lockers in a public place. Each locker has the following: A lock that requires a key
+A window to see inside
+A slot that &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -75,6 +77,298 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/26/bitcoin-analogy/">A Simple Bitcoin Analogy</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-26T12:59:49-04:00" pubdate data-updated="true">Apr 26<span>th</span>, 2015</time>
+        
+           | <a href="/blog/2015/04/26/bitcoin-analogy/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Imagine there are a group of lockers in a public place. Each locker has the following:</p>
+
+<ul>
+<li>A lock that requires a key</li>
+<li>A window to see inside</li>
+<li>A slot that money can be put in</li>
+<li>An identifying number</li>
+</ul>
+
+
+<p>A group of these lockers might look like this:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/01.jpg"><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>These lockers are secure. The windows are unbreakable, the locks cannot be picked, the metal cannot be cut, and the entire group is bolted to the ground. Furthermore, there is only one copy of the key, and it is in possession of that locker&rsquo;s owner; Nobody else is able to get inside without that key.</p>
+
+<p>Each locker is free of charge. A person may claim any unused locker, upon which they get the only copy of the key. A person may have as many lockers as they choose; there is no shortage of lockers. People use &ldquo;wallets&rdquo; (which are more like keychains in this case) to keep track of all the lockers they own and their associated keys. If anyone loses their wallet, they lose the ability to open any of their lockers, and that money is inaccessible forever.</p>
+
+<p>Because the group of lockers is in a public place, and each locker has a window, anyone is able to see how much money is in each locker. They can see the identifying numbers on the locker, but they do not know who the owner of the locker is.</p>
+
+<p>This group of lockers represents the Blockchain, and the contents of each locker represent Bitcoins.</p>
+
+<p>Alice is selling a chair that Bob wants to buy. Bob calls up Alice to make a deal:</p>
+
+<blockquote><p>Bob: I&rsquo;d like to buy the chair you are selling. How much do you want for it?<br/>
+Alice: I&rsquo;ll give it to you for 0.2 Bitcoins<br/>
+Bob: Sounds great! Which locker number is yours?</p></blockquote>
+
+<p>Alice goes to the group of lockers, sees that #412 is unclaimed, and claims it. She heads home with the key.</p>
+
+<blockquote><p>Alice: Put the money in locker 412 please!</p></blockquote>
+
+<p>Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.</p>
+
+<blockquote><p>Bob: I put the money in your locker!</p></blockquote>
+
+<p>Alice goes to the lockers and checks the contents of locker #412 through the window. She sees the 0.2 Bitcoins sitting there. Since Bob is the only person she told about #412, the money must have come from him.</p>
+
+<blockquote><p>Alice: I just checked, and I see the money in my locker. Here is your chair!</p></blockquote>
+
+<p>The entire transaction was done without Alice and Bob ever needing to meet in person. No banks were involved in the transaction, there were no processing delays, there were no fees. Bob is unable to issue a &ldquo;chargeback&rdquo; to void his transaction; the money is already in Alice&rsquo;s locker, and only she can get it back out. Furthermore, anyone checking the contents of the lockers by peeking through the windows could only tell that a transaction was made; they are unable to discover who was involved.</p>
+
+<p>This is the basic premise of Bitcoin. Learn more about Bitcoin <a href="http://www.coindesk.com/information/what-is-bitcoin/">here</a>.</p>
+
+<p><em>This analogy was not my idea, I am paraphrasing <a href="http://thebitcoincatalog.com/safe-analogy/">Henry Romp</a>.</em></p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>http://www.storageaspects.co.uk/shop/archive-mobile-shelving-archive-roller-racking/visitor-centre-lockers-with-see-through-doors/<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-04-23T19:18:12-04:00" pubdate data-updated="true">Apr 23<span>rd</span>, 2015</time>
+        
+           | <a href="/blog/2015/04/23/bitcoin-paper-wallets/#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Paper wallets are a form of <em>cold storage</em>, meaning that the private key has never touched a computer with internet access. This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself. For that reason, this is a tutorial to create a paper wallet in a secure fashion.</p>
+
+<p>A repository of paper wallet generators can be found <a href="https://github.com/jrruethe/paper_wallet">here</a>. You can choose to use my repository directly if you wish, but I recommend going straight to the source.
+There are many options with different formats and templates, however I highly recommend bitcoinpaperwallet.com.</p>
+
+<p><em>I am in no way affiliated with bitcoinpaperwallet.com, just a satisfied customer.</em></p>
+
+<hr />
+
+<h3><a href="https://bitcoinpaperwallet.com/">BitcoinPaperWallet.com</a> (<a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a>)</h3>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/01.jpg"></p>
+
+<p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!</p>
+
+<p>Features:</p>
+
+<ul>
+<li>&ldquo;Butterfly&rdquo; design secures the private key</li>
+<li>Resistant to candling</li>
+<li>Supports <a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a> encryption</li>
+<li>Private key encoded in <a href="https://en.bitcoin.it/wiki/Wallet_import_format">Wallet Import Format</a></li>
+<li>Designed to be printed in landscape mode, but works in portrait mode as well</li>
+<li>Double sided</li>
+<li>2x wallets per sheet</li>
+<li>Notes section on the back</li>
+<li>Public key visible when closed</li>
+</ul>
+
+
+<p>Additional Options:</p>
+
+<ul>
+<li><a href="https://bitcoinpaperwallet.com/">Security Stickers</a> 2in x .5in (<a href="http://www.amazon.com/gp/product/B00MWCCN7C">Alternative</a>)*</li>
+<li><a href="https://bitcoinpaperwallet.com/">Waterproof Bag</a> 6in x 3in (<a href="http://www.amazon.com/Clear-Lock-Bags-Case-1000/dp/B0040003E4">Alternative</a>)</li>
+<li><a href="http://www.amazon.com/dp/B004PX7ZTC">Teslin Paper</a> (Inkjet Printers)</li>
+<li><a href="http://www.amazon.com/gp/product/B004UI335W/">Revlar Paper</a> (Laser Printers)</li>
+<li><a href="http://www.amazon.com/gp/product/B00ENI0NI4">Scratch Off Stickers</a> 1in x 1in</li>
+<li><a href="http://www.amazon.com/gp/product/B00BWU3HNY">Laminating Pouches</a> 8.9in x 11.4in</li>
+<li><a href="http://www.amazon.com/gp/product/B0010JEJPC">Laminator</a></li>
+</ul>
+
+
+<blockquote><p>*The official security stickers from bitcoinpaperwallet.com are serialized in pairs, meaning you get two of each number. This is best because each paper wallet requires two stickers, so the numbers match. The alternative link only provides one sticker for each number.</p></blockquote>
+
+<p>Dimensions:</p>
+
+<ul>
+<li>Landscape: 5.5in x 2.5in (Slightly smaller than a dollar bill)</li>
+<li>Portrait: 4in x 2in (Slightly bigger than a standard business card)</li>
+<li>QR Codes: 1in x 1in (About the size of a quarter)</li>
+</ul>
+
+
+<p>For additional artworks, check out <a href="http://libertywallet.liberty.me/2015/03/18/liberty-wallet/">Liberty Paper Wallet</a> (<a href="https://github.com/SimonBelmond/libertypaperwallet">Github</a>).</p>
+
+<hr />
+
+<h3>Protecting your paper wallet</h3>
+
+<p>Paper wallets are extremely vulnerable to water.
+Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/03.jpg"></p>
+
+<p>Paper wallets are also extremely vulnerable to fire.
+However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.</p>
+
+<blockquote><p>Remember, if you lose your paper wallet, or it is damaged, you lose all the coins stored at that address!</p></blockquote>
+
+<hr />
+
+<h3>How to properly create a paper wallet</h3>
+
+<p>Paper wallets need to be created offline on a secure machine. For this tutorial, I will be using a <a href="https://tails.boum.org/">Tails</a> Live CD. Grab the ISO and burn it to a disk.</p>
+
+<p>Save a <a href="https://github.com/cantonbecker/bitcoinpaperwallet/archive/master.zip">copy of bitcoinpaperwallet</a> onto a USB drive.</p>
+
+<ol>
+<li>Shutdown your computer and boot from the CD.</li>
+<li>When the Tails welcome box appears, select &ldquo;More Options&rdquo;.</li>
+<li>Enter an administrator password of your choice and login.</li>
+<li>Wait for tor to become ready.</li>
+</ol>
+
+
+<blockquote><p>For this tutorial, in order to get screenshots I am using a virtual machine. Do not use a virtual machine when doing this for real!</p></blockquote>
+
+<p>Before creating the paper wallet, you will want to ensure that your printer works correctly. You need a printer that is directly connected to your machine; don&rsquo;t use a network printer (you shouldn&rsquo;t be connected to any network). If possible, use a dumb printer, and try to ensure that your printer does not save a copy of printouts to internal memory. Use this time to get any drivers you need from the internet.</p>
+
+<p>From the <code>Applications</code> menu, select <code>System Tools -&gt; Administration -&gt; Printing</code>.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/04.png"></p>
+
+<p>Add your printer. Open up Tor Browser and ensure that you can print a webpage.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/05.png"></p>
+
+<p>Time to disconnect from the internet. Unplug the ethernet cord, turn off any wireless cards or routers as necessary. Verify that you are not online.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/06.png"></p>
+
+<ol>
+<li>Insert your usb drive</li>
+<li>Copy the github zip file to the <code>Tor Browser</code> folder on the filesystem</li>
+<li>Remove the usb drive</li>
+<li>Unpack the zip file</li>
+</ol>
+
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/07.png"></p>
+
+<p>Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! &ldquo;Brain wallets&rdquo; may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/08.png"></p>
+
+<blockquote><p><strong>BIP38 Encryption?</strong><br/>
+There are pros and cons to encrypting your paper wallet. Encryption adds an extra layer of security by requiring a passphrase before being able to import the private key again, which is great if the paper wallet ever gets stolen. However if the passphrase is forgotten, the coins are lost forever. The passphrase is one more thing to remember / write down, which means it is one more thing to secure. In addition, some wallet software does not support BIP38, which may make reimporting difficult. Finally, it is important to realize that BIP38 encryption will NOT help if you chose an insecure passphrase for a brain wallet. In general, BIP38 encryption is recommended.</p></blockquote>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/09.png"></p>
+
+<p>You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/10.jpg" width="400" height="600"></p>
+
+<p>Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/11.png"></p>
+
+<p>Shutdown your Tails environment. It will wipe your ram for you.</p>
+
+<p>Cut out each design by following the lines on the front. Fold the wallets and apply the stickers.</p>
+
+<blockquote><p>If you have a laser printer, you will want to include a small 1in x 1in square of paper between the private key and the candling pattern when folding the paper. Later on, we will be laminating the paper wallet, and the heat can cause the toner on each side of the fold to fuse together.</p></blockquote>
+
+<p>Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/12.jpg" width="400" height="600"></p>
+
+<p>Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/13.jpg" width="400" height="600"></p>
+
+<hr />
+
+<h3>How to properly use a paper wallet</h3>
+
+<p>You can scan the public key into Electrum or Mycelium as a watch-only wallet to keep track of your funds. Eventually you will want to spend the funds.</p>
+
+<p>First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the &ldquo;Private Key / Withdraw&rdquo; line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/14.jpg"></p>
+
+<p>Now comes the important part. The funds must be &ldquo;swept&rdquo; into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.</p>
+
+<blockquote><p><strong>Change?</strong><br/>
+When spending Bitcoins, <em>ALL</em> coins from that address are moved to new addresses.
+The destination address will get the desired amount, and any remaining amount will be sent to a &ldquo;change&rdquo; address. If no &ldquo;change&rdquo; address is specified, the remaining amount will go to the miner that solves the block. Normally, an electronic wallet manages this for you behind the scenes, however when using a paper wallet directly, you will not have this control. This is why the entire balance of a paper wallet should be &ldquo;swept&rdquo; into an electronic wallet before spending.<br/>
+Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p></blockquote>
+
+<p>Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/15.jpg"></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -3238,398 +3532,6 @@ Here you can validate that the Bitcoin address is legitimate, as well as decode 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-25T14:48:28-04:00" pubdate data-updated="true">Oct 25<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/10/25/cryptography-primer/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Digital cryptography is used everywhere on your computer, both online and offline, to keep your secrets safe.
-This is a simplified explanation of how cryptography accomplishes this task.</p>
-
-<p>The three fundamental building blocks to modern cryptography are:</p>
-
-<ul>
-<li>Symmetric Encryption</li>
-<li>Asymmetric Encryption</li>
-<li>Hashes</li>
-</ul>
-
-
-<h2>Symmetric Encryption</h2>
-
-<p>Symmetric encryption is the most intuitive form of encryption. The basic analogy is a lock and key. Keys are used together with an encryption algorithm to encrypt, or lock, a file. The resulting file is unreadable, and indistinguishable from random garbage data.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png"><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
-
-<p>A key is just a long string of bits. Passwords supplied by a user are either used as a key directly, or are used to derive a key. With symmetric encryption, the same key is used to both encrypt and decrypt a file.</p>
-
-<blockquote><p>All data is represented in binary, a string of 0&rsquo;s and 1&rsquo;s. Data alone is meaningless without structure; it all depends on how you interpret it. For example, the number <code>65</code> in binary can be represented like this: <code>01000001</code>, but if you interpret that value using the ASCII system, it becomes the letter <code>A</code>. The text <code>Hi</code> is encoded in ASCII as <code>0100100001101001</code>. If it were interpreted as two 8 bit numbers, it would be <code>(72, 105)</code>. If it were interpreted as one large number, it would be <code>18537</code>. Entire files containing text can also be interpreted as one very large number.</p></blockquote>
-
-<p>An example of a symmetric encryption algorithm is AES: Advanced Encryption Standard. It is certified by the US government to secure secret documents.</p>
-
-<p>Here is how symmetric encryption is performed via the GPG program on Linux, using a password of &lsquo;ABC&rsquo;:</p>
-
-<pre><code>echo This is a secret | gpg --cipher-algo AES256 --symmetric | base64
-
-jA0ECQMCjJkl5YwkaXFg0kQBjrmXBnt3sajSix4eihU/l+273UBtRabS7LFZ7Ln3R8ux0wzU
-bm9IZUuAunUNnF2RYG3HC2qa7bNtlefb/Hbp+xtYjw==
-</code></pre>
-
-<p>To decrypt, simply repeat the same command, but backwards, using the same password of &lsquo;ABC&rsquo;:</p>
-
-<pre><code>echo jA0ECQMCjJkl5YwkaXFg0kQBjrmXBnt3sajSix4eihU/l+273UBtRabS7LFZ7Ln3R8ux0wzU\
-bm9IZUuAunUNnF2RYG3HC2qa7bNtlefb/Hbp+xtYjw== | base64 -d | gpg --cipher-algo AES256
-
-gpg: AES256 encrypted data
-gpg: encrypted with 1 passphrase
-This is a secret
-</code></pre>
-
-<p>Symmetric encryption algorithms are fast and secure, even with a relatively small key size (128 &ndash; 256 bits). For this reason, they play an important role in secure communications. Their downfall, however, is key distribution; they are prone to a man-in-the-middle attack unless the keys are distributed on a separate medium.</p>
-
-<h2>Man in the Middle attacks</h2>
-
-<p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves in between you and the other person. This is different than just sniffing or eavesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png"><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
-
-<p>To combat this attack, encryption can be used. If Alice and Bob had the same key, they could communicate securely by encrypting their messages before sending them to the other, and decrypting them upon receipt. This prevents Eve from reading the actual message. However, in order to communicate, they need to have the same key. Either Alice or Bob can generate the key, but the difficulty is transferring the key to the other without Eve intercepting it. The only secure solution is for them to pre-share the key across some other medium, such as a phone call or in person. This exchange is cumbersome, as it must be done before each session. In addition, the key cannot be reused across different sessions; If Eve were to ever obtain the key to a single session, she could also infiltrate all the other sessions, including recordings of past sessions.</p>
-
-<h2>Asymmetric Encryption</h2>
-
-<p>Asymmetric encryption is different from symmetric encryption in that it utilizes two keys; one key performs the encryption while the other performs the decryption. The key that performs the encryption cannot be used to perform the decryption; the paired key must be used. It is important to note that either key can perform the encryption step, and the other key will undo it.</p>
-
-<p>This behavior has some very useful implications. One of the keys can be selected to be the <code>private</code> key, which must be kept secure such that no one else knows it. The remaining key will become the <code>public</code> key, which can be posted online, sent to others, etc. This method is known as <code>public key cryptography</code>, and it solves the key distribution problem encountered with symmetric encryption.</p>
-
-<p>Alice will generate a key-pair and keep the private key to herself, while sending her public key to Bob. Likewise, Bob will generate his key-pair and send his public key to Alice while keeping his private key to himself. When Alice wants to talk to Bob, she can use Bob&rsquo;s public key to perform the encryption. Only Bob will be able to decrypt the message, since he is the only one who has the private key. Bob can then respond to Alice by using her public key to encrypt his response.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png"><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></p>
-
-<p>Asymmetric encryption algorithms, such as RSA, are slow and require much larger keys to achieve the same security that AES provides (2048 &ndash; 4096 bits). This means that using asymmetric encryption for an entire conversation is inefficient. For this reason, a hybrid approach is used. A user will generate a random symmetric key intended for one time use, called a session key, and encrypt it using the public asymmetric key of the recipient. The receiver will use their private asymmetric key to obtain the symmetric session key. Now that both users have the same symmetric key, they can use symmetric encryption to communicate.</p>
-
-<p>But how does Bob know that the key actually came from Alice? What if Eve was the one who actually sent him the session key? After all, Bob&rsquo;s public key is public; anyone can use it. We need to introduce the 3rd fundamental technology first.</p>
-
-<h2>Hashes</h2>
-
-<p>Unlike the other two, a hash is not an encryption method. Hashes are also known as message digests or fingerprints. They are one-way functions, meaning that they cannot be reversed or undone; given the output, it is impossible to derive the input.</p>
-
-<p>Any two messages that contain the exact same data will produce the exact same hash, or fingerprint. Similarly, if even a single bit is different, the hash will be completely different. Hash algorithms employ an avalanche technique such that a small change to the input produces a large change in the output. Finally, hash algorithms always produce the same size output regardless of the size of the input.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png"><sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></p>
-
-<p>Here are some examples, using the SHA-256 algorithm (Secure Hash Algorithm):</p>
-
-<pre><code>echo This is a message | sha256sum
-
-6afa89a2ed3ff1f33150c8c897c3c49775b4fb91fa923b790533a0f26c956a88
-
-# Notice that a single letter difference completely changes the output
-echo This is b message | sha256sum
-
-0c9bf9d4f05d174783676acbdd50ffde59bffa5f17eaf0557500c3070678ff5b
-</code></pre>
-
-<p>Hashes are very useful. They are often used as checksums to ensure that a message was transferred without getting corrupted. For example, a website offering a download may also list its hash. After the user downloads the file, they can recalculate the hash. If their result matches the website&rsquo;s listing, they can be assured that they have the exact same file that the website served; there was no corruption during the download.</p>
-
-<p>Hashes are also used to hide passwords. When you sign up for a website and enter a password, the website will take the hash of your password and store the hash. Later on when you want to log in, you enter your password again. The website takes the hash again and compares it to their stored hash. If the two hashes match, you are allowed to log in. If the website gets hacked and their database of hashes is retrieved, the attacker cannot get your password (because hashes cannot be reversed).</p>
-
-<p>It is important to choose a strong password, however. Attackers can still attempt to retrieve your password by performing a dictionary attack. An attacker will take a large dictionary of words and calculate their hashes. They then compare their list of hashes to the list of hashes retrieved from the website. If they find a match, they can look back at their input list to determine which word produced the hash. This is a brute force method for obtaining your password. It is important to see that it isn&rsquo;t that the hash was reversed, rather that multiple inputs were tried until the desired output was found. There are protections against this type of attack, such as salting, but that is out of the scope of this primer.</p>
-
-<h2>Digital Signatures</h2>
-
-<p>Now, back to our previous question; How can Bob be assured that a message came from Alice? Because of the way asymmetric encryption works, Alice can also encrypt a message using her own private key. The resulting cyphertext can be decrypted by anyone, since the corresponding public key is publicly available. However, the cyphertext could only have been created by Alice, because she is the only one who has the private key. This is called a digital signature; Alice <em>signs</em> a message by encrypting it with her private key.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png"><sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></p>
-
-<p>Because asymmetric encryption keys are so large (which causes the resulting cyphertext to be large), it is not practical to encrypt an entire message, especially if that message is large. Instead, the hash of the message is encrypted, and the message itself is sent in plaintext (unencrypted). Anyone can read the message and compute it&rsquo;s hash. Then, they use Alice&rsquo;s public key to decrypt the signature connected to the message to obtain the hash that Alice encrypted. If the two hashes match, then the message was not tampered with, and the user can be certain that the message originated from Alice.</p>
-
-<h2>Secure Communication</h2>
-
-<p>Putting these concepts together, here is how secure communication can be established:</p>
-
-<p>Alice and Bob each generate asymmetric key pairs. They take a hash of their public key and encrypt it with their private key. They then attach the result to the public key itself. This is called self-signing their public key.</p>
-
-<p>Alice and Bob share their public keys with each other. One of them generates a random session key and encrypts it with their private key. They take the result and encrypt it with the public key of the recipient.</p>
-
-<p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any eavesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png"><sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></p>
-
-<p>However, there is still one thing missing which makes this communication vulnerable to a man in the middle attack. If Eve is able to tamper with the initial handshake, where the public keys are exchanged, she could pass fake public keys to each side. Alice would think that she received Bob&rsquo;s public key, when in fact she received Eve&rsquo;s public key. Her entire communication would be with Eve directly, who is impersonating Bob, but is also passing the messages to Bob after reading them. Neither is aware that this is happening.</p>
-
-<p>In other words, you can securely communicate with someone and be assured that no one else can eavesdrop, but you cannot be certain about who you are actually communicating with.</p>
-
-<p>The signatures on the keys don&rsquo;t give any additional information on their own; they only claim that the holder of the private key trusts the public key. The missing piece to the security is linking an identity to the public key, so you know which key belongs to who. Once you can trust that you are securely communicating with the correct person, you win!</p>
-
-<h2>Digital Certificates</h2>
-
-<p>A digital certificate is an identity linked to a public key, and signed by someone trustworthy. An identity in this case can be something as simple as a name or email address, or it can be as complicated as a photo of a license / passport or fingerprints. It is a means of uniquely identifying and verifying an individual or organization.</p>
-
-<p>A digital certificate links an identity to a public key. Certificates can be signed with many different signatures, as well as a self-signature (the owner of the public key). Certificates play an important role in creating a network of trust. Remember, anyone can create an identity and public key, and they can sign their own certificate. This means that while the link between the public key and identity is real, the identity itself could be fabricated. Trust in a certificate is established by obtaining signatures from trustworthy entities.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png"><sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></p>
-
-<p>There are currently two models for establishing trust in digital certificates. One of them is a hierarchial centralized method which uses a <code>root certificate authority</code> that must be completely trusted, while the other is a decentralized <code>web of trust</code> that gives each person full control of their trust.</p>
-
-<h2>Root Certificate Authority</h2>
-
-<p>This is a centralized system that focuses completely around the root authority. The root authority is responsible for performing background checks to verify an identity, and signs off on the certificate if the identity is legitimate. Root authorities can sign the certificates of sub-authorities, which in turn are granted the same responsibilities and signing powers. Anyone can request that an authority sign their certificate, which usually involves payment of a fee, to grant the trust of the root authority to their certificate.</p>
-
-<p>If you can find a chain of signatures from a certificate back to the root authority, and you trust the root authority, then you can trust the certificate. This trust model is all or nothing, meaning that as long as the root authority is trusted, every chain originating at the root authority is trusted regardless of the number of links.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png"><sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></p>
-
-<p>Most of the internet works using this model. Your web browser comes with preinstalled certificates for the major root authorities, which sign the certificates of all the websites you interact with. There are flaws with this model, however. Security is a &ldquo;weakest link&rdquo; type of problem; A chain ending at the root authority doesn&rsquo;t mean that the entire chain is solid. It could be that a sub-authority does not properly perform its background checks, resulting in that sub-authority being the weakest link. If that sub-authority signs a fabricated certificate, there is no way for you to know not to trust it. The owner of the certificate could masquerade as their false identity and impersonate a target.</p>
-
-<p>In addition to this, well funded organizations such as the NSA can take control of a root authority and sign whichever certificates they want, essentially breaking the entire model.</p>
-
-<h2>Web of Trust</h2>
-
-<p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convenient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png"><sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></p>
-
-<p>In the web of trust model, you are responsible for verifying that the identity of the certificate matches the identity of the certificate holder. This is typically done in person or over some other medium besides the one being used with the certificate (such as the phone). You would ask the person to present their certificate as well as some reputable identification, such as a passport or drivers license, and sign the certificate if the identities match. Chains are formed transitively by signing a certificate when someone has signed your own certificate.</p>
-
-<p>For example, if Alice signs Bob&rsquo;s certificate, and Bob sign&rsquo;s Carol&rsquo;s certificate, then Alice can reasonably trust that Carol&rsquo;s certificate is authentic. Even though she hasn&rsquo;t necessarily met Carol, Alice trusts that Bob performed the necessary identity checks. Alice&rsquo;s trust in Carol can be increased if there are other chains that link the two together. If Alice also signed Dave&rsquo;s certificate, and Dave also signed Carol&rsquo;s certificate, then Carol has two signatures from people that Alice trusts, further increasing the odds that Carol really is who she says she is (from Alice&rsquo;s point of view).</p>
-
-<p>It is important to note that it isn&rsquo;t the number of signatures that determines trust, it is the number of chains. For example, Eve can create 100 fake identities and have them all sign her certificate, but that doesn&rsquo;t mean that Eve can be trusted.</p>
-
-<p>In this model, each additional link degrades trust; A certificate 2 steps away can typically be trusted more than a certificate 5 steps away. If everyone is creating chains from themselves to everyone else, a web of trust is formed, hence the name.</p>
-
-<h2>Trust</h2>
-
-<p>Secure communication is possible if you can establish trust in the other person&rsquo;s identity. How does one go about establishing this trust? I will cover this in a future post.</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx <a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-<li id="fn:2">
-<p>http://www.cs.ucla.edu/classes/winter13/cs111/scribe/17b/ (http://fearlessweb.trendmicro.com/2012/tips-and-tricks/what-are-man-in-the-middle-attacks-and-how-can-i-protect-myself-from-them/)<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
-<li id="fn:3">
-<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
-<li id="fn:4">
-<p>http://computersecuritypsh.wikia.com/wiki/File:Hash_Function.png<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
-<li id="fn:5">
-<p>http://oz.stern.nyu.edu/fall99/readings/security/<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
-<li id="fn:6">
-<p>http://www.embedded.com/design/safety-and-security/4230829/2/Securing-your-apps-with-Public-Key-Cryptography&mdash;-Digital-Signature<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
-<li id="fn:7">
-<p>https://commons.wikimedia.org/wiki/File:Digital_Signature_diagram.svg<a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
-<li id="fn:8">
-<p>http://www.hill2dot0.com/wiki/index.php?title=Image:G1662_CA-Hierarchies-and-Cr.jpg<a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
-<li id="fn:9">
-<p>http://books.gigatux.nl/mirror/securitytools/ddu/ch09lev1sec1.html<a href="#fnref:9" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/">PDF Generation With Ruby and Pocket</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-08-16T23:14:33-04:00" pubdate data-updated="true">Aug 16<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/#disqus_thread"
-             data-disqus-identifier="http://jrruethe.github.io/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>One thing I like to do when I&rsquo;m browsing the internet is save each interesting page I come across. I do this by printing the page to a PDF. This is better than saving a bookmark because articles on the internet have a tendency to go down when you need them most. In addition, I use <a href="http://getpocket.com/a/queue/list/">Pocket</a> to save articles while browsing with my phone or work computer, where I cannot print to PDF. It is easy to export your Pocket articles to an HTML file, and it is easy to parse that file to extract the links.</p>
-
-<p>First, we need some things.</p>
-
-<pre><code>sudo apt-get install ruby cups-pdf wkhtmltopdf xdg-utils pcmanfm recoll
-gem install pdfkit nokogiri
-</code></pre>
-
-<p>I use LXDE, and <code>xdg-open</code> forwards requests though <code>pcmanfm</code>, so it needs to be installed. For indexing the PDFs, <code>recoll</code> is very useful and allows for quickly searching for content.</p>
-
-<p>I wrote a small ruby script to take a URL and generate a PDF. It uses PDFKit under the hood, which in turn uses <code>wkhtmltopdf</code> to do the PDF generation. <code>wkhtmltopdf</code> has a tendency to get hung up on some pages, especially if Java is involved, and the normal ruby call to PDFKit will freeze until <code>wkhtmltopdf</code> is killed. I found out the hard way that the standard <code>Timeout</code> module in ruby isn&rsquo;t enough; the <code>wkhtmltopdf</code> process needs to be killed directly. I do this by using a timer thread and a small <code>killall</code> function:</p>
-
-<pre><code># Kill a process by name
-def killall(name)
-
-   # For each process
-   Dir['/proc/[0-9]*/cmdline'].each do |p|
-
-      # Check to see if the command line invocation matches the given name
-      if File.read(p).match name
-
-         # Grab the PID
-         pid = p.split('/')[2].to_i
-
-         # Kill the process
-         Process.kill("SIGKILL", pid)
-      end
-   end
-end
-</code></pre>
-
-<p>Note that this will only work on Linux, since it is crawling the Kernel&rsquo;s <code>proc</code> filesystem.<br/>
-With that function available, here is a small PDF generation class as a wrapper around PDFKit:</p>
-
-<pre><code>require 'pdfkit'
-
-# A wrapper around PDFKit that generates PDFs from URLs
-# It uses wkhtmltopdf under the hood.
-# wkhtmltopdf can sometimes hang, this wrapper takes care of that
-# so PDF generation can be autmomated
-class PdfGenerator
-
-   def initialize
-      PDFKit.configure do |config|
-         config.default_options[:load_error_handling] = 'ignore'
-         config.default_options[:load_media_error_handling] = 'ignore'
-      end
-   end
-
-   # Convert a webpage to a PDF file
-   # Returns true if successful, false if there was an error or a timeout
-   def from_url(url, output_filename)
-
-      retval = true
-
-      # Run the PDF generation in a thread
-      # so we can kill it after some amount of time
-      process_thread = Thread.new do
-         begin
-            puts "Processing " + url
-            kit = PDFKit.new(url)
-            kit.to_file(output_filename)
-         rescue
-            puts "Failed to process " + url
-            retval = false
-         end
-      end
-
-      # Start a timer to kill the process thread
-      # if it takes too long
-      timeout_thread = Thread.new do
-         sleep 60
-         if process_thread.alive?
-            killall "wkhtmltopdf"
-            process_thread.kill
-            puts "Timed out"
-            retval = false
-         end
-      end
-
-      # Wait for the process thread to end
-      process_thread.join
-      timeout_thread.kill
-
-      if retval
-         puts "Successfully processed " + url
-      end
-
-      return retval
-
-   end
-
-end
-</code></pre>
-
-<p>The next step is to parse out the Pocket export file to get the title and links. Here is some code for that:</p>
-
-<pre><code>require 'nokogiri'
-
-# Create a PDF generator
-pdf_generator = PdfGenerator.new
-
-# Open the pocket export file
-page = Nokogiri::HTML(open("ril_export.html"))
-
-# Parse out the links
-links = page.css('a')
-
-# For each link
-links.each do |link|
-
-   title = link.text
-   url = link['href']
-
-   # Sanitize the title to be a valid filename
-   title.gsub!(/[^0-9A-Za-z.\-]/, '_')
-   title.downcase!
-
-   # Specify the output filename using the title
-   output_filename = title + '.pdf'
-
-   # Skip any files that have already been processed
-   if File.exist?(output_filename)
-      next
-   end
-
-   # Generate the PDF
-   result = pdf_generator.from_url(url, output_filename)
-
-end
-</code></pre>
-
-<p>The end result will be that all your Pocket articles will be printed to PDF! Very nice and easy to automate.</p>
-
-<p>But what to do with all these PDFs? Recoll is a simple indexer that can quickly search them for the content you are looking for. After a large collection of links have been built up, you will have your own little offline internet database at your fingertips.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/4/">&larr; Older</a>
@@ -3669,6 +3571,14 @@ end
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/04/17/cryptography-using-openssl/">Cryptography Using OpenSSL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/15/running-docker-in-qubes/">Running Docker in Qubes</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/01/12/bitcoin-donation-proofs/">Bitcoin Donation Proofs</a>
       </li>
     
@@ -3678,14 +3588,6 @@ end
     
       <li class="post">
         <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/25/memory-blocks/">Memory Blocks</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/11/24/google-test/">Google Test</a>
       </li>
     
   </ul>

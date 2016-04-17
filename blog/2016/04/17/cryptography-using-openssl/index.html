@@ -1,0 +1,1127 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cryptography Using OpenSSL - Morning Musings</title>
+  <meta name="author" content="Joe Ruether">
+
+  
+  <meta name="description" content="PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Morning Musings</a></h1>
+  
+    <h2>I'm not ready to wake up yet...</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:jrruethe.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/blog/license">License</a></li>
+  <li><a href="/blog/about">About</a></li>
+  <li><a href="/blog/contact">Contact</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Cryptography Using OpenSSL</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-17T13:21:05-04:00" pubdate data-updated="true">Apr 17<span>th</span>, 2016</time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://jrruethe.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic operations. The benefit is that more of the magic is exposed to the user, which can be useful for learning more about how cryptographic applications operate.</p>
+
+<p>Below are three bash scripts that can perform the following:</p>
+
+<ul>
+<li>Public / private key generation</li>
+<li>Hybrid asymmetric encryption and signing</li>
+<li>Hybrid asymmetric decryption and verification</li>
+</ul>
+
+
+<p>These operations are a subset of the core functionality provided by GPG, and can be used to securely pass sensitive data between users. Unlike GPG, the user is responsible for managing trusted certificates.</p>
+
+<h2>Generate</h2>
+
+<p>The first script is called <code>generate.sh</code>. It will generate a new public certificate and private key when given a name and optional email address. Run it like so:</p>
+
+<pre><code>$ ./generate.sh 
+Usage: generate.sh &lt;"name"&gt; [email]
+
+$ ./generate.sh "Joe Ruether" jrruethe@gmail.com
+</code></pre>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/01.png"></p>
+
+<p>As you can see, a certificate and private key were generated, with the proper permissions set. Both files are stored in base64 ASCII for easily sharing or backing them up.</p>
+
+<p>You can also view the human readable output of the certificate with:</p>
+
+<pre><code>openssl x509 -in Joe_Ruether.certificate -text -noout
+</code></pre>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/02.png"></p>
+
+<p>The idea here is that two users would generate their own certificates and private keys, then keep the private keys for themselves while sharing the certificates with each other. The sharing of certificates should be done in a way that you can prove the certificate belongs to who you think it does, since anyone can generate a certificate with any name and email.</p>
+
+<p>The script:</p>
+
+<figure class='code'><figcaption><span> (generate.sh)</span><a href='/downloads/code/generate.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># generate.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generates a certificate and private key</span>
+</span><span class='line'><span class="c"># generate.sh &lt;&quot;name&quot;&gt; [email]</span>
+</span><span class='line'><span class="c"># 1) (Required) Name of user</span>
+</span><span class='line'><span class="c"># 2) (Optional) Email of user</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: generate.sh &lt;\&quot;name\&quot;&gt; [email]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">NAME</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">EMAIL</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Replace spaces with underscores</span>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">NAME</span><span class="p">// /_</span><span class="k">}</span>
+</span><span class='line'><span class="nv">KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.secret
+</span><span class='line'><span class="nv">CERTIFICATE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.certificate
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a certificate and key pair for the given name and email</span>
+</span><span class='line'><span class="nb">echo</span> -e <span class="s2">&quot;NA\nNA\nNA\nNA\nNA\n${NAME}\n${EMAIL}&quot;</span> | openssl req -new -x509 -sha256 -newkey rsa:2048 -nodes -keyout <span class="k">${</span><span class="nv">KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">CERTIFICATE</span><span class="k">}</span>  &gt; /dev/null 2&gt;&amp;1 
+</span><span class='line'>
+</span><span class='line'><span class="c"># Change permissions</span>
+</span><span class='line'>chmod 400 <span class="k">${</span><span class="nv">KEY</span><span class="k">}</span>
+</span><span class='line'>chmod 444 <span class="k">${</span><span class="nv">CERTIFICATE</span><span class="k">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Encrypt</h2>
+
+<p>The next script performs file encryption to a specified recipient certificate. It can optionally sign the file with your private key. The order of operations is as follows:</p>
+
+<ol>
+<li>The file is first compressed</li>
+<li>A random keyfile is generated</li>
+<li>The compressed file is symmetrically encrypted with the random keyfile using AES256</li>
+<li>The random key is asymmetrically encrypted with the certificate using RSA</li>
+<li>(optional) The file is signed using the private key of the sender, and the signature is encrypted symmetrically using the random key</li>
+<li>All output files are bundled together into a tarball</li>
+</ol>
+
+
+<p>Run it like so:</p>
+
+<pre><code>$ echo "This is a test" &gt; test.txt
+$ ./encrypt.sh 
+Usage: encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]
+
+$ ./encrypt.sh test.txt Alice.certificate
+Encryption Successful
+</code></pre>
+
+<p>Optionally the file can be signed by also providing your private key:</p>
+
+<pre><code>$ ./encrypt.sh test.txt Alice.certificate Bob.secret
+Encryption Successful
+</code></pre>
+
+<p>In this case, the file <code>test.txt</code> was encrypted to Alice and signed by Bob.</p>
+
+<p>Here is the output:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/03.png">
+<img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/04.png"></p>
+
+<p>The produced tarball can be safely shared over an insecure channel; only the intended recipient is able to decrypt it.</p>
+
+<p>The tarball will always contain the recipient metadata extracted from the recipient&rsquo;s public certificate. This is so it is easy to identify who is able to decrypt the file. Optionally, the sender can include their certificate metadata when signing a file, to make it easy to determine which certificate is needed to verify the signature. The metadata files contain nothing more than the sha1 fingerprints of the respective certificates:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/05.png"></p>
+
+<p>The script:</p>
+
+<figure class='code'><figcaption><span> (encrypt.sh)</span><a href='/downloads/code/encrypt.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># encrypt.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypts a file</span>
+</span><span class='line'><span class="c"># encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]</span>
+</span><span class='line'><span class="c"># 1) (Required) File to encrypt</span>
+</span><span class='line'><span class="c"># 2) (Required) Certificate of the recipient</span>
+</span><span class='line'><span class="c"># 3) (Optional) Private key of the sender</span>
+</span><span class='line'><span class="c"># 4) (Optional) Certificate of the sender</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="c"># set -e</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 2 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">RECIPIENT_CERTIFICATE</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">SIGNING_KEY</span><span class="o">=</span><span class="nv">$3</span>
+</span><span class='line'><span class="nv">SENDER_CERTIFICATE</span><span class="o">=</span><span class="nv">$4</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">COMPRESSED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.bz2
+</span><span class='line'><span class="nv">ENCRYPTED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">SYMMETRIC_KEY</span><span class="o">=</span>symmetric_key.bin
+</span><span class='line'><span class="nv">ENCRYPTED_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="p">//certificate/public</span><span class="k">}</span>
+</span><span class='line'><span class="nv">RECIPIENT_METADATA</span><span class="o">=</span>recipient.txt
+</span><span class='line'><span class="nv">SENDER_METADATA</span><span class="o">=</span>sender.txt
+</span><span class='line'>
+</span><span class='line'><span class="nv">SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.signature
+</span><span class='line'><span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.tar
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the public key from the certificate</span>
+</span><span class='line'>openssl x509 -in <span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="k">}</span> -pubkey -noout &gt; <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span> 2&gt;/dev/null
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Invalid recipient certificate&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the recipient fingerprint metadata</span>
+</span><span class='line'>openssl x509 -in <span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="k">}</span> -noout -fingerprint | awk -F <span class="s2">&quot;=&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> &gt; <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Compress the file</span>
+</span><span class='line'>bzip2 -9 -k <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generate a random key</span>
+</span><span class='line'>openssl rand -base64 128 -out <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit shred <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypt the file symmetrically using the random key</span>
+</span><span class='line'>openssl enc -aes-256-cbc -salt -in <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypt the symmetric key with the public key of the recipient</span>
+</span><span class='line'>openssl rsautl -encrypt -inkey <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span> -pubin -in <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># If the file is being signed by the sender</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SIGNING_KEY</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Sign the file</span>
+</span><span class='line'>   openssl dgst -sha256 -sign <span class="k">${</span><span class="nv">SIGNING_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>   add_on_exit shred <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Invalid sender private key&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Encrypt the signature symmetrically using the random key</span>
+</span><span class='line'>   openssl enc -aes-256-cbc -salt -in <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Clear the variables for the tar command</span>
+</span><span class='line'>   <span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># If a sender is being specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Get the sender fingerprint metadata</span>
+</span><span class='line'>   openssl x509 -in <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> -noout -fingerprint 2&gt;/dev/null | awk -F <span class="s2">&quot;=&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> &gt; <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="k">${</span><span class="nv">PIPESTATUS</span><span class="p">[0]</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Invalid sender certificate&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Clear the variable for the tar command</span>
+</span><span class='line'>   <span class="nv">SENDER_METADATA</span><span class="o">=</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Bundle the output files together</span>
+</span><span class='line'>tar cf <span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Encryption Successful&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Decrypt</h2>
+
+<p>The final script is intended to decrypt bundles created by the above encryption script. It will:</p>
+
+<ol>
+<li>Extract the encrypted symmetric key</li>
+<li>Decrypt the symmetric key using the given secret key</li>
+<li>Extract the encrypted compressed file</li>
+<li>Use the decrypted symmetric key to decrypt the compressed file</li>
+<li>Decompress the file</li>
+<li>(optional) Extract and verify the signature using the supplied certificate</li>
+</ol>
+
+
+<p>Run it like so:</p>
+
+<pre><code>$ ./decrypt.sh 
+Usage: decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]
+
+$ ./decrypt.sh test.txt.tar Alice.secret Bob.certificate 
+Verified OK
+Decryption Successful
+</code></pre>
+
+<p>In this case, the file was decrypted by Alice, and verified to be sent by Bob.</p>
+
+<p>Here is the output:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/06.png"></p>
+
+<p>The script:</p>
+
+<figure class='code'><figcaption><span> (decrypt.sh)</span><a href='/downloads/code/decrypt.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># decrypt.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypts a file</span>
+</span><span class='line'><span class="c"># decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]</span>
+</span><span class='line'><span class="c"># 1) (Required) File to decrypt</span>
+</span><span class='line'><span class="c"># 2) (Required) Private key of the recipient</span>
+</span><span class='line'><span class="c"># 3) (Optional) Certificate of the sender</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="c"># set -e</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 2 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">RECIPIENT_PRIVATE_KEY</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">SENDER_CERTIFICATE</span><span class="o">=</span><span class="nv">$3</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="p">//.tar/</span><span class="k">}</span>
+</span><span class='line'><span class="nv">COMPRESSED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>.bz2
+</span><span class='line'><span class="nv">ENCRYPTED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">SYMMETRIC_KEY</span><span class="o">=</span>symmetric_key.bin
+</span><span class='line'><span class="nv">ENCRYPTED_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="nv">SENDER_PUBLIC_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="p">//certificate/public</span><span class="k">}</span>
+</span><span class='line'><span class="nv">SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>.signature
+</span><span class='line'><span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unpack the encrypted key</span>
+</span><span class='line'>tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Not a valid encrypted file&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypt the symmetric key</span>
+</span><span class='line'>openssl rsautl -decrypt -inkey <span class="k">${</span><span class="nv">RECIPIENT_PRIVATE_KEY</span><span class="k">}</span> -in <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span>add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;Unable to decrypt: Incorrect key&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">   </span>add_on_exit shred <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unpack the encrypted file</span>
+</span><span class='line'>tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Not a valid encrypted file&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypt the file</span>
+</span><span class='line'>openssl enc -d -aes-256-cbc -in <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decompress the file</span>
+</span><span class='line'>bunzip2 -f <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># If the file is being verified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Unpack the signature</span>
+</span><span class='line'>   tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;File is not signed&quot;</span>
+</span><span class='line'>   <span class="k">else</span>
+</span><span class='line'>      <span class="c"># Get the public key</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>      openssl x509 -in <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> -pubkey -noout &gt; <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c"># Decrypt the signature</span>
+</span><span class='line'>      openssl enc -d -aes-256-cbc -in <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit shred <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c"># Verify the signature</span>
+</span><span class='line'>      openssl dgst -sha256 -verify <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span> -signature <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Decryption Successful&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Joe Ruether</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-04-17T13:21:05-04:00" pubdate data-updated="true">Apr 17<span>th</span>, 2016</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    
+<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+
+    <br>
+
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2016/04/15/running-docker-in-qubes/" title="Previous Post: Running Docker in Qubes">&laquo; Running Docker in Qubes</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
+  <h1>Contact</h1>
+  <p>
+  <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
+  <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
+  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
+  <br>Public Key:<br>
+  <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
+  </p>
+</section>
+<section>
+<a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" >Tweet</a>
+</section>
+<section>
+<h1>Link to this page</h1>
+<br>
+<center>
+<a href="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" alt="post-qrcode"></a>
+</center>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/04/17/cryptography-using-openssl/">Cryptography Using OpenSSL</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/04/15/running-docker-in-qubes/">Running Docker in Qubes</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/01/12/bitcoin-donation-proofs/">Bitcoin Donation Proofs</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
+      </li>
+   
+   </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'jrruethe',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+<section>
+	<h1>Bitcoin Donations</h1>
+	<br>
+	<center>
+	<a href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m"><img src="http://blockchain.info/qr?data=187gRAhdyD2KaAhMND92RQMqQQMQtW678m&size=150" alt="Bitcoin"></a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">187gRAhdyD2KaAhMN</a><br>
+	<a class="small, monospace" href="bitcoin:187gRAhdyD2KaAhMND92RQMqQQMQtW678m">D92RQMqQQMQtW678m</a>
+	<br>
+	<a href="/downloads/code/bitcoin.txt.asc">Proof</a>
+	<br><br>
+   <div id="coindesk-widget" data-align="center"></div>
+   <script type="text/javascript" src="//widget.coindesk.com/bpiticker/coindesk-widget.min.js?aa4aca"></script>
+	</center>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  <span class="license">
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+   - Copyright &copy; 2016 - Joe Ruether - All rights reserved with the following exceptions:
+  <br>
+   - All embedded code on this page licensed under
+    <a href="/blog/downloads/code/gpl-3.0.txt">GPLv3</a>
+    or a later version unless otherwise noted
+  <br>
+   - All non-code text/image content on this page licensed under
+    <a href="/blog/downloads/code/cc-by-nc-sa-4.0.txt">CC BY-NC-SA 4.0</a>
+    or a later version unless otherwise noted
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'jrruethe';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

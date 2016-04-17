@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Enhanced Corefile Metadata - Morning Musings</title>
+  <title>Running Docker in Qubes - Morning Musings</title>
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. It hooks into the kernel&rsquo &hellip;">
+  <meta name="description" content="This is a quick post describing how to run Docker inside of a Qubes Appvm. Create a new template I chose to clone my existing Debian template. This &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata">
+  <link rel="canonical" href="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
@@ -78,7 +78,7 @@
   
   <header>
     
-      <h1 class="entry-title">Enhanced Corefile Metadata</h1>
+      <h1 class="entry-title">Running Docker in Qubes</h1>
     
     
       <p class="meta">
@@ -94,7 +94,7 @@
   
 
 
-<time datetime="2014-07-25T22:26:50-04:00" pubdate data-updated="true">Jul 25<span>th</span>, 2014</time>
+<time datetime="2016-04-15T18:09:15-04:00" pubdate data-updated="true">Apr 15<span>th</span>, 2016</time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://jrruethe.github.io">Comments</a>
@@ -104,45 +104,94 @@
   </header>
 
 
-<div class="entry-content"><p>At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump. <br/>
-It hooks into the kernel&rsquo;s corepattern mechanism to accept the core dump via stdin and extract information from the process before it is killed. It then runs GDB to produce a backtrace and grab the register contents.</p>
+<div class="entry-content"><p>This is a quick post describing how to run Docker inside of a Qubes Appvm.</p>
 
-<p><a href="https://github.com/jrruethe/corefile">Enhanced Corefile Metadata</a></p>
+<h2>Create a new template</h2>
 
-<p>Here is a list of metadata that is written out on every core dump:</p>
+<p>I chose to clone my existing Debian template. This tutorial assumes the template is Debian-based. Ideally your template would be very minimal, only requiring basic packages such as the following:</p>
 
 <ul>
-<li>Binary that crashed</li>
-<li>Corefile from the crash</li>
-<li>Signal causing the crash</li>
-<li>Original filepath</li>
-<li>Original file size</li>
-<li>MD5 checksum of the binary</li>
-<li>MD5 checksum of the corefile</li>
-<li>Creation, modification, and access times of the binary</li>
-<li>Hostname and PID of the crashed process</li>
-<li>User, group, and permissions of the crashed process</li>
-<li>The setuid bit</li>
-<li>Working directory of the process</li>
-<li>Invoked command line parameters</li>
-<li>Stack trace</li>
-<li>Memory Map</li>
-<li>Environment variables</li>
-<li>Frame information</li>
-<li>Register states</li>
+<li>git</li>
+<li>gedit</li>
 </ul>
 
 
-<p>This script is very useful for bug reports as well as devloping buffer overflow exploits.
-To install, save <code>corefile.rb</code> somewhere. Edit <code>/etc/sysctl.conf</code> and set the <code>kernel.core_pattern</code> parameter as follows:</p>
+<p>If you are also planning on using the dockerfile generator, you will need the following:</p>
 
-<pre><code>kernel.core_pattern=|/path/to/corefile.rb %e %p %u %g %h %s
+<ul>
+<li>ruby</li>
+<li>ruby-dev</li>
+<li>gcc</li>
+<li>make</li>
+<li>fpm (<code>sudo gem install fpm</code>)</li>
+</ul>
+
+
+<p>Here is my template:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/01.png"></p>
+
+<p>Make sure that the update proxy is disabled in the firewall settings:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/02.png"></p>
+
+<h2>Install Docker to the template<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></h2>
+
+<p>Run the following commands in the terminal:</p>
+
+<pre><code>sudo apt-get update
+sudo apt-get install curl
+curl -fsSL https://get.docker.com/ | sh
 </code></pre>
 
-<p><em>Take note of the pipe character!</em></p>
+<p>Next, enable the default user to use Docker:</p>
 
-<p>If you want to test it out, simply crash something.<br/>
-Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in <code>sysctl.conf</code>.</p>
+<pre><code>sudo usermod -aG docker user
+</code></pre>
+
+<h2>Change the default directory<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></h2>
+
+<pre><code>sudo vim /etc/systemd/system/docker.service
+</code></pre>
+
+<p>Add the following to the file:</p>
+
+<pre><code>[Service]
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H fd:// -g /home/user/docker
+</code></pre>
+
+<p>Finally, run the following command to apply the configuration:</p>
+
+<pre><code>sudo systemctl daemon-reload
+</code></pre>
+
+<h2>Create an Appvm</h2>
+
+<p>First, poweroff the template. Then create an Appvm based on the template. Increase the available disk space, since the docker images are being stored in the persistent private storage.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/03.png"></p>
+
+<h2>Test it out</h2>
+
+<p>Run the following command in the Appvm as the normal user:</p>
+
+<pre><code>docker run -it --rm hello-world
+</code></pre>
+
+<p>You should see the following:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/04.png"></p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="https://docs.docker.com/linux/step_one/">https://docs.docker.com/linux/step_one/</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="https://docs.docker.com/engine/admin/systemd/">https://docs.docker.com/engine/admin/systemd/</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
 </div>
 
 
@@ -165,7 +214,7 @@ Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in 
   
 
 
-<time datetime="2014-07-25T22:26:50-04:00" pubdate data-updated="true">Jul 25<span>th</span>, 2014</time>
+<time datetime="2016-04-15T18:09:15-04:00" pubdate data-updated="true">Apr 15<span>th</span>, 2016</time>
       
 
 
@@ -173,7 +222,7 @@ Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in 
     
       <div class="sharing">
   
-  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/" >Tweet</a>
+  <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/" >Tweet</a>
   
   
   
@@ -187,10 +236,10 @@ Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in 
 
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/07/06/installing-bittorrent-sync-on-debian/" title="Previous Post: Installing Bittorrent Sync on Debian">&laquo; Installing Bittorrent Sync on Debian</a>
+        <a class="basic-alignment left" href="/blog/2016/01/12/bitcoin-donation-proofs/" title="Previous Post: Bitcoin Donation Proofs">&laquo; Bitcoin Donation Proofs</a>
       
       
-        <a class="basic-alignment right" href="/blog/2014/08/09/graphical-bookmarks-in-chrome/" title="Next Post: Graphical Bookmarks in Chrome">Graphical Bookmarks in Chrome &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2016/04/17/cryptography-using-openssl/" title="Next Post: Cryptography using OpenSSL">Cryptography using OpenSSL &raquo;</a>
       
     </p>
   </footer>
@@ -219,13 +268,13 @@ Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in 
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/" >Tweet</a>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/" >Tweet</a>
 </section>
 <section>
 <h1>Link to this page</h1>
 <br>
 <center>
-<a href="http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/" alt="post-qrcode"></a>
+<a href="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/" alt="post-qrcode"></a>
 </center>
 </section>
 <section>
@@ -259,11 +308,15 @@ Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in 
    <ul class="posts">
    
       <li class="related">
-      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
       </li>
    
       <li class="related">
       <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/07/05/blogging-with-octopress/">Blogging with Octopress</a>
       </li>
    
       <li class="related">
@@ -272,10 +325,6 @@ Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in 
    
       <li class="related">
       <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
       </li>
    
    </ul>
@@ -354,8 +403,8 @@ Make sure you use <code>ulimit -c unlimited</code> or have corefiles enabled in 
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/';
-        var disqus_url = 'http://jrruethe.github.io/blog/2014/07/25/enhanced-corefile-metadata/';
+        var disqus_identifier = 'http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/';
+        var disqus_url = 'http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/';
         var disqus_script = 'embed.js';
       
     (function () {

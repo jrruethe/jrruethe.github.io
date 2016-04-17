@@ -4,7 +4,7 @@
   <title><![CDATA[Morning Musings]]></title>
   <link href="http://jrruethe.github.io/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2016-01-12T21:56:02-05:00</updated>
+  <updated>2016-04-17T16:25:29-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -12,6 +12,889 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cryptography Using OpenSSL]]></title>
+    <link href="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/"/>
+    <updated>2016-04-17T13:21:05-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl</id>
+    <content type="html"><![CDATA[<p>PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic operations. The benefit is that more of the magic is exposed to the user, which can be useful for learning more about how cryptographic applications operate.</p>
+
+<p>Below are three bash scripts that can perform the following:</p>
+
+<ul>
+<li>Public / private key generation</li>
+<li>Hybrid asymmetric encryption and signing</li>
+<li>Hybrid asymmetric decryption and verification</li>
+</ul>
+
+
+<p>These operations are a subset of the core functionality provided by GPG, and can be used to securely pass sensitive data between users. Unlike GPG, the user is responsible for managing trusted certificates.</p>
+
+<h2>Generate</h2>
+
+<p>The first script is called <code>generate.sh</code>. It will generate a new public certificate and private key when given a name and optional email address. Run it like so:</p>
+
+<pre><code>$ ./generate.sh 
+Usage: generate.sh &lt;"name"&gt; [email]
+
+$ ./generate.sh "Joe Ruether" jrruethe@gmail.com
+</code></pre>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/01.png"></p>
+
+<p>As you can see, a certificate and private key were generated, with the proper permissions set. Both files are stored in base64 ASCII for easily sharing or backing them up.</p>
+
+<p>You can also view the human readable output of the certificate with:</p>
+
+<pre><code>openssl x509 -in Joe_Ruether.certificate -text -noout
+</code></pre>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/02.png"></p>
+
+<p>The idea here is that two users would generate their own certificates and private keys, then keep the private keys for themselves while sharing the certificates with each other. The sharing of certificates should be done in a way that you can prove the certificate belongs to who you think it does, since anyone can generate a certificate with any name and email.</p>
+
+<p>The script:</p>
+
+<figure class='code'><figcaption><span> (generate.sh)</span><a href='http://jrruethe.github.io/downloads/code/generate.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># generate.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generates a certificate and private key</span>
+</span><span class='line'><span class="c"># generate.sh &lt;&quot;name&quot;&gt; [email]</span>
+</span><span class='line'><span class="c"># 1) (Required) Name of user</span>
+</span><span class='line'><span class="c"># 2) (Optional) Email of user</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: generate.sh &lt;\&quot;name\&quot;&gt; [email]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">NAME</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">EMAIL</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Replace spaces with underscores</span>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">NAME</span><span class="p">// /_</span><span class="k">}</span>
+</span><span class='line'><span class="nv">KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.secret
+</span><span class='line'><span class="nv">CERTIFICATE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.certificate
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a certificate and key pair for the given name and email</span>
+</span><span class='line'><span class="nb">echo</span> -e <span class="s2">&quot;NA\nNA\nNA\nNA\nNA\n${NAME}\n${EMAIL}&quot;</span> | openssl req -new -x509 -sha256 -newkey rsa:2048 -nodes -keyout <span class="k">${</span><span class="nv">KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">CERTIFICATE</span><span class="k">}</span>  &gt; /dev/null 2&gt;&amp;1 
+</span><span class='line'>
+</span><span class='line'><span class="c"># Change permissions</span>
+</span><span class='line'>chmod 400 <span class="k">${</span><span class="nv">KEY</span><span class="k">}</span>
+</span><span class='line'>chmod 444 <span class="k">${</span><span class="nv">CERTIFICATE</span><span class="k">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Encrypt</h2>
+
+<p>The next script performs file encryption to a specified recipient certificate. It can optionally sign the file with your private key. The order of operations is as follows:</p>
+
+<ol>
+<li>The file is first compressed</li>
+<li>A random keyfile is generated</li>
+<li>The compressed file is symmetrically encrypted with the random keyfile using AES256</li>
+<li>The random key is asymmetrically encrypted with the certificate using RSA</li>
+<li>(optional) The file is signed using the private key of the sender, and the signature is encrypted symmetrically using the random key</li>
+<li>All output files are bundled together into a tarball</li>
+</ol>
+
+
+<p>Run it like so:</p>
+
+<pre><code>$ echo "This is a test" &gt; test.txt
+$ ./encrypt.sh 
+Usage: encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]
+
+$ ./encrypt.sh test.txt Alice.certificate
+Encryption Successful
+</code></pre>
+
+<p>Optionally the file can be signed by also providing your private key:</p>
+
+<pre><code>$ ./encrypt.sh test.txt Alice.certificate Bob.secret
+Encryption Successful
+</code></pre>
+
+<p>In this case, the file <code>test.txt</code> was encrypted to Alice and signed by Bob.</p>
+
+<p>Here is the output:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/03.png">
+<img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/04.png"></p>
+
+<p>The produced tarball can be safely shared over an insecure channel; only the intended recipient is able to decrypt it.</p>
+
+<p>The tarball will always contain the recipient metadata extracted from the recipient&rsquo;s public certificate. This is so it is easy to identify who is able to decrypt the file. Optionally, the sender can include their certificate metadata when signing a file, to make it easy to determine which certificate is needed to verify the signature. The metadata files contain nothing more than the sha1 fingerprints of the respective certificates:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/05.png"></p>
+
+<p>The script:</p>
+
+<figure class='code'><figcaption><span> (encrypt.sh)</span><a href='http://jrruethe.github.io/downloads/code/encrypt.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># encrypt.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypts a file</span>
+</span><span class='line'><span class="c"># encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]</span>
+</span><span class='line'><span class="c"># 1) (Required) File to encrypt</span>
+</span><span class='line'><span class="c"># 2) (Required) Certificate of the recipient</span>
+</span><span class='line'><span class="c"># 3) (Optional) Private key of the sender</span>
+</span><span class='line'><span class="c"># 4) (Optional) Certificate of the sender</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="c"># set -e</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 2 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">RECIPIENT_CERTIFICATE</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">SIGNING_KEY</span><span class="o">=</span><span class="nv">$3</span>
+</span><span class='line'><span class="nv">SENDER_CERTIFICATE</span><span class="o">=</span><span class="nv">$4</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">COMPRESSED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.bz2
+</span><span class='line'><span class="nv">ENCRYPTED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">SYMMETRIC_KEY</span><span class="o">=</span>symmetric_key.bin
+</span><span class='line'><span class="nv">ENCRYPTED_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="p">//certificate/public</span><span class="k">}</span>
+</span><span class='line'><span class="nv">RECIPIENT_METADATA</span><span class="o">=</span>recipient.txt
+</span><span class='line'><span class="nv">SENDER_METADATA</span><span class="o">=</span>sender.txt
+</span><span class='line'>
+</span><span class='line'><span class="nv">SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.signature
+</span><span class='line'><span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.tar
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the public key from the certificate</span>
+</span><span class='line'>openssl x509 -in <span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="k">}</span> -pubkey -noout &gt; <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span> 2&gt;/dev/null
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Invalid recipient certificate&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the recipient fingerprint metadata</span>
+</span><span class='line'>openssl x509 -in <span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="k">}</span> -noout -fingerprint | awk -F <span class="s2">&quot;=&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> &gt; <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Compress the file</span>
+</span><span class='line'>bzip2 -9 -k <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generate a random key</span>
+</span><span class='line'>openssl rand -base64 128 -out <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit shred <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypt the file symmetrically using the random key</span>
+</span><span class='line'>openssl enc -aes-256-cbc -salt -in <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypt the symmetric key with the public key of the recipient</span>
+</span><span class='line'>openssl rsautl -encrypt -inkey <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span> -pubin -in <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># If the file is being signed by the sender</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SIGNING_KEY</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Sign the file</span>
+</span><span class='line'>   openssl dgst -sha256 -sign <span class="k">${</span><span class="nv">SIGNING_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>   add_on_exit shred <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Invalid sender private key&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Encrypt the signature symmetrically using the random key</span>
+</span><span class='line'>   openssl enc -aes-256-cbc -salt -in <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Clear the variables for the tar command</span>
+</span><span class='line'>   <span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># If a sender is being specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Get the sender fingerprint metadata</span>
+</span><span class='line'>   openssl x509 -in <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> -noout -fingerprint 2&gt;/dev/null | awk -F <span class="s2">&quot;=&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> &gt; <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="k">${</span><span class="nv">PIPESTATUS</span><span class="p">[0]</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Invalid sender certificate&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Clear the variable for the tar command</span>
+</span><span class='line'>   <span class="nv">SENDER_METADATA</span><span class="o">=</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Bundle the output files together</span>
+</span><span class='line'>tar cf <span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Encryption Successful&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Decrypt</h2>
+
+<p>The final script is intended to decrypt bundles created by the above encryption script. It will:</p>
+
+<ol>
+<li>Extract the encrypted symmetric key</li>
+<li>Decrypt the symmetric key using the given secret key</li>
+<li>Extract the encrypted compressed file</li>
+<li>Use the decrypted symmetric key to decrypt the compressed file</li>
+<li>Decompress the file</li>
+<li>(optional) Extract and verify the signature using the supplied certificate</li>
+</ol>
+
+
+<p>Run it like so:</p>
+
+<pre><code>$ ./decrypt.sh 
+Usage: decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]
+
+$ ./decrypt.sh test.txt.tar Alice.secret Bob.certificate 
+Verified OK
+Decryption Successful
+</code></pre>
+
+<p>In this case, the file was decrypted by Alice, and verified to be sent by Bob.</p>
+
+<p>Here is the output:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/06.png"></p>
+
+<p>The script:</p>
+
+<figure class='code'><figcaption><span> (decrypt.sh)</span><a href='http://jrruethe.github.io/downloads/code/decrypt.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># decrypt.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypts a file</span>
+</span><span class='line'><span class="c"># decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]</span>
+</span><span class='line'><span class="c"># 1) (Required) File to decrypt</span>
+</span><span class='line'><span class="c"># 2) (Required) Private key of the recipient</span>
+</span><span class='line'><span class="c"># 3) (Optional) Certificate of the sender</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="c"># set -e</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 2 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">RECIPIENT_PRIVATE_KEY</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">SENDER_CERTIFICATE</span><span class="o">=</span><span class="nv">$3</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="p">//.tar/</span><span class="k">}</span>
+</span><span class='line'><span class="nv">COMPRESSED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>.bz2
+</span><span class='line'><span class="nv">ENCRYPTED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">SYMMETRIC_KEY</span><span class="o">=</span>symmetric_key.bin
+</span><span class='line'><span class="nv">ENCRYPTED_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="nv">SENDER_PUBLIC_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="p">//certificate/public</span><span class="k">}</span>
+</span><span class='line'><span class="nv">SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>.signature
+</span><span class='line'><span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unpack the encrypted key</span>
+</span><span class='line'>tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Not a valid encrypted file&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypt the symmetric key</span>
+</span><span class='line'>openssl rsautl -decrypt -inkey <span class="k">${</span><span class="nv">RECIPIENT_PRIVATE_KEY</span><span class="k">}</span> -in <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span>add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;Unable to decrypt: Incorrect key&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">   </span>add_on_exit shred <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unpack the encrypted file</span>
+</span><span class='line'>tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Not a valid encrypted file&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypt the file</span>
+</span><span class='line'>openssl enc -d -aes-256-cbc -in <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decompress the file</span>
+</span><span class='line'>bunzip2 -f <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># If the file is being verified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Unpack the signature</span>
+</span><span class='line'>   tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;File is not signed&quot;</span>
+</span><span class='line'>   <span class="k">else</span>
+</span><span class='line'>      <span class="c"># Get the public key</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>      openssl x509 -in <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> -pubkey -noout &gt; <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c"># Decrypt the signature</span>
+</span><span class='line'>      openssl enc -d -aes-256-cbc -in <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit shred <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c"># Verify the signature</span>
+</span><span class='line'>      openssl dgst -sha256 -verify <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span> -signature <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Decryption Successful&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Running Docker in Qubes]]></title>
+    <link href="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/"/>
+    <updated>2016-04-15T18:09:15-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes</id>
+    <content type="html"><![CDATA[<p>This is a quick post describing how to run Docker inside of a Qubes Appvm.</p>
+
+<h2>Create a new template</h2>
+
+<p>I chose to clone my existing Debian template. This tutorial assumes the template is Debian-based. Ideally your template would be very minimal, only requiring basic packages such as the following:</p>
+
+<ul>
+<li>git</li>
+<li>gedit</li>
+</ul>
+
+
+<p>If you are also planning on using the dockerfile generator, you will need the following:</p>
+
+<ul>
+<li>ruby</li>
+<li>ruby-dev</li>
+<li>gcc</li>
+<li>make</li>
+<li>fpm (<code>sudo gem install fpm</code>)</li>
+</ul>
+
+
+<p>Here is my template:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/01.png"></p>
+
+<p>Make sure that the update proxy is disabled in the firewall settings:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/02.png"></p>
+
+<h2>Install Docker to the template<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></h2>
+
+<p>Run the following commands in the terminal:</p>
+
+<pre><code>sudo apt-get update
+sudo apt-get install curl
+curl -fsSL https://get.docker.com/ | sh
+</code></pre>
+
+<p>Next, enable the default user to use Docker:</p>
+
+<pre><code>sudo usermod -aG docker user
+</code></pre>
+
+<h2>Change the default directory<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></h2>
+
+<pre><code>sudo vim /etc/systemd/system/docker.service
+</code></pre>
+
+<p>Add the following to the file:</p>
+
+<pre><code>[Service]
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H fd:// -g /home/user/docker
+</code></pre>
+
+<p>Finally, run the following command to apply the configuration:</p>
+
+<pre><code>sudo systemctl daemon-reload
+</code></pre>
+
+<h2>Create an Appvm</h2>
+
+<p>First, poweroff the template. Then create an Appvm based on the template. Increase the available disk space, since the docker images are being stored in the persistent private storage.</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/03.png"></p>
+
+<h2>Test it out</h2>
+
+<p>Run the following command in the Appvm as the normal user:</p>
+
+<pre><code>docker run -it --rm hello-world
+</code></pre>
+
+<p>You should see the following:</p>
+
+<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/15/running-docker-in-qubes/04.png"></p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="https://docs.docker.com/linux/step_one/">https://docs.docker.com/linux/step_one/</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="https://docs.docker.com/engine/admin/systemd/">https://docs.docker.com/engine/admin/systemd/</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Bitcoin Donation Proofs]]></title>
@@ -13801,238 +14684,6 @@ You need the following installed for this to work:</p>
 </span><span class='line'>sleep 5
 </span></code></pre></td></tr></table></div></figure>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[A Simple Bitcoin Analogy]]></title>
-    <link href="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/"/>
-    <updated>2015-04-26T12:59:49-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy</id>
-    <content type="html"><![CDATA[<p>Imagine there are a group of lockers in a public place. Each locker has the following:</p>
-
-<ul>
-<li>A lock that requires a key</li>
-<li>A window to see inside</li>
-<li>A slot that money can be put in</li>
-<li>An identifying number</li>
-</ul>
-
-
-<p>A group of these lockers might look like this:</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/01.jpg"><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
-
-<p>These lockers are secure. The windows are unbreakable, the locks cannot be picked, the metal cannot be cut, and the entire group is bolted to the ground. Furthermore, there is only one copy of the key, and it is in possession of that locker&rsquo;s owner; Nobody else is able to get inside without that key.</p>
-
-<p>Each locker is free of charge. A person may claim any unused locker, upon which they get the only copy of the key. A person may have as many lockers as they choose; there is no shortage of lockers. People use &ldquo;wallets&rdquo; (which are more like keychains in this case) to keep track of all the lockers they own and their associated keys. If anyone loses their wallet, they lose the ability to open any of their lockers, and that money is inaccessible forever.</p>
-
-<p>Because the group of lockers is in a public place, and each locker has a window, anyone is able to see how much money is in each locker. They can see the identifying numbers on the locker, but they do not know who the owner of the locker is.</p>
-
-<p>This group of lockers represents the Blockchain, and the contents of each locker represent Bitcoins.</p>
-
-<p>Alice is selling a chair that Bob wants to buy. Bob calls up Alice to make a deal:</p>
-
-<blockquote><p>Bob: I&rsquo;d like to buy the chair you are selling. How much do you want for it?<br/>
-Alice: I&rsquo;ll give it to you for 0.2 Bitcoins<br/>
-Bob: Sounds great! Which locker number is yours?</p></blockquote>
-
-<p>Alice goes to the group of lockers, sees that #412 is unclaimed, and claims it. She heads home with the key.</p>
-
-<blockquote><p>Alice: Put the money in locker 412 please!</p></blockquote>
-
-<p>Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.</p>
-
-<blockquote><p>Bob: I put the money in your locker!</p></blockquote>
-
-<p>Alice goes to the lockers and checks the contents of locker #412 through the window. She sees the 0.2 Bitcoins sitting there. Since Bob is the only person she told about #412, the money must have come from him.</p>
-
-<blockquote><p>Alice: I just checked, and I see the money in my locker. Here is your chair!</p></blockquote>
-
-<p>The entire transaction was done without Alice and Bob ever needing to meet in person. No banks were involved in the transaction, there were no processing delays, there were no fees. Bob is unable to issue a &ldquo;chargeback&rdquo; to void his transaction; the money is already in Alice&rsquo;s locker, and only she can get it back out. Furthermore, anyone checking the contents of the lockers by peeking through the windows could only tell that a transaction was made; they are unable to discover who was involved.</p>
-
-<p>This is the basic premise of Bitcoin. Learn more about Bitcoin <a href="http://www.coindesk.com/information/what-is-bitcoin/">here</a>.</p>
-
-<p><em>This analogy was not my idea, I am paraphrasing <a href="http://thebitcoincatalog.com/safe-analogy/">Henry Romp</a>.</em></p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>http://www.storageaspects.co.uk/shop/archive-mobile-shelving-archive-roller-racking/visitor-centre-lockers-with-see-through-doors/<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Bitcoin Paper Wallets]]></title>
-    <link href="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/"/>
-    <updated>2015-04-23T19:18:12-04:00</updated>
-    <id>http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets</id>
-    <content type="html"><![CDATA[<p>Paper wallets are a form of <em>cold storage</em>, meaning that the private key has never touched a computer with internet access. This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself. For that reason, this is a tutorial to create a paper wallet in a secure fashion.</p>
-
-<p>A repository of paper wallet generators can be found <a href="https://github.com/jrruethe/paper_wallet">here</a>. You can choose to use my repository directly if you wish, but I recommend going straight to the source.
-There are many options with different formats and templates, however I highly recommend bitcoinpaperwallet.com.</p>
-
-<p><em>I am in no way affiliated with bitcoinpaperwallet.com, just a satisfied customer.</em></p>
-
-<hr />
-
-<h3><a href="https://bitcoinpaperwallet.com/">BitcoinPaperWallet.com</a> (<a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a>)</h3>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/01.jpg"></p>
-
-<p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!</p>
-
-<p>Features:</p>
-
-<ul>
-<li>&ldquo;Butterfly&rdquo; design secures the private key</li>
-<li>Resistant to candling</li>
-<li>Supports <a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a> encryption</li>
-<li>Private key encoded in <a href="https://en.bitcoin.it/wiki/Wallet_import_format">Wallet Import Format</a></li>
-<li>Designed to be printed in landscape mode, but works in portrait mode as well</li>
-<li>Double sided</li>
-<li>2x wallets per sheet</li>
-<li>Notes section on the back</li>
-<li>Public key visible when closed</li>
-</ul>
-
-
-<p>Additional Options:</p>
-
-<ul>
-<li><a href="https://bitcoinpaperwallet.com/">Security Stickers</a> 2in x .5in (<a href="http://www.amazon.com/gp/product/B00MWCCN7C">Alternative</a>)*</li>
-<li><a href="https://bitcoinpaperwallet.com/">Waterproof Bag</a> 6in x 3in (<a href="http://www.amazon.com/Clear-Lock-Bags-Case-1000/dp/B0040003E4">Alternative</a>)</li>
-<li><a href="http://www.amazon.com/dp/B004PX7ZTC">Teslin Paper</a> (Inkjet Printers)</li>
-<li><a href="http://www.amazon.com/gp/product/B004UI335W/">Revlar Paper</a> (Laser Printers)</li>
-<li><a href="http://www.amazon.com/gp/product/B00ENI0NI4">Scratch Off Stickers</a> 1in x 1in</li>
-<li><a href="http://www.amazon.com/gp/product/B00BWU3HNY">Laminating Pouches</a> 8.9in x 11.4in</li>
-<li><a href="http://www.amazon.com/gp/product/B0010JEJPC">Laminator</a></li>
-</ul>
-
-
-<blockquote><p>*The official security stickers from bitcoinpaperwallet.com are serialized in pairs, meaning you get two of each number. This is best because each paper wallet requires two stickers, so the numbers match. The alternative link only provides one sticker for each number.</p></blockquote>
-
-<p>Dimensions:</p>
-
-<ul>
-<li>Landscape: 5.5in x 2.5in (Slightly smaller than a dollar bill)</li>
-<li>Portrait: 4in x 2in (Slightly bigger than a standard business card)</li>
-<li>QR Codes: 1in x 1in (About the size of a quarter)</li>
-</ul>
-
-
-<p>For additional artworks, check out <a href="http://libertywallet.liberty.me/2015/03/18/liberty-wallet/">Liberty Paper Wallet</a> (<a href="https://github.com/SimonBelmond/libertypaperwallet">Github</a>).</p>
-
-<hr />
-
-<h3>Protecting your paper wallet</h3>
-
-<p>Paper wallets are extremely vulnerable to water.
-Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/03.jpg"></p>
-
-<p>Paper wallets are also extremely vulnerable to fire.
-However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.</p>
-
-<blockquote><p>Remember, if you lose your paper wallet, or it is damaged, you lose all the coins stored at that address!</p></blockquote>
-
-<hr />
-
-<h3>How to properly create a paper wallet</h3>
-
-<p>Paper wallets need to be created offline on a secure machine. For this tutorial, I will be using a <a href="https://tails.boum.org/">Tails</a> Live CD. Grab the ISO and burn it to a disk.</p>
-
-<p>Save a <a href="https://github.com/cantonbecker/bitcoinpaperwallet/archive/master.zip">copy of bitcoinpaperwallet</a> onto a USB drive.</p>
-
-<ol>
-<li>Shutdown your computer and boot from the CD.</li>
-<li>When the Tails welcome box appears, select &ldquo;More Options&rdquo;.</li>
-<li>Enter an administrator password of your choice and login.</li>
-<li>Wait for tor to become ready.</li>
-</ol>
-
-
-<blockquote><p>For this tutorial, in order to get screenshots I am using a virtual machine. Do not use a virtual machine when doing this for real!</p></blockquote>
-
-<p>Before creating the paper wallet, you will want to ensure that your printer works correctly. You need a printer that is directly connected to your machine; don&rsquo;t use a network printer (you shouldn&rsquo;t be connected to any network). If possible, use a dumb printer, and try to ensure that your printer does not save a copy of printouts to internal memory. Use this time to get any drivers you need from the internet.</p>
-
-<p>From the <code>Applications</code> menu, select <code>System Tools -&gt; Administration -&gt; Printing</code>.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/04.png"></p>
-
-<p>Add your printer. Open up Tor Browser and ensure that you can print a webpage.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/05.png"></p>
-
-<p>Time to disconnect from the internet. Unplug the ethernet cord, turn off any wireless cards or routers as necessary. Verify that you are not online.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/06.png"></p>
-
-<ol>
-<li>Insert your usb drive</li>
-<li>Copy the github zip file to the <code>Tor Browser</code> folder on the filesystem</li>
-<li>Remove the usb drive</li>
-<li>Unpack the zip file</li>
-</ol>
-
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/07.png"></p>
-
-<p>Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! &ldquo;Brain wallets&rdquo; may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/08.png"></p>
-
-<blockquote><p><strong>BIP38 Encryption?</strong><br/>
-There are pros and cons to encrypting your paper wallet. Encryption adds an extra layer of security by requiring a passphrase before being able to import the private key again, which is great if the paper wallet ever gets stolen. However if the passphrase is forgotten, the coins are lost forever. The passphrase is one more thing to remember / write down, which means it is one more thing to secure. In addition, some wallet software does not support BIP38, which may make reimporting difficult. Finally, it is important to realize that BIP38 encryption will NOT help if you chose an insecure passphrase for a brain wallet. In general, BIP38 encryption is recommended.</p></blockquote>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/09.png"></p>
-
-<p>You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/10.jpg" width="400" height="600"></p>
-
-<p>Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/11.png"></p>
-
-<p>Shutdown your Tails environment. It will wipe your ram for you.</p>
-
-<p>Cut out each design by following the lines on the front. Fold the wallets and apply the stickers.</p>
-
-<blockquote><p>If you have a laser printer, you will want to include a small 1in x 1in square of paper between the private key and the candling pattern when folding the paper. Later on, we will be laminating the paper wallet, and the heat can cause the toner on each side of the fold to fuse together.</p></blockquote>
-
-<p>Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/12.jpg" width="400" height="600"></p>
-
-<p>Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/13.jpg" width="400" height="600"></p>
-
-<hr />
-
-<h3>How to properly use a paper wallet</h3>
-
-<p>You can scan the public key into Electrum or Mycelium as a watch-only wallet to keep track of your funds. Eventually you will want to spend the funds.</p>
-
-<p>First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the &ldquo;Private Key / Withdraw&rdquo; line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/14.jpg"></p>
-
-<p>Now comes the important part. The funds must be &ldquo;swept&rdquo; into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.</p>
-
-<blockquote><p><strong>Change?</strong><br/>
-When spending Bitcoins, <em>ALL</em> coins from that address are moved to new addresses.
-The destination address will get the desired amount, and any remaining amount will be sent to a &ldquo;change&rdquo; address. If no &ldquo;change&rdquo; address is specified, the remaining amount will go to the miner that solves the block. Normally, an electronic wallet manages this for you behind the scenes, however when using a paper wallet directly, you will not have this control. This is why the entire balance of a paper wallet should be &ldquo;swept&rdquo; into an electronic wallet before spending.<br/>
-Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p></blockquote>
-
-<p>Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.</p>
-
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/15.jpg"></p>
 ]]></content>
   </entry>
   
