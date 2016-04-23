@@ -32,6 +32,9 @@ article blockquote{
    box-shadow: 0px 0px 0px;
    border-radius: 0px;
    
+   display: block;
+   margin-left: auto;
+   margin-right: auto;
 }
 
 aside.sidebar .borderless{
@@ -90,3 +93,5 @@ aside.sidebar .borderless{
 
 tr:hover {background-color: #f5f5f5}
 tr:nth-child(even) {background-color: #f2f2f2}
+
+@import "custom/caption"

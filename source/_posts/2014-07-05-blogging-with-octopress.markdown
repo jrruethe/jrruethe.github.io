@@ -236,11 +236,23 @@ Images can be embedded into posts. The image file must be placed in the same dir
 
 To embed this image, use the tag like this:
 {% raw %}
-    {% img center ./01.png %}
+    {% img ./01.png [width] [caption] %}
+    {% img ./01.png 150 Avatar %}
 {% endraw %}
 
-Which results in this[^1]:
-{% img center ./01.png %}
+Which results in this:
+
+{% img ./01.png 150 Avatar %}
+
+> Caption is optional
+
+If you have an image with a transparent background, you can embed it without the shadow border:
+
+{% raw %}
+    {% img borderless ./01.png 150 %}
+{% endraw %}
+
+{% img borderless ./01.png 150 %}
 
 ---
 #### Video
@@ -275,8 +287,7 @@ And here is the result:
 ---
 #### Footnotes
 
-Footnotes are good for attributing content made by other people. Simply place an anchor `[^2]` where you want the link to the footnote to appear.[^2]
-Then, at the bottom of the page, put the actual footnote: `[^2]: This is a footnote`. The line above the footnotes is created automatically.
+Footnotes are good for attributing content made by other people. Simply place an anchor `[^1]` where you want the link to the footnote to appear.[^1]
+Then, at the bottom of the page, put the actual footnote: `[^1]: This is a footnote`. The line above the footnotes is created automatically.
 
-[^1]: [Randall Munrow, XKCD](http://xkcd.com/) licensed under CC-BY-NA 2.5
-[^2]: This is a footnote
+[^1]: This is a footnote

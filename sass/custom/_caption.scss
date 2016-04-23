@@ -1,0 +1,30 @@
+// Image caption
+
+@mixin reset-shadow-box() {
+  @include box-shadow(0, #000, 0);
+}
+
+.caption {
+  @include reset-shadow-box;
+}
+
+.img-div {
+    margin: auto;
+    width: 20%;
+}
+
+.caption-wrapper {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+  .caption-text {
+    background: #fff;
+    text-align: center;
+    font-size: .8em;
+    color: #666;
+    margin: 0 auto;
+    display: block;
+  }
+}
+

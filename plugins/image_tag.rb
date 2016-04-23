@@ -33,13 +33,34 @@ module Jekyll
           @img['alt']    = @img['title'].gsub!(/"/, '&#34;') if @img['title']
         end
         @img['class'].gsub!(/"/, '') if @img['class']
+        
+        # Set width to 100% if not specified
+        @img['width'] = '100%' unless @img['width']
+        
       end
       super
     end
 
     def render(context)
       if @img
-        "<img #{@img.collect {|k,v| "#{k}=\"#{v}\"" if v}.join(" ")}>"
+        # If a title (caption) was given
+        if @img['title']
+
+          "<div class='img-div'>" +
+          "<span class='caption-wrapper' style='width:#{@img['width']};'>" +
+          "<a class='fancybox' rel='group' href='#{@img['src']}'>" +
+          "<img class='caption' src='#{@img['src']}' width='#{@img['width']}' title='#{@img['title']}' alt='#{@img['alt']}'>" +
+          "</a>" +
+          "<span class='caption-text'>#{@img['title']}</span>" +
+          "</span>" +
+          "</div>"
+        else
+          "<div class='img-div'>" +
+          "<a class='fancybox' rel='group' href='#{@img['src']}'>" +
+          "<img #{@img.collect {|k,v| "#{k}=\"#{v}\"" if v}.join(" ")}>" +
+          "</a>" +
+          "</div>"
+        end
       else
         "Error processing input, expected syntax: {% img [class name(s)] [http[s]:/]/path/to/image [width [height]] [title text | \"title text\" [\"alt text\"]] %}"
       end
