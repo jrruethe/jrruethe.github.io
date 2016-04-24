@@ -8,9 +8,14 @@
   @include reset-shadow-box;
 }
 
-.img-div {
-    margin: auto;
-    width: 20%;
+.img-outer-div
+{   
+    padding: 30px;
+    text-align: center;
+}
+.img-inner-div
+{   
+    display: inline-block;
 }
 
 .caption-wrapper {

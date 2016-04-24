@@ -3,10 +3,13 @@ layout: post
 title: "Blogging with Octopress"
 date: 2014-07-05 20:51:27 -0400
 comments: true
+toc: true
 categories: 
 ---
 
-### Before you continue
+Octopress is an excellent blogging platform that is very easy to maintain and customize. My particular repository has a lot of customizations, and this page is mainly intended for me to remember how to use the various features. However, it may be beneficial to others if they clone my repository or simply want to see what is possible.
+
+# Dependencies
 
 Grab all the dependencies:
 
@@ -22,7 +25,7 @@ You may have a newer `rake` installed on your machine. Octopress requires versio
 
 ---
 
-### Starting Fresh
+# Starting Fresh
 
 Use these instructions if you are creating a blog for the first time.
 
@@ -55,6 +58,10 @@ Use these instructions if you are creating a blog for the first time.
     - [QR Codes](https://github.com/sailor79/Octopress-dynamic-QR-Code-aside) : Add QR codes for mobile navigation and sharing
     - [Octolayer](https://github.com/mguentner/octolayer) : Embed maps into posts
     - [Responsive Video Embed](https://github.com/optikfluffel/octopress-responsive-video-embed) : Embed Youtube videos into posts  
+    - [Table of Contents](http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/) : List a table of contents at the top of each post
+    - [Fancybox](https://www.ewal.net/2012/09/08/octopress-customizations/) : Enhance user experience when dealing with images
+    
+    And a few others that are listed below.
 
  6. Sign up for [Disqus](https://disqus.com)
  
@@ -77,7 +84,7 @@ Use these instructions if you are creating a blog for the first time.
         
 ---
 
-### Continuing from an existing repository
+# Continuing from an existing repository
 
 Use these instructions if you are continuing a blog that has already been created.
 
@@ -108,7 +115,7 @@ Use these instructions if you are continuing a blog that has already been create
         
 ---
         
-### Creating a post
+# Creating a post
 
 To create a new post:
 
@@ -138,7 +145,7 @@ Go to `username.github.com` and check out your page.
     
 ---
 
-### Scripting the difficult pieces
+# Scripting the difficult pieces
 
 If you look at the [source for my blog](), you will see a small number of scripts that make managing the blog even easier.
 
@@ -150,9 +157,9 @@ If you look at the [source for my blog](), you will see a small number of script
     
 ---
     
-### Embedding Content
+# Embedding Content
 
-#### Code
+## Code
 
 It is easy to embed any text file found in the source/downloads/code folder.  
 Octopress even supports syntax highlighting, and a handy download link.
@@ -230,7 +237,7 @@ This is better than the normal 4-space indent. Compare:
     }
 
 ---
-#### Image
+## Image
 
 Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is `2014-07-05-blogging-with-octopress.markdown`, and the image below has the filename `2014-07-05-blogging-with-octopress_01.png`. The image is refered to by the name after the trailing `_`. In this case, the name is `01.png`.
 
@@ -254,8 +261,22 @@ If you have an image with a transparent background, you can embed it without the
 
 {% img borderless ./01.png 150 %}
 
+> Credits to [aycabta](https://github.com/aycabta/octopress-file-binder), [sheva-serg](http://deadunicornz.org/blog/2014/12/27/octopress-image-caption-plugin/), [Charles Beynon](https://eulerpi.io/2014/11/28/the-imgcaption-tag/), and [Erv Walter](https://www.ewal.net/2012/09/08/octopress-customizations/)
+
 ---
-#### Video
+## Table of Contents
+
+You may have noticed the table of contents at the top of this page. 
+This can be enabled by adding the following to the yaml at the top of any post:
+
+    toc: true
+
+The table of contents is automatically generated via javascript and will follow the headings indicated by `#`.
+
+> Credits to [Brian Clapper](http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/)
+
+---
+## Video
 
 Embedding a youtube video can be done by grabbing the video id from the url:  
 [https://www.youtube.com/watch?v=**dQw4w9WgXcQ**](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
@@ -268,8 +289,10 @@ Use the following tag:
 Here is the result:
 {% youtube dQw4w9WgXcQ %}
 
+> Credits to [Udo Kramer](https://github.com/optikfluffel/octopress-responsive-video-embed)
+
 ---
-#### Map
+## Map
 
 Embedding a map can be done with the following tag:
 {% raw %}
@@ -284,8 +307,10 @@ A simple example is shown here:
 And here is the result:
 {% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
 
+> Credits to [Maximilian Güntner](https://github.com/mguentner/octolayer)
+
 ---
-#### Footnotes
+## Footnotes
 
 Footnotes are good for attributing content made by other people. Simply place an anchor `[^1]` where you want the link to the footnote to appear.[^1]
 Then, at the bottom of the page, put the actual footnote: `[^1]: This is a footnote`. The line above the footnotes is created automatically.

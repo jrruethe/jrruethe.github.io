@@ -37,6 +37,9 @@ module Jekyll
         # Set width to 100% if not specified
         @img['width'] = '100%' unless @img['width']
         
+        # Set a blank class if not specified
+        @img['class'] = '' unless @img['class']
+        
       end
       super
     end
@@ -46,20 +49,28 @@ module Jekyll
         # If a title (caption) was given
         if @img['title']
 
-          "<div class='img-div'>" +
+          "<div class='img-outer-div'>" +
+          "<div class='img-inner-div'>" +
           "<span class='caption-wrapper' style='width:#{@img['width']};'>" +
           "<a class='fancybox' rel='group' href='#{@img['src']}'>" +
           "<img class='caption' src='#{@img['src']}' width='#{@img['width']}' title='#{@img['title']}' alt='#{@img['alt']}'>" +
           "</a>" +
           "<span class='caption-text'>#{@img['title']}</span>" +
           "</span>" +
+          "</div>" +
           "</div>"
+          
         else
-          "<div class='img-div'>" +
+        
+          # "<img #{@img.collect {|k,v| "#{k}=\"#{v}\"" if v}.join(" ")}>"
+          "<div class='img-outer-div'>" +
+          "<div class='img-inner-div'>" +
           "<a class='fancybox' rel='group' href='#{@img['src']}'>" +
-          "<img #{@img.collect {|k,v| "#{k}=\"#{v}\"" if v}.join(" ")}>" +
+          "<img class='#{@img['class']}' src='#{@img['src']}' width='#{@img['width']}' title='#{@img['title']}' alt='#{@img['alt']}'>" +
           "</a>" +
+          "</div>" +
           "</div>"
+          
         end
       else
         "Error processing input, expected syntax: {% img [class name(s)] [http[s]:/]/path/to/image [width [height]] [title text | \"title text\" [\"alt text\"]] %}"
