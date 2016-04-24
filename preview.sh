@@ -3,8 +3,9 @@
 
 PATH=/home/user/Downloads/bin:$PATH
 
-# Disable preview mode
+# Reset preview mode
 rm -f .preview-mode
+export OCTOPRESS_ENV='preview'
 
 rake generate
 rake preview

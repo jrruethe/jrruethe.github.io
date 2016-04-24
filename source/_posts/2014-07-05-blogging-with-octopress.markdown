@@ -5,9 +5,14 @@ date: 2014-07-05 20:51:27 -0400
 comments: true
 toc: true
 categories: 
+ - Octopress
 ---
 
-Octopress is an excellent blogging platform that is very easy to maintain and customize. My particular repository has a lot of customizations, and this page is mainly intended for me to remember how to use the various features. However, it may be beneficial to others if they clone my repository or simply want to see what is possible.
+Octopress is an excellent blogging platform that is very easy to maintain and customize. 
+My particular repository has a lot of customizations, and this post is mainly intended to help me remember how to use the various features. 
+However, it may be beneficial to others if they clone my repository or simply want to see what is possible.
+
+{% more %}
 
 # Dependencies
 
@@ -239,9 +244,12 @@ This is better than the normal 4-space indent. Compare:
 ---
 ## Image
 
-Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is `2014-07-05-blogging-with-octopress.markdown`, and the image below has the filename `2014-07-05-blogging-with-octopress_01.png`. The image is refered to by the name after the trailing `_`. In this case, the name is `01.png`.
+Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. 
+For example, the name of this file is `2014-07-05-blogging-with-octopress.markdown`, and the image below has the filename `2014-07-05-blogging-with-octopress_01.png`. 
+The image is refered to by the name after the trailing `_`. In this case, the name is `01.png`.
 
 To embed this image, use the tag like this:
+
 {% raw %}
     {% img ./01.png [width] [caption] %}
     {% img ./01.png 150 Avatar %}
@@ -264,6 +272,40 @@ If you have an image with a transparent background, you can embed it without the
 > Credits to [aycabta](https://github.com/aycabta/octopress-file-binder), [sheva-serg](http://deadunicornz.org/blog/2014/12/27/octopress-image-caption-plugin/), [Charles Beynon](https://eulerpi.io/2014/11/28/the-imgcaption-tag/), and [Erv Walter](https://www.ewal.net/2012/09/08/octopress-customizations/)
 
 ---
+## Tables
+
+Tables can also be embedded into posts like images. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
+For example, the name of this file is `2014-07-05-blogging-with-octopress.markdown`, and the table below has the filename `2014-07-05-blogging-with-octopress_table.markdown`. 
+The table is refered to by the name after the trailing `_`. In this case, the name is `table.markdown`.
+
+The contents of the file look like this:
+
+    | Key      | Value                                                                                    |
+    | -------- | ---------------------------------------------------------------------------------------- |
+    | Name:    | Joe Ruether                                                                              |
+    | Email:   | [jrruethe@gmail.com](mailto:jrruethe@gmail.com)                                          |
+    | Website: | [jrruethe.github.io](http://jrruethe.github.io/)                                         |
+    | Twitter: | [@jrruethe](https://twitter.com/jrruethe)                                                |
+    | Github:  | [jrruethe](https://github.com/jrruethe)                                                  |
+    | Keybase: | [jrruethe](https://keybase.io/jrruethe)                                                  |
+    | GPG:     | [4F40 99F8 276B DBA5 475A](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
+    |          | [8446 4630 BEDC 40B9 35FE](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
+
+To embed the table, use the tag like this:
+
+{% raw %}
+    {% table ./table.markdown %}
+{% endraw %}
+
+Which results in this:
+
+{% table ./table.markdown %}
+
+> 
+Note:  
+RSS feeds will not have rendered tables
+
+---
 ## Table of Contents
 
 You may have noticed the table of contents at the top of this page. 
@@ -272,6 +314,13 @@ This can be enabled by adding the following to the yaml at the top of any post:
     toc: true
 
 The table of contents is automatically generated via javascript and will follow the headings indicated by `#`.
+
+### More
+
+I added a custom plugin called `more` designated by `{% raw %}{% more %}{% endraw %}`.
+This tag should be put in each post after a brief description about the post.
+The description will appear on the index page, with a little "Read More" button that links to the full page.
+modified the original table of contents javascript to cause the table of contents to always be placed below the `more` tag.
 
 > Credits to [Brian Clapper](http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/)
 
