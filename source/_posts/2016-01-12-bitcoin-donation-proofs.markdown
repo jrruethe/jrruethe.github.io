@@ -4,11 +4,15 @@ title: "Bitcoin Donation Proofs"
 date: 2016-01-12 21:15:49 -0500
 comments: true
 categories: 
+ - Bitcoin
 ---
 
-As promised in my [previous post](http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/), I made some donations to show my support for open source software projects that accept Bitcoin. Below you will find the proofs.
+As promised in my [previous post](http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/), I made some donations to show my support for open source software projects that accept Bitcoin. 
+Below you will find the proofs.
 
 Thank you all for everything you do, it is greatly appreciated and does not go unnoticed. Keep up the great work!
+
+{% more %}
 
 >
 Some sites did not provide static addresses. Donations to sites utilizing dynamic addresses are not listed, to prevent accidential reuse of those temporary addresses.

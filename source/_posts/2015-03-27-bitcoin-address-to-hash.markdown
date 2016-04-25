@@ -4,9 +4,16 @@ title: "Bitcoin Address to Hash"
 date: 2015-03-27 13:40:20 -0400
 comments: true
 categories: 
+ - Bitcoin
+ - Scripts
+ - Ruby
 ---
 
-In the [previous post](http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/), I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a small amount of bitcoin to it. I neglected to include a script that goes the other way.
+In the [previous post](http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/), 
+I walked through how to store a hash in the Bitcoin blockchain, by converting the hash to a valid Bitcoin address and sending a small amount of bitcoin to it. 
+I neglected to include a script that goes the other way, so here it is.
+
+{% more %}
 
 Below is a script that will take a valid Bitcoin address and convert it back to the hash it came from. This can be used to validate Blockchain Identities.
 

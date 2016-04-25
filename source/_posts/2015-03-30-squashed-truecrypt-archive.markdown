@@ -4,6 +4,7 @@ title: "Squashed Truecrypt Archive"
 date: 2015-03-30 20:32:22 -0400
 comments: true
 categories: 
+ - Cryptography
 ---
 
 This post presents a script that can create a squashfs filesystem inside of a truecrypt container.  
@@ -18,6 +19,8 @@ This has many benefits over encrypted zip files as well as normal truecrypt cont
     - No need to guess the approximate size of the compressed result before compressing
  - Resulting file is immutable
     - Making changes is still possible with an easy workaround, described below
+
+{% more %}
 
 First, the script. It is named `star`, for "**S**quashed **T**ruecrypt **AR**chive". You will need the following to run it:
 

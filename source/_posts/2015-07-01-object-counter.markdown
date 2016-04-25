@@ -4,9 +4,13 @@ title: "Object Counter"
 date: 2015-07-01 17:47:47 -0400
 comments: true
 categories: 
+ - C++
 ---
 
-This post presents a lightweight generic object counter in C++. Object counters count the number of objects that have been created, as well as how many bytes they are utilizing. They are a handy way to get a sense of application health programatically as well as detect memory leaks with unit tests.
+This post presents a lightweight generic object counter in C++. Object counters count the number of objects that have been created, as well as how many bytes they are utilizing. 
+They are a handy way to get a sense of application health programatically as well as detect memory leaks with unit tests.
+
+{% more %}
 
 The code itself doesn't have any dependencies (not even Boost!). The example however uses Boost smart pointers, so you need the following installed to run it:
 

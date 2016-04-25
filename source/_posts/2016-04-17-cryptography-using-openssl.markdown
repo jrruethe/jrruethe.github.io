@@ -3,10 +3,14 @@ layout: post
 title: "Cryptography using OpenSSL"
 date: 2016-04-17 13:21:05 -0400
 comments: true
+toc: true
 categories: 
+ - Cryptography
+ - Scripts
 ---
 
-PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic operations. The benefit is that more of the magic is exposed to the user, which can be useful for learning more about how cryptographic applications operate.
+PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic operations. 
+The benefit is that more of the magic is exposed to the user, which can be useful for learning more about how cryptographic applications operate.
 
 Below are three bash scripts that can perform the following:
 
@@ -15,6 +19,8 @@ Below are three bash scripts that can perform the following:
  - Hybrid asymmetric decryption and verification
  
 These operations are a subset of the core functionality provided by GPG, and can be used to securely pass sensitive data between users. Unlike GPG, the user is responsible for managing trusted certificates.
+
+{% more %}
 
 ## Generate
 

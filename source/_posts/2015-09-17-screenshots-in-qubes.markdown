@@ -4,11 +4,14 @@ title: "Screenshots in Qubes"
 date: 2015-09-17 18:51:55 -0400
 comments: true
 categories: 
+ - Qubes
 ---
 
 One of the security concepts of Qubes is that all work is done in separate VMs. The "admin console" for the Xen hypervisor is known as `dom0` and is responsible for managing the desktop environment. `dom0` is never supposed to interact with the other VMs, usb devices, or the network.
 
 However, when taking a screenshot, they are inevitably stored inside `dom0`. What can be done about this?
+
+{% more %}
 
 Laurent Ghugonis[^1] shared a very handy script for taking a screenshot and sending it to a VM[^2]. You can find that script below. I have a few minor edits, but Laurent gets all the credit:
 

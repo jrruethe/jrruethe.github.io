@@ -4,9 +4,14 @@ title: "Physical Blockchain Identity Card"
 date: 2015-03-27 18:28:47 -0400
 comments: true
 categories: 
+ - Bitcoin
+ - Identity
 ---
 
-In a [previous post](http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/), I walked through the steps to create a digitial Blockchain Identity. Now, it is time to turn that into an physical identity card.
+In a [previous post](http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/), I walked through the steps to create a digitial Blockchain Identity. 
+Now, it is time to turn that into an physical identity card.
+
+{% more %}
 
 You will need the following:
 

@@ -3,12 +3,17 @@ layout: post
 title: "Running Docker in Qubes"
 date: 2016-04-15 18:09:15 -0400
 comments: true
+toc: true
 categories: 
+ - Qubes
+ - Docker
 ---
 
 This is a quick post describing how to run Docker inside of a Qubes Appvm.
 
-## Create a new template
+{% more %}
+
+# Create a new template
 
 I chose to clone my existing Debian template. This tutorial assumes the template is Debian-based. Ideally your template would be very minimal, only requiring basic packages such as the following:
 
@@ -31,7 +36,7 @@ Make sure that the update proxy is disabled in the firewall settings:
 
 {% img center ./02.png %}
 
-## Install Docker to the template[^1]
+# Install Docker to the template[^1]
 
 Run the following commands in the terminal:
 
@@ -43,7 +48,7 @@ Next, enable the default user to use Docker:
    
     sudo usermod -aG docker user
    
-## Change the default directory[^2]
+# Change the default directory[^2]
 
     sudo vim /etc/systemd/system/docker.service
 
@@ -57,13 +62,13 @@ Finally, run the following command to apply the configuration:
 
     sudo systemctl daemon-reload
 
-## Create an Appvm
+# Create an Appvm
 
 First, poweroff the template. Then create an Appvm based on the template. Increase the available disk space, since the docker images are being stored in the persistent private storage.
 
 {% img center ./03.png %}
 
-## Test it out
+# Test it out
 
 Run the following command in the Appvm as the normal user:
 

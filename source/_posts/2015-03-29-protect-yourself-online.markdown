@@ -4,9 +4,13 @@ title: "Protect Yourself Online"
 date: 2015-03-29 11:33:58 -0400
 comments: true
 categories: 
+ - Cryptography
+ - Firefox
 ---
 
 This is a quick guide to staying secure on the internet.
+
+{% more %}
 
 Hashes and Signatures
 ---------------------

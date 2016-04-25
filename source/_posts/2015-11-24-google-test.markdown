@@ -3,12 +3,16 @@ layout: post
 title: "Google Test"
 date: 2015-11-24 16:10:22 -0500
 comments: true
+toc: true
 categories: 
+ - C++
 ---
 
 This post is a quick introduction to Google Test and how to use it to test your C++ code. Google Test is a unit testing framework that is easy to use and creates meaningful tests with intuitive output.
 
-### Installing
+{% more %}
+
+# Installing
 
 On Debian based systems, you will want to install the following packages:
 
@@ -27,7 +31,7 @@ Note that `libgtest-dev` includes the headers and sources, but not the compiled 
     
 You could also use `checkinstall` to create a deb package containing the library files.
 
-### Using
+# Using
 
 To get started, you will need to:
 

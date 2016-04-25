@@ -4,9 +4,12 @@ title: "Blockchain Identity"
 date: 2015-02-28 15:24:25 -0500
 comments: true
 categories: 
+ - Bitcoin
+ - Identity
 ---
 
-I stumbled upon Christopher Ellis' ["World Citizenship" Blockchain ID](https://github.com/MrChrisJ/World-Citizenship) concept and was immediately intrigued. His idea is to create proof of an individual's existence by storing their PGP identity in the blockchain.
+I stumbled upon Christopher Ellis' ["World Citizenship" Blockchain ID](https://github.com/MrChrisJ/World-Citizenship) concept and was immediately intrigued. 
+His idea is to create proof of an individual's existence by storing their PGP identity in the blockchain.
 
 The trick is that the blockchain acts as an immutable database that includes full history tracking, meaning that a record can be proven to exist in some state at some time. These services are similar to this concept:
 
@@ -15,6 +18,8 @@ The trick is that the blockchain acts as an immutable database that includes ful
  - [BTProof](https://www.btproof.com/)
 
 This post will detail how to create a Blockchain Identity. 
+
+{% more %}
 
 Requirements
 ------------

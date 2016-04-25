@@ -4,11 +4,16 @@ title: "Yaml De/Serialization with Boost Fusion"
 date: 2015-08-17 20:17:35 -0400
 comments: true
 categories: 
+ - C++
+ - Template Metaprogramming
+ - Boost Fusion
 ---
 
 In a [previous post]() I did a rather lengthy walkthrough of how to create a Json pretty printer for any object using Boost Fusion. This time I will be doing the same thing, only with Yaml. 
 
 This method relies on a third party library[^1], but the end result is much cleaner. This method supports both serialization and deserialization. As a bonus, it can also work with Json!
+
+{% more %}
 
 To run the following code, you will need these libraries installed:
 

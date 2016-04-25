@@ -3,10 +3,17 @@ layout: post
 title: "C++ Allocators"
 date: 2015-11-22 16:10:49 -0500
 comments: true
+toc: true
 categories: 
+ - C++
+ - Memory
 ---
 
 This post will discuss how to make a STL compliant allocator.
+
+{% more %}
+
+# About Allocators
 
 All of the standard containers support a 2nd (or 3rd) template parameter to specify the allocator that should be used. Each container allocates memory to store the objects it contains, and it uses the allocator to obtain the memory required for this storage. By using a custom allocator, you can remain in control of how memory is managed.
 
@@ -36,7 +43,7 @@ No state also means no virtual functions, as the vtable can be considered state.
 **Policies and Traits**[^3]  
 Policies are classes (or class templates) to inject behavior into a parent class, typically through inheritance. By decomposing a parent interface into orthogonal (independent) dimensions, policy classes form the building blocks of more complex interfaces. Traits are class templates to extract properties from a generic type. Traits are often used in template-metaprogramming and SFINAE tricks to overload a function template based on a type condition.
 
-### Object Traits
+# Object Traits
 
 The first thing to define is the object traits. This structure is responsible for creating and destroying objects, as well as returning the address of an object. Note that classes support overriding the "address-of" operator, so the object traits will need to be specialized for those classes. The object traits can also be specialized for a type to keep track of the number of instantiations using the allocator, much like the object counter works.
 
@@ -83,11 +90,11 @@ public:
 
 {% endcodeblock %}
 
-### Rebinding
+# Rebinding
 
 Notice the special `rebind` struct in the above code. This is a convention used by the STL to allow for chainging the type of the allocator. For example, when you make a `std::list<T>`, internally the type is being rebound to `std::list<Node<T> >`, because lists store nodes that contain a T, not the T itself. To support this, the allocator itself must support rebinding such that memory is allocated for the node, not just T.
 
-### Allocator Traits
+# Allocator Traits
 
 The allocator policies require a certain set of typedefs to be present. In most cases, they can all be derived from the type of the allocator, so it makes sense to use a macro:
 
@@ -105,7 +112,7 @@ typedef std::ptrdiff_t    difference_type; \
 
 {% endcodeblock %}
 
-### Allocator Policy
+# Allocator Policy
 
 Next, the actual allocator policy needs to be defined. The allocator policy is responsible for allocating and deallocating memory. For this example, a simple heap allocator will work. The functionality will mimic that of the standard allocator:
 
@@ -156,7 +163,7 @@ public:
 
 {% endcodeblock %}
 
-### Allocator
+# Allocator
 
 Now that we have all the pieces, it is time to bring them all together. The actual allocator class is nothing more than a wrapper to combine the above into one common place. The key to the allocator wrapper is that it inherits from the allocator policy and object traits, thus the combination satisfies all the requirements for a compliant allocator.
 
@@ -275,7 +282,7 @@ bool operator!=(allocator<T, heap<T>, TraitsT> const& left,
 
 {% endcodeblock %}
 
-### Using the Allocator
+# Using the Allocator
 
 Using the allocator is simple, just pass it into the 2nd (or 3rd) template parameter of a container. Remember that some containers (like `set`) have a second template parameter that accepts a comparator.
 

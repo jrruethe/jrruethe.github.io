@@ -5,9 +5,14 @@ title: "Bitcoin Paper Wallets"
 date: 2015-04-23 19:18:12 -0400
 comments: true
 categories: 
+ - Bitcoin
 ---
 
-Paper wallets are a form of *cold storage*, meaning that the private key has never touched a computer with internet access. This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself. For that reason, this is a tutorial to create a paper wallet in a secure fashion.
+Paper wallets are a form of *cold storage*, meaning that the private key has never touched a computer with internet access. 
+This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself. 
+For that reason, this is a tutorial to create a paper wallet in a secure fashion.
+
+{% more %}
 
 A repository of paper wallet generators can be found [here](https://github.com/jrruethe/paper_wallet). You can choose to use my repository directly if you wish, but I recommend going straight to the source.
 There are many options with different formats and templates, however I highly recommend bitcoinpaperwallet.com.

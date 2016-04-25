@@ -3,8 +3,17 @@ layout: post
 title: "Placement New, Memory Dumps, and Alignment"
 date: 2015-08-23 14:11:27 -0400
 comments: true
+toc: true
 categories: 
+ - C++
+ - Memory
 ---
+
+{% more %}
+
+This is an indepth post about advanced memory topics in C++ such as placement new and alignment. The topics covered here will be used in a future post to create a memory pool.
+
+# Memory
 
 Generally, in C++ there are three places you can store your data:
 
@@ -38,7 +47,7 @@ This is how `new` and `delete` work, and most C++ programmers should be familiar
 **New and Malloc**  
 You should never `delete` memory allocated with `malloc`, and you should never `free` memory allocated with `new`. `malloc` and `free` do raw memory allocations, while `new` and `delete` are also responsible for calling constructors and destructors.
 
-## Placement New
+# Placement New
 
 C++ offers a different "flavor" of `new` called "placement new". Placement new gives the user finer control about where the object gets constructed by allowing the object to be "placed" at a specified memory address; in other words, the heap allocation step is bypassed.
 
@@ -166,7 +175,7 @@ This outputs:
     0x0000000000664370
     Destructor
 
-## Dumping Memory
+# Dumping Memory
 
 As I said earlier, placement new requires the developer to manage their own memory even more than usual. When working with memory on a low level like this, it becomes very useful to see a hex dump similar to the one created by GDB. With some inspiration[^1], I created a function that would pretty-print memory to an output stream:
 
@@ -402,7 +411,7 @@ Now we get:
 
 This shows a local context memory dump that includes our object and the memory around it. Our markers can be clearly seen, as well as the object itself. In addition, we see some other garbage from the stack.
 
-## Alignment
+# Alignment
 
 In the last section, we constructed an object offset into our memory area, and the result was misaligned in the stack. This situation is not ideal.
 

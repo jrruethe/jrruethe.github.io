@@ -3,12 +3,18 @@ layout: post
 title: "Setting up Qubes"
 date: 2015-09-12 11:35:50 -0400
 comments: true
+toc: true
 categories: 
+ - Qubes
 ---
 
-I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless. I decided I wanted to write about my setup and how to fix the minor problems I encountered. As a test, this entire post was written using Qubes, as a way for me to prove to myself that I could still be productive and have an easy-to-use system while remaining secure.
+I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless. 
+I decided I wanted to write about my setup and how to fix the minor problems I encountered. 
+As a test, this entire post was written using Qubes, as a way for me to prove to myself that I could still be productive and have an easy-to-use system while remaining secure.
 
-## Understanding Qubes
+{% more %}
+
+# Understanding Qubes
 
 Qubes is not a distribution of Linux. Rather, it is a set of tools built on top of the Xen hypervisor, allowing you to interoperate between multiple isolated virtual machines. Each virtual machine is "paravirtualized", meaning they all share a common Linux kernel but have separated filesystems, devices, etc. Furthermore, the filesystems are layered such that multiple separate VMs can share a common underlying template to save storage space. In my mind, this is similar in concept to how Docker works. Unlike Docker, which utilizes Linux kernel namespaces, Qubes utilizes hardware enforced isolation via virtualization capabilities in the CPU, so it is much more secure.
 
@@ -20,7 +26,7 @@ It is important to understand that Qubes grants the ability to easily create a s
 
 Read more about Qubes [here](https://www.qubes-os.org/doc/SimpleIntro/).
 
-## Considerations before migrating to Qubes
+# Considerations before migrating to Qubes
 
 Qubes 3.0 works very well and is very usable. Its VM management and interaction tool are well done, easy to use, and non-intrusive. However, using Qubes comes with a significant drawback:
 
@@ -40,15 +46,15 @@ However, these issues are fairly easy for me to work around. If I need 3G/4G mod
 
 Read more about these considerations [here](https://www.qubes-os.org/doc/UserFaq/).
 
-## Getting Qubes
+# Getting Qubes
 
 Simply download `Qubes-R3.0-rc2-x86_64-DVD.iso` from [here](https://www.qubes-os.org/doc/QubesDownloads/). Be sure to also grab the signature file. Before attempting to burn / install Qubes, you should [verify the signatures](https://www.qubes-os.org/doc/VerifyingSignatures/).
 
-## Installing Qubes
+# Installing Qubes
 
 The installer is pretty straightforward. I chose to do manual partitioning, with a `boot` drive of 2GB using `ext4` and a `root` drive taking the remaining space using `btrfs` and `luks` encryption. My plan in the future is to have a Tails iso available for booting from the `boot` drive. My disk has limited space, so I chose `btrfs` for its compression abilities. Finally, be sure to also install the `fedora-21` and `debian-8` templates.
 
-## Creating Domains
+# Creating Domains
 
 The first thing I do is clone the standard `fedora-21` and `debian-8` templates, such that I always have a fresh working fallback in case something goes wrong when modifying them. I typically use two separate `debian-8` templates; one for a minimal image that won't change often, and one for an "experimental" image that I install various software to.
 
@@ -87,6 +93,8 @@ There are a couple things to note here:
  - All domains get network access from the firewall. This isolates the system from the internet as much as possible.
  - Sensitive VMs such as `sys-gpg` and the `Vault` do not (and will never have) network access. This keeps them airgapped.
  - The Whonix templates must access the internet through the Whonix gateway, otherwise they won't be able to update.
+
+# Fixes
 
 For the most part, Qubes works great out of the box, however there are a few things that need small fixes, especially after performing the first software update in `dom0` and the template VMs.
 
@@ -145,7 +153,7 @@ In `dom0`, edit `/etc/qubes/guid.conf` to uncomment and set the following lines:
     secure_copy_sequence = "Mod4-c";
     secure_paste_sequence = "Mod4-v";
 
-## Installing Tor [^5]
+# Installing Tor [^5]
 
 The instructions from the Qubes website are pretty straightforward, but I will replicate them here by using the GUI instead of the command line.
 
@@ -174,7 +182,7 @@ Now all you need to do is make a normal VM and use `sys-tor` as your network:
 
 Note that while this gives you access to Tor, it isn't necessarily optimized for privacy. For that you will want Whonix.
 
-## Installing Whonix [^6]
+# Installing Whonix [^6]
 
 The Whonix developers have done a great job making Whonix templates that are super easy to install. Simply run the following in a `dom0` terminal:
 
@@ -204,26 +212,10 @@ After that, you can shutdown those three VMs and create the workstation VM:
 
 Fire it up and it will automatically start the gateway. Both VMs will do their thing and synchronize to the network.
 
-## Split GPG [^7]
-
-In a future blog post I will go through more detail about Qubes' Split-GPG capability.
-
-## Screenshots [^8]
-
-How did I get all those nifty screenshots? I'll show you in a future blog post.
-
 [^1]: [https://groups.google.com/forum/#!searchin/qubes-users/nautilus/qubes-users/cUTu9xQGvI0/OiT8t8BcCgAJ](https://groups.google.com/forum/#!searchin/qubes-users/nautilus/qubes-users/cUTu9xQGvI0/OiT8t8BcCgAJ)
-
 [^2]: [https://groups.google.com/forum/#!topic/qubes-users/CuC-El1qoss](https://groups.google.com/forum/#!topic/qubes-users/CuC-El1qoss)
-
 [^3]: [https://groups.google.com/forum/#!topic/qubes-users/say__leey3o](https://groups.google.com/forum/#!topic/qubes-users/say__leey3o)
-
 [^4]: [https://github.com/QubesOS/qubes-gui-daemon/blob/master/gui-daemon/xside.c](https://github.com/QubesOS/qubes-gui-daemon/blob/master/gui-daemon/xside.c)
-
 [^5]: [https://www.qubes-os.org/doc/UserDoc/TorVM/](https://www.qubes-os.org/doc/UserDoc/TorVM/)
-
 [^6]: [https://www.whonix.org/wiki/Qubes/Binary_Install](https://www.whonix.org/wiki/Qubes/Binary_Install)
 
-[^7]: [https://www.qubes-os.org/doc/UserDoc/SplitGpg/](https://www.qubes-os.org/doc/UserDoc/SplitGpg/)
-
-[^8]: [http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh](http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh)

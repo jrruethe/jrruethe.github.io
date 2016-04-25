@@ -4,11 +4,17 @@ title: "Installing Bittorrent Sync on Debian"
 date: 2014-07-06 14:51:39 -0400
 comments: true
 categories: 
+ - File Management
 ---
 
-Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. It is simple and fast alternative to Dropbox. Best of all, the files are only ever stored on machines *you* choose; there is no "cloud" or third party servers.  
+Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol. 
+It is simple and fast alternative to Dropbox, and best of all the files are only ever stored on machines *you* choose; there is no "cloud" or third party servers.
+Here is a quick guide to set it up.
 
-I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. Unfortunately, it is not open source, however I am still a fan of this software.
+{% more %}
+
+I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android. 
+Unfortunately, it is not open source, however I am still a fan of this software.
 
 There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.  
 First you need to go get the software: 
@@ -33,6 +39,7 @@ You might be interested in adding a password to the Web UI, which is where you w
 
 Next, you want to create an init script. Copy the following to `/etc/init.d/btsync`:
 
+{% codeblock lang:bash %}
     #! /bin/sh
     # /etc/init.d/btsync
     #
@@ -53,7 +60,7 @@ Next, you want to create an init script. Copy the following to `/etc/init.d/btsy
     esac
     
     exit 0
-    
+{% endcodeblock %}
     
 Finally, run the following commands to finish the installation:
 

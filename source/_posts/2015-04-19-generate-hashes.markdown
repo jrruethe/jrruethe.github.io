@@ -4,9 +4,13 @@ title: "Generate Hashes"
 date: 2015-04-19 14:51:57 -0400
 comments: true
 categories: 
+ - Scripts
+ - Cryptography
 ---
 
 This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking. 
+
+{% more %}
 
 {% include_code lang:bash generate_hashes.sh %}
 

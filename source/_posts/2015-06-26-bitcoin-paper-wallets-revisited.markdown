@@ -5,6 +5,7 @@ title: "Bitcoin Paper Wallets Revisited"
 date: 2015-06-26 07:14:57 -0400
 comments: true
 categories: 
+ - Bitcoin
 ---
 
 ---
@@ -12,7 +13,11 @@ categories:
 
 {% img center ./02.png %}
 
-This is a simpler paper wallet that doesn't require any cuts or stickers. It can be quickly printed and folded up on short notice, and is good for giving a small amount of Bitcoin to someone who doesn't have a smart phone or a Bitcoin app. It is not as secure, but is more practical and convenient. 
+This is a simpler paper wallet that doesn't require any cuts or stickers. 
+It can be quickly printed and folded up on short notice, and is good for giving a small amount of Bitcoin to someone who doesn't have a smart phone or a Bitcoin app. 
+It is not as secure, but is more practical and convenient. 
+
+{% more %}
 
 Features:
 

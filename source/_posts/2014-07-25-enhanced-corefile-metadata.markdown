@@ -4,6 +4,8 @@ title: "Enhanced Corefile Metadata"
 date: 2014-07-25 22:26:50 -0400
 comments: true
 categories: 
+ - Ruby
+ - Scripts
 ---
 
 At the following Github repository you will find a ruby script to produce enhanced corefile metadata upon a core dump.   

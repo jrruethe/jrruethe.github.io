@@ -6,14 +6,17 @@ comments: true
 categories: 
 ---
 
-In the [previous post](http://jrruethe.github.io/blog/2015/11/22/allocators/), I introduced an allocator framework that supports pluggable policies. An example heap policy was given. This post will expand on the heap to give it alignment abilities. You may want to refer to [another previous post](http://jrruethe.github.io/blog/2015/08/23/placement-new/) on alignment.
+In the [previous post](http://jrruethe.github.io/blog/2015/11/22/allocators/), I introduced an allocator framework that supports pluggable policies. An example heap policy was given. 
+This post will expand on the heap to give it alignment abilities. You may want to refer to [another previous post](http://jrruethe.github.io/blog/2015/08/23/placement-new/) on alignment.
+
+{% more %}
 
 The code modifications are simple; allocate a little more data, align the pointer when allocating, then unalign it before deallocating:
 
 {% codeblock lang:c++ %}
 
 template<typename T,
-		   std::size_t align = 0>
+		 std::size_t align = 0>
 class heap
 {
 public:

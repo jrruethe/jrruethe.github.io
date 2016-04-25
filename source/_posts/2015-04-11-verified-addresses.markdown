@@ -4,9 +4,12 @@ title: "Verified Addresses"
 date: 2015-04-11 18:48:27 -0400
 comments: true
 categories: 
+ - Cryptography
 ---
 
-This is a curated list of important websites and services with verified certificates and onion addresses:
+This is a curated list of important websites and services with verified certificates and onion addresses.
+
+{% more %}
 
 {% include_code lang:yaml verified_addresses.txt.asc %}
 

@@ -7,7 +7,10 @@ categories:
 ---
 
 Many of the features of the Lenovo Thinkpad Yoga work out of the box with a fresh install of Debian Testing.
-Keep in mind that I am using Kernel 3.14.1-amd64
+Here is the status of each hardware component and any steps I had to take to get it to work.
+Keep in mind that I am using Kernel 3.14.1-amd64.
+
+{% more %}
 
 ### Wireless
 

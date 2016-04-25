@@ -3,14 +3,23 @@ layout: post
 title: "Object Pool"
 date: 2015-11-26 16:11:06 -0500
 comments: true
+toc: true
 categories: 
+ - C++
+ - Templates
+ - Memory
 ---
 
-An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices. Malloc is typically an expensive call, especially for multiple small allocations, so significant performance improvements can be gained by managing memory directly. The object pool presented here is compatible with C++03, supports all standard containers, and offers O(1) amortized allocation and deallocation with configurable growth, limits, and alignment.
+An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices. 
+Malloc is typically an expensive call, especially for multiple small allocations, so significant performance improvements can be gained by managing memory directly. 
+The object pool presented here is compatible with C++03, supports all standard containers, and offers O(1) amortized allocation and deallocation with configurable growth, limits, and alignment.
 
-The pool works by allocating blocks of memory, partitioning them for the object type and alignment, then pushing all the addresses onto a stack representing available slots. Each allocation pops an address off the stack, each deallocation pushes an allocation onto the stack. When the stack is empty, another block is allocated and added to the linked list of blocks.
+The pool works by allocating blocks of memory, partitioning them for the object type and alignment, then pushing all the addresses onto a stack representing available slots. 
+Each allocation pops an address off the stack, each deallocation pushes an allocation onto the stack. When the stack is empty, another block is allocated and added to the linked list of blocks.
 
-## Stack
+{% more %}
+
+# Stack
 
 The primary component of the object pool is the stack of addresses that represent free memory slots for objects. However, this isn't implemented like a typical stack; rather, the stack itself is interleaved through the free slots of the memory block. This means no additional memory is required; the data structure that manages the free memory is stored *within* the free memory it is managing! Each free slot, which would normally be zeroed out, instead points to the next free slot. Pushing and popping simply involves overwriting these pointers.
 
@@ -67,7 +76,7 @@ protected:
 
 {% endcodeblock %}
 
-## Node
+# Node
 
 If the object pool were statically sized, then only a single memory block would be required, and no linked list would be needed. However, to support growth, each memory block is treated as a node in a linked list, allowing for a dynamic number of blocks (and therefore a dynamic amount of allocated memory). 
 
@@ -110,7 +119,7 @@ protected:
 
 {% endcodeblock %}
 
-## Growth
+# Growth
 
 The growth of the pool can be controlled via a template parameter. This parameter is a functor that takes the current size of the pool and returns the new size that the pool should grow to. I provide functors to do exponential growth (like a vector) or linear growth, but it is easy to add a custom one to fine tune growth for your application.
 
@@ -140,7 +149,7 @@ struct linear : public growth
 
 {% endcodeblock %}
 
-## Pool
+# Pool
 
 Finally, the pieces can all be put together to create the object pool. Allocation and deallocation consists of pushing and popping from the stack. If the stack is ever emptied, the pool grows by another block. The pool uses lazy allocation and has an efficient copy constructor to allow for quick rebinding; necessary for the standard containers.
 
@@ -272,7 +281,7 @@ protected:
 
 {% endcodeblock %}
 
-## Stateless
+# Stateless
 
 C++03 allocators are required to be stateless. The standard containers do not accept an allocator instance, rather they construct one themselves. This means that two `std::set`s of type T will each maintain their own allocator. Clearly, the above pool is not stateless, however we can emulate that behavior by using a singleton. In this manner, there will only ever be one instance of the pool for each type, and all the containers will share the same pool.
 
@@ -323,7 +332,7 @@ struct stateless
 
 {% endcodeblock %}
 
-## Hybrid
+# Hybrid
 
 One caveat to the object pool is that it only supports the allocation of a single object at a time. This means the object pool will not work for `vector`s and some implementations of `deque`, because these data structures allocate multiple contiguous objects at a time. However, the point of the object pool is to alleviate performance issues related to multiple calls of malloc with small sizes. Vectors do this automatically, so the object pool cannot improve their performance.
 
@@ -408,7 +417,7 @@ public:
 
 {% endcodeblock %}
 
-## Final Result
+# Final Result
 
 The pool and all of it's pieces are very configurable, but a good set of defaults can be selected that will work just fine for most cases. It is best to take all the policies, traits, and adapters, and fold them all together into a single struct or typedef to make it easier to use. Then, it can be simply plugged into the allocator template parameter of any standard container.
 

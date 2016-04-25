@@ -8,6 +8,8 @@ categories:
 
 This is just a little trick to get the ability to open a Terminator terminal at any location from Nautilus by right clicking on a folder.
 
+{% more %}
+
 First install the dependencies:
 
     sudo apt-get install nautilus-open-terminal terminator

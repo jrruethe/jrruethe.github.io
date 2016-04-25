@@ -5,9 +5,14 @@ title: "Boost Fusion Json Serializer"
 date: 2015-05-21 19:21:50 -0400
 comments: true
 categories: 
+ - C++
+ - Template Metaprogramming
+ - Boost Fusion
 ---
 
 In this post, I am going to walkthrough the creation of a C++ mixin that will allow any structure to serialize itself to Json, using the magical power of Boost::Fusion.
+
+{% more %}
 
 To do this, you will need the following installed:
 

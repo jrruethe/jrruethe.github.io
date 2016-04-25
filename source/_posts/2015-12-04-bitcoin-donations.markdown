@@ -3,12 +3,20 @@ layout: post
 title: "Bitcoin Donations"
 date: 2015-12-04 20:37:39 -0500
 comments: true
+toc: true
 categories: 
+ - Bitcoin
 ---
 
-Its that time of year again, and I am reminded by the large banner at the top of Wikipedia. I have some spare change lying around, and I feel like showing my support to fellow programmers who maintain the software I use every day.
+Its that time of year again, and I am reminded by the large banner at the top of Wikipedia. 
+I have some spare change lying around, and I feel like showing my support to fellow programmers who maintain the software I use every day.
 
-I am a strong supporter of Bitcoin and naturally I wanted to use it for donations. I have had my Bitcoin address posted on my blog, and have had a few donations from readers (thank you!). One of the best things about Bitcoin is that anyone can send and receive money without needing to sign up for anything. It is a great way to quickly and convieniently transfer cash, and you can be sure that your transaction reaches the intended person without needing to interact with any middleman.
+I am a strong supporter of Bitcoin and naturally I wanted to use it for donations. 
+I have had my Bitcoin address posted on my blog, and have had a few donations from readers (thank you!). 
+One of the best things about Bitcoin is that anyone can send and receive money without needing to sign up for anything. 
+It is a great way to quickly and convieniently transfer cash, and you can be sure that your transaction reaches the intended person without needing to interact with any middleman.
+
+{% more %}
 
 First, I compiled a list of the major OSS software products I rely on, as well as projects I truely believe in, and found the donation pages for each. I discovered that many of them do provide a way to pay with Bitcoin; however, the methods, formats, and requirements varied greatly. This is a perfect opportunity to provide a review on how easy or difficult it is to donate Bitcoin to websites today. I took my list and trimmed it down to a small subset of different examples. This post will be reviewing the Bitcoin donation methods for the following sites:
 
@@ -25,7 +33,7 @@ First, I compiled a list of the major OSS software products I rely on, as well a
  - [Wikipedia](https://wikimediafoundation.org/wiki/Ways_to_Give#bitcoin)
 
 ---
-## Doing it the right way
+# Doing it the right way
 
 I must really commend the Free Software Foundation and Qubes. Of all the sites I reviewed, I feel these sites are the only ones who are doing it "right".
 
@@ -66,7 +74,7 @@ Of all the forms I came across, the one for Eclipse was the by far the mosts int
 The form is short and 100% optional. There is even a little checkbox to stay anonymous. Preselected donation amounts are available, as well as a box to specify your own number. I especially liked how I didn't have to scroll all over the page looking for the Bitcoin option; many of the sites I looked at hide the Bitcoin address at the bottom or side of their donation page instead of integrating that option in with the others. Well done Eclipse!
 
 ---
-## Doing it the wrong way
+# Doing it the wrong way
 
 Don't misunderstand, I am very happy that Bitcoin was an option for donations. However, I feel that some of these sites are missing the point; A Bitcoin transaction doesn't need any other information besides an address. If you want to receive a donation, you shouldn't need a name, address, email, phone number, etc required. Just take the money!
 
@@ -87,7 +95,7 @@ What could they need an email address for? A receipt? No need, the blockchain is
 Sorry guys, but you are missing the point. This tells me you are more interested in my information than my support.
 
 ---
-## Not doing it at all
+# Not doing it at all
 
 Unfortunately, Bitcoin still hasn't hit critical mass. By now, many people have at least heard of it, but the average person doesn't understand how to use it, how it works, or its benefits. There are still many websites that do not have a Bitcoin donation option. Some of the programs I use every day did not accept Bitcoin, however they did take PayPal.
 

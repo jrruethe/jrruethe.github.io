@@ -4,9 +4,14 @@ title: "Singletons"
 date: 2015-08-02 15:55:58 -0400
 comments: true
 categories: 
+ - C++
 ---
 
-The Singleton pattern is a design pattern that restricts the instantiation of a class to one object. It is typically used for solving the problem of resource contention, such that you need to manage a single instance of a resource. Singletons are misunderstood and difficult to implement correctly, hopefully this post can clear things up.
+The Singleton pattern is a design pattern that restricts the instantiation of a class to one object. 
+It is typically used for solving the problem of resource contention, such that you need to manage a single instance of a resource. 
+Singletons are misunderstood and difficult to implement correctly, hopefully this post can clear things up.
+
+{% more %}
 
 It is known as an anti-pattern in that it is often misused or abused to the point where it can have a negative effect on a code base. Opponents to Singletons compare them to global variables, but that is not entirely true; As an object-oriented pattern, they can implement interfaces and be subclassed, which gives them more useful properties than a normal global. That said, Singletons are considered harmful[^1] for a variety of reasons:
 

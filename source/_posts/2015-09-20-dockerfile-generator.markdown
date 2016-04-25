@@ -3,7 +3,10 @@ layout: post
 title: "Dockerfile Generator"
 date: 2015-09-20 15:19:17 -0400
 comments: true
+toc: true
 categories: 
+ - Docker
+ - Ruby
 ---
 
 A lot of the Dockerfiles I write use the same template and tricks. I decided to write a ruby script to generate my Dockerfiles for me based on a minimal amount of input. I did this for a couple reasons:
@@ -13,9 +16,11 @@ A lot of the Dockerfiles I write use the same template and tricks. I decided to 
  - I wanted to make it easy to update my images
  - I wanted all my images to be easy to port to the Raspberry Pi
 
-## Dockerfile Tricks
+{% more %}
 
-### Keeping the image small
+# Dockerfile Tricks
+
+## Keeping the image small
 
 Every command in a Dockerfile causes a layer to be committed. Once a layer is committed, files on that layer can be hidden, but not deleted. For that reason, it becomes advantageous to run multiple commands at a time. For example, don't do this:
 
@@ -37,7 +42,7 @@ RUN apt-get update && \
 
 This will run all three commands and apply the end result to a single layer, greatly reducing the image size.
 
-#### The ADD command
+### The ADD command
 
 The `ADD` command hinders our ability to keep the image small, because it will commit files to a layer without giving a chance to delete those files later. This is fine for files that are supposed to be permanently in the image, but what about temporary files? For example:
 
@@ -66,7 +71,7 @@ Replace `<ip_address>` with your *internal* ip address. To get that, use the fol
 
     ip route get 8.8.8.8 | awk '{print $NF; exit}'
 
-### Keeping the Dockerfile readable
+## Keeping the Dockerfile readable
 
 From the previous section, it stands to reason that putting all the commands on a single `RUN` statement will yield the smallest image (assuming you clean up after yourself). If there are a lot of commands, it can be difficult to read what is going on.
 
@@ -85,7 +90,7 @@ RUN `# Update package list`             && \
 
 The result is much more readable, but it is tedious to make sure all the spacing is correct.
 
-## Dockerfile Generator
+# Dockerfile Generator
 
 Incorporating the above tricks, I wrote a Dockerfile generator to quickly create Dockerfiles for simple projects:
 
@@ -508,7 +513,7 @@ Run it from a directory that contains a `Dockerfile.yml` and it will print out a
 
     ruby dockerfile-generator.rb > Dockerfile
 
-### Dockerfile.yml Specifications
+## Dockerfile.yml Specifications
 
 A simplified Dockerfile specification can be put into `Dockerfile.yml`. The supported items are explained below. All items are optional.
 
@@ -569,11 +574,11 @@ Volumes:
  - /mnt
 {% endcodeblock %}
 
-### Examples
+## Examples
 
 Making a Dockerfile is really easy with this generator. The generated Dockerfile will automatically use an `apt-cacher-ng` container for downloading packages, which is handy if you are making a lot of images or rebuilding often. Therefore, remember to run the `apt-cacher-ng` container before building other images. Also remember to run the python web server if you are installing deb packages manually.
 
-#### Apt-cacher-ng
+### Apt-cacher-ng
 
 First step is to create the `apt-cacher-ng` image so it can be used to build other images. Below is the `Dockerfile.yml`:
 
@@ -656,11 +661,11 @@ VOLUME /var/cache/apt-cacher-ng
 ENTRYPOINT ["/sbin/my_init"]
 {% endcodeblock %}
 
-#### Owncloud
+### Owncloud
 
 Lets try something a little more complicated. Here, I present two Owncloud images. The first one is built using the latest code in the repository, while the second is built with specifically downloaded versions of deb files. 
 
-##### Latest From Repository
+#### Latest From Repository
 
 Dockerfile.yml:
 
@@ -740,7 +745,7 @@ VOLUME /mnt
 ENTRYPOINT ["/sbin/my_init"]
 {% endcodeblock %}
 
-##### Specific Version
+#### Specific Version
 
 Dockerfile.yml:
 

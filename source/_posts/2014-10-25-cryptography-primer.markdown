@@ -3,11 +3,17 @@ layout: post
 title: "Cryptography Primer"
 date: 2014-10-25 14:48:28 -0400
 comments: true
+toc: true
 categories: 
+ - Cryptography
 ---
 
 Digital cryptography is used everywhere on your computer, both online and offline, to keep your secrets safe.
 This is a simplified explanation of how cryptography accomplishes this task.
+
+{% more %}
+
+# Cryptography
 
 The three fundamental building blocks to modern cryptography are:
 

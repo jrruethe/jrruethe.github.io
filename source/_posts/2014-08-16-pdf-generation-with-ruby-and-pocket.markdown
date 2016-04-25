@@ -4,9 +4,16 @@ title: "PDF Generation with ruby and Pocket"
 date: 2014-08-16 23:14:33 -0400
 comments: true
 categories: 
+ - Ruby
+ - Scripts
 ---
 
-One thing I like to do when I'm browsing the internet is save each interesting page I come across. I do this by printing the page to a PDF. This is better than saving a bookmark because articles on the internet have a tendency to go down when you need them most. In addition, I use [Pocket](http://getpocket.com/a/queue/list/) to save articles while browsing with my phone or work computer, where I cannot print to PDF. It is easy to export your Pocket articles to an HTML file, and it is easy to parse that file to extract the links.
+One thing I like to do when I'm browsing the internet is save each interesting page I come across. 
+I do this by printing the page to a PDF. This is better than saving a bookmark because articles on the internet have a tendency to go down when you need them most. 
+In addition, I use [Pocket](http://getpocket.com/a/queue/list/) to save articles while browsing with my phone or work computer, where I cannot print to PDF. 
+It is easy to export your Pocket articles to an HTML file, and it is easy to parse that file to extract the links.
+
+{% more %}
 
 First, we need some things.
 

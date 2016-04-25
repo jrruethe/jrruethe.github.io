@@ -4,11 +4,20 @@ title: "Memory Blocks"
 date: 2015-11-25 16:10:58 -0500
 comments: true
 categories: 
+ - C++
+ - Memory
 ---
 
-Memory pools work by taking a large chunk of memory and dealing out small pieces of it upon allocation requests. Object pools are a specialized version that treat the memory as an array of objects, such that each "slot" is the same size. In reality, managing an object pool involves more than *just* an array of objects due to alignment and padding.
+Memory pools work by taking a large chunk of memory and dealing out small pieces of it upon allocation requests. 
+Object pools are a specialized version that treat the memory as an array of objects, such that each "slot" is the same size. 
+In reality, managing an object pool involves more than *just* an array of objects due to alignment and padding.
 
-When doing 100% of your own memory management, it becomes useful to have a set of tools to assist with organizing memory. You can think of a chunk of memory as being similar to an empty hard drive; the act of aligning, partitioning, and padding the memory is similar to formatting a hard drive with a filesystem.
+When doing 100% of your own memory management, it becomes useful to have a set of tools to assist with organizing memory. 
+You can think of a chunk of memory as being similar to an empty hard drive; the act of aligning, partitioning, and padding the memory is similar to formatting a hard drive with a filesystem.
+
+{% more %}
+
+# Allocating Memory
 
 There are a few different ways to acquire a block of memory. The following lines allocate a block of 32 bytes:
 
@@ -17,7 +26,7 @@ There are a few different ways to acquire a block of memory. The following lines
 
 Notice how `sizeof(memory)` for each of those lines will give different results. A contiguous block of memory is represented by a starting address and a size; both values are needed to do anything useful with it. For static and local stack memory, the size is known at compile time, however for dynamic memory allocated on the heap, the size must be maintained separately. 
 
-### Memory Block
+# Memory Block
 
 A class that acts similar to a smart pointer for memory blocks can do the memory management for us, including holding the size and calling free upon destruction. The following is an implementation of a memory block class:
 
@@ -89,7 +98,7 @@ Outputs:
 
 As you can see, the memory block class acts just like a pointer to an array of bytes. This is a convienient building block for creating an object pool.
 
-### Padding
+# Padding
 
 When creating an array of objects, you may need to ensure that each object is properly aligned. If you ensure that the first object is aligned, and that each object is padded properly, then you have the guarantee that *all* the objects in the array are aligned. Padding the object will result in some excess space being used in order to make sure the next object is properly aligned. Below is a small helper class that can pad any type to the next multiple of `X` bytes.
 
@@ -137,7 +146,7 @@ Outputs:
     24
     32
 
-### Partitioning
+# Partitioning
 
 Once you have a raw memory block, it needs to be partitioned before it can be used. The act of partitioning will align and pad the memory block and allow slots to be accessed for object storage. In other words, a partitioned memory block will act just like an array:
 

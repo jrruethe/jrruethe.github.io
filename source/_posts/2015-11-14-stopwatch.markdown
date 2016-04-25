@@ -4,9 +4,14 @@ title: "Stopwatch"
 date: 2015-11-14 11:37:52 -0500
 comments: true
 categories: 
+ - C++
 ---
 
-Object counters and memory pools are great ways to monitor the memory usage of your program from within. It can also be useful to monitor the amount of time being spent executing from within your program. This post presents a stopwatch that can provide statistics on how long something takes to run.
+Object counters and memory pools are great ways to monitor the memory usage of your program from within. 
+It can also be useful to monitor the amount of time being spent executing from within your program. 
+This post presents a stopwatch that can provide statistics on how long something takes to run.
+
+{% more %}
 
 This project will require the following libraries to compile:
 

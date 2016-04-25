@@ -4,9 +4,13 @@ title: "Hex to Mnemonics"
 date: 2015-03-27 17:03:46 -0400
 comments: true
 categories: 
+ - Cryptography
 ---
 
-Hex values are the common representation for things like hashes, fingerprints, and uuids. They are great for machines,  but clumsy for humans. In this post, you will find two scripts used to convert a hex string to english words. This is useful for memorization or sharing by voice.
+Hex values are the common representation for things like hashes, fingerprints, and uuids. They are great for machines,  but clumsy for humans. 
+In this post, you will find two scripts used to convert a hex string to english words. This is useful for memorization or sharing by voice.
+
+{% more %}
 
 The first script comes straight from the Electrum Bitcoin wallet source code. I heard about this idea [here](http://www.reddit.com/r/Bitcoin/comments/2xggow/where_can_i_turn_my_random_phrase_into_a_12_word/). It is used to store the random seed that unlocks a deterministic Bitcoin wallet. Of course, it works nicely for any hex string as well.
 

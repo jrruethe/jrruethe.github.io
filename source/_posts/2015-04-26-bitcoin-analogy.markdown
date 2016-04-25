@@ -4,7 +4,12 @@ title: "A Simple Bitcoin Analogy"
 date: 2015-04-26 12:59:49 -0400
 comments: true
 categories: 
+ - Bitcoin
 ---
+
+This is a simplified analogy that can be used to introduce someone to Bitcoin and how it works.
+
+{% more %}
 
 Imagine there are a group of lockers in a public place. Each locker has the following:
 
