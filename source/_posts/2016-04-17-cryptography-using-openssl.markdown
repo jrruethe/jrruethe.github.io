@@ -22,7 +22,7 @@ These operations are a subset of the core functionality provided by GPG, and can
 
 {% more %}
 
-## Generate
+# Generate
 
 The first script is called `generate.sh`. It will generate a new public certificate and private key when given a name and optional email address. Run it like so:
 
@@ -31,7 +31,7 @@ The first script is called `generate.sh`. It will generate a new public certific
     
     $ ./generate.sh "Joe Ruether" jrruethe@gmail.com
 
-{% img center ./01.png %}
+{% img ./01.png  Generate Usage %}
 
 As you can see, a certificate and private key were generated, with the proper permissions set. Both files are stored in base64 ASCII for easily sharing or backing them up.
 
@@ -39,7 +39,7 @@ You can also view the human readable output of the certificate with:
 
     openssl x509 -in Joe_Ruether.certificate -text -noout
 
-{% img center ./02.png %}
+{% img ./02.png Certificate Text %}
 
 The idea here is that two users would generate their own certificates and private keys, then keep the private keys for themselves while sharing the certificates with each other. The sharing of certificates should be done in a way that you can prove the certificate belongs to who you think it does, since anyone can generate a certificate with any name and email.
 
@@ -47,7 +47,7 @@ The script:
 
 {% include_code lang:bash generate.sh %}
 
-## Encrypt
+# Encrypt
 
 The next script performs file encryption to a specified recipient certificate. It can optionally sign the file with your private key. The order of operations is as follows:
 
@@ -76,20 +76,20 @@ In this case, the file `test.txt` was encrypted to Alice and signed by Bob.
 
 Here is the output:
 
-{% img center ./03.png %}
-{% img center ./04.png %}
+{% img ./03.png Generating Certificates %}
+{% img ./04.png Encryption Usage %}
 
 The produced tarball can be safely shared over an insecure channel; only the intended recipient is able to decrypt it.
 
 The tarball will always contain the recipient metadata extracted from the recipient's public certificate. This is so it is easy to identify who is able to decrypt the file. Optionally, the sender can include their certificate metadata when signing a file, to make it easy to determine which certificate is needed to verify the signature. The metadata files contain nothing more than the sha1 fingerprints of the respective certificates:
 
-{% img center ./05.png %}
+{% img ./05.png Metadata %}
 
 The script:
 
 {% include_code lang:bash encrypt.sh %}
 
-## Decrypt
+# Decrypt
 
 The final script is intended to decrypt bundles created by the above encryption script. It will:
 
@@ -113,7 +113,7 @@ In this case, the file was decrypted by Alice, and verified to be sent by Bob.
 
 Here is the output:
 
-{% img center ./06.png %}
+{% img ./06.png Decryption Usage %}
 
 The script:
 

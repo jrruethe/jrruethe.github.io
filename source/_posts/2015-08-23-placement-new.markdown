@@ -580,7 +580,7 @@ This outputs:
 
 So what happened here? Here is the output color-coded:
 
-{% img center ./01.png %}
+{% img ./01.png Memory Dump %}
 
  - Red: The debug markers
  - Orange: The 16-byte aligned pointer address
@@ -609,13 +609,13 @@ It is important to be aware that endianness doesn't affect byte arrays or string
 
 Here is what the memory would look like if we did the alignment without the forced 8 byte offset:
 
-{% img center ./02.png %}
+{% img ./02.png Wasted Space %}
 
 As you can see, even though the memory was already aligned, 16 bytes were wasted in order to get to the next aligned address. You can also see the original pointer address stored immediately before the aligned address. If we were doing 8 byte alignment, the extra 8 bytes that are wasted to align on the next boundary would contain the original address. Attempting to perform an alignment less than 8 means that there wouldn't be enough space for the original pointer; however, one of the rules of alignment states that the alignment must be greater than or equal to the size of a pointer, so we don't need to worry about that case.
 
 What about larger alignments? Here is what it would look like if we were doing 32-byte alignment with an 8 byte offset:
 
-{% img center ./03.png %}
+{% img ./03.png Large Alignment %}
 
 Generally, 32-byte alignment is unnecessary. There are cases where 16-byte alignment is needed though, such as when dealing with the SSE instructions on the CPU (for example, matrix multiplication with the Eigen library).
 

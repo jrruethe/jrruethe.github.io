@@ -3,6 +3,7 @@ layout: post
 title: "Memory Blocks"
 date: 2015-11-25 16:10:58 -0500
 comments: true
+toc: true
 categories: 
  - C++
  - Memory

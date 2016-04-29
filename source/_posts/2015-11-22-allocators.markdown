@@ -220,7 +220,7 @@ public:
 
 Notice how the rebinding structure works here; the policy and traits classes are both rebound to the new type when the overall allocator is rebound.
 
-### Equality operators
+## Equality operators
 
 The STL uses the equality operator to determine if memory allocated by one allocator can be deallocated with another. Normally, a heap allocator can be used interchangably between types, so the equality operator would return true. However, with this allocator framework, different policies can be plugged in, and some policies may not be interchangable. Therefore, the equality operator will default to false. Specializations of the equality operators can be made for specific policies to register equality, such as he heap policy:
 

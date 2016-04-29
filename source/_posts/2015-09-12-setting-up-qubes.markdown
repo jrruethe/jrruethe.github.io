@@ -20,7 +20,7 @@ Qubes is not a distribution of Linux. Rather, it is a set of tools built on top 
 
 The main interface is called `dom0`, and acts as an administration panel for Xen, allowing the user to easily manage and manipulate the various virtual machines. Each virtual machine is given a color so the user can visually assess which security domain they are working in at all times. The Qubes tools allow for secure file/clipboard copying between VMs, controlled networking, and seamless application interaction; You will barely even notice that you are working with a series of virtual machines under the hood.
 
-{% img center ./01.png %}
+{% img ./01.png Qubes Example Desktop %}
 
 It is important to understand that Qubes grants the ability to easily create a secure computing environment, but it relies heavily on the user to utilize best practices; it will not prevent foolish mistakes. The user must be mindful about keeping data and connections isolated; Qubes helps you do it effectively.
 
@@ -58,7 +58,7 @@ The installer is pretty straightforward. I chose to do manual partitioning, with
 
 The first thing I do is clone the standard `fedora-21` and `debian-8` templates, such that I always have a fresh working fallback in case something goes wrong when modifying them. I typically use two separate `debian-8` templates; one for a minimal image that won't change often, and one for an "experimental" image that I install various software to.
 
-{% img center ./02.png %}
+{% img ./02.png Qubes VM Manager %}
 
 I like to have a few primary domains:
 
@@ -80,13 +80,13 @@ Other secondary domains include the system proxies, Whonix, and a VM dedicated t
 
 Here is a diagram of how the VM "inheritance" is set up:
 
-{% img center ./03.png %}
+{% img ./03.png VM Inheritance %}
 
 As you can see, I have multiple domains that I use at a "personal" level, so they share the same template, which I try to keep minimal and stable. Separate from that is my "testing" template that I do my work in. This typically involves installing experimental software, or development tools / libraries that I don't want cluttering up my personal domain.
 
 Here is a diagram of how the VM networking is set up:
 
-{% img center ./04.png %}
+{% img ./04.png VM Networking %}
 
 There are a couple things to note here:
 
@@ -159,11 +159,11 @@ The instructions from the Qubes website are pretty straightforward, but I will r
 
 First create a copy of the standard `fedora-21` template:
 
-{% img center ./05.png %}
+{% img ./05.png Clone Template %}
 
 Next, create a `sys-tor` proxy VM from that template:
 
-{% img center ./06.png %}
+{% img ./06.png ProxyVM %}
 
 In a `dom0` terminal, enter the following commands:
 
@@ -178,7 +178,7 @@ Fire up the `fedora-21-tor` template and install Tor:
     
 Now all you need to do is make a normal VM and use `sys-tor` as your network:
 
-{% img center ./07.png %}
+{% img ./07.png Tor Network %}
 
 Note that while this gives you access to Tor, it isn't necessarily optimized for privacy. For that you will want Whonix.
 
@@ -192,23 +192,23 @@ Once that command completes, you will have two new templates available: `whonix-
 
 This is where things get slightly confusing. You need to create a VM that uses the gateway template, and use *that* as the network for the template itself in order to update it. Set up a VM like this:
 
-{% img center ./08.png %}
-{% img center ./09.png %}
+{% img ./08.png Whonix Gateway %}
+{% img ./09.png Whonix Gateway Firewall %}
 
 Then, set up your `whonix-gw` template like this:
 
-{% img center ./10.png %}
-{% img center ./11.png %}
+{% img ./10.png Whonix Gateway Template %}
+{% img ./11.png Whonix Gateway Template Firewall %}
 
 Finally, set up your `whonix-ws` template like this:
 
-{% img center ./12.png %}
-{% img center ./13.png %}
+{% img ./12.png Whonix Workstation Template %}
+{% img ./13.png Whonix Workstation Template Firewall %}
 
 After that, you can shutdown those three VMs and create the workstation VM:
 
-{% img center ./14.png %}
-{% img center ./15.png %}
+{% img ./14.png Whonix Workstation %}
+{% img ./15.png Whonix Workstation Firewall %}
 
 Fire it up and it will automatically start the gateway. Both VMs will do their thing and synchronize to the network.
 

@@ -3,6 +3,7 @@ layout: post
 title: "Blockchain Identity"
 date: 2015-02-28 15:24:25 -0500
 comments: true
+toc: true
 categories: 
  - Bitcoin
  - Identity
@@ -21,8 +22,7 @@ This post will detail how to create a Blockchain Identity.
 
 {% more %}
 
-Requirements
-------------
+# Requirements
 
 To begin, you will need:
 
@@ -42,8 +42,7 @@ First you need to create a GPG key and an Electrum Bitcoin wallet. I won't dive 
 
 You also need to get a small amount of Bitcoin into your Electrum wallet (at least 0.0003 BTC)
 
-Gathering the Data
-------------------
+# Gathering the Data
 
 Time to collect the data. Open up a text editor and create a Yaml file named key.yml
 
@@ -74,8 +73,7 @@ Go to [Blockchain.info](https://blockchain.info) and find the latest block that 
     
 At this point, your yaml file has all of your GPG key metadata, the address you will use to store the data in the blockchain, and a random number that proves this entry could not have been created earlier in time.
 
-Preparing the Data
-------------------
+# Preparing the Data
 
 Now we need to put this data into a standard, machine readable format and sign it. First, use the following script to convert your yaml file into a normalized json file:
 
@@ -93,8 +91,7 @@ The result should look something like this:
 
 {% include_code lang:yaml key.json.asc %}
 
-Sending the Data to the Blockchain
-----------------------------------
+# Sending the Data to the Blockchain
 
 Now that we have our signed data file, we want to send it to the blockchain. It is important to note that the blockchain will only contain the sha256 hash of your key.json.asc, therefore you need to keep the original data around for validation. Later on, we will create an identification card with a QR code containing the original data.
 

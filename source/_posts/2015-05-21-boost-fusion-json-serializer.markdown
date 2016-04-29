@@ -800,10 +800,7 @@ Unfortunately, this means we needed to add another boolean parameter for our ser
 
 {% endcodeblock %}	
 
-It validates! Below is the final form of the code. While it is quite a bit, the nice thing is that all a user needs to do is perform the fusion adaption of their structure and inherit from the mixin; the rest is hidden behind the scenes.
-
-{% include_code lang:c++ json.cpp %}
-
+It validates! While it is quite a bit, the nice thing is that all a user needs to do is perform the fusion adaption of their structure and inherit from the mixin; the rest is hidden behind the scenes.
 Hopefully you learned some cool C++ tricks from this.
 
 ---

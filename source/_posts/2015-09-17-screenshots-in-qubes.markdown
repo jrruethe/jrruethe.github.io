@@ -110,22 +110,20 @@ Save this script in the home directory of `dom0` as `qvm-screenshot.sh`. You can
 
 Next, open up Start -> System Tools -> System Settings, and select "Shortcuts and Gestures"
 
-{% img center ./01.png %}
+{% img ./01.png System Settings %}
 
-I use "Print Screen" and "Print Window", tied to the `PrtSc` and `Ctrl+PrtSc` keys respectively. Print Screen simply takes a screenshot of the entire desktop, while Print Window only captures the window that is clicked on after the keypress. You can see my setup at the bottom of this post.
+I use "Print Screen" and "Print Window", tied to the `PrtSc` and `Meta+PrtSc` keys respectively. Print Screen simply takes a screenshot of the entire desktop, while Print Window only captures the window that is clicked on after the keypress. You can see my setup at the bottom of this post.
 
 Activating the keypress will yield the following window:
 
-{% img center ./02.png %}
+{% img ./02.png Screenshot %}
 
 Simply select the VM you want the screenshot saved to, and it will appear in that VM's Pictures folder.
 
 Also, if you are interested, Laurent also shared a script for recording video of the desktop[^3].
 
-{% img center ./03.png %}
-{% img center ./04.png %}
-{% img center ./05.png %}
-{% img center ./06.png %}
+{% img center ./03.png Trigger %}
+{% img center ./04.png Action %}
 
 [^1]: [https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ](https://groups.google.com/forum/#!msg/qubes-devel/CwSPqtPYTRQ/7Dp7Tw28adUJ)
 [^2]: [http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh](http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh)

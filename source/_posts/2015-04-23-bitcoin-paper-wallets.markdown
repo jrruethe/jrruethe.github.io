@@ -4,8 +4,10 @@ layout: post
 title: "Bitcoin Paper Wallets"
 date: 2015-04-23 19:18:12 -0400
 comments: true
+toc: true
 categories: 
  - Bitcoin
+ - Crafting
 ---
 
 Paper wallets are a form of *cold storage*, meaning that the private key has never touched a computer with internet access. 
@@ -15,14 +17,14 @@ For that reason, this is a tutorial to create a paper wallet in a secure fashion
 {% more %}
 
 A repository of paper wallet generators can be found [here](https://github.com/jrruethe/paper_wallet). You can choose to use my repository directly if you wish, but I recommend going straight to the source.
-There are many options with different formats and templates, however I highly recommend bitcoinpaperwallet.com.
+There are many options with different formats and templates, however I highly recommend BitcoinPaperWallet.com.
 
-*I am in no way affiliated with bitcoinpaperwallet.com, just a satisfied customer.*
+*I am in no way affiliated with BitcoinPaperWallet.com, just a satisfied customer.*
 
 ---
-### [BitcoinPaperWallet.com](https://bitcoinpaperwallet.com/) ([Github](https://github.com/cantonbecker/bitcoinpaperwallet))
+# [BitcoinPaperWallet.com](https://bitcoinpaperwallet.com/) ([Github](https://github.com/cantonbecker/bitcoinpaperwallet))
 
-{% img center ./01.jpg %}
+{% img ./01.jpg Bitcoin Paper Wallet %}
 
 This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted [bitaddress.org](https://www.bitaddress.org). This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!
 
@@ -60,12 +62,12 @@ Dimensions:
 For additional artworks, check out [Liberty Paper Wallet](http://libertywallet.liberty.me/2015/03/18/liberty-wallet/) ([Github](https://github.com/SimonBelmond/libertypaperwallet)).
 
 ---
-### Protecting your paper wallet
+# Protecting your paper wallet
 
 Paper wallets are extremely vulnerable to water.
 Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.
 
-{% img center ./03.jpg %}
+{% img ./03.jpg Water is the Enemy %}
 
 Paper wallets are also extremely vulnerable to fire.
 However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.
@@ -74,7 +76,7 @@ However, there is not much you can do about this other than keeping multiple bac
 Remember, if you lose your paper wallet, or it is damaged, you lose all the coins stored at that address!
 
 ---
-### How to properly create a paper wallet
+# How to properly create a paper wallet
 
 Paper wallets need to be created offline on a secure machine. For this tutorial, I will be using a [Tails](https://tails.boum.org/) Live CD. Grab the ISO and burn it to a disk. 
 
@@ -92,40 +94,40 @@ Before creating the paper wallet, you will want to ensure that your printer work
 
 From the `Applications` menu, select `System Tools -> Administration -> Printing`. 
 
-{% img center ./04.png %}
+{% img ./04.png Printer Settings %}
 
 Add your printer. Open up Tor Browser and ensure that you can print a webpage.
 
-{% img center ./05.png %}
+{% img ./05.png Add a Printer %}
 
 Time to disconnect from the internet. Unplug the ethernet cord, turn off any wireless cards or routers as necessary. Verify that you are not online.
 
-{% img center ./06.png %}
+{% img ./06.png Make sure you are offline %}
 
  1. Insert your usb drive
  2. Copy the github zip file to the `Tor Browser` folder on the filesystem
  3. Remove the usb drive
  4. Unpack the zip file
 
-{% img center ./07.png %}
+{% img ./07.png Unpack the Zip File %}
 
 Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! "Brain wallets" may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.
 
-{% img center ./08.png %}
+{% img ./08.png Open in Browser %}
 
 >
 **BIP38 Encryption?**  
 There are pros and cons to encrypting your paper wallet. Encryption adds an extra layer of security by requiring a passphrase before being able to import the private key again, which is great if the paper wallet ever gets stolen. However if the passphrase is forgotten, the coins are lost forever. The passphrase is one more thing to remember / write down, which means it is one more thing to secure. In addition, some wallet software does not support BIP38, which may make reimporting difficult. Finally, it is important to realize that BIP38 encryption will NOT help if you chose an insecure passphrase for a brain wallet. In general, BIP38 encryption is recommended.
 
-{% img center ./09.png %}
+{% img ./09.png Generate a Wallet %}
 
 You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.
 
-{% img center ./10.jpg 400 600 %}
+{% img ./10.jpg 400 600 Print the Wallet %}
 
 Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.
 
-{% img center ./11.png %}
+{% img ./11.png Verify the Wallet %}
 
 Shutdown your Tails environment. It will wipe your ram for you.
 
@@ -136,20 +138,20 @@ If you have a laser printer, you will want to include a small 1in x 1in square o
 
 Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.
 
-{% img center ./12.jpg 400 600 %}
+{% img ./12.jpg 400 600 Sealed Wallets %}
 
 Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.
 
-{% img center ./13.jpg 400 600 %}
+{% img ./13.jpg 400 600 Laminated Wallets %}
 
 ---
-### How to properly use a paper wallet
+# How to properly use a paper wallet
 
 You can scan the public key into Electrum or Mycelium as a watch-only wallet to keep track of your funds. Eventually you will want to spend the funds.
 
 First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the "Private Key / Withdraw" line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.
 
-{% img center ./14.jpg %}
+{% img ./14.jpg Revealing the Private Key %}
 
 Now comes the important part. The funds must be "swept" into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.
 
@@ -161,4 +163,4 @@ Read more about change [here](https://en.bitcoin.it/wiki/Change)
 
 Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.
 
-{% img center ./15.jpg %}
+{% img ./15.jpg Bitcoin Paper Wallet %}

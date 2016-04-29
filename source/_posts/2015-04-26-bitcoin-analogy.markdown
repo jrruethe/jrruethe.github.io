@@ -18,9 +18,9 @@ Imagine there are a group of lockers in a public place. Each locker has the foll
  - A slot that money can be put in
  - An identifying number
 
-A group of these lockers might look like this:
+A group of these lockers might look like this[^1]:
 
-{% img center ./01.jpg %}[^1]
+{% img ./01.jpg Lockers with Windows %}
 
 These lockers are secure. The windows are unbreakable, the locks cannot be picked, the metal cannot be cut, and the entire group is bolted to the ground. Furthermore, there is only one copy of the key, and it is in possession of that locker's owner; Nobody else is able to get inside without that key.
 
@@ -52,6 +52,7 @@ The entire transaction was done without Alice and Bob ever needing to meet in pe
 
 This is the basic premise of Bitcoin. Learn more about Bitcoin [here](http://www.coindesk.com/information/what-is-bitcoin/).
 
-*This analogy was not my idea, I am paraphrasing [Henry Romp](http://thebitcoincatalog.com/safe-analogy/).*
+*This analogy was not my idea, I am paraphrasing Henry Romp[^2].*
 
-[^1]: http://www.storageaspects.co.uk/shop/archive-mobile-shelving-archive-roller-racking/visitor-centre-lockers-with-see-through-doors/
+[^1]: [Storage Aspects](http://www.storageaspects.co.uk/shop/archive-mobile-shelving-archive-roller-racking/visitor-centre-lockers-with-see-through-doors/)
+[^2]: [The Bitcoin Safe Analogy](http://thebitcoincatalog.com/safe-analogy/)

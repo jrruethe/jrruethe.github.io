@@ -6,6 +6,7 @@ comments: true
 categories: 
  - Bitcoin
  - Identity
+ - Crafting
 ---
 
 In a [previous post](http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/), I walked through the steps to create a digitial Blockchain Identity. 
@@ -34,12 +35,12 @@ To prove your identity, one would scan the QR code containing your key.json.asc 
 
 Below you will find the template I designed using Inkscape. It isn't very flashy, but it does it's job well. 
 
-{% img center ./01.png %}
+{% img ./01.png My ID Card Template %}
 
 Do note that I let the edges overlap a little bit to ensure the color covers the entire border.  
 Here is the back, and containing the most important part of the document:
 
-{% img center ./02.png %}
+{% img ./02.png Digital ID on the Blockchain %}
 
 Scanning that will reveal the key.json.asc data.
 
@@ -77,4 +78,4 @@ Here are the steps:
 
 The result will look and feel like a real ID card. Below is an image of mine, with some stuff blurred out.
 
-{% img center ./03.jpg %}
+{% img ./03.jpg Completed Blockchain ID Card %}

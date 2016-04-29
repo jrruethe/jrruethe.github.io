@@ -30,11 +30,11 @@ If you are also planning on using the dockerfile generator, you will need the fo
 
 Here is my template:
 
-{% img center ./01.png %}
+{% img ./01.png Template %}
 
 Make sure that the update proxy is disabled in the firewall settings:
 
-{% img center ./02.png %}
+{% img ./02.png Firewall %}
 
 # Install Docker to the template[^1]
 
@@ -66,7 +66,7 @@ Finally, run the following command to apply the configuration:
 
 First, poweroff the template. Then create an Appvm based on the template. Increase the available disk space, since the docker images are being stored in the persistent private storage.
 
-{% img center ./03.png %}
+{% img ./03.png Appvm %}
 
 # Test it out
 
@@ -76,7 +76,7 @@ Run the following command in the Appvm as the normal user:
    
 You should see the following:
 
-{% img center ./04.png %}
+{% img ./04.png Testing Docker %}
 
 [^1]: [https://docs.docker.com/linux/step_one/](https://docs.docker.com/linux/step_one/)
 [^2]: [https://docs.docker.com/engine/admin/systemd/](https://docs.docker.com/engine/admin/systemd/)

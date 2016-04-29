@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "PDF Generation with ruby and Pocket"
+title: "PDF Generation with Ruby and Pocket"
 date: 2014-08-16 23:14:33 -0400
 comments: true
 categories: 
@@ -24,6 +24,7 @@ I use LXDE, and `xdg-open` forwards requests though `pcmanfm`, so it needs to be
 
 I wrote a small ruby script to take a URL and generate a PDF. It uses PDFKit under the hood, which in turn uses `wkhtmltopdf` to do the PDF generation. `wkhtmltopdf` has a tendency to get hung up on some pages, especially if Java is involved, and the normal ruby call to PDFKit will freeze until `wkhtmltopdf` is killed. I found out the hard way that the standard `Timeout` module in ruby isn't enough; the `wkhtmltopdf` process needs to be killed directly. I do this by using a timer thread and a small `killall` function:
 
+{% codeblock lang:ruby %}
     # Kill a process by name
     def killall(name)
     
@@ -41,10 +42,12 @@ I wrote a small ruby script to take a URL and generate a PDF. It uses PDFKit und
           end
        end
     end
+{% endcodeblock %}
 
 Note that this will only work on Linux, since it is crawling the Kernel's `proc` filesystem.  
 With that function available, here is a small PDF generation class as a wrapper around PDFKit:
 
+{% codeblock lang:ruby %}
     require 'pdfkit'
     
     # A wrapper around PDFKit that generates PDFs from URLs
@@ -104,9 +107,11 @@ With that function available, here is a small PDF generation class as a wrapper 
        end
        
     end
+{% endcodeblock %}
 
 The next step is to parse out the Pocket export file to get the title and links. Here is some code for that:
 
+{% codeblock lang:ruby %}
     require 'nokogiri'
     
     # Create a PDF generator
@@ -140,6 +145,7 @@ The next step is to parse out the Pocket export file to get the title and links.
        result = pdf_generator.from_url(url, output_filename)
         
     end
+{% endcodeblock %}
 
 The end result will be that all your Pocket articles will be printed to PDF! Very nice and easy to automate.
 

@@ -42,7 +42,7 @@ I must really commend the Free Software Foundation and Qubes. Of all the sites I
  - With a QR code for easy scanning
  - And a GPG signed statement verifying ownership of the address
 
-{% img center ./01.png %}
+{% img ./01.png Free Software Foundation %}
 
 I want to bring special attention to this last point. Bitcoin addresses are almost impossible to remember and have no identifying features to link them to the owner. Hackers could exploit a website and change the address server-side, or a MitM attack could allow the address to be spoofed on the client side (the latter is especially true if using Tor, where the exit node can replace webpage content). For these reasons, Bitcoin addresses displayed on webpages should have an accompanying GPG signature to prove ownership and eliminate the risk of tampering.
 
@@ -56,8 +56,8 @@ Many sites had a static address displayed, but failed to provide a QR code for s
 
 Many other sites use Bitpay or Coinbase to do dynamic addresses: temporary addresses that "timeout" after a short amount of time. Bitpay is an indespensible tool for merchants that also makes things very easy for the user; for example, on a webpage a user could specify how much they want to donate, and Bitpay will create a special QR code that tells Bitcoin clients to make a transaction for that amount. This interaction reduces the chance of mistyping an amount (remember, Bitcoin transactions cannot be revoked). Each transaction is isolated to a single address. Cycling addresses increases privacy for both the sender and receiver. It also makes creating a receipt easier, and helps clear up any confusion. In fact, the Bitcoin developers themselves discourage [address reuse](https://en.bitcoin.it/wiki/Address_reuse). Here is an example from the Freedom of the Press Foundation:
 
-{% img center ./02.png %}  
-(Note, don't actually use that address, it is expired!)
+{% img ./02.png Freedom of the Press %}  
+> Note, don't actually use that address, it is expired!
 
 Bitpay's temporary addresses are a blessing and a curse; You cannot sign a temporary address. This also means I cannot share that address with anyone else if I want to promote that website or service; users are required to visit the page, fill out the form, and get their own temporary address to send to. I can't build up an "address book" of websites/services and their payment address.
 
@@ -69,7 +69,7 @@ By now you may have noticed that I am making some contradictions. I labeled the 
 
 Of all the forms I came across, the one for Eclipse was the by far the mosts intuitive and clear:
 
-{% img center ./03.png %}
+{% img ./03.png Eclipse %}
 
 The form is short and 100% optional. There is even a little checkbox to stay anonymous. Preselected donation amounts are available, as well as a box to specify your own number. I especially liked how I didn't have to scroll all over the page looking for the Bitcoin option; many of the sites I looked at hide the Bitcoin address at the bottom or side of their donation page instead of integrating that option in with the others. Well done Eclipse!
 
@@ -80,15 +80,15 @@ Don't misunderstand, I am very happy that Bitcoin was an option for donations. H
 
 For example, the EFF requires my name, email, and *shipping address* to receive a Bitcoin donation:
 
-{% img center ./04.png %}
+{% img ./04.png Electronic Frontier Foundation %}
 
 Wikipedia also requires a shipping address. Why is this information needed? What are they going to send me? Why can't I opt out?
 
-{% img center ./05.png %}
+{% img ./05.png Wikipedia %}
 
 Even Mozilla won't let me send them a Bitcoin donation without an email address:
 
-{% img center ./06.png %}
+{% img ./06.png Mozilla %}
 
 What could they need an email address for? A receipt? No need, the blockchain is a public ledger that replaces the need for a receipt. A thank you message? No need, afterall, I'm the one thanking *you* with my donation! Signing me up on an email list? Most likely, and I don't need more spam.
 
@@ -101,7 +101,7 @@ Unfortunately, Bitcoin still hasn't hit critical mass. By now, many people have 
 
 The surprising one here was Debian. Not only do they not take Bitcoin, they don't even take Paypal. Their [preferred methods](https://www.debian.org/donations) of payment are credit card or check. Look at how much stuff I need to fill out to donate:
 
-{% img center ./07.png %}
+{% img ./07.png Debian %}
 
 This right here is a prime example of how amazingly simple Bitcoin is.
 

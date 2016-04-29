@@ -3,6 +3,7 @@ layout: post
 title: "Singletons"
 date: 2015-08-02 15:55:58 -0400
 comments: true
+toc: true
 categories: 
  - C++
 ---
@@ -55,7 +56,7 @@ In these types of situations, there is one object that has a single responsibili
 
 Configuration is sometimes done with Singletons, however this isn't considered a good practice. Dependency injection is typically a better way to handle passing configuration through your program.
 
-## Creating a Singleton
+# Creating a Singleton
 
 Singletons conform to the following conditions[^3]:
 
@@ -222,7 +223,7 @@ static T& instance(void)
 
 This approach is called the Double-Checked Locking Pattern, or DCLP. 
 
-## The Double-Checked Locking Pattern is Unsafe
+# The Double-Checked Locking Pattern is Unsafe
 
 Scott Meyers and Andrei Alexandrescu have discussed[^4] the subtle issues with DCLP. Their paper as an interesting read; the problems boil down to the fact that the compiler may reorder instructions or the hardware may reorder memory accesses, and there was no way to express these constraints using the C++ language at the time (C++11 fixes these issues, as we will see later).
 
@@ -396,7 +397,7 @@ int main(int argc, char* argv[])
 
 {% endcodeblock %}
 
-## Enhancing the Singleton
+# Enhancing the Singleton
 
 We still have the problem that the destructor is never called. The solution to this is to convert the raw pointer into a scoped_ptr. However, the atomics can only be used with primitive types. We need to apply some[^8] transformations[^9] to the code to decouple the atomic from the pointer:
 
@@ -548,7 +549,7 @@ At this point we have a flexible and safe implementation of the DCLP. The output
     0x19626e0 : 0x19626e0
     Goodbye!
 
-## Boost Pool Method
+# Boost Pool Method
 
 As I mentioned, I needed a Singleton for a memory pool. Naturally, I decided to see how Boost handles this for their own pool. I searched for all the boost include files with Singleton in their name:
 
@@ -705,7 +706,7 @@ And the output:
 
 Notice that this method does not use lazy instantiation, but rather it uses *eager instantiation*, meaning the Singleton is created before `main` is called. In addition, it properly calls the destructor and is thread safe without any locks or atomics. Despite the author describing this method as "twisted", I think it is rather elegant. Unfortunately, it lacks the ability to do per-thread singletons, and its eager instantiation is a drawback.
 
-## Meyer's Method (C++11)
+# Meyer's Method (C++11)
 
 Things get much easier in C++11. Scott Meyers introduced a very simple and elegant Singleton back in 1996[^11]:
 
@@ -753,7 +754,7 @@ Outputs:
 
 This method is only thread safe with C++11 and up. It uses lazy instantiation, properly calls the destructor, and doesn't use any mutexes or atomics. With C++11, it is now considered the correct way to implement a Singleton.
 
-## Boost Call Once Method
+# Boost Call Once Method
 
 Meyer's Singleton cannot be used in C++03, but we can get pretty close to it using Boost's `call_once` capabilities.
 
@@ -822,7 +823,7 @@ Output:
     0x1d20370 : 0x1d20370
     Goodbye!
 
-## My Method
+# My Method
 
 I'm a pretty big fan of the `call_once` method:
 
