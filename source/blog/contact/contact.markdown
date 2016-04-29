@@ -61,6 +61,3 @@ vg6pukSc3STD3em4hYOYU7OuBydbRe27I5w//E6IwntPoOG+dahzNPJcpFfvD4A=
 -----END PGP SIGNATURE-----
 {% endcodeblock %}
 
-<center>
-<a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">Public Key</a>
-</center>

@@ -56,8 +56,8 @@ lsi: true
 default_asides: [asides/about.html,
                  asides/twitter.html,
                  asides/qrcode.html, 
-                 asides/recent_posts.html, 
                  asides/related_posts.html,
+                 asides/recent_posts.html, 
                  asides/github.html, 
                  asides/bitcoin.html]
 

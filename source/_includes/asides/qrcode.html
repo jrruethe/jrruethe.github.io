@@ -1,3 +1,6 @@
+{% if index %}
+<!-- Do Nothing -->
+{% else %}
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -5,3 +8,4 @@
 <a href="{{ site.url }}{{ page.url }}"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl={{ site.url }}{{ page.url }}" alt="post-qrcode"></a>
 </center>
 </section>
+{% endif %}
