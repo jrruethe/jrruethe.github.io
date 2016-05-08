@@ -9,8 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Before you continue Grab all the dependencies: sudo apt-get install ruby bundler git sudo gem install rake --version 0.9.2.2
-git clone git://github. &hellip;">
+  <meta name="description" content="Octopress is an excellent blogging platform that is very easy to maintain and customize.
+My particular repository has a lot of customizations, and &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -24,19 +24,16 @@ git clone git://github. &hellip;">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -105,7 +102,17 @@ git clone git://github. &hellip;">
   </header>
 
 
-<div class="entry-content"><h3>Before you continue</h3>
+<div class="entry-content"><p>Octopress is an excellent blogging platform that is very easy to maintain and customize.
+My particular repository has a lot of customizations, and this post is mainly intended to help me remember how to use the various features.
+However, it may be beneficial to others if they clone my repository or simply want to see what is possible.</p>
+
+<!--more-->
+
+
+<div class='more'></div>
+
+
+<h1>Dependencies</h1>
 
 <p>Grab all the dependencies:</p>
 
@@ -123,7 +130,7 @@ bundle install
 
 <hr />
 
-<h3>Starting Fresh</h3>
+<h1>Starting Fresh</h1>
 
 <p>Use these instructions if you are creating a blog for the first time.</p>
 
@@ -157,8 +164,12 @@ git push origin source
 <li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
 <li><a href="https://github.com/mguentner/octolayer">Octolayer</a> : Embed maps into posts</li>
 <li><a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Responsive Video Embed</a> : Embed Youtube videos into posts</li>
+<li><a href="http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/">Table of Contents</a> : List a table of contents at the top of each post</li>
+<li><a href="https://www.ewal.net/2012/09/08/octopress-customizations/">Fancybox</a> : Enhance user experience when dealing with images</li>
 </ul>
-</li>
+
+
+<p>And a few others that are listed below.</p></li>
 <li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
 <li><p>Configure your _config.yml file</p>
 
@@ -186,7 +197,7 @@ git push origin source
 
 <hr />
 
-<h3>Continuing from an existing repository</h3>
+<h1>Continuing from an existing repository</h1>
 
 <p>Use these instructions if you are continuing a blog that has already been created.</p>
 
@@ -220,7 +231,7 @@ $ git commit -m 'Deployment'
 
 <hr />
 
-<h3>Creating a post</h3>
+<h1>Creating a post</h1>
 
 <p>To create a new post:</p>
 
@@ -254,7 +265,7 @@ cd -
 
 <hr />
 
-<h3>Scripting the difficult pieces</h3>
+<h1>Scripting the difficult pieces</h1>
 
 <p>If you look at the <a href="">source for my blog</a>, you will see a small number of scripts that make managing the blog even easier.</p>
 
@@ -269,9 +280,9 @@ cd -
 
 <hr />
 
-<h3>Embedding Content</h3>
+<h1>Embedding Content</h1>
 
-<h4>Code</h4>
+<h2>Code</h2>
 
 <p>It is easy to embed any text file found in the source/downloads/code folder.<br/>
 Octopress even supports syntax highlighting, and a handy download link.</p>
@@ -446,21 +457,135 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 
 <hr />
 
-<h4>Image</h4>
+<h2>Image</h2>
 
-<p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix. For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>. The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
+<p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix.
+For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>.
+The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
 
 <p>To embed this image, use the tag like this:</p>
 
-<pre><code>{% img center ./01.png %}
+<pre><code>{% img ./01.png [width] [caption] %}
+{% img ./01.png 150 Avatar %}
 </code></pre>
 
-<p>Which results in this<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:
-<img class="center" src="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png"></p>
+<p>Which results in this:</p>
+
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:150;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png' width='150' title='Avatar' alt=''></a><span class='caption-text'>Avatar</span></span></div></div>
+
+
+<blockquote><p>Caption is optional</p></blockquote>
+
+<p>If you have an image with a transparent background, you can embed it without the shadow border:</p>
+
+<pre><code>{% img borderless ./01.png 150 %}
+</code></pre>
+
+<div class='img-outer-div'><div class='img-inner-div'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png'><img class='borderless' src='http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/01.png' width='150' title='' alt=''></a></div></div>
+
+
+<blockquote><p>Credits to <a href="https://github.com/aycabta/octopress-file-binder">aycabta</a>, <a href="http://deadunicornz.org/blog/2014/12/27/octopress-image-caption-plugin/">sheva-serg</a>, <a href="https://eulerpi.io/2014/11/28/the-imgcaption-tag/">Charles Beynon</a>, and <a href="https://www.ewal.net/2012/09/08/octopress-customizations/">Erv Walter</a></p></blockquote>
 
 <hr />
 
-<h4>Video</h4>
+<h2>Tables</h2>
+
+<p>Tables can also be embedded into posts like images. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
+For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the table below has the filename <code>2014-07-05-blogging-with-octopress_table.markdown</code>.
+The table is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>table.markdown</code>.</p>
+
+<p>The contents of the file look like this:</p>
+
+<pre><code>| Key      | Value                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------- |
+| Name:    | Joe Ruether                                                                              |
+| Email:   | [jrruethe@gmail.com](mailto:jrruethe@gmail.com)                                          |
+| Website: | [jrruethe.github.io](http://jrruethe.github.io/)                                         |
+| Twitter: | [@jrruethe](https://twitter.com/jrruethe)                                                |
+| Github:  | [jrruethe](https://github.com/jrruethe)                                                  |
+| Keybase: | [jrruethe](https://keybase.io/jrruethe)                                                  |
+| GPG:     | [4F40 99F8 276B DBA5 475A](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
+|          | [8446 4630 BEDC 40B9 35FE](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
+</code></pre>
+
+<p>To embed the table, use the tag like this:</p>
+
+<pre><code>{% table ./table.markdown %}
+</code></pre>
+
+<p>Which results in this:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name:</td>
+      <td>Joe Ruether</td>
+    </tr>
+    <tr>
+      <td>Email:</td>
+      <td><a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#106;&#114;&#114;&#117;&#101;&#116;&#104;&#101;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;">&#106;&#114;&#114;&#117;&#101;&#116;&#104;&#101;&#064;&#103;&#109;&#097;&#105;&#108;&#046;&#099;&#111;&#109;</a></td>
+    </tr>
+    <tr>
+      <td>Website:</td>
+      <td><a href="http://jrruethe.github.io/">jrruethe.github.io</a></td>
+    </tr>
+    <tr>
+      <td>Twitter:</td>
+      <td><a href="https://twitter.com/jrruethe">@jrruethe</a></td>
+    </tr>
+    <tr>
+      <td>Github:</td>
+      <td><a href="https://github.com/jrruethe">jrruethe</a></td>
+    </tr>
+    <tr>
+      <td>Keybase:</td>
+      <td><a href="https://keybase.io/jrruethe">jrruethe</a></td>
+    </tr>
+    <tr>
+      <td>GPG:</td>
+      <td><a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A</a></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">8446 4630 BEDC 40B9 35FE</a></td>
+    </tr>
+  </tbody>
+</table>
+
+
+<blockquote><p>Note:<br/>
+RSS feeds will not have rendered tables</p></blockquote>
+
+<hr />
+
+<h2>Table of Contents</h2>
+
+<p>You may have noticed the table of contents at the top of this page.
+This can be enabled by adding the following to the yaml at the top of any post:</p>
+
+<pre><code>toc: true
+</code></pre>
+
+<p>The table of contents is automatically generated via javascript and will follow the headings indicated by <code>#</code>.</p>
+
+<h3>More</h3>
+
+<p>I added a custom plugin called <code>more</code> designated by <code>{% more %}</code>.
+This tag should be put in each post after a brief description about the post.
+The description will appear on the index page, with a little &ldquo;Read More&rdquo; button that links to the full page.
+modified the original table of contents javascript to cause the table of contents to always be placed below the <code>more</code> tag.</p>
+
+<blockquote><p>Credits to <a href="http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/">Brian Clapper</a></p></blockquote>
+
+<hr />
+
+<h2>Video</h2>
 
 <p>Embedding a youtube video can be done by grabbing the video id from the url:<br/>
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong></a></p>
@@ -475,9 +600,11 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div>
 
 
+<blockquote><p>Credits to <a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Udo Kramer</a></p></blockquote>
+
 <hr />
 
-<h4>Map</h4>
+<h2>Map</h2>
 
 <p>Embedding a map can be done with the following tag:</p>
 
@@ -497,19 +624,19 @@ Octopress even supports syntax highlighting, and a handy download link.</p>
 <script type='text/javascript'>jQuery(document).ready(function() {initmap('map1',37.7577,-122.4376,13,'','');});</script>
 
 
+<blockquote><p>Credits to <a href="https://github.com/mguentner/octolayer">Maximilian Güntner</a></p></blockquote>
+
 <hr />
 
-<h4>Footnotes</h4>
+<h2>Footnotes</h2>
 
-<p>Footnotes are good for attributing content made by other people. Simply place an anchor <code>[^2]</code> where you want the link to the footnote to appear.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>
-Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a footnote</code>. The line above the footnotes is created automatically.</p>
+<p>Footnotes are good for attributing content made by other people. Simply place an anchor <code>[^1]</code> where you want the link to the footnote to appear.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>
+Then, at the bottom of the page, put the actual footnote: <code>[^1]: This is a footnote</code>. The line above the footnotes is created automatically.</p>
 <div class="footnotes">
 <hr/>
 <ol>
 <li id="fn:1">
-<p><a href="http://xkcd.com/">Randall Munrow, XKCD</a> licensed under CC-BY-NA 2.5<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-<li id="fn:2">
-<p>This is a footnote<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<p>This is a footnote<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
 </ol>
 </div>
 
@@ -538,9 +665,17 @@ Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a 
 <time datetime="2014-07-05T20:51:27-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/octopress/'>Octopress</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" >Tweet</a>
@@ -549,11 +684,44 @@ Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a 
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -577,20 +745,18 @@ Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a 
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -598,6 +764,36 @@ Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a 
 <a href="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -624,32 +820,7 @@ Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a 
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -752,6 +923,43 @@ Then, at the bottom of the page, put the actual footnote: <code>[^2]: This is a 
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

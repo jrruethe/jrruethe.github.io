@@ -23,19 +23,16 @@
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -104,7 +101,8 @@
   </header>
 
 
-<div class="entry-content"><p>PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic operations. The benefit is that more of the magic is exposed to the user, which can be useful for learning more about how cryptographic applications operate.</p>
+<div class="entry-content"><p>PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic operations.
+The benefit is that more of the magic is exposed to the user, which can be useful for learning more about how cryptographic applications operate.</p>
 
 <p>Below are three bash scripts that can perform the following:</p>
 
@@ -117,7 +115,13 @@
 
 <p>These operations are a subset of the core functionality provided by GPG, and can be used to securely pass sensitive data between users. Unlike GPG, the user is responsible for managing trusted certificates.</p>
 
-<h2>Generate</h2>
+<!--more-->
+
+
+<div class='more'></div>
+
+
+<h1>Generate</h1>
 
 <p>The first script is called <code>generate.sh</code>. It will generate a new public certificate and private key when given a name and optional email address. Run it like so:</p>
 
@@ -127,7 +131,8 @@ Usage: generate.sh &lt;"name"&gt; [email]
 $ ./generate.sh "Joe Ruether" jrruethe@gmail.com
 </code></pre>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/01.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/01.png'><img class='caption' src='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/01.png' width='100%' title='Generate Usage' alt=''></a><span class='caption-text'>Generate Usage</span></span></div></div>
+
 
 <p>As you can see, a certificate and private key were generated, with the proper permissions set. Both files are stored in base64 ASCII for easily sharing or backing them up.</p>
 
@@ -136,7 +141,8 @@ $ ./generate.sh "Joe Ruether" jrruethe@gmail.com
 <pre><code>openssl x509 -in Joe_Ruether.certificate -text -noout
 </code></pre>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/02.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/02.png'><img class='caption' src='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/02.png' width='100%' title='Certificate Text' alt=''></a><span class='caption-text'>Certificate Text</span></span></div></div>
+
 
 <p>The idea here is that two users would generate their own certificates and private keys, then keep the private keys for themselves while sharing the certificates with each other. The sharing of certificates should be done in a way that you can prove the certificate belongs to who you think it does, since anyone can generate a certificate with any name and email.</p>
 
@@ -235,7 +241,7 @@ $ ./generate.sh "Joe Ruether" jrruethe@gmail.com
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Encrypt</h2>
+<h1>Encrypt</h1>
 
 <p>The next script performs file encryption to a specified recipient certificate. It can optionally sign the file with your private key. The order of operations is as follows:</p>
 
@@ -269,14 +275,18 @@ Encryption Successful
 
 <p>Here is the output:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/03.png">
-<img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/04.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/03.png'><img class='caption' src='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/03.png' width='100%' title='Generating Certificates' alt=''></a><span class='caption-text'>Generating Certificates</span></span></div></div>
+
+
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/04.png'><img class='caption' src='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/04.png' width='100%' title='Encryption Usage' alt=''></a><span class='caption-text'>Encryption Usage</span></span></div></div>
+
 
 <p>The produced tarball can be safely shared over an insecure channel; only the intended recipient is able to decrypt it.</p>
 
 <p>The tarball will always contain the recipient metadata extracted from the recipient&rsquo;s public certificate. This is so it is easy to identify who is able to decrypt the file. Optionally, the sender can include their certificate metadata when signing a file, to make it easy to determine which certificate is needed to verify the signature. The metadata files contain nothing more than the sha1 fingerprints of the respective certificates:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/05.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/05.png'><img class='caption' src='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/05.png' width='100%' title='Metadata' alt=''></a><span class='caption-text'>Metadata</span></span></div></div>
+
 
 <p>The script:</p>
 
@@ -581,7 +591,7 @@ Encryption Successful
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Decrypt</h2>
+<h1>Decrypt</h1>
 
 <p>The final script is intended to decrypt bundles created by the above encryption script. It will:</p>
 
@@ -609,7 +619,8 @@ Decryption Successful
 
 <p>Here is the output:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/06.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/06.png'><img class='caption' src='http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/06.png' width='100%' title='Decryption Usage' alt=''></a><span class='caption-text'>Decryption Usage</span></span></div></div>
+
 
 <p>The script:</p>
 
@@ -908,9 +919,17 @@ Decryption Successful
 <time datetime="2016-04-17T13:21:05-04:00" pubdate data-updated="true">Apr 17<span>th</span>, 2016</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cryptography/'>Cryptography</a>, <a class='category' href='/blog/categories/scripts/'>Scripts</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" >Tweet</a>
@@ -919,11 +938,44 @@ Decryption Successful
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -945,20 +997,18 @@ Decryption Successful
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -966,6 +1016,36 @@ Decryption Successful
 <a href="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/29/protect-yourself-online/">Protect Yourself Online</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -992,32 +1072,7 @@ Decryption Successful
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -1120,6 +1175,43 @@ Decryption Successful
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

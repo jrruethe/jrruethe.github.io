@@ -9,7 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Paper wallets are a form of cold storage, meaning that the private key has never touched a computer with internet access. This is one of the most &hellip;">
+  <meta name="description" content="Paper wallets are a form of cold storage, meaning that the private key has never touched a computer with internet access.
+This is one of the most &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,19 +24,16 @@
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -104,18 +102,27 @@
   </header>
 
 
-<div class="entry-content"><p>Paper wallets are a form of <em>cold storage</em>, meaning that the private key has never touched a computer with internet access. This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself. For that reason, this is a tutorial to create a paper wallet in a secure fashion.</p>
+<div class="entry-content"><p>Paper wallets are a form of <em>cold storage</em>, meaning that the private key has never touched a computer with internet access.
+This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself.
+For that reason, this is a tutorial to create a paper wallet in a secure fashion.</p>
+
+<!--more-->
+
+
+<div class='more'></div>
+
 
 <p>A repository of paper wallet generators can be found <a href="https://github.com/jrruethe/paper_wallet">here</a>. You can choose to use my repository directly if you wish, but I recommend going straight to the source.
-There are many options with different formats and templates, however I highly recommend bitcoinpaperwallet.com.</p>
+There are many options with different formats and templates, however I highly recommend BitcoinPaperWallet.com.</p>
 
-<p><em>I am in no way affiliated with bitcoinpaperwallet.com, just a satisfied customer.</em></p>
+<p><em>I am in no way affiliated with BitcoinPaperWallet.com, just a satisfied customer.</em></p>
 
 <hr />
 
-<h3><a href="https://bitcoinpaperwallet.com/">BitcoinPaperWallet.com</a> (<a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a>)</h3>
+<h1><a href="https://bitcoinpaperwallet.com/">BitcoinPaperWallet.com</a> (<a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a>)</h1>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/01.jpg"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/01.jpg'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/01.jpg' width='100%' title='Bitcoin Paper Wallet' alt=''></a><span class='caption-text'>Bitcoin Paper Wallet</span></span></div></div>
+
 
 <p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!</p>
 
@@ -162,12 +169,13 @@ There are many options with different formats and templates, however I highly re
 
 <hr />
 
-<h3>Protecting your paper wallet</h3>
+<h1>Protecting your paper wallet</h1>
 
 <p>Paper wallets are extremely vulnerable to water.
 Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/03.jpg"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/03.jpg'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/03.jpg' width='100%' title='Water is the Enemy' alt=''></a><span class='caption-text'>Water is the Enemy</span></span></div></div>
+
 
 <p>Paper wallets are also extremely vulnerable to fire.
 However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.</p>
@@ -176,7 +184,7 @@ However, there is not much you can do about this other than keeping multiple bac
 
 <hr />
 
-<h3>How to properly create a paper wallet</h3>
+<h1>How to properly create a paper wallet</h1>
 
 <p>Paper wallets need to be created offline on a secure machine. For this tutorial, I will be using a <a href="https://tails.boum.org/">Tails</a> Live CD. Grab the ISO and burn it to a disk.</p>
 
@@ -196,15 +204,18 @@ However, there is not much you can do about this other than keeping multiple bac
 
 <p>From the <code>Applications</code> menu, select <code>System Tools -&gt; Administration -&gt; Printing</code>.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/04.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/04.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/04.png' width='100%' title='Printer Settings' alt=''></a><span class='caption-text'>Printer Settings</span></span></div></div>
+
 
 <p>Add your printer. Open up Tor Browser and ensure that you can print a webpage.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/05.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/05.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/05.png' width='100%' title='Add a Printer' alt=''></a><span class='caption-text'>Add a Printer</span></span></div></div>
+
 
 <p>Time to disconnect from the internet. Unplug the ethernet cord, turn off any wireless cards or routers as necessary. Verify that you are not online.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/06.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/06.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/06.png' width='100%' title='Make sure you are offline' alt=''></a><span class='caption-text'>Make sure you are offline</span></span></div></div>
+
 
 <ol>
 <li>Insert your usb drive</li>
@@ -214,24 +225,29 @@ However, there is not much you can do about this other than keeping multiple bac
 </ol>
 
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/07.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/07.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/07.png' width='100%' title='Unpack the Zip File' alt=''></a><span class='caption-text'>Unpack the Zip File</span></span></div></div>
+
 
 <p>Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! &ldquo;Brain wallets&rdquo; may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/08.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/08.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/08.png' width='100%' title='Open in Browser' alt=''></a><span class='caption-text'>Open in Browser</span></span></div></div>
+
 
 <blockquote><p><strong>BIP38 Encryption?</strong><br/>
 There are pros and cons to encrypting your paper wallet. Encryption adds an extra layer of security by requiring a passphrase before being able to import the private key again, which is great if the paper wallet ever gets stolen. However if the passphrase is forgotten, the coins are lost forever. The passphrase is one more thing to remember / write down, which means it is one more thing to secure. In addition, some wallet software does not support BIP38, which may make reimporting difficult. Finally, it is important to realize that BIP38 encryption will NOT help if you chose an insecure passphrase for a brain wallet. In general, BIP38 encryption is recommended.</p></blockquote>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/09.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/09.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/09.png' width='100%' title='Generate a Wallet' alt=''></a><span class='caption-text'>Generate a Wallet</span></span></div></div>
+
 
 <p>You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/10.jpg" width="400" height="600"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/10.jpg'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/10.jpg' width='400' title='Print the Wallet' alt=''></a><span class='caption-text'>Print the Wallet</span></span></div></div>
+
 
 <p>Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/11.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/11.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/11.png' width='100%' title='Verify the Wallet' alt=''></a><span class='caption-text'>Verify the Wallet</span></span></div></div>
+
 
 <p>Shutdown your Tails environment. It will wipe your ram for you.</p>
 
@@ -241,21 +257,24 @@ There are pros and cons to encrypting your paper wallet. Encryption adds an extr
 
 <p>Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/12.jpg" width="400" height="600"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/12.jpg'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/12.jpg' width='400' title='Sealed Wallets' alt=''></a><span class='caption-text'>Sealed Wallets</span></span></div></div>
+
 
 <p>Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/13.jpg" width="400" height="600"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/13.jpg'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/13.jpg' width='400' title='Laminated Wallets' alt=''></a><span class='caption-text'>Laminated Wallets</span></span></div></div>
+
 
 <hr />
 
-<h3>How to properly use a paper wallet</h3>
+<h1>How to properly use a paper wallet</h1>
 
 <p>You can scan the public key into Electrum or Mycelium as a watch-only wallet to keep track of your funds. Eventually you will want to spend the funds.</p>
 
 <p>First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the &ldquo;Private Key / Withdraw&rdquo; line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/14.jpg"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/14.jpg'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/14.jpg' width='100%' title='Revealing the Private Key' alt=''></a><span class='caption-text'>Revealing the Private Key</span></span></div></div>
+
 
 <p>Now comes the important part. The funds must be &ldquo;swept&rdquo; into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.</p>
 
@@ -266,7 +285,8 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
 
 <p>Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/15.jpg"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/15.jpg'><img class='caption' src='http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/15.jpg' width='100%' title='Bitcoin Paper Wallet' alt=''></a><span class='caption-text'>Bitcoin Paper Wallet</span></span></div></div>
+
 </div>
 
 
@@ -292,9 +312,17 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
 <time datetime="2015-04-23T19:18:12-04:00" pubdate data-updated="true">Apr 23<span>rd</span>, 2015</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/bitcoin/'>Bitcoin</a>, <a class='category' href='/blog/categories/crafting/'>Crafting</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/" >Tweet</a>
@@ -303,11 +331,44 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -331,20 +392,18 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -352,6 +411,36 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
 <a href="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -378,32 +467,7 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -506,6 +570,43 @@ Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p><
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

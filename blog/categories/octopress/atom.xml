@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Octopress | Morning Musings]]></title>
+  <link href="http://jrruethe.github.io/blog/categories/octopress/atom.xml" rel="self"/>
+  <link href="http://jrruethe.github.io/"/>
+  <updated>2016-05-08T18:15:24-04:00</updated>
+  <id>http://jrruethe.github.io/</id>
+  <author>
+    <name><![CDATA[Joe Ruether]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Blogging With Octopress]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress/"/>
+    <updated>2014-07-05T20:51:27-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/07/05/blogging-with-octopress</id>
+    <content type="html"><![CDATA[<p>Octopress is an excellent blogging platform that is very easy to maintain and customize.
+My particular repository has a lot of customizations, and this post is mainly intended to help me remember how to use the various features.
+However, it may be beneficial to others if they clone my repository or simply want to see what is possible.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<h1>Dependencies</h1>
+
+<p>Grab all the dependencies:</p>
+
+<pre><code>sudo apt-get install ruby bundler git  
+sudo gem install rake --version 0.9.2.2
+git clone git://github.com/imathis/octopress.git blog  
+cd blog  
+bundle install  
+</code></pre>
+
+<p>You may have a newer <code>rake</code> installed on your machine. Octopress requires version 0.9.2.2, so we need to make sure we use that version.</p>
+
+<pre><code>alias rake="rake _0.9.2.2_"
+</code></pre>
+
+<hr />
+
+<h1>Starting Fresh</h1>
+
+<p>Use these instructions if you are creating a blog for the first time.</p>
+
+<ol>
+<li><p>Install the blog</p>
+
+<pre><code>rake install  
+</code></pre></li>
+<li><p>Create the Github repository</p>
+
+<p>Go to <a href="https://github.com/repositories/new">Github</a>, create a new repository of the format <code>username.github.io</code></p></li>
+<li><p>Set up deployment to Github Pages</p>
+
+<pre><code>rake setup_github_pages
+rake generate
+rake deploy
+</code></pre></li>
+<li><p>Commit the source</p>
+
+<pre><code>git add .
+git commit -m 'your message'
+git push origin source
+</code></pre></li>
+<li><p>Add some customizations</p>
+
+<p>I personally use the following third party plugins:</p>
+
+<ul>
+<li><a href="https://github.com/PartTimeLegend/octopress-bitcoin-donation-aside">Bitcoin</a> : Add a QR code for Bitcoin Donations</li>
+<li><a href="https://github.com/aycabta/octopress-file-binder">File Binder</a> : Easily attach an image to a post</li>
+<li><a href="https://github.com/sailor79/Octopress-dynamic-QR-Code-aside">QR Codes</a> : Add QR codes for mobile navigation and sharing</li>
+<li><a href="https://github.com/mguentner/octolayer">Octolayer</a> : Embed maps into posts</li>
+<li><a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Responsive Video Embed</a> : Embed Youtube videos into posts</li>
+<li><a href="http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/">Table of Contents</a> : List a table of contents at the top of each post</li>
+<li><a href="https://www.ewal.net/2012/09/08/octopress-customizations/">Fancybox</a> : Enhance user experience when dealing with images</li>
+</ul>
+
+
+<p>And a few others that are listed below.</p></li>
+<li><p>Sign up for <a href="https://disqus.com">Disqus</a></p></li>
+<li><p>Configure your _config.yml file</p>
+
+<p>Set the following options:</p>
+
+<ul>
+<li>URL</li>
+<li>Title</li>
+<li>Subtitle</li>
+<li>Author</li>
+</ul>
+
+
+<p>Also scroll down to the bottom and set up the following sections:</p>
+
+<ul>
+<li>Github</li>
+<li>Twitter</li>
+<li>Disqus</li>
+</ul>
+</li>
+<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
+</ol>
+
+
+<hr />
+
+<h1>Continuing from an existing repository</h1>
+
+<p>Use these instructions if you are continuing a blog that has already been created.</p>
+
+<ol>
+<li><p>Install the dependencies</p>
+
+<pre><code>sudo apt-get install ruby bundler git ruby-gsl zlib1g-dev
+</code></pre></li>
+<li><p>Clone the repository</p>
+
+<pre><code>git clone -b source git@github.com:username/username.github.io.git blog
+</code></pre></li>
+<li><p>Install the octopress dependencies</p>
+
+<pre><code>bundle install
+</code></pre></li>
+<li><p>Set up Github Pages</p>
+
+<pre><code>rake setup_github_pages
+</code></pre></li>
+<li><p>Sync the deployment</p>
+
+<pre><code>$ cd _deploy/
+$ git pull origin master
+$ git add index.html
+$ git commit -m 'Deployment'
+</code></pre></li>
+<li><p>Ready to go. Jump down to &ldquo;Creating a post&rdquo;</p></li>
+</ol>
+
+
+<hr />
+
+<h1>Creating a post</h1>
+
+<p>To create a new post:</p>
+
+<pre><code>rake new_post["title"]
+</code></pre>
+
+<p>Then you can preview your work:</p>
+
+<pre><code>rake generate
+rake preview
+</code></pre>
+
+<p>Open your browser to <code>127.0.0.1:4000</code> and make sure your page looks the way you want.<br/>
+To finalize your changes:</p>
+
+<pre><code>git add source/_posts/date-title.markdown
+git commit -m 'Message'
+git push origin source
+rake deploy
+</code></pre>
+
+<p>Next, you want to make sure that you re-pull after the deployment is complete, or you will run into problems when creating your next post:</p>
+
+<pre><code>git pull
+cd _deploy/
+git pull
+cd -
+</code></pre>
+
+<p>Go to <code>username.github.com</code> and check out your page.</p>
+
+<hr />
+
+<h1>Scripting the difficult pieces</h1>
+
+<p>If you look at the <a href="">source for my blog</a>, you will see a small number of scripts that make managing the blog even easier.</p>
+
+<ul>
+<li>install.sh : Simply clone the repo and run this to get everything set up</li>
+<li>sync.sh : Synchronizes the repository with Github if a change was made on a different machine</li>
+<li>new.sh Post Title : Make a new post with the specified title</li>
+<li>preview.sh : Auto generate and start the web server for 127.0.0.1:4000</li>
+<li>deploy.sh : Deploy to Github Pages</li>
+</ul>
+
+
+<hr />
+
+<h1>Embedding Content</h1>
+
+<h2>Code</h2>
+
+<p>It is easy to embed any text file found in the source/downloads/code folder.<br/>
+Octopress even supports syntax highlighting, and a handy download link.
+</p>
+
+<pre><code>{% include_code lang:yaml filename.ext %}
+</code></pre>
+
+<p></p>
+
+<p>lang can be any of the following:</p>
+
+<ul>
+<li>ruby</li>
+<li>yaml</li>
+<li>bash</li>
+<li>python</li>
+<li>json</li>
+<li>c++</li>
+</ul>
+
+
+<p>For example:
+</p>
+
+<pre><code>{% include_code lang:ruby address-to-hash.rb %}
+</code></pre>
+
+<p></p>
+
+<p>Results in:
+<!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (address-to-hash.rb)</span><a href='/downloads/code/address-to-hash.rb' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1">#!/usr/bin/env ruby</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># address-to-hash.rb</span>
+</span><span class='line'><span class="c1"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c1"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c1"># (at your option) any later version.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c1"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c1">#</span>
+</span><span class='line'><span class="c1"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c1"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the address</span>
+</span><span class='line'><span class="n">address</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">decode_base58</span><span class="p">(</span><span class="n">base58_val</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">alpha</span> <span class="o">=</span> <span class="s2">&quot;123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz&quot;</span>
+</span><span class='line'>   <span class="n">int_val</span><span class="p">,</span> <span class="n">base</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">base58_val</span><span class="o">.</span><span class="n">reverse</span><span class="o">.</span><span class="n">each_char</span><span class="o">.</span><span class="n">with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">char</span><span class="p">,</span><span class="n">index</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s1">&#39;Value not a valid Base58 String.&#39;</span> <span class="k">unless</span> <span class="n">char_index</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">int_val</span> <span class="o">+=</span> <span class="n">char_index</span><span class="o">*</span><span class="p">(</span><span class="n">base</span><span class="o">**</span><span class="n">index</span><span class="p">)</span>
+</span><span class='line'>   <span class="k">end</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="n">int_val</span><span class="o">.</span><span class="n">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">bytesize</span><span class="o">.</span><span class="n">odd?</span> <span class="p">?</span> <span class="s1">&#39;0&#39;</span><span class="o">+</span><span class="n">s</span> <span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">s</span> <span class="o">==</span> <span class="s1">&#39;00&#39;</span>
+</span><span class='line'>   <span class="n">leading_zero_bytes</span> <span class="o">=</span> <span class="p">(</span><span class="n">base58_val</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/^([1]+)/</span><span class="p">)</span> <span class="p">?</span> <span class="vg">$1</span> <span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span>
+</span><span class='line'>   <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;00&quot;</span><span class="o">*</span><span class="n">leading_zero_bytes</span><span class="p">)</span> <span class="o">+</span> <span class="n">s</span>  <span class="k">if</span> <span class="n">leading_zero_bytes</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>   <span class="n">s</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Get the hex payload</span>
+</span><span class='line'><span class="n">payload</span> <span class="o">=</span> <span class="n">decode_base58</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Print out the first 20 bytes of the sha256 hash</span>
+</span><span class='line'><span class="nb">puts</span> <span class="n">payload</span><span class="o">[</span><span class="mi">2</span><span class="o">.</span><span class="n">.</span><span class="mi">41</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>You can also embed code content directly into a markdown file by enclosing it with codeblocks:
+</p>
+
+<pre><code>{% codeblock lang:json %}
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+{% endcodeblock %}  
+</code></pre>
+
+<p></p>
+
+<p>Results in:
+<!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="err">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;p&gt;</span><span class="p">{</span>
+</span><span class='line'>   <span class="err">&amp;ldquo;one&amp;rdquo;</span> <span class="err">:</span> <span class="err">&amp;ldquo;1&amp;rdquo;,</span>
+</span><span class='line'>   <span class="err">&amp;ldquo;two&amp;rdquo;</span> <span class="err">:</span> <span class="err">&amp;ldquo;2&amp;rdquo;</span>
+</span><span class='line'><span class="p">}</span><span class="err">&lt;/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">&lt;p&gt;</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>A shortcut for this is to use 3 backticks followed by the language. Titles can also be added. In addition, both <code>codeblock</code> and backticks support highlighting line numbers with <code>mark</code>:
+</p>
+
+<pre><code>``` json "This is my json" mark:1,3-4
+
+{
+   "one" : "1",
+   "two" : "2"
+}
+
+```
+</code></pre>
+
+<p></p>
+
+<p>Results in:</p>
+
+<p>``` json &ldquo;This is my json&rdquo; mark:1,3-4</p>
+
+<p>{
+   &ldquo;one&rdquo; : &ldquo;1&rdquo;,
+   &ldquo;two&rdquo; : &ldquo;2&rdquo;
+}</p>
+
+<p>```</p>
+
+<p>This is better than the normal 4-space indent. Compare:</p>
+
+<pre><code>{
+   "one" : "1",
+   "two" : "2"
+}
+</code></pre>
+
+<hr />
+
+<h2>Image</h2>
+
+<p>Images can be embedded into posts. The image file must be placed in the same directory as the post, and have the same filename prefix.
+For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the image below has the filename <code>2014-07-05-blogging-with-octopress_01.png</code>.
+The image is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>01.png</code>.</p>
+
+<p>To embed this image, use the tag like this:</p>
+
+<p></p>
+
+<pre><code>{% img ./01.png [width] [caption] %}
+{% img ./01.png 150 Avatar %}
+</code></pre>
+
+<p></p>
+
+<p>Which results in this:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:150;'><a class='fancybox' rel='group' href='./01.png'><img class='caption' src='./01.png' width='150' title='Avatar' alt=''></a><span class='caption-text'>Avatar</span></span></div></div></p>
+
+<blockquote><p>Caption is optional</p></blockquote>
+
+<p>If you have an image with a transparent background, you can embed it without the shadow border:</p>
+
+<p></p>
+
+<pre><code>{% img borderless ./01.png 150 %}
+</code></pre>
+
+<p></p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><a class='fancybox' rel='group' href='./01.png'><img class='borderless' src='./01.png' width='150' title='' alt=''></a></div></div></p>
+
+<blockquote><p>Credits to <a href="https://github.com/aycabta/octopress-file-binder">aycabta</a>, <a href="http://deadunicornz.org/blog/2014/12/27/octopress-image-caption-plugin/">sheva-serg</a>, <a href="https://eulerpi.io/2014/11/28/the-imgcaption-tag/">Charles Beynon</a>, and <a href="https://www.ewal.net/2012/09/08/octopress-customizations/">Erv Walter</a></p></blockquote>
+
+<hr />
+
+<h2>Tables</h2>
+
+<p>Tables can also be embedded into posts like images. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
+For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the table below has the filename <code>2014-07-05-blogging-with-octopress_table.markdown</code>.
+The table is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>table.markdown</code>.</p>
+
+<p>The contents of the file look like this:</p>
+
+<pre><code>| Key      | Value                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------- |
+| Name:    | Joe Ruether                                                                              |
+| Email:   | [jrruethe@gmail.com](mailto:jrruethe@gmail.com)                                          |
+| Website: | [jrruethe.github.io](http://jrruethe.github.io/)                                         |
+| Twitter: | [@jrruethe](https://twitter.com/jrruethe)                                                |
+| Github:  | [jrruethe](https://github.com/jrruethe)                                                  |
+| Keybase: | [jrruethe](https://keybase.io/jrruethe)                                                  |
+| GPG:     | [4F40 99F8 276B DBA5 475A](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
+|          | [8446 4630 BEDC 40B9 35FE](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
+</code></pre>
+
+<p>To embed the table, use the tag like this:</p>
+
+<p></p>
+
+<pre><code>{% table ./table.markdown %}
+</code></pre>
+
+<p></p>
+
+<p>Which results in this:</p>
+
+<p></p>
+
+<blockquote><p>Note:<br/>
+RSS feeds will not have rendered tables</p></blockquote>
+
+<hr />
+
+<h2>Table of Contents</h2>
+
+<p>You may have noticed the table of contents at the top of this page.
+This can be enabled by adding the following to the yaml at the top of any post:</p>
+
+<pre><code>toc: true
+</code></pre>
+
+<p>The table of contents is automatically generated via javascript and will follow the headings indicated by <code>#</code>.</p>
+
+<h3>More</h3>
+
+<p>I added a custom plugin called <code>more</code> designated by <code>{% more %}</code>.
+This tag should be put in each post after a brief description about the post.
+The description will appear on the index page, with a little &ldquo;Read More&rdquo; button that links to the full page.
+modified the original table of contents javascript to cause the table of contents to always be placed below the <code>more</code> tag.</p>
+
+<blockquote><p>Credits to <a href="http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/">Brian Clapper</a></p></blockquote>
+
+<hr />
+
+<h2>Video</h2>
+
+<p>Embedding a youtube video can be done by grabbing the video id from the url:<br/>
+<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=<strong>dQw4w9WgXcQ</strong></a></p>
+
+<p>Use the following tag:
+</p>
+
+<pre><code>{% youtube dQw4w9WgXcQ %}
+</code></pre>
+
+<p></p>
+
+<p>Here is the result:
+<div class="embed-video-container"><iframe src="//www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe></div></p>
+
+<blockquote><p>Credits to <a href="https://github.com/optikfluffel/octopress-responsive-video-embed">Udo Kramer</a></p></blockquote>
+
+<hr />
+
+<h2>Map</h2>
+
+<p>Embedding a map can be done with the following tag:
+</p>
+
+<pre><code>{% map lat lon zoomLevel "markerTitle" "description" %}
+</code></pre>
+
+<p></p>
+
+<p>A simple example is shown here:
+</p>
+
+<pre><code>{% map 37.7577 -122.4376 13z "San Francisco" "Map Demo" %}
+</code></pre>
+
+<p></p>
+
+<p>And here is the result:
+<div class='map'><div style='height:420px' id='map2'></div><div class='mapCaption'>Map Data: <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors <a href='http://www.openstreetmap.org/copyright'>License</a> - Tiles Courtesy of <a href='http://www.mapquest.com/' target='_blank'>MapQuest</a><img src='http://developer.mapquest.com/content/osm/mq_logo.png'></div></div><script type='text/javascript'>jQuery(document).ready(function() {initmap('map2',37.7577,-122.4376,13,'','');});</script></p>
+
+<blockquote><p>Credits to <a href="https://github.com/mguentner/octolayer">Maximilian Güntner</a></p></blockquote>
+
+<hr />
+
+<h2>Footnotes</h2>
+
+<p>Footnotes are good for attributing content made by other people. Simply place an anchor <code>[^1]</code> where you want the link to the footnote to appear.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>
+Then, at the bottom of the page, put the actual footnote: <code>[^1]: This is a footnote</code>. The line above the footnotes is created automatically.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>This is a footnote<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

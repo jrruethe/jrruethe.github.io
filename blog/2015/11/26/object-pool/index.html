@@ -9,7 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices. Malloc is typically an expensive &hellip;">
+  <meta name="description" content="An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices.
+Malloc is typically an expensive &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,19 +24,16 @@
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -104,11 +102,20 @@
   </header>
 
 
-<div class="entry-content"><p>An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices. Malloc is typically an expensive call, especially for multiple small allocations, so significant performance improvements can be gained by managing memory directly. The object pool presented here is compatible with C++03, supports all standard containers, and offers O(1) amortized allocation and deallocation with configurable growth, limits, and alignment.</p>
+<div class="entry-content"><p>An object pool is a specialized allocator that allocates memory in large chunks and deals them out in small slices.
+Malloc is typically an expensive call, especially for multiple small allocations, so significant performance improvements can be gained by managing memory directly.
+The object pool presented here is compatible with C++03, supports all standard containers, and offers O(1) amortized allocation and deallocation with configurable growth, limits, and alignment.</p>
 
-<p>The pool works by allocating blocks of memory, partitioning them for the object type and alignment, then pushing all the addresses onto a stack representing available slots. Each allocation pops an address off the stack, each deallocation pushes an allocation onto the stack. When the stack is empty, another block is allocated and added to the linked list of blocks.</p>
+<p>The pool works by allocating blocks of memory, partitioning them for the object type and alignment, then pushing all the addresses onto a stack representing available slots.
+Each allocation pops an address off the stack, each deallocation pushes an allocation onto the stack. When the stack is empty, another block is allocated and added to the linked list of blocks.</p>
 
-<h2>Stack</h2>
+<!--more-->
+
+
+<div class='more'></div>
+
+
+<h1>Stack</h1>
 
 <p>The primary component of the object pool is the stack of addresses that represent free memory slots for objects. However, this isn&rsquo;t implemented like a typical stack; rather, the stack itself is interleaved through the free slots of the memory block. This means no additional memory is required; the data structure that manages the free memory is stored <em>within</em> the free memory it is managing! Each free slot, which would normally be zeroed out, instead points to the next free slot. Pushing and popping simply involves overwriting these pointers.</p>
 
@@ -211,7 +218,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Node</h2>
+<h1>Node</h1>
 
 <p>If the object pool were statically sized, then only a single memory block would be required, and no linked list would be needed. However, to support growth, each memory block is treated as a node in a linked list, allowing for a dynamic number of blocks (and therefore a dynamic amount of allocated memory).</p>
 
@@ -286,7 +293,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Growth</h2>
+<h1>Growth</h1>
 
 <p>The growth of the pool can be controlled via a template parameter. This parameter is a functor that takes the current size of the pool and returns the new size that the pool should grow to. I provide functors to do exponential growth (like a vector) or linear growth, but it is easy to add a custom one to fine tune growth for your application.</p>
 
@@ -335,7 +342,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Pool</h2>
+<h1>Pool</h1>
 
 <p>Finally, the pieces can all be put together to create the object pool. Allocation and deallocation consists of pushing and popping from the stack. If the stack is ever emptied, the pool grows by another block. The pool uses lazy allocation and has an efficient copy constructor to allow for quick rebinding; necessary for the standard containers.</p>
 
@@ -588,7 +595,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Stateless</h2>
+<h1>Stateless</h1>
 
 <p>C++03 allocators are required to be stateless. The standard containers do not accept an allocator instance, rather they construct one themselves. This means that two <code>std::set</code>s of type T will each maintain their own allocator. Clearly, the above pool is not stateless, however we can emulate that behavior by using a singleton. In this manner, there will only ever be one instance of the pool for each type, and all the containers will share the same pool.</p>
 
@@ -677,7 +684,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Hybrid</h2>
+<h1>Hybrid</h1>
 
 <p>One caveat to the object pool is that it only supports the allocation of a single object at a time. This means the object pool will not work for <code>vector</code>s and some implementations of <code>deque</code>, because these data structures allocate multiple contiguous objects at a time. However, the point of the object pool is to alleviate performance issues related to multiple calls of malloc with small sizes. Vectors do this automatically, so the object pool cannot improve their performance.</p>
 
@@ -834,7 +841,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Final Result</h2>
+<h1>Final Result</h1>
 
 <p>The pool and all of it&rsquo;s pieces are very configurable, but a good set of defaults can be selected that will work just fine for most cases. It is best to take all the policies, traits, and adapters, and fold them all together into a single struct or typedef to make it easier to use. Then, it can be simply plugged into the allocator template parameter of any standard container.</p>
 
@@ -909,9 +916,17 @@
 <time datetime="2015-11-26T16:11:06-05:00" pubdate data-updated="true">Nov 26<span>th</span>, 2015</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/memory/'>Memory</a>, <a class='category' href='/blog/categories/templates/'>Templates</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/26/object-pool/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/26/object-pool/" >Tweet</a>
@@ -920,11 +935,44 @@
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -948,20 +996,18 @@
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/26/object-pool/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/26/object-pool/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -969,6 +1015,36 @@
 <a href="http://jrruethe.github.io/blog/2015/11/26/object-pool/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/11/26/object-pool/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/11/22/allocators/">C++ Allocators</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -995,32 +1071,7 @@
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2015/11/22/allocators/">C++ Allocators</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -1123,6 +1174,43 @@
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

@@ -1,0 +1,149 @@
+<html>
+<head><title>Twitter Card template</title></head>
+<body>
+<link href="https://fonts.googleapis.com/css?family=Cabin:400,600" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+<style type="text/css">
+body,html {
+	padding: 0;
+	margin: 0;
+}
+.twitter-card {
+	width: 1200px;
+	height: 630px;
+}
+.twitter-card_wrap {
+	position: relative;
+	height: 630px;
+}
+.twitter-card_bottom {
+	background: rgba(224,224,224,0.7);
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 200px;
+}
+.twitter-card_author {
+	width: 350px;
+	text-align: center;
+	position: relative;
+	top: -100px;
+	float: right;
+}
+.twitter-card_author__avatar {
+	width: 200px;
+	height: 200px;
+	border: 10px solid #fff;
+	border-radius: 50%;
+	box-sizing: border-box;
+	margin: 0 0 30px 0;
+}
+.twitter-card_author__link {
+	display: block;
+	font-family: Lora;
+	font-size: 25px;
+	font-weight: 700;
+	font-style: italic;
+	text-decoration: none;
+	letter-spacing: 1px;
+	color: #36465D;
+}
+.twitter-card_sticker {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 430px;
+	text-align: center;
+}
+.twitter-card_sticker img {
+	position: absolute;
+	margin: auto;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	-webkit-filter: drop-shadow(0px 0px 20px rgba(0,0,0,0.75));
+	max-width: 800px;
+	max-height: 300px;
+}
+h1 {
+	padding: 0 0 0 40px;
+	margin: 0 0 0 0;
+	line-height: 1;
+	float: left;
+	width: 800px;
+	font-family: Cabin;
+	font-weight: 600;
+	font-size: 50px;
+	color: #333;
+}
+</style>
+<div class="twitter-card twitter-card__horizontal">
+	<div class="twitter-card_wrap">
+		<div class="twitter-card_sticker">
+			<img src="twitter-card/stickers/docker.png" alt=""/>
+		</div>
+		<div class="twitter-card_bottom">
+			<h1>Twitter Card</h1>
+			<div class="twitter-card_author">
+				<img src="twitter-card/avatar.png" class="twitter-card_author__avatar"/>
+				<a href="https://twitter.com/jrruethe" class="twitter-card_author__link">@jrruethe</a>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.17.1/URI.js"></script>
+<script>
+
+window.api = { 'link_language': '/' };
+
+window.api.URI = new URI(document.location.search);
+
+window.api.getUrlVar = function(key) {
+	var vars = api.URI.query(true);
+	if (key in vars) {
+		return vars[key];
+	}
+	return false;
+};
+
+window.api.UpdateContents = function(parameter, selector) {
+	var value = api.getUrlVar(parameter);
+	if (value === false) {
+		return;
+	}
+	if (typeof selector === "function") {
+		return selector(decodeURIComponent(value));
+	}
+	$(selector).html(decodeURIComponent(value));
+};
+
+api.UpdateContents("title", ".twitter-card_bottom h1");
+api.UpdateContents("twitter", ".twitter-card_author__link");
+api.UpdateContents("avatar", function(val) {
+	$(".twitter-card_author img").attr("src", val);
+});
+api.UpdateContents("background", function(val) {
+	$(".twitter-card").css("background", val);
+});
+api.UpdateContents("sticker", function(val) {
+	if (val==="none") {
+		$(".twitter-card_sticker").remove();
+	} else {
+		$(".twitter-card_sticker img").attr("src", val);
+	}
+});
+
+$(window).load(function() {
+	var title = $(".twitter-card_bottom h1");
+	var offset = ((title.parent().height() - title.height()) / 2);
+	title.css("margin", offset + "px 0 0 0");
+});
+
+</script>
+
+</body>
+</html>

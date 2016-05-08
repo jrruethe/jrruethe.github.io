@@ -24,19 +24,16 @@ This is a simplified explanation of how &hellip;">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -108,6 +105,14 @@ This is a simplified explanation of how &hellip;">
 <div class="entry-content"><p>Digital cryptography is used everywhere on your computer, both online and offline, to keep your secrets safe.
 This is a simplified explanation of how cryptography accomplishes this task.</p>
 
+<!--more-->
+
+
+<div class='more'></div>
+
+
+<h1>Cryptography</h1>
+
 <p>The three fundamental building blocks to modern cryptography are:</p>
 
 <ul>
@@ -119,9 +124,10 @@ This is a simplified explanation of how cryptography accomplishes this task.</p>
 
 <h2>Symmetric Encryption</h2>
 
-<p>Symmetric encryption is the most intuitive form of encryption. The basic analogy is a lock and key. Keys are used together with an encryption algorithm to encrypt, or lock, a file. The resulting file is unreadable, and indistinguishable from random garbage data.</p>
+<p>Symmetric encryption is the most intuitive form of encryption. The basic analogy is a lock and key. Keys are used together with an encryption algorithm to encrypt, or lock, a file. The resulting file is unreadable, and indistinguishable from random garbage data.<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png"><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/01.png' width='100%' title='Symmetric Encryption' alt=''></a><span class='caption-text'>Symmetric Encryption</span></span></div></div>
+
 
 <p>A key is just a long string of bits. Passwords supplied by a user are either used as a key directly, or are used to derive a key. With symmetric encryption, the same key is used to both encrypt and decrypt a file.</p>
 
@@ -151,9 +157,10 @@ This is a secret
 
 <h2>Man in the Middle attacks</h2>
 
-<p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves in between you and the other person. This is different than just sniffing or eavesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.</p>
+<p>A man in the middle attack occurs when someone is intercepting your communication line by placing themselves in between you and the other person. This is different than just sniffing or eavesdropping, because an attacker is able to tamper with the communication line without either party knowing. For example, if Eve was performing a man in the middle attack on a conversation between Alice and Bob, Eve would be able to impersonate Bob from Alice&rsquo;s point of view, and impersonate Alice from Bob&rsquo;s point of view. Neither Alice nor Bob would be aware that they are talking to Eve instead of the other person. Eve can effectively lie to both parties.<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png"><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/02.png' width='100%' title='Man in the Middle Attack' alt=''></a><span class='caption-text'>Man in the Middle Attack</span></span></div></div>
+
 
 <p>To combat this attack, encryption can be used. If Alice and Bob had the same key, they could communicate securely by encrypting their messages before sending them to the other, and decrypting them upon receipt. This prevents Eve from reading the actual message. However, in order to communicate, they need to have the same key. Either Alice or Bob can generate the key, but the difficulty is transferring the key to the other without Eve intercepting it. The only secure solution is for them to pre-share the key across some other medium, such as a phone call or in person. This exchange is cumbersome, as it must be done before each session. In addition, the key cannot be reused across different sessions; If Eve were to ever obtain the key to a single session, she could also infiltrate all the other sessions, including recordings of past sessions.</p>
 
@@ -163,9 +170,10 @@ This is a secret
 
 <p>This behavior has some very useful implications. One of the keys can be selected to be the <code>private</code> key, which must be kept secure such that no one else knows it. The remaining key will become the <code>public</code> key, which can be posted online, sent to others, etc. This method is known as <code>public key cryptography</code>, and it solves the key distribution problem encountered with symmetric encryption.</p>
 
-<p>Alice will generate a key-pair and keep the private key to herself, while sending her public key to Bob. Likewise, Bob will generate his key-pair and send his public key to Alice while keeping his private key to himself. When Alice wants to talk to Bob, she can use Bob&rsquo;s public key to perform the encryption. Only Bob will be able to decrypt the message, since he is the only one who has the private key. Bob can then respond to Alice by using her public key to encrypt his response.</p>
+<p>Alice will generate a key-pair and keep the private key to herself, while sending her public key to Bob. Likewise, Bob will generate his key-pair and send his public key to Alice while keeping his private key to himself. When Alice wants to talk to Bob, she can use Bob&rsquo;s public key to perform the encryption. Only Bob will be able to decrypt the message, since he is the only one who has the private key. Bob can then respond to Alice by using her public key to encrypt his response.<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png"><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/03.png' width='100%' title='Asymmetric Encryption' alt=''></a><span class='caption-text'>Asymmetric Encryption</span></span></div></div>
+
 
 <p>Asymmetric encryption algorithms, such as RSA, are slow and require much larger keys to achieve the same security that AES provides (2048 &ndash; 4096 bits). This means that using asymmetric encryption for an entire conversation is inefficient. For this reason, a hybrid approach is used. A user will generate a random symmetric key intended for one time use, called a session key, and encrypt it using the public asymmetric key of the recipient. The receiver will use their private asymmetric key to obtain the symmetric session key. Now that both users have the same symmetric key, they can use symmetric encryption to communicate.</p>
 
@@ -175,9 +183,10 @@ This is a secret
 
 <p>Unlike the other two, a hash is not an encryption method. Hashes are also known as message digests or fingerprints. They are one-way functions, meaning that they cannot be reversed or undone; given the output, it is impossible to derive the input.</p>
 
-<p>Any two messages that contain the exact same data will produce the exact same hash, or fingerprint. Similarly, if even a single bit is different, the hash will be completely different. Hash algorithms employ an avalanche technique such that a small change to the input produces a large change in the output. Finally, hash algorithms always produce the same size output regardless of the size of the input.</p>
+<p>Any two messages that contain the exact same data will produce the exact same hash, or fingerprint. Similarly, if even a single bit is different, the hash will be completely different. Hash algorithms employ an avalanche technique such that a small change to the input produces a large change in the output. Finally, hash algorithms always produce the same size output regardless of the size of the input.<sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png"><sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/04.png' width='100%' title='Hash' alt=''></a><span class='caption-text'>Hash</span></span></div></div>
+
 
 <p>Here are some examples, using the SHA-256 algorithm (Secure Hash Algorithm):</p>
 
@@ -199,9 +208,10 @@ echo This is b message | sha256sum
 
 <h2>Digital Signatures</h2>
 
-<p>Now, back to our previous question; How can Bob be assured that a message came from Alice? Because of the way asymmetric encryption works, Alice can also encrypt a message using her own private key. The resulting cyphertext can be decrypted by anyone, since the corresponding public key is publicly available. However, the cyphertext could only have been created by Alice, because she is the only one who has the private key. This is called a digital signature; Alice <em>signs</em> a message by encrypting it with her private key.</p>
+<p>Now, back to our previous question; How can Bob be assured that a message came from Alice? Because of the way asymmetric encryption works, Alice can also encrypt a message using her own private key. The resulting cyphertext can be decrypted by anyone, since the corresponding public key is publicly available. However, the cyphertext could only have been created by Alice, because she is the only one who has the private key. This is called a digital signature; Alice <em>signs</em> a message by encrypting it with her private key.<sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png"><sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/05.png' width='100%' title='Digital Signatures' alt=''></a><span class='caption-text'>Digital Signatures</span></span></div></div>
+
 
 <p>Because asymmetric encryption keys are so large (which causes the resulting cyphertext to be large), it is not practical to encrypt an entire message, especially if that message is large. Instead, the hash of the message is encrypted, and the message itself is sent in plaintext (unencrypted). Anyone can read the message and compute it&rsquo;s hash. Then, they use Alice&rsquo;s public key to decrypt the signature connected to the message to obtain the hash that Alice encrypted. If the two hashes match, then the message was not tampered with, and the user can be certain that the message originated from Alice.</p>
 
@@ -213,9 +223,10 @@ echo This is b message | sha256sum
 
 <p>Alice and Bob share their public keys with each other. One of them generates a random session key and encrypts it with their private key. They take the result and encrypt it with the public key of the recipient.</p>
 
-<p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any eavesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.</p>
+<p>The receiver uses their private key to decrypt the message, and use the sender&rsquo;s public key to decrypt the result to obtain the random session key. The sender is assured that only the intended receiver is able to obtain the key, and the receiver is assured that only the expected sender could have sent it. From here, they can establish a secure channel using symmetric encryption with the session key. Any eavesdropper on the exchange would not be able to gain access to the session key, and thus could not listen in on the secure channel.<sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png"><sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/06.png' width='100%' title='Secure Communication' alt=''></a><span class='caption-text'>Secure Communication</span></span></div></div>
+
 
 <p>However, there is still one thing missing which makes this communication vulnerable to a man in the middle attack. If Eve is able to tamper with the initial handshake, where the public keys are exchanged, she could pass fake public keys to each side. Alice would think that she received Bob&rsquo;s public key, when in fact she received Eve&rsquo;s public key. Her entire communication would be with Eve directly, who is impersonating Bob, but is also passing the messages to Bob after reading them. Neither is aware that this is happening.</p>
 
@@ -227,9 +238,10 @@ echo This is b message | sha256sum
 
 <p>A digital certificate is an identity linked to a public key, and signed by someone trustworthy. An identity in this case can be something as simple as a name or email address, or it can be as complicated as a photo of a license / passport or fingerprints. It is a means of uniquely identifying and verifying an individual or organization.</p>
 
-<p>A digital certificate links an identity to a public key. Certificates can be signed with many different signatures, as well as a self-signature (the owner of the public key). Certificates play an important role in creating a network of trust. Remember, anyone can create an identity and public key, and they can sign their own certificate. This means that while the link between the public key and identity is real, the identity itself could be fabricated. Trust in a certificate is established by obtaining signatures from trustworthy entities.</p>
+<p>A digital certificate links an identity to a public key. Certificates can be signed with many different signatures, as well as a self-signature (the owner of the public key). Certificates play an important role in creating a network of trust. Remember, anyone can create an identity and public key, and they can sign their own certificate. This means that while the link between the public key and identity is real, the identity itself could be fabricated. Trust in a certificate is established by obtaining signatures from trustworthy entities.<sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png"><sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/07.png' width='100%' title='Digital Certificates' alt=''></a><span class='caption-text'>Digital Certificates</span></span></div></div>
+
 
 <p>There are currently two models for establishing trust in digital certificates. One of them is a hierarchial centralized method which uses a <code>root certificate authority</code> that must be completely trusted, while the other is a decentralized <code>web of trust</code> that gives each person full control of their trust.</p>
 
@@ -237,9 +249,10 @@ echo This is b message | sha256sum
 
 <p>This is a centralized system that focuses completely around the root authority. The root authority is responsible for performing background checks to verify an identity, and signs off on the certificate if the identity is legitimate. Root authorities can sign the certificates of sub-authorities, which in turn are granted the same responsibilities and signing powers. Anyone can request that an authority sign their certificate, which usually involves payment of a fee, to grant the trust of the root authority to their certificate.</p>
 
-<p>If you can find a chain of signatures from a certificate back to the root authority, and you trust the root authority, then you can trust the certificate. This trust model is all or nothing, meaning that as long as the root authority is trusted, every chain originating at the root authority is trusted regardless of the number of links.</p>
+<p>If you can find a chain of signatures from a certificate back to the root authority, and you trust the root authority, then you can trust the certificate. This trust model is all or nothing, meaning that as long as the root authority is trusted, every chain originating at the root authority is trusted regardless of the number of links.<sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png"><sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/08.png' width='100%' title='Root Certificate Authority' alt=''></a><span class='caption-text'>Root Certificate Authority</span></span></div></div>
+
 
 <p>Most of the internet works using this model. Your web browser comes with preinstalled certificates for the major root authorities, which sign the certificates of all the websites you interact with. There are flaws with this model, however. Security is a &ldquo;weakest link&rdquo; type of problem; A chain ending at the root authority doesn&rsquo;t mean that the entire chain is solid. It could be that a sub-authority does not properly perform its background checks, resulting in that sub-authority being the weakest link. If that sub-authority signs a fabricated certificate, there is no way for you to know not to trust it. The owner of the certificate could masquerade as their false identity and impersonate a target.</p>
 
@@ -247,9 +260,10 @@ echo This is b message | sha256sum
 
 <h2>Web of Trust</h2>
 
-<p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convenient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.</p>
+<p>To avoid the single point of failure present in the centralized hierarchial model, a different model known as the <code>web of trust</code> was created. This model is decentralized and gives the control back to the individuals. The web of trust involves each person performing their own level of identity checking before signing off on a certificate. In effect, they become their own root authority for themselves. If you are able to verify an identity one time and sign off on it, you can trust that identity from that point forward. This method involves more manual work, making it a little less convenient. It is also more probabilistic than the black/white hierarchial model, in that trust is measured in the quantity of signatures rather then the presence of a single signature. The upside is that the only single point of failure is yourself, as you get to define the trust levels of each certificate you interact with.<sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png"><sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png'><img class='caption' src='http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/09.png' width='100%' title='Web of Trust' alt=''></a><span class='caption-text'>Web of Trust</span></span></div></div>
+
 
 <p>In the web of trust model, you are responsible for verifying that the identity of the certificate matches the identity of the certificate holder. This is typically done in person or over some other medium besides the one being used with the certificate (such as the phone). You would ask the person to present their certificate as well as some reputable identification, such as a passport or drivers license, and sign the certificate if the identities match. Chains are formed transitively by signing a certificate when someone has signed your own certificate.</p>
 
@@ -261,28 +275,28 @@ echo This is b message | sha256sum
 
 <h2>Trust</h2>
 
-<p>Secure communication is possible if you can establish trust in the other person&rsquo;s identity. How does one go about establishing this trust? I will cover this in a future post.</p>
+<p>Secure communication is possible if you can establish trust in the other person&rsquo;s identity. How does one go about establishing this trust?</p>
 <div class="footnotes">
 <hr/>
 <ol>
 <li id="fn:1">
-<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx <a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<p><a href="https://msdn.microsoft.com/en-us/library/ff647097.aspx">Symmetric Encryption</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
 <li id="fn:2">
-<p>http://www.cs.ucla.edu/classes/winter13/cs111/scribe/17b/ (http://fearlessweb.trendmicro.com/2012/tips-and-tricks/what-are-man-in-the-middle-attacks-and-how-can-i-protect-myself-from-them/)<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+<p><a href="http://www.cs.ucla.edu/classes/winter13/cs111/scribe/17b/">Man in the Middle Attacks</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
 <li id="fn:3">
-<p>https://msdn.microsoft.com/en-us/library/ff647097.aspx<a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
+<p><a href="https://msdn.microsoft.com/en-us/library/ff647097.aspx">Asymmetric Encryption</a><a href="#fnref:3" rev="footnote">&#8617;</a></p></li>
 <li id="fn:4">
-<p>http://computersecuritypsh.wikia.com/wiki/File:Hash_Function.png<a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
+<p><a href="http://computersecuritypsh.wikia.com/wiki/File:Hash_Function.png">Hashes</a><a href="#fnref:4" rev="footnote">&#8617;</a></p></li>
 <li id="fn:5">
-<p>http://oz.stern.nyu.edu/fall99/readings/security/<a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
+<p><a href="http://oz.stern.nyu.edu/fall99/readings/security/">Digital Signatures</a><a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
 <li id="fn:6">
-<p>http://www.embedded.com/design/safety-and-security/4230829/2/Securing-your-apps-with-Public-Key-Cryptography&mdash;-Digital-Signature<a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
+<p><a href="http://www.embedded.com/design/safety-and-security/4230829/2/Securing-your-apps-with-Public-Key-Cryptography---Digital-Signature">Secure Communication</a><a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
 <li id="fn:7">
-<p>https://commons.wikimedia.org/wiki/File:Digital_Signature_diagram.svg<a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
+<p><a href="https://commons.wikimedia.org/wiki/File:Digital_Signature_diagram.svg">Digital Certificates</a><a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
 <li id="fn:8">
-<p>http://www.hill2dot0.com/wiki/index.php?title=Image:G1662_CA-Hierarchies-and-Cr.jpg<a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
+<p><a href="http://www.hill2dot0.com/wiki/index.php?title=Image:G1662_CA-Hierarchies-and-Cr.jpg">Root Certificate Authority</a><a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
 <li id="fn:9">
-<p>http://books.gigatux.nl/mirror/securitytools/ddu/ch09lev1sec1.html<a href="#fnref:9" rev="footnote">&#8617;</a></p></li>
+<p><a href="http://books.gigatux.nl/mirror/securitytools/ddu/ch09lev1sec1.html">Web of Trust</a><a href="#fnref:9" rev="footnote">&#8617;</a></p></li>
 </ol>
 </div>
 
@@ -311,9 +325,17 @@ echo This is b message | sha256sum
 <time datetime="2014-10-25T14:48:28-04:00" pubdate data-updated="true">Oct 25<span>th</span>, 2014</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cryptography/'>Cryptography</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/" >Tweet</a>
@@ -322,15 +344,48 @@ echo This is b message | sha256sum
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/" title="Previous Post: PDF Generation with ruby and Pocket">&laquo; PDF Generation with ruby and Pocket</a>
+        <a class="basic-alignment left" href="/blog/2014/08/16/pdf-generation-with-ruby-and-pocket/" title="Previous Post: PDF Generation with Ruby and Pocket">&laquo; PDF Generation with Ruby and Pocket</a>
       
       
         <a class="basic-alignment right" href="/blog/2015/02/28/blockchain-identity/" title="Next Post: Blockchain Identity">Blockchain Identity &raquo;</a>
@@ -350,20 +405,18 @@ echo This is b message | sha256sum
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -371,6 +424,36 @@ echo This is b message | sha256sum
 <a href="http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/10/25/cryptography-primer/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -397,32 +480,7 @@ echo This is b message | sha256sum
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/12/04/bitcoin-donations/">Bitcoin Donations</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -525,6 +583,43 @@ echo This is b message | sha256sum
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

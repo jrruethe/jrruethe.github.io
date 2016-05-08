@@ -24,19 +24,16 @@ However, the steps are simple. Below is a script to do all &hellip;">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -108,31 +105,100 @@ However, the steps are simple. Below is a script to do all &hellip;">
 <div class="entry-content"><p>It can be tricky to figure out how to connect to a wireless network via the command line.<br/>
 However, the steps are simple. Below is a script to do all the work for you.</p>
 
-<pre><code>#!/bin/bash
-# Connect to a wireless network secured with WPA2
-# Usage: ./connect.sh &lt;SSID&gt;
-# Run this as root
+<!--more-->
 
-# Parse command line arguments
-SSID=$1
 
-# Ensure the interface is up
-ifconfig wlan0 up
+<div class='more'></div>
 
-# Create a configuration file
-echo Enter the passphrase for $SSID:
-wpa_passphrase $SSID &gt; ./wpa.conf
 
-# Connect to the access point
-wpa_supplicant -Dwext -iwlan0 -c./wpa.conf -B
 
-# Obtain an IP address
-dhclient -r
-dhclient wlan0
 
-# Test the connection
-ping -c 1 www.google.com
-</code></pre>
+<figure class='code'><figcaption><span> (connect.sh)</span><a href='/downloads/code/connect.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># connect.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Connect to a wireless network secured with WPA2</span>
+</span><span class='line'><span class="c"># Usage: connect.sh &lt;SSID&gt;</span>
+</span><span class='line'><span class="c"># Run this as root</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Parse command line arguments</span>
+</span><span class='line'><span class="nv">SSID</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Ensure the interface is up</span>
+</span><span class='line'>ifconfig wlan0 up
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a configuration file</span>
+</span><span class='line'><span class="nb">echo </span>Enter the passphrase <span class="k">for</span> <span class="nv">$SSID</span>:
+</span><span class='line'>wpa_passphrase <span class="nv">$SSID</span> &gt; ./wpa.conf
+</span><span class='line'>
+</span><span class='line'><span class="c"># Connect to the access point</span>
+</span><span class='line'>wpa_supplicant -Dwext -iwlan0 -c./wpa.conf -B
+</span><span class='line'>
+</span><span class='line'><span class="c"># Obtain an IP address</span>
+</span><span class='line'>dhclient -r
+</span><span class='line'>dhclient wlan0
+</span><span class='line'>
+</span><span class='line'><span class="c"># Test the connection</span>
+</span><span class='line'>ping -c 1 www.google.com
+</span></code></pre></td></tr></table></div></figure>
+
+
+
 </div>
 
 
@@ -158,9 +224,17 @@ ping -c 1 www.google.com
 <time datetime="2014-07-05T20:22:15-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/scripts/'>Scripts</a>, <a class='category' href='/blog/categories/wifi/'>Wifi</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/" >Tweet</a>
@@ -169,11 +243,44 @@ ping -c 1 www.google.com
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -197,20 +304,18 @@ ping -c 1 www.google.com
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -218,6 +323,36 @@ ping -c 1 www.google.com
 <a href="http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2014/07/05/connecting-to-wireless-from-the-command-line/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/07/05/debian-on-the-lenovo-thinkpad-yoga/">Debian on the Lenovo Thinkpad Yoga</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/03/30/squashed-truecrypt-archive/">Squashed Truecrypt Archive</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -244,32 +379,7 @@ ping -c 1 www.google.com
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -371,6 +481,36 @@ ping -c 1 www.google.com
     })();
   </script>
 
+
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
 
 
 

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: File Management | Morning Musings]]></title>
+  <link href="http://jrruethe.github.io/blog/categories/file-management/atom.xml" rel="self"/>
+  <link href="http://jrruethe.github.io/"/>
+  <updated>2016-05-08T18:15:24-04:00</updated>
+  <id>http://jrruethe.github.io/</id>
+  <author>
+    <name><![CDATA[Joe Ruether]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Installing Bittorrent Sync on Debian]]></title>
+    <link href="http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian/"/>
+    <updated>2014-07-06T14:51:39-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2014/07/06/installing-bittorrent-sync-on-debian</id>
+    <content type="html"><![CDATA[<p>Bittorrent Sync is an awesome folder synchronization tool that uses the Bittorrent protocol.
+It is simple and fast alternative to Dropbox, and best of all the files are only ever stored on machines <em>you</em> choose; there is no &ldquo;cloud&rdquo; or third party servers.
+Here is a quick guide to set it up.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p>I use Bittorrent Sync to keep all my machines up to date with eachother, share files, and perform backups. It works on Windows, Linux, and Android.
+Unfortunately, it is not open source, however I am still a fan of this software.</p>
+
+<p>There is no official installer for Bittorrent Sync on Debian, but the steps to get it working are pretty simple.<br/>
+First you need to go get the software:</p>
+
+<ul>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/i386">32 Bit</a></li>
+<li><a href="http://www.bittorrent.com/sync/downloads/complete/os/x64">64 Bit</a></li>
+</ul>
+
+
+<p>I suggest unpacking it to /opt/btsync:</p>
+
+<pre><code>mkdir /opt/btsync
+mv btsync_x64.tar.gz /opt/btsync
+cd /opt/btsync
+tar xzvf ./btsync_x64.tar.gz
+</code></pre>
+
+<p>Next, create a configuration file:</p>
+
+<pre><code>./btsync --dump-sample-config &gt; btsync.conf
+</code></pre>
+
+<p>You need to make one change to the config file, and that is the storage path.<br/>
+Look for where it says <code>/home/user/.sync</code> and change <code>user</code> to your username.<br/>
+You might be interested in adding a password to the Web UI, which is where you will do all your folder management from. You can find thhat setting near the bottom of the config file.</p>
+
+<p>Next, you want to create an init script. Copy the following to <code>/etc/init.d/btsync</code>:</p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>&lt;/p&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;pre&gt;&lt;code&gt;#! /bin/sh
+</span><span class='line'><span class="c"># /etc/init.d/btsync</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Carry out specific functions when asked to by the system</span>
+</span><span class='line'><span class="k">case</span> <span class="s2">&quot;$1&quot;</span> in
+</span><span class='line'>start<span class="o">)</span>
+</span><span class='line'>    <span class="c"># /opt/btsync/btsync --config /opt/btsync/btsync.conf # Run as root</span>
+</span><span class='line'>    /bin/su user -c <span class="s1">&#39;/opt/btsync/btsync --config /opt/btsync/btsync.conf&#39;</span> <span class="c"># Run as user</span>
+</span><span class='line'>    ;;
+</span><span class='line'>stop<span class="o">)</span>
+</span><span class='line'>    killall btsync
+</span><span class='line'>    ;;
+</span><span class='line'>*<span class="o">)</span>
+</span><span class='line'>    <span class="nb">echo</span> <span class="s2">&quot;Usage: /etc/init.d/btsync {start|stop}&quot;</span>
+</span><span class='line'>    <span class="nb">exit </span>1
+</span><span class='line'>    ;;
+</span><span class='line'><span class="k">esac</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">exit </span>0
+</span><span class='line'>&lt;/code&gt;&lt;/pre&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>Finally, run the following commands to finish the installation:</p>
+
+<pre><code>chmod 755 /etc/init.d/btsync
+update-rc.d btsync defaults
+mkdir ~/.sync
+/etc/init.d/btsync start
+</code></pre>
+
+<p>Thats it! Bittorrent Sync is installed, and will automatically run every time your machine boots.<br/>
+You can access the Web UI at 127.0.0.1:8888</p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -9,7 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="This post will discuss how to make a STL compliant allocator. All of the standard containers support a 2nd (or 3rd) template parameter to specify the &hellip;">
+  <meta name="description" content="This post will discuss how to make a STL compliant allocator. About Allocators All of the standard containers support a 2nd (or 3rd) template &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,19 +23,16 @@
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -106,6 +103,14 @@
 
 <div class="entry-content"><p>This post will discuss how to make a STL compliant allocator.</p>
 
+<!--more-->
+
+
+<div class='more'></div>
+
+
+<h1>About Allocators</h1>
+
 <p>All of the standard containers support a 2nd (or 3rd) template parameter to specify the allocator that should be used. Each container allocates memory to store the objects it contains, and it uses the allocator to obtain the memory required for this storage. By using a custom allocator, you can remain in control of how memory is managed.</p>
 
 <p>Custom allocators are useful for a variety of cases:</p>
@@ -139,7 +144,7 @@
 <blockquote><p><strong>Policies and Traits</strong><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup><br/>
 Policies are classes (or class templates) to inject behavior into a parent class, typically through inheritance. By decomposing a parent interface into orthogonal (independent) dimensions, policy classes form the building blocks of more complex interfaces. Traits are class templates to extract properties from a generic type. Traits are often used in template-metaprogramming and SFINAE tricks to overload a function template based on a type condition.</p></blockquote>
 
-<h3>Object Traits</h3>
+<h1>Object Traits</h1>
 
 <p>The first thing to define is the object traits. This structure is responsible for creating and destroying objects, as well as returning the address of an object. Note that classes support overriding the &ldquo;address-of&rdquo; operator, so the object traits will need to be specialized for those classes. The object traits can also be specialized for a type to keep track of the number of instantiations using the allocator, much like the object counter works.</p>
 
@@ -222,11 +227,11 @@ Policies are classes (or class templates) to inject behavior into a parent class
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Rebinding</h3>
+<h1>Rebinding</h1>
 
 <p>Notice the special <code>rebind</code> struct in the above code. This is a convention used by the STL to allow for chainging the type of the allocator. For example, when you make a <code>std::list&lt;T&gt;</code>, internally the type is being rebound to <code>std::list&lt;Node&lt;T&gt; &gt;</code>, because lists store nodes that contain a T, not the T itself. To support this, the allocator itself must support rebinding such that memory is allocated for the node, not just T.</p>
 
-<h3>Allocator Traits</h3>
+<h1>Allocator Traits</h1>
 
 <p>The allocator policies require a certain set of typedefs to be present. In most cases, they can all be derived from the type of the allocator, so it makes sense to use a macro:</p>
 
@@ -251,7 +256,7 @@ Policies are classes (or class templates) to inject behavior into a parent class
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Allocator Policy</h3>
+<h1>Allocator Policy</h1>
 
 <p>Next, the actual allocator policy needs to be defined. The allocator policy is responsible for allocating and deallocating memory. For this example, a simple heap allocator will work. The functionality will mimic that of the standard allocator:</p>
 
@@ -342,7 +347,7 @@ Policies are classes (or class templates) to inject behavior into a parent class
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Allocator</h3>
+<h1>Allocator</h1>
 
 <p>Now that we have all the pieces, it is time to bring them all together. The actual allocator class is nothing more than a wrapper to combine the above into one common place. The key to the allocator wrapper is that it inherits from the allocator policy and object traits, thus the combination satisfies all the requirements for a compliant allocator.</p>
 
@@ -443,7 +448,7 @@ Policies are classes (or class templates) to inject behavior into a parent class
 
 <p>Notice how the rebinding structure works here; the policy and traits classes are both rebound to the new type when the overall allocator is rebound.</p>
 
-<h3>Equality operators</h3>
+<h2>Equality operators</h2>
 
 <p>The STL uses the equality operator to determine if memory allocated by one allocator can be deallocated with another. Normally, a heap allocator can be used interchangably between types, so the equality operator would return true. However, with this allocator framework, different policies can be plugged in, and some policies may not be interchangable. Therefore, the equality operator will default to false. Specializations of the equality operators can be made for specific policies to register equality, such as he heap policy:</p>
 
@@ -556,7 +561,7 @@ Policies are classes (or class templates) to inject behavior into a parent class
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h3>Using the Allocator</h3>
+<h1>Using the Allocator</h1>
 
 <p>Using the allocator is simple, just pass it into the 2nd (or 3rd) template parameter of a container. Remember that some containers (like <code>set</code>) have a second template parameter that accepts a comparator.</p>
 
@@ -659,9 +664,17 @@ Policies are classes (or class templates) to inject behavior into a parent class
 <time datetime="2015-11-22T16:10:49-05:00" pubdate data-updated="true">Nov 22<span>nd</span>, 2015</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/memory/'>Memory</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/22/allocators/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/22/allocators/" >Tweet</a>
@@ -670,11 +683,44 @@ Policies are classes (or class templates) to inject behavior into a parent class
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -698,20 +744,18 @@ Policies are classes (or class templates) to inject behavior into a parent class
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/11/22/allocators/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/11/22/allocators/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -719,6 +763,36 @@ Policies are classes (or class templates) to inject behavior into a parent class
 <a href="http://jrruethe.github.io/blog/2015/11/22/allocators/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/11/22/allocators/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -745,32 +819,7 @@ Policies are classes (or class templates) to inject behavior into a parent class
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -873,6 +922,43 @@ Policies are classes (or class templates) to inject behavior into a parent class
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

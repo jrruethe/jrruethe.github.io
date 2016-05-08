@@ -1,0 +1,2364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Cryptography | Morning Musings]]></title>
+  <link href="http://jrruethe.github.io/blog/categories/cryptography/atom.xml" rel="self"/>
+  <link href="http://jrruethe.github.io/"/>
+  <updated>2016-05-08T18:15:24-04:00</updated>
+  <id>http://jrruethe.github.io/</id>
+  <author>
+    <name><![CDATA[Joe Ruether]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Cryptography Using OpenSSL]]></title>
+    <link href="http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl/"/>
+    <updated>2016-04-17T13:21:05-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2016/04/17/cryptography-using-openssl</id>
+    <content type="html"><![CDATA[<p>PGP and GPG are commonly used to encrypt and sign messages for specified recipients, but OpenSSL is capable of performing the same cryptographic operations.
+The benefit is that more of the magic is exposed to the user, which can be useful for learning more about how cryptographic applications operate.</p>
+
+<p>Below are three bash scripts that can perform the following:</p>
+
+<ul>
+<li>Public / private key generation</li>
+<li>Hybrid asymmetric encryption and signing</li>
+<li>Hybrid asymmetric decryption and verification</li>
+</ul>
+
+
+<p>These operations are a subset of the core functionality provided by GPG, and can be used to securely pass sensitive data between users. Unlike GPG, the user is responsible for managing trusted certificates.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<h1>Generate</h1>
+
+<p>The first script is called <code>generate.sh</code>. It will generate a new public certificate and private key when given a name and optional email address. Run it like so:</p>
+
+<pre><code>$ ./generate.sh 
+Usage: generate.sh &lt;"name"&gt; [email]
+
+$ ./generate.sh "Joe Ruether" jrruethe@gmail.com
+</code></pre>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./01.png'><img class='caption' src='./01.png' width='100%' title='Generate Usage' alt=''></a><span class='caption-text'>Generate Usage</span></span></div></div></p>
+
+<p>As you can see, a certificate and private key were generated, with the proper permissions set. Both files are stored in base64 ASCII for easily sharing or backing them up.</p>
+
+<p>You can also view the human readable output of the certificate with:</p>
+
+<pre><code>openssl x509 -in Joe_Ruether.certificate -text -noout
+</code></pre>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./02.png'><img class='caption' src='./02.png' width='100%' title='Certificate Text' alt=''></a><span class='caption-text'>Certificate Text</span></span></div></div></p>
+
+<p>The idea here is that two users would generate their own certificates and private keys, then keep the private keys for themselves while sharing the certificates with each other. The sharing of certificates should be done in a way that you can prove the certificate belongs to who you think it does, since anyone can generate a certificate with any name and email.</p>
+
+<p>The script:</p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (generate.sh)</span><a href='/downloads/code/generate.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># generate.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generates a certificate and private key</span>
+</span><span class='line'><span class="c"># generate.sh &lt;&quot;name&quot;&gt; [email]</span>
+</span><span class='line'><span class="c"># 1) (Required) Name of user</span>
+</span><span class='line'><span class="c"># 2) (Optional) Email of user</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 1 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: generate.sh &lt;\&quot;name\&quot;&gt; [email]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">NAME</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">EMAIL</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Replace spaces with underscores</span>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">NAME</span><span class="p">// /_</span><span class="k">}</span>
+</span><span class='line'><span class="nv">KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.secret
+</span><span class='line'><span class="nv">CERTIFICATE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.certificate
+</span><span class='line'>
+</span><span class='line'><span class="c"># Create a certificate and key pair for the given name and email</span>
+</span><span class='line'><span class="nb">echo</span> -e <span class="s2">&quot;NA\nNA\nNA\nNA\nNA\n${NAME}\n${EMAIL}&quot;</span> | openssl req -new -x509 -sha256 -newkey rsa:2048 -nodes -keyout <span class="k">${</span><span class="nv">KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">CERTIFICATE</span><span class="k">}</span>  &gt; /dev/null 2&gt;&amp;1	
+</span><span class='line'>
+</span><span class='line'><span class="c"># Change permissions</span>
+</span><span class='line'>chmod 400 <span class="k">${</span><span class="nv">KEY</span><span class="k">}</span>
+</span><span class='line'>chmod 444 <span class="k">${</span><span class="nv">CERTIFICATE</span><span class="k">}</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<h1>Encrypt</h1>
+
+<p>The next script performs file encryption to a specified recipient certificate. It can optionally sign the file with your private key. The order of operations is as follows:</p>
+
+<ol>
+<li>The file is first compressed</li>
+<li>A random keyfile is generated</li>
+<li>The compressed file is symmetrically encrypted with the random keyfile using AES256</li>
+<li>The random key is asymmetrically encrypted with the certificate using RSA</li>
+<li>(optional) The file is signed using the private key of the sender, and the signature is encrypted symmetrically using the random key</li>
+<li>All output files are bundled together into a tarball</li>
+</ol>
+
+
+<p>Run it like so:</p>
+
+<pre><code>$ echo "This is a test" &gt; test.txt
+$ ./encrypt.sh 
+Usage: encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]
+
+$ ./encrypt.sh test.txt Alice.certificate
+Encryption Successful
+</code></pre>
+
+<p>Optionally the file can be signed by also providing your private key:</p>
+
+<pre><code>$ ./encrypt.sh test.txt Alice.certificate Bob.secret
+Encryption Successful
+</code></pre>
+
+<p>In this case, the file <code>test.txt</code> was encrypted to Alice and signed by Bob.</p>
+
+<p>Here is the output:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./03.png'><img class='caption' src='./03.png' width='100%' title='Generating Certificates' alt=''></a><span class='caption-text'>Generating Certificates</span></span></div></div>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./04.png'><img class='caption' src='./04.png' width='100%' title='Encryption Usage' alt=''></a><span class='caption-text'>Encryption Usage</span></span></div></div></p>
+
+<p>The produced tarball can be safely shared over an insecure channel; only the intended recipient is able to decrypt it.</p>
+
+<p>The tarball will always contain the recipient metadata extracted from the recipient&rsquo;s public certificate. This is so it is easy to identify who is able to decrypt the file. Optionally, the sender can include their certificate metadata when signing a file, to make it easy to determine which certificate is needed to verify the signature. The metadata files contain nothing more than the sha1 fingerprints of the respective certificates:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./05.png'><img class='caption' src='./05.png' width='100%' title='Metadata' alt=''></a><span class='caption-text'>Metadata</span></span></div></div></p>
+
+<p>The script:</p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (encrypt.sh)</span><a href='/downloads/code/encrypt.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># encrypt.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypts a file</span>
+</span><span class='line'><span class="c"># encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]</span>
+</span><span class='line'><span class="c"># 1) (Required) File to encrypt</span>
+</span><span class='line'><span class="c"># 2) (Required) Certificate of the recipient</span>
+</span><span class='line'><span class="c"># 3) (Optional) Private key of the sender</span>
+</span><span class='line'><span class="c"># 4) (Optional) Certificate of the sender</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="c"># set -e</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 2 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: encrypt.sh &lt;file&gt; &lt;recipient_certificate&gt; [sender_private_key] [sender_certificate]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">RECIPIENT_CERTIFICATE</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">SIGNING_KEY</span><span class="o">=</span><span class="nv">$3</span>
+</span><span class='line'><span class="nv">SENDER_CERTIFICATE</span><span class="o">=</span><span class="nv">$4</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">COMPRESSED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.bz2
+</span><span class='line'><span class="nv">ENCRYPTED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">SYMMETRIC_KEY</span><span class="o">=</span>symmetric_key.bin
+</span><span class='line'><span class="nv">ENCRYPTED_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="p">//certificate/public</span><span class="k">}</span>
+</span><span class='line'><span class="nv">RECIPIENT_METADATA</span><span class="o">=</span>recipient.txt
+</span><span class='line'><span class="nv">SENDER_METADATA</span><span class="o">=</span>sender.txt
+</span><span class='line'>
+</span><span class='line'><span class="nv">SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.signature
+</span><span class='line'><span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>.tar
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the public key from the certificate</span>
+</span><span class='line'>openssl x509 -in <span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="k">}</span> -pubkey -noout &gt; <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span> 2&gt;/dev/null
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Invalid recipient certificate&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the recipient fingerprint metadata</span>
+</span><span class='line'>openssl x509 -in <span class="k">${</span><span class="nv">RECIPIENT_CERTIFICATE</span><span class="k">}</span> -noout -fingerprint | awk -F <span class="s2">&quot;=&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> &gt; <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Compress the file</span>
+</span><span class='line'>bzip2 -9 -k <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generate a random key</span>
+</span><span class='line'>openssl rand -base64 128 -out <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit shred <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypt the file symmetrically using the random key</span>
+</span><span class='line'>openssl enc -aes-256-cbc -salt -in <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Encrypt the symmetric key with the public key of the recipient</span>
+</span><span class='line'>openssl rsautl -encrypt -inkey <span class="k">${</span><span class="nv">RECIPIENT_PUBLIC_KEY</span><span class="k">}</span> -pubin -in <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># If the file is being signed by the sender</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SIGNING_KEY</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Sign the file</span>
+</span><span class='line'>   openssl dgst -sha256 -sign <span class="k">${</span><span class="nv">SIGNING_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>   add_on_exit shred <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Invalid sender private key&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Encrypt the signature symmetrically using the random key</span>
+</span><span class='line'>   openssl enc -aes-256-cbc -salt -in <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Clear the variables for the tar command</span>
+</span><span class='line'>   <span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># If a sender is being specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Get the sender fingerprint metadata</span>
+</span><span class='line'>   openssl x509 -in <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> -noout -fingerprint 2&gt;/dev/null | awk -F <span class="s2">&quot;=&quot;</span> <span class="s1">&#39;{print $2}&#39;</span> &gt; <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="k">${</span><span class="nv">PIPESTATUS</span><span class="p">[0]</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Invalid sender certificate&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Clear the variable for the tar command</span>
+</span><span class='line'>   <span class="nv">SENDER_METADATA</span><span class="o">=</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Bundle the output files together</span>
+</span><span class='line'>tar cf <span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> <span class="k">${</span><span class="nv">RECIPIENT_METADATA</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">SENDER_METADATA</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Encryption Successful&quot;</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<h1>Decrypt</h1>
+
+<p>The final script is intended to decrypt bundles created by the above encryption script. It will:</p>
+
+<ol>
+<li>Extract the encrypted symmetric key</li>
+<li>Decrypt the symmetric key using the given secret key</li>
+<li>Extract the encrypted compressed file</li>
+<li>Use the decrypted symmetric key to decrypt the compressed file</li>
+<li>Decompress the file</li>
+<li>(optional) Extract and verify the signature using the supplied certificate</li>
+</ol>
+
+
+<p>Run it like so:</p>
+
+<pre><code>$ ./decrypt.sh 
+Usage: decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]
+
+$ ./decrypt.sh test.txt.tar Alice.secret Bob.certificate 
+Verified OK
+Decryption Successful
+</code></pre>
+
+<p>In this case, the file was decrypted by Alice, and verified to be sent by Bob.</p>
+
+<p>Here is the output:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./06.png'><img class='caption' src='./06.png' width='100%' title='Decryption Usage' alt=''></a><span class='caption-text'>Decryption Usage</span></span></div></div></p>
+
+<p>The script:</p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (decrypt.sh)</span><a href='/downloads/code/decrypt.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># decrypt.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2016 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypts a file</span>
+</span><span class='line'><span class="c"># decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]</span>
+</span><span class='line'><span class="c"># 1) (Required) File to decrypt</span>
+</span><span class='line'><span class="c"># 2) (Required) Private key of the recipient</span>
+</span><span class='line'><span class="c"># 3) (Optional) Certificate of the sender</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="c"># set -e</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$#&quot;</span> -lt 2 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: decrypt.sh &lt;file&gt; &lt;recipient_private_key&gt; [sender_certificate]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">FILE</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">RECIPIENT_PRIVATE_KEY</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">SENDER_CERTIFICATE</span><span class="o">=</span><span class="nv">$3</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span><span class="k">${</span><span class="nv">FILE</span><span class="p">//.tar/</span><span class="k">}</span>
+</span><span class='line'><span class="nv">COMPRESSED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>.bz2
+</span><span class='line'><span class="nv">ENCRYPTED_FILE</span><span class="o">=</span><span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span>.encrypted
+</span><span class='line'><span class="nv">SYMMETRIC_KEY</span><span class="o">=</span>symmetric_key.bin
+</span><span class='line'><span class="nv">ENCRYPTED_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="nv">SENDER_PUBLIC_KEY</span><span class="o">=</span><span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="p">//certificate/public</span><span class="k">}</span>
+</span><span class='line'><span class="nv">SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>.signature
+</span><span class='line'><span class="nv">ENCRYPTED_SIGNATURE</span><span class="o">=</span><span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>.encrypted
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unpack the encrypted key</span>
+</span><span class='line'>tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Not a valid encrypted file&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypt the symmetric key</span>
+</span><span class='line'>openssl rsautl -decrypt -inkey <span class="k">${</span><span class="nv">RECIPIENT_PRIVATE_KEY</span><span class="k">}</span> -in <span class="k">${</span><span class="nv">ENCRYPTED_KEY</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span>add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   <span class="nb">echo</span> <span class="s2">&quot;Unable to decrypt: Incorrect key&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'><span class="k">   </span>add_on_exit shred <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unpack the encrypted file</span>
+</span><span class='line'>tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'><span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Not a valid encrypted file&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decrypt the file</span>
+</span><span class='line'>openssl enc -d -aes-256-cbc -in <span class="k">${</span><span class="nv">ENCRYPTED_FILE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Decompress the file</span>
+</span><span class='line'>bunzip2 -f <span class="k">${</span><span class="nv">COMPRESSED_FILE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># If the file is being verified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -z <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c"># Unpack the signature</span>
+</span><span class='line'>   tar xf <span class="k">${</span><span class="nv">FILE</span><span class="k">}</span> <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>   <span class="nv">SUCCESS</span><span class="o">=</span><span class="nv">$?</span>
+</span><span class='line'>   add_on_exit rm -f <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">SUCCESS</span><span class="k">}</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;File is not signed&quot;</span>
+</span><span class='line'>   <span class="k">else</span>
+</span><span class='line'>      <span class="c"># Get the public key</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>      openssl x509 -in <span class="k">${</span><span class="nv">SENDER_CERTIFICATE</span><span class="k">}</span> -pubkey -noout &gt; <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c"># Decrypt the signature</span>
+</span><span class='line'>      openssl enc -d -aes-256-cbc -in <span class="k">${</span><span class="nv">ENCRYPTED_SIGNATURE</span><span class="k">}</span> -out <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> -pass file:<span class="k">${</span><span class="nv">SYMMETRIC_KEY</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit shred <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c"># Verify the signature</span>
+</span><span class='line'>      openssl dgst -sha256 -verify <span class="k">${</span><span class="nv">SENDER_PUBLIC_KEY</span><span class="k">}</span> -signature <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span> <span class="k">${</span><span class="nv">OUTPUT</span><span class="k">}</span>
+</span><span class='line'>      add_on_exit rm -f <span class="k">${</span><span class="nv">SIGNATURE</span><span class="k">}</span>
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Decryption Successful&quot;</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Generate Hashes]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/19/generate-hashes/"/>
+    <updated>2015-04-19T14:51:57-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/19/generate-hashes</id>
+    <content type="html"><![CDATA[<p>This is a handy script to recursively generate hashes for a folder tree, in a format that the standard unix tools can use for checking.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (generate_hashes.sh)</span><a href='/downloads/code/generate_hashes.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/sh</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># generate_hashes.rb</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Usage: ./generate_hashes.sh [directory] [hash]</span>
+</span><span class='line'><span class="c"># Check the result with sha256sum -c &lt;result&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># See if a directory was defined</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nv">DIRECTORY</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
+</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="k">${</span><span class="nv">DIRECTORY</span><span class="k">}</span>/
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$DIRECTORY</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $DIRECTORY&quot;</span>
+</span><span class='line'>      <span class="nb">exit </span>1
+</span><span class='line'>   <span class="k">fi</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>   <span class="c"># Use the current directory</span>
+</span><span class='line'>   <span class="nv">DIRECTORY</span><span class="o">=</span><span class="s1">&#39;.&#39;</span>
+</span><span class='line'>   <span class="nv">REPLACE</span><span class="o">=</span><span class="s1">&#39;\./&#39;</span>
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Hash type to use</span>
+</span><span class='line'><span class="nv">HASH</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">sha256</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Generate the output filename</span>
+</span><span class='line'><span class="nv">OUTPUT</span><span class="o">=</span>hashes.<span class="nv">$HASH</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Determine which program to use</span>
+</span><span class='line'><span class="nv">HASHER</span><span class="o">=</span><span class="k">${</span><span class="nv">HASH</span><span class="k">}</span>sum
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remove any existing hash file</span>
+</span><span class='line'>rm -f <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Find all files in the directory</span>
+</span><span class='line'><span class="c"># that do not have the output filename</span>
+</span><span class='line'><span class="c"># and hash them. Store the output in the target directory</span>
+</span><span class='line'>find <span class="nv">$DIRECTORY</span> -type f ! -name <span class="s2">&quot;$OUTPUT&quot;</span> -exec <span class="nv">$HASHER</span> <span class="o">{}</span> <span class="se">\;</span> &gt;&gt; <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Sort the output on the filename column</span>
+</span><span class='line'>sort -u -k2 -o <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Remove the directory from the listings</span>
+</span><span class='line'>sed -i <span class="s2">&quot;s@ $REPLACE@@g&quot;</span> <span class="nv">$DIRECTORY</span>/<span class="nv">$OUTPUT</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>The following will show how to use it. First, we need some files:</p>
+
+<pre><code>$ ls
+generate_hashes.sh
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; 1.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0787343 s, 13.3 MB/s
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; 2.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0862146 s, 12.2 MB/s
+
+$ mkdir -p three/four
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; three/3.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0854334 s, 12.3 MB/s
+
+$ dd if=/dev/urandom bs=1024k count=1 &gt; three/four/4.txt
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.0783046 s, 13.4 MB/s
+
+$ ls *
+1.txt  2.txt  generate_hashes.sh
+
+three:
+3.txt  four
+</code></pre>
+
+<p>Calling the script without any arguments will generate the hashes in the current directory. The file is stored as hashes.hashtype, where hashtype defaults to sha256.</p>
+
+<pre><code>$ ./generate_hashes.sh 
+$ ls
+1.txt  2.txt  generate_hashes.sh  hashes.sha256  three
+
+$ cat hashes.sha256 
+3f27f253e357143105f9a29193141db5ad833b56299a4c4e4a30a2d19f4732a8 1.txt
+9dee9ed8f2c7a8533e764bc6963615537524d54292875e9fd858e9e0cd9b93b1 2.txt
+20a1cbbf5a21773d673c79d4d8e58e31c3766f87c0299aa5a8c669015504c9f0 generate_hashes.sh
+a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca three/3.txt
+bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 three/four/4.txt
+
+$ sha256sum -c hashes.sha256 
+1.txt: OK
+2.txt: OK
+generate_hashes.sh: OK
+three/3.txt: OK
+three/four/4.txt: OK
+</code></pre>
+
+<p>The first optional argument is the directory to hash. <code>.</code> is allowed.</p>
+
+<pre><code>$ rm hashes.sha256
+$ ls
+1.txt  2.txt  generate_hashes.sh  three
+$ ls three/
+3.txt  four
+
+$ ./generate_hashes.sh three/
+$ ls three/
+3.txt  four  hashes.sha256
+$ cat three/hashes.sha256 
+a43be65323f68fc6354f34f8fc97efeb28f01b256d9918cecf9981a93eb59aca 3.txt
+bc767948f782a92ebae7d217e04a160c74669dac838b2ccc33cc697e3ebd1ea2 four/4.txt
+</code></pre>
+
+<p>The second optional argument is the hash type to use:</p>
+
+<ul>
+<li>sha1</li>
+<li>sha224</li>
+<li>sha256 (default)</li>
+<li>sha384</li>
+<li>sha512</li>
+<li>md5</li>
+</ul>
+
+
+<p>Example:</p>
+
+<pre><code>$ ./generate_hashes.sh three/ sha1
+$ ls three/
+3.txt  four  hashes.sha1  hashes.sha256
+$ cat three/hashes.sha1
+fffdc438939ae0afa1f19569939dd3996a2d67bb 3.txt
+cec823c326525c23bba925d5d85b35a5ebbed62d four/4.txt
+deea8794a7aada412518d06df516c804389ef212 hashes.sha256
+
+$ cd three/
+$ sha1sum -c hashes.sha1
+3.txt: OK
+four/4.txt: OK
+hashes.sha256: OK
+</code></pre>
+
+<p>When distributing a large set of files or directory tree, it is best to generate the hashes in the root of the tree and sign the hashes.sha256 file with GPG.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Verified Addresses]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/11/verified-addresses/"/>
+    <updated>2015-04-11T18:48:27-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/11/verified-addresses</id>
+    <content type="html"><![CDATA[<p>This is a curated list of important websites and services with verified certificates and onion addresses.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (verified_addresses.txt.asc)</span><a href='/downloads/code/verified_addresses.txt.asc' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+<span class='line-number'>113</span>
+<span class='line-number'>114</span>
+<span class='line-number'>115</span>
+<span class='line-number'>116</span>
+<span class='line-number'>117</span>
+<span class='line-number'>118</span>
+<span class='line-number'>119</span>
+<span class='line-number'>120</span>
+<span class='line-number'>121</span>
+<span class='line-number'>122</span>
+<span class='line-number'>123</span>
+<span class='line-number'>124</span>
+<span class='line-number'>125</span>
+<span class='line-number'>126</span>
+<span class='line-number'>127</span>
+<span class='line-number'>128</span>
+<span class='line-number'>129</span>
+<span class='line-number'>130</span>
+<span class='line-number'>131</span>
+<span class='line-number'>132</span>
+<span class='line-number'>133</span>
+<span class='line-number'>134</span>
+<span class='line-number'>135</span>
+<span class='line-number'>136</span>
+<span class='line-number'>137</span>
+<span class='line-number'>138</span>
+<span class='line-number'>139</span>
+<span class='line-number'>140</span>
+<span class='line-number'>141</span>
+<span class='line-number'>142</span>
+<span class='line-number'>143</span>
+<span class='line-number'>144</span>
+<span class='line-number'>145</span>
+<span class='line-number'>146</span>
+<span class='line-number'>147</span>
+<span class='line-number'>148</span>
+<span class='line-number'>149</span>
+<span class='line-number'>150</span>
+<span class='line-number'>151</span>
+<span class='line-number'>152</span>
+<span class='line-number'>153</span>
+<span class='line-number'>154</span>
+<span class='line-number'>155</span>
+<span class='line-number'>156</span>
+<span class='line-number'>157</span>
+<span class='line-number'>158</span>
+<span class='line-number'>159</span>
+<span class='line-number'>160</span>
+<span class='line-number'>161</span>
+<span class='line-number'>162</span>
+<span class='line-number'>163</span>
+<span class='line-number'>164</span>
+<span class='line-number'>165</span>
+<span class='line-number'>166</span>
+<span class='line-number'>167</span>
+<span class='line-number'>168</span>
+<span class='line-number'>169</span>
+<span class='line-number'>170</span>
+<span class='line-number'>171</span>
+<span class='line-number'>172</span>
+</pre></td><td class='code'><pre><code class='yaml'><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNED MESSAGE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Hash</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">SHA1</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'> <span class="l-Scalar-Plain">- Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">cert-002.blockchain.info</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">94:10:81:EB:E4:62:B5:BD:7B:03:DE:79:C7:A6:4D:91:30:13:7B:E0</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://blockchainbdgpzk.onion/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://blockchain.info/wallet/anonymity</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://blog.blockchain.com/tag/digicert/</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://lists.torproject.org/pipermail/tor-talk/2014-December/035841.html</span>
+</span><span class='line'><span class="-Error">   </span><span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">support@blockchain.zendesk.com</span>
+</span><span class='line'>
+</span><span class='line'><span class="-Error"> </span><span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Duck Duck Go</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://duckduckgo.com/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">duckduckgo.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.duckduckgo.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">AF:81:DA:50:2D:E7:B8:4E:92:F5:A9:36:1F:A5:89:6F:FE:AC:0F:6F</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://3g2upl4pq6kufc4m.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://duck.co/forum/thread/1762/is-the-duckduckgo-hidden-service-legitimate</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">duckduckgo</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Electronic Frontier Foundation</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://www.eff.org/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.eff.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.eff.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1E:F9:6F:18:02:22:26:F6:63:3C:C3:E8:75:FB:8E:7C:31:67:91:DE</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">F2F2 1BB8 531E 9DC3 0D40  F68B 11A1 A9C8 4B18 732F</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info@eff.org</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Freedom of the Press Foundation</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://freedom.press/</span>
+</span><span class='line'>   <span class="c1"># Domain: freedom.press</span>
+</span><span class='line'>   <span class="c1"># Certificate: ssl7272.cloudflare.com</span>
+</span><span class='line'>   <span class="c1"># SHA1: 2A:92:0A:71:AE:66:13:4A:D6:E7:FD:40:A8:54:3C:67:82:D7:E1:EB</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">freepress3xxs3hk.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://freedom.press/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">B89A 29DB 2128 160B 8E4B  1B4C BADD E0C7 FC9F 6818</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">734F 6E70 7434 ECA6 C007  E1AE 82BD 6C96 16DA BB79</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info@freedom.press</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">FreedomofPress</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Gibson Research Corporation</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://www.grc.com/fingerprints.htm</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.grc.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">grc.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">01:56:D3:AC:CF:5A:3F:B8:8F:0F:B4:30:88:2D:F6:72:4E:8C:F2:E0</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">GibsonResearch</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">The Original Hidden Wiki</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://www.kpvz7ki2v5agwt35.onion/wiki/index.php/Main_Page</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">kpvz7ki2v5agwt35.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://web.archive.org/web/20090923122959/http://www.reddit.com/r/onions</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">The New Hidden Wiki</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://zqktlwi4fecvo6ri.onion/wiki/Main_Page</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">zqktlwi4fecvo6ri.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">http://www.reddit.com/r/onions/comments/24uq96/zqktlw_hidden_wiki_admin_here_trying_to_clear_up/</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://bitcointalk.org/index.php?topic=511139.0</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">The Intercept Secure Drop</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://firstlook.org/theintercept/securedrop/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">firstlook.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.firstlook.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">FA:34:AB:6D:D5:68:0A:CC:38:4F:4E:28:B6:6B:43:9F:D3:0E:C4:3D</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://y6xjgkgwj47us5ca.onion/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://firstlook.org/theintercept/securedrop/</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://firstlook.org/theintercept/2015/04/08/securedrop-tor-hidden-service-now-uses-https/</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://firstlook.org/theintercept/2015/01/28/how-to-leak-to-the-intercept/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">0B14 9192 9806 5962 5470  0155 FD72 0AD9 EBA3 4B1C</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">tips@theintercept.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">the_intercept</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Internet Archive</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://archive.org/index.php</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">archive.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.archive.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">98:8C:12:12:BB:E5:4A:3A:8A:CE:3C:E6:2C:C2:0C:CC:D5:1A:C5:C5</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">info@archive.org</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Keybase.io</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://keybase.io/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">keybase.io</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">keybase.io</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">15:03:31:EA:85:6B:C9:76:8D:98:82:AD:01:16:D4:62:85:5F:47:7E</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">http://fncuwbiisyh6ak3i.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://keybase.io/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">222B 85B0 F90B E2D2 4CFE  B93F 4748 4E50 656D 16C7</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">03E1 46CD AF81 3668 0AD5  6691 2A32 340C EC8C 9492</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">8EFB E2E4 DD56 B352 7363  4E8F 6052 B2AD 31A6 631C</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">94AA 3A5B DBD4 0EA5 49CA  BAF9 FBC0 7D6A 9701 6CB3</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="err">@</span><span class="l-Scalar-Plain">maxtaco</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="err">@</span><span class="l-Scalar-Plain">malgorithms</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">OneName</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://onename.com/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">onename.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.onename.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">E2:C7:66:9A:A7:69:0E:F3:57:22:EA:E5:5D:23:0A:C4:55:41:89:67</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">onename</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Reddit</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://www.reddit.com/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.reddit.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.reddit.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">DB:90:0C:4A:F5:A2:1C:85:CB:DD:3B:2E:11:8C:93:CD:4C:DA:5C:CA</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">contact@reddit.com</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Riseup</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://help.riseup.net/en</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">help.riseup.net</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">riseup.net</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">F4:6A:41:B5:0D:59:3E:57:2C:5A:E2:9B:17:6A:54:93:10:8A:26:90</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">nzh3fv6jc6jskki3.onion</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">https://5jp7xtmox6jyoqd5.onion/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://help.riseup.net/en/security/network-security/tor</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">4E07 9126 8F7C 67EA BE88  F1B0 3043 E2B7 139A 768E</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">collective@riseup.net</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">riseupnet</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Tails</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://tails.boum.org/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">tails.boum.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.boum.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">2E:0F:60:F9:68:9B:B5:CE:D1:5C:82:A0:9D:D9:55:A0:8F:41:EC:70</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">A490 D0F4 D311 A415 3E2B  B7CA DBB8 02B2 58AC D84F</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">0D24 B36A A9A2 A651 7878  7645 1202 821C BE2C D9C1</span>
+</span><span class='line'>    <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">1F56 EDD3 0741 0480 35DA  C1C5 EC57 B56E F0C4 3132</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">tails-support-private@boum.org</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">TorBox Email</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">torbox3uiot6wchz.onion</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Tor Check</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://check.torproject.org/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">check.torproject.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="err">*</span><span class="l-Scalar-Plain">.torproject.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">84:24:56:56:8E:D7:90:43:47:AA:89:AB:77:7D:A4:94:3B:A1:A7:D5</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">GPG Fingerprint</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">EF6E 286D DA85 EA2A 4BA7  DE68 4E2C 6E87 9329 8290</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">help@rt.torproject.org</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Twitter</span><span class="p-Indicator">:</span> <span class="err">@</span><span class="l-Scalar-Plain">TorProject</span>
+</span><span class='line'>
+</span><span class='line'> <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">WTFIsMyIP Jabber</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">URL</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://wtfismyip.com/jabber/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Domain</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">wtfismyip.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Certificate</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">www.wtfismyip.com</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">SHA1</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">C2:C5:C1:7F:30:0E:C9:C8:72:1D:9D:ED:D0:CB:52:A1:F2:12:DB:15</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Onion</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">ofkztxcohimx34la.onion</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Proof</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">https://wtfismyip.com/jabber/</span>
+</span><span class='line'>   <span class="l-Scalar-Plain">Email</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">support@wtfismyip.com</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">-----BEGIN PGP SIGNATURE-----</span>
+</span><span class='line'><span class="l-Scalar-Plain">Version</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">GnuPG v1</span>
+</span><span class='line'>
+</span><span class='line'><span class="l-Scalar-Plain">iQEcBAEBAgAGBQJVMYVGAAoJEB7MsgHDevApw48IAJizJrldGsywiy2tqKl4D4LN</span>
+</span><span class='line'><span class="l-Scalar-Plain">j24gLbcW0psTIpDdkM5HX1CNIOmdQHUTIKEm4F6G/VpqAK8zIs25Q6W9vcfzIAhH</span>
+</span><span class='line'><span class="l-Scalar-Plain">8I+IpECUuKNYpDy/ECuWAp0gDiQaJOkpUklTV/cRfPPho4POX9k2QP5CnNiB+nRd</span>
+</span><span class='line'><span class="l-Scalar-Plain">SMmNQUT8YLDAf+lClDTavGPxpRZZ8MuvV0It875hThfsjKSWIHOqwhDAaTtRfyd2</span>
+</span><span class='line'><span class="l-Scalar-Plain">UPlj5oyBABT8b7rmKVB1twsq2O4ZuiAOs0DYN3cIF5bXIiJ2tzvkvtrtZnfyQ/GP</span>
+</span><span class='line'><span class="l-Scalar-Plain">JKFUhOOU0AMXThFP8tMZiIeOe8TaV0PXpjyhIlNpWlvt0EQWr22JLXVQnd7/QFM=</span>
+</span><span class='line'><span class="l-Scalar-Plain">=6Mba</span>
+</span><span class='line'><span class="l-Scalar-Plain">-----END PGP SIGNATURE-----</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>To extract all the GPG keys and import them:</p>
+
+<pre><code>for i in `egrep -o '([0-F]{4} ){5} ([0-F]{4} ){4}[0-F]{4}' verified_addresses.txt.asc | tr -d ' '`;  
+do
+   gpg --keyserver pool.sks-keyservers.net --recv-keys $i;
+
+   # Sleep needed to prevent spamming the server, it will respond with "connection refused" otherwise       
+   sleep 30;
+done;
+</code></pre>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Squashed Truecrypt Archive]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive/"/>
+    <updated>2015-03-30T20:32:22-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/03/30/squashed-truecrypt-archive</id>
+    <content type="html"><![CDATA[<p>This post presents a script that can create a squashfs filesystem inside of a truecrypt container.<br/>
+This has many benefits over encrypted zip files as well as normal truecrypt containers:</p>
+
+<ul>
+<li>Resulting file can be mounted and accessed directly
+
+<ul>
+<li>No need to &ldquo;unzip&rdquo; to the hard drive</li>
+<li>No chance for leaking unencrypted data to the hard drive</li>
+</ul>
+</li>
+<li>Achieve both good compression as well as strong encryption
+
+<ul>
+<li>Better compression ratio than NTFS, BTRFS, GZIP, BZIP2</li>
+</ul>
+</li>
+<li>Truecrypt container is only as large as it needs to be
+
+<ul>
+<li>No need to guess the approximate size of the compressed result before compressing</li>
+</ul>
+</li>
+<li>Resulting file is immutable
+
+<ul>
+<li>Making changes is still possible with an easy workaround, described below</li>
+</ul>
+</li>
+</ul>
+
+
+<p><!--more--><div class='more'></div></p>
+
+<p>First, the script. It is named <code>star</code>, for &ldquo;<strong>S</strong>quashed <strong>T</strong>ruecrypt <strong>AR</strong>chive&rdquo;. You will need the following to run it:</p>
+
+<ul>
+<li>squashfs-tools</li>
+<li>truecrypt</li>
+<li>aufs-tools</li>
+</ul>
+
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (star)</span><a href='/downloads/code/star' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+<span class='line-number'>103</span>
+<span class='line-number'>104</span>
+<span class='line-number'>105</span>
+<span class='line-number'>106</span>
+<span class='line-number'>107</span>
+<span class='line-number'>108</span>
+<span class='line-number'>109</span>
+<span class='line-number'>110</span>
+<span class='line-number'>111</span>
+<span class='line-number'>112</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># star</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Creates a squashed truecrypt archive (star)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Directory to star</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nb">local </span><span class="nv">n</span><span class="o">=</span><span class="k">${#</span><span class="nv">on_exit_items</span><span class="p">[*]</span><span class="k">}</span>
+</span><span class='line'>    on_exit_items<span class="o">[</span><span class="nv">$n</span><span class="o">]=</span><span class="s2">&quot;$*&quot;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;directory&gt; [name]&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing directory</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -d <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Directory does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">directory</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
+</span><span class='line'><span class="nv">name</span><span class="o">=</span><span class="k">${</span><span class="nv">2</span><span class="p">-</span><span class="nv">$directory</span><span class="k">}</span>
+</span><span class='line'><span class="nv">sfs</span><span class="o">=</span><span class="nv">$name</span>.sfs
+</span><span class='line'><span class="nv">star</span><span class="o">=</span><span class="nv">$name</span>.star
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the password</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Enter the password to use:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Repeat the password:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password_repeat
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Check that the passwords match</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$password&quot;</span> !<span class="o">=</span> <span class="s2">&quot;$password_repeat&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s1">&#39;Passwords do not match&#39;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Squash the directory</span>
+</span><span class='line'>mksquashfs <span class="nv">$directory</span> <span class="nv">$sfs</span> -noappend -b 1048576 &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Clean this file up on exit</span>
+</span><span class='line'>add_on_exit shred -f <span class="nv">$sfs</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the size of the squashfs, add 512 blocks of size 512</span>
+</span><span class='line'><span class="nv">sfssize</span><span class="o">=</span><span class="sb">`</span>stat --printf<span class="o">=</span><span class="s2">&quot;%s&quot;</span> <span class="nv">$sfs</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">starsize</span><span class="o">=</span><span class="sb">`</span>expr <span class="nv">$sfssize</span> + 262144<span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make a truecrypt volume</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive -c <span class="nv">$star</span> --size<span class="o">=</span><span class="nv">$starsize</span> --filesystem<span class="o">=</span>none --encryption<span class="o">=</span>AES --hash<span class="o">=</span>SHA-512 --password<span class="o">=</span><span class="nv">$password</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the truecrypt volume</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --filesystem<span class="o">=</span>none --password<span class="o">=</span><span class="nv">$password</span> <span class="nv">$star</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the truecrypt device name</span>
+</span><span class='line'><span class="nv">starloc</span><span class="o">=</span><span class="sb">`</span>readlink -f <span class="nv">$star</span><span class="sb">`</span>
+</span><span class='line'><span class="nv">devname</span><span class="o">=</span><span class="sb">`</span>truecrypt -t --non-interactive -l | grep <span class="nv">$starloc</span> | awk <span class="s1">&#39;{print $3}&#39;</span><span class="sb">`</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Unmount the volume on exit</span>
+</span><span class='line'>add_on_exit sudo truecrypt -t --non-interactive -d <span class="nv">$starloc</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Copy the squashfs into the truecrypt volume</span>
+</span><span class='line'>sudo dd <span class="k">if</span><span class="o">=</span><span class="nv">$sfs</span> <span class="nv">of</span><span class="o">=</span><span class="nv">$devname</span> <span class="nv">bs</span><span class="o">=</span>64K &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Set permissions</span>
+</span><span class='line'>sudo chmod 755 <span class="nv">$star</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Synchronize the filesystem</span>
+</span><span class='line'>sync
+</span><span class='line'>
+</span><span class='line'><span class="nb">echo</span> <span class="s1">&#39;Success&#39;</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>Here is an example of how to use it:</p>
+
+<pre><code>$ mkdir secret_stuff
+$ dd if=/dev/urandom bs=1MB count=10 &gt; secret_stuff/secret_data.bin
+10+0 records in
+10+0 records out
+10000000 bytes (10 MB) copied, 0.741577 s, 13.5 MB/s
+
+$ ls
+secret_stuff  star
+
+$ ./star 
+Usage: ./star &lt;directory&gt; [name]
+
+$ ./star secret_stuff
+Enter the password to use:
+Repeat the password:
+Success
+
+$ ls
+secret_stuff  secret_stuff.star  star
+
+$ mkdir mnt
+$ sudo truecrypt -t secret_stuff.star 
+Enter mount directory [default]: mnt
+Enter password for /home/joe/Downloads/temp/secret_stuff.star: 
+Enter keyfile [none]: 
+Protect hidden volume (if any)? (y=Yes/n=No) [No]: 
+
+$ ls mnt/
+secret_data.bin
+
+$ sha256sum secret_stuff/secret_data.bin 
+5342d4e85a221df35c5beda80e7b93b609fca732b908b6fd43febfcc89c324ea  secret_stuff/secret_data.bin
+$ sha256sum mnt/secret_data.bin 
+5342d4e85a221df35c5beda80e7b93b609fca732b908b6fd43febfcc89c324ea  mnt/secret_data.bin
+</code></pre>
+
+<p>The resulting file is immutable. This may seem like a downside at first, but it can be beneficial. For example, it can be mounted by multiple users simultaneously when shared via Dropbox or Bittorrent Sync, and it is easy to version control.</p>
+
+<p>Making secure modifications to the archive is possible because the archive allows direct access via mounting. This is something that cannot be easily done with a normal zip file or tarball. By using a tmpfs filesystem as a writable aufs layer on top of the archive, edits can be made in memory that never touch the hard drive, so your encrypted data stays secure. Then, a new archive can be created from that tmpfs layer.</p>
+
+<p>Layers can be kept separate and treated as diffs (similar to how Docker containers operate), or they can be &ldquo;resquashed&rdquo; together for maximum compression. It all depends on the user&rsquo;s needs.</p>
+
+<p>Here is a script that mounts a tmpfs aufs layer on top of the archive to allow edits.</p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (mount_star.sh)</span><a href='/downloads/code/mount_star.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># mount_star.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mounts a squashed truecrypt archive</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Star to mount</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;*.star&gt;&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">star_file</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">star_name</span><span class="o">=</span><span class="k">${</span><span class="nv">star_file</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'><span class="nv">star_old</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_old
+</span><span class='line'><span class="nv">star_changes</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_changes
+</span><span class='line'><span class="nv">star_new</span><span class="o">=</span><span class="k">${</span><span class="nv">star_name</span><span class="k">}</span>_new
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the password</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s1">&#39;Enter the password:&#39;</span>
+</span><span class='line'><span class="nb">read</span> -s password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make the directories</span>
+</span><span class='line'>mkdir -p <span class="nv">$star_old</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_old</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$star_changes</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_changes</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$star_new</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$star_new</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the star file</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$password</span> <span class="nv">$star_file</span> <span class="nv">$star_old</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$star_old</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the tmpfs</span>
+</span><span class='line'>sudo mount -t tmpfs tmpfs <span class="nv">$star_changes</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$star_changes</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the aufs</span>
+</span><span class='line'>sudo mount -t aufs -o <span class="nb">dirs</span><span class="o">=</span><span class="nv">$star_changes</span><span class="o">=</span>rw:<span class="nv">$star_old</span><span class="o">=</span>ro aufs <span class="nv">$star_new</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$star_new</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for user to continue</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Star is now mounted. Press Enter to unmount and exit&quot;</span>
+</span><span class='line'><span class="nb">read</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>Use it like so:</p>
+
+<pre><code>$ ./mount_star.sh 
+Usage: ./mount_star.sh &lt;*.star&gt;
+
+$ ./mount_star.sh ./secret_stuff.star 
+Enter the password:
+Star is now mounted. Press Enter to unmount and exit
+</code></pre>
+
+<p>Now in another terminal, you can interact with the mounted volumes:</p>
+
+<pre><code>$ ls
+mount_star.sh  secret_stuff_changes  secret_stuff_old  starsecret_stuff_new  secret_stuff.star
+
+$ touch secret_stuff_old/lala
+touch: cannot touch ‘secret_stuff_old/lala’: Read-only file system
+
+$ touch secret_stuff_new/lala
+
+$ ls secret_stuff_new
+lala  secret_data.bin
+
+$ ls secret_stuff_changes/
+lala
+</code></pre>
+
+<p>Creating a new archive is as simple as star'ing the name_new branch. Creating a &ldquo;patch&rdquo; is as simple as star'ing the name_changes branch:</p>
+
+<pre><code>$ dd if=/dev/urandom bs=1MB count=10 &gt; secret_stuff_new/new_secret_data.bin10+0 records in
+10+0 records out
+10000000 bytes (10 MB) copied, 0.756202 s, 13.2 MB/s
+$ ls secret_stuff*
+secret_stuff.star
+
+secret_stuff_changes:
+lala  new_secret_data.bin
+
+secret_stuff_new:
+lala  new_secret_data.bin  secret_data.bin
+
+secret_stuff_old:
+secret_data.bin
+
+$ ./star secret_stuff_changes/
+Enter the password to use:
+Repeat the password:
+Success
+
+$ ls
+mount_star.sh  secret_stuff_changes.star  secret_stuff.star  star
+</code></pre>
+
+<p>Patch archives can be applied using aufs layers with the following script:</p>
+
+<p><!--escape--><div class='escape-wrapper'><notextile><!--content--><figure class='code'><figcaption><span> (patch_star.sh)</span><a href='/downloads/code/patch_star.sh' title='Download code'> download</a></figcaption><div class='highlight'><table><td class='gutter'><pre class='line-numbers'><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+<span class='line-number'>95</span>
+<span class='line-number'>96</span>
+<span class='line-number'>97</span>
+<span class='line-number'>98</span>
+<span class='line-number'>99</span>
+<span class='line-number'>100</span>
+<span class='line-number'>101</span>
+<span class='line-number'>102</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/bin/bash</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># patch_star.sh</span>
+</span><span class='line'><span class="c"># Copyright (C) 2015 Joe Ruether jrruethe@gmail.com</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is free software: you can redistribute it and/or modify</span>
+</span><span class='line'><span class="c"># it under the terms of the GNU General Public License as published by</span>
+</span><span class='line'><span class="c"># the Free Software Foundation, either version 3 of the License, or</span>
+</span><span class='line'><span class="c"># (at your option) any later version.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># This program is distributed in the hope that it will be useful,</span>
+</span><span class='line'><span class="c"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+</span><span class='line'><span class="c"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the</span>
+</span><span class='line'><span class="c"># GNU General Public License for more details.</span>
+</span><span class='line'><span class="c">#</span>
+</span><span class='line'><span class="c"># You should have received a copy of the GNU General Public License</span>
+</span><span class='line'><span class="c"># along with this program. If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mounts a squashed truecrypt archive</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># $1 = Star to mount</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Stop on any error</span>
+</span><span class='line'><span class="nb">set</span> -e
+</span><span class='line'>
+</span><span class='line'><span class="c"># Declare an array of tasks to perform on exit</span>
+</span><span class='line'><span class="nb">declare</span> -a on_exit_items
+</span><span class='line'>
+</span><span class='line'><span class="c"># This function is run on exit</span>
+</span><span class='line'><span class="k">function </span>on_exit<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="k">for </span>i in <span class="s2">&quot;${on_exit_items[@]}&quot;</span>
+</span><span class='line'>    <span class="k">do</span>
+</span><span class='line'><span class="k">        </span><span class="nb">eval</span> <span class="nv">$i</span>
+</span><span class='line'>    <span class="k">done</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Add to the list of tasks to run on exit</span>
+</span><span class='line'><span class="k">function </span>add_on_exit_reverse<span class="o">()</span>
+</span><span class='line'><span class="o">{</span>
+</span><span class='line'>    <span class="nv">on_exit_items</span><span class="o">=(</span><span class="s2">&quot;$*&quot;</span> <span class="s2">&quot;${on_exit_items[@]}&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">[[</span> <span class="nv">$n</span> -eq 0 <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">        </span><span class="nb">trap </span>on_exit EXIT
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure enough arguments were specified</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> -z <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;Usage: $0 &lt;base *.star&gt; &lt;patch *.star&gt;&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the first argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$1</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $1&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make sure the second argument is an existing file</span>
+</span><span class='line'><span class="k">if</span> <span class="o">[</span> ! -f <span class="nv">$2</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">   </span><span class="nb">echo</span> <span class="s2">&quot;File does not exist: $2&quot;</span>
+</span><span class='line'>   <span class="nb">exit </span>1
+</span><span class='line'><span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Save some variables</span>
+</span><span class='line'><span class="nv">base_star</span><span class="o">=</span><span class="nv">$1</span>
+</span><span class='line'><span class="nv">base_name</span><span class="o">=</span><span class="k">${</span><span class="nv">base_star</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Patch directory will be hidden</span>
+</span><span class='line'><span class="nv">patch_star</span><span class="o">=</span><span class="nv">$2</span>
+</span><span class='line'><span class="nv">patch_name</span><span class="o">=</span>.<span class="k">${</span><span class="nv">patch_star</span><span class="p">%.star</span><span class="k">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Get the passwords</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s2">&quot;Enter the password for $1 :&quot;</span>
+</span><span class='line'><span class="nb">read</span> -s base_password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'><span class="nb">echo</span> -n <span class="s2">&quot;Enter the password for $2 :&quot;</span>
+</span><span class='line'><span class="nb">read</span> -s patch_password
+</span><span class='line'><span class="nb">echo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Make the directories</span>
+</span><span class='line'>mkdir -p <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$base_name</span>
+</span><span class='line'>
+</span><span class='line'>mkdir -p <span class="nv">$patch_name</span>
+</span><span class='line'>add_on_exit_reverse rmdir <span class="nv">$patch_name</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the base</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$base_password</span> <span class="nv">$base_star</span> <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$base_name</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Mount the patch</span>
+</span><span class='line'>sudo truecrypt -t --non-interactive --password<span class="o">=</span><span class="nv">$patch_password</span> <span class="nv">$patch_star</span> <span class="nv">$patch_name</span>
+</span><span class='line'>add_on_exit_reverse sudo truecrypt -t --non-interactive -d <span class="nv">$patch_name</span> &gt; /dev/null 2&gt;&amp;1
+</span><span class='line'>
+</span><span class='line'><span class="c"># Apply the patch</span>
+</span><span class='line'>sudo mount -t aufs -o <span class="nb">dirs</span><span class="o">=</span><span class="nv">$patch_name</span><span class="o">=</span>ro:<span class="nv">$base_name</span><span class="o">=</span>ro aufs <span class="nv">$base_name</span>
+</span><span class='line'>add_on_exit_reverse sudo umount -lf <span class="nv">$base_name</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Wait for user to continue</span>
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;Star is now mounted and patched. Press Enter to unmount and exit&quot;</span>
+</span><span class='line'><span class="nb">read</span>
+</span></code></pre></td></tr></table></div></figure><!--end-content--></notextile></div><!--end-escape--></p>
+
+<p>Here is how it works:</p>
+
+<pre><code>$ ./patch_star.sh 
+Usage: ./patch_star.sh &lt;base *.star&gt; &lt;patch *.star&gt;
+
+$ ./patch_star.sh secret_stuff.star secret_stuff_changes.star 
+Enter the password for secret_stuff.star :
+Enter the password for secret_stuff_changes.star :
+Star is now mounted and patched. Press Enter to unmount and exit
+
+ls
+mount_star.sh  patch_star.sh  secret_stuff  secret_stuff_changes.star  secret_stuff.star  star
+$ ls secret_stuff
+lala  new_secret_data.bin  secret_data.bin
+</code></pre>
+
+<p>This can be very handy for transferring small edits to a large archive across the network in a secure manner, without needing to retransfer the whole archive. The layering effect also acts as a poor man&rsquo;s version control. In the future, I would like to expand on this idea and write a script to manage the layers more convieniently and effectively, perhaps in a manner similar to Git or Docker.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Protect Yourself Online]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/03/29/protect-yourself-online/"/>
+    <updated>2015-03-29T11:33:58-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/03/29/protect-yourself-online</id>
+    <content type="html"><![CDATA[<p>This is a quick guide to staying secure on the internet.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<h2>Hashes and Signatures</h2>
+
+<p>Hashes and signatures are your primary tool for verifying data and detecting any form of tampering. You need to understand how hashes work and why they are important. Know how to generate hashes and checksums:</p>
+
+<pre><code>$ echo Hello1 &gt; test.txt
+$ cat test.txt 
+Hello1
+$ sha256sum test.txt 
+e616a6e0657eb277d4acad697f19d066aaa62cdde2862d0be591f3de8357de4b  test.txt
+
+$ echo Hello2 &gt; test.txt
+$ cat test.txt 
+Hello2
+$ sha256sum test.txt 
+f660df71283ecaf2c469cde588dd19e498c61eb1b5f1bcc664b8d9f338c67331  test.txt
+</code></pre>
+
+<p>Changing the file by a single character created a completely different hash. Hashes are like fingerprints; they are unique to a particular file, and cannot be spoofed.</p>
+
+<p>Know how to verify hashes:</p>
+
+<pre><code>$ cat test.txt 
+Hello2
+$ sha256sum test.txt &gt; hashes.sha256sum
+$ cat hashes.sha256sum 
+f660df71283ecaf2c469cde588dd19e498c61eb1b5f1bcc664b8d9f338c67331  test.txt
+$ sha256sum -c hashes.sha256sum 
+test.txt: OK
+$ echo Hello1 &gt; test.txt 
+$ sha256sum -c hashes.sha256sum 
+test.txt: FAILED
+sha256sum: WARNING: 1 computed checksum did NOT match
+</code></pre>
+
+<p>Become familiar with GPG. Know how to verify signatures:</p>
+
+<pre><code>$ ls
+test.txt  test.txt.sig
+$ cat test.txt
+Hello1
+$ gpg --verify test.txt.sig 
+gpg: assuming signed data in `test.txt'
+gpg: Signature made Sun 29 Mar 2015 11:56:47 AM EDT using RSA key ID C37AF029
+gpg: Good signature from "Joseph Ruether &lt;jrruethe@gmail.com&gt;"
+$ echo Hello2 &gt; test.txt
+$ gpg --verify test.txt.sig 
+gpg: assuming signed data in `test.txt'
+gpg: Signature made Sun 29 Mar 2015 11:56:47 AM EDT using RSA key ID C37AF029
+gpg: BAD signature from "Joseph Ruether &lt;jrruethe@gmail.com&gt;"
+</code></pre>
+
+<h2>Passwords and Encryption</h2>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><a class='fancybox' rel='group' href='./01.png'><img class='center' src='./01.png' width='100%' title='' alt=''></a></div></div><sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></p>
+
+<p>With passwords, the longer the better. Complexity does not beat length.<br/>
+Use <a href="http://world.std.com/~reinhold/diceware.html">Diceware</a> to generate a 4 or 5 word passphrase and memorize it.</p>
+
+<p>You can also generate random data from the command line:</p>
+
+<pre><code>dd if=/dev/urandom bs=1 count=64 | sha256sum
+</code></pre>
+
+<p>Use the mnemonic.py script from <a href="http://jrruethe.github.io/blog/2015/03/27/hex-to-mnemonics/">this</a> post to generate a string of words from the hex.</p>
+
+<p>Get a <a href="https://www.yubico.com/products/yubikey-hardware/yubikey-neo/">Yubikey Neo</a>.<br/>
+Use it&rsquo;s static password mode to store your passphrase.<br/>
+Follow <a href="http://blog.josefsson.org/2014/06/23/offline-gnupg-master-key-and-subkeys-on-yubikey-neo-smartcard/">these</a> instructions to load your GPG encryption and signing keys.<br/>
+Use its NFC capabilities with the <a href="https://play.google.com/store/apps/details?id=com.yubico.yubiclip&amp;hl=en">YubiClip</a> and <a href="https://play.google.com/store/apps/details?id=org.sufficientlysecure.keychain&amp;hl=en">OpenKeychain</a> Android apps to access your static password and GPG keys from the Yubikey on your smartphone.</p>
+
+<p>Use a password manager like <a href="https://www.keepassx.org/">KeepassX</a>. It is open souce and cross platform.<br/>
+Use a keyfile along with your master password.<br/>
+Use KeepassX to generate long random passwords for all other needs.</p>
+
+<p>Use <a href="https://github.com/jrruethe/truecrypt">Truecrypt</a>. It is open source and cross platform.<br/>
+Use a keyfile along with a strong password generated by KeepassX.</p>
+
+<p>Treat the keyfiles as access tokens.<br/>
+Do not let them touch the network. Do not upload them to any online service.<br/>
+Instead, manually load them onto your various devices using USB.<br/>
+Back them up by printing them to paper in Base64 format, and keep the backups in a safe place.</p>
+
+<pre><code>dd if=/dev/urandom bs=1 count=64 | base64 &gt; keyfile.base64
+</code></pre>
+
+<p>By keeping a strong password on a hardware token you posess, coupled with a software token that only exists on the devices of your choosing, you have achieved two factor authentication without any third party.<br/>
+Both pieces are needed to unlock either your password database or your truecrypt container.</p>
+
+<p>This means you can use a 3rd party synchronization service without being required to trust them; they couldn&rsquo;t access your passwords or data even if they wanted to.<br/>
+Bittorrent Sync or Dropbox both work well to keep your passwords and data synced between your devices.</p>
+
+<h2>Browsing</h2>
+
+<p>Always use HTTPS, and be aware of the certificate being used.<br/>
+Learn how to check the certificate fingerprints:</p>
+
+<ul>
+<li>Chrome: Lock icon &ndash;> Connection tab &ndash;> Certificate information</li>
+<li>Firefox: Lock icon &ndash;> More information &ndash;> View Certificate</li>
+</ul>
+
+
+<p>The truely paranoid will want to verify these fingerprints against another channel.<br/>
+<a href="https://www.grc.com/fingerprints.htm">This</a> site is a great way to verify the fingerprints.<br/>
+GRC&rsquo;s fingerprint is 01:56:D3:AC:CF:5A:3F:B8:8F:0F:B4:30:88:2D:F6:72:4E:8C:F2:E0, write it down somewhere.</p>
+
+<p>Use <a href="https://duckduckgo.com/">Duck Duck Go</a> instead of Google.<br/>
+Use Firefox instead of Chrome.<br/>
+Consider the following extensions:</p>
+
+<ul>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/adblock-plus/">Adblock Plus</a></li>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/betterprivacy/">BetterPrivacy</a></li>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/donottrackplus/">Blur</a></li>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/disconnect/">Disconnect</a></li>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/http-nowhere/">HTTP Nowhere</a></li>
+<li><a href="https://www.eff.org/HTTPS-EVERYWHERE">HTTPS Everywhere</a></li>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/noscript/">NoScript</a></li>
+<li><a href="https://www.eff.org/privacybadger">Privacy Badger</a></li>
+<li><a href="https://addons.mozilla.org/en-US/firefox/addon/requestpolicy/">RequestPolicy</a></li>
+</ul>
+
+
+<h2>Operating System</h2>
+
+<p>Don&rsquo;t use Windows. <a href="https://www.debian.org/">Debian</a> is a stable and secure Linux distribution.<br/>
+Alternatively, use <a href="https://tails.boum.org/">Tails</a> or <a href="https://www.whonix.org/">Whonix</a> (Both are based on Debian).<br/>
+In addition, Debian supports full disk encryption using LUKS.</p>
+
+<p>For your smartphone, use Android and <a href="http://www.cyanogenmod.org/">CyanogenMod</a> if possible.<br/>
+Android also supports full disk encryption with LUKS.</p>
+
+<p>Debian can also be installed to a USB drive and act as a &ldquo;cold boot&rdquo; system.<br/>
+Cold boot means that it is never allowed to touch the network; all data transfer to the cold boot system is done with a second USB drive.<br/>
+This practice is good for storing GPG private keys and Bitcoin wallets securely.</p>
+
+<h2>More Information</h2>
+
+<p>I highly recommend you read the following pages for more information:</p>
+
+<ul>
+<li><a href="https://freedom.press/encryption-works">Encryption Works</a></li>
+<li><a href="https://prism-break.org/en/">Prism Break</a></li>
+<li><a href="https://www.privacytools.io/">Privacy Tools</a></li>
+<li><a href="https://pack.resetthenet.org/">Reset the Net</a></li>
+<li><a href="https://ssd.eff.org/">Surveillance Self-Defense</a></li>
+<li><a href="https://www.bestvpn.com/the-ultimate-privacy-guide/">Ultimate Privacy Guide</a></li>
+</ul>
+
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://xkcd.com/">Randall Munrow, XKCD</a> licensed under CC-BY-NA 2.5<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
+  
+</feed>

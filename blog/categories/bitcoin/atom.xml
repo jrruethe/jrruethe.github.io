@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Bitcoin | Morning Musings]]></title>
+  <link href="http://jrruethe.github.io/blog/categories/bitcoin/atom.xml" rel="self"/>
+  <link href="http://jrruethe.github.io/"/>
+  <updated>2016-05-08T18:15:24-04:00</updated>
+  <id>http://jrruethe.github.io/</id>
+  <author>
+    <name><![CDATA[Joe Ruether]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin Donation Proofs]]></title>
+    <link href="http://jrruethe.github.io/blog/2016/01/12/bitcoin-donation-proofs/"/>
+    <updated>2016-01-12T21:15:49-05:00</updated>
+    <id>http://jrruethe.github.io/blog/2016/01/12/bitcoin-donation-proofs</id>
+    <content type="html"><![CDATA[<p>As promised in my <a href="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/">previous post</a>, I made some donations to show my support for open source software projects that accept Bitcoin.
+Below you will find the proofs.</p>
+
+<p>Thank you all for everything you do, it is greatly appreciated and does not go unnoticed. Keep up the great work!</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<blockquote><p>Some sites did not provide static addresses. Donations to sites utilizing dynamic addresses are not listed, to prevent accidential reuse of those temporary addresses.</p></blockquote>
+
+<p>```
+&mdash;&mdash;-BEGIN PGP SIGNED MESSAGE&mdash;&mdash;&ndash;
+Hash: SHA1</p>
+
+<ul>
+<li><p>Date        : 2015/12/19
+Recipient   : Whonix
+Source      : <a href="https://www.whonix.org/wiki/Donate">https://www.whonix.org/wiki/Donate</a>
+Address     : 1JgzCCSox56Sh4NnQJqRiwoxKi8oVSZBEd
+Amount      : 0.021
+Transaction : 186bec9c1ffb9f6aaf30acb029b3640cdb5b3ca64ca8c96e6d3525ee925be13a
+Message     : &ldquo;I, Joe Ruether, donated $10 to Whonix on Dec 19th, 2015&rdquo;</p></li>
+<li><p>Date        : 2015/12/19
+Recipient   : Rumble
+Source      : <a href="http://disruptedsystems.org/">http://disruptedsystems.org/</a>
+Address     : 1PXXMinxQgYUPXzZq6BixZpJTFeiCLqDqD
+Amount      : 0.021
+Transaction : 900fe2a9eb4c050d51cdc0c554b0ccb19e9060c6ee74367597ca30156b5bf24d
+Message     : &ldquo;I, Joe Ruether, donated $5 to Rumble on Dec 19th, 2015&rdquo;</p></li>
+<li><p>Date        : 2015/12/19
+Recipient   : Armory
+Source      : <a href="https://bitcoinarmory.com/contact/">https://bitcoinarmory.com/contact/</a>
+Address     : 1ArmoryXcfq7TnCSuZa9fQjRYwJ4bkRKfv
+Amount      : 0.021
+Transaction : caeb52f8689ab152ba183675882c4a2176dbd95f7c01558905b6c74ed8a1f798
+Message     : &ldquo;I, Joe Ruether, donated $10 to Armory on Dec 19th, 2015&rdquo;</p></li>
+<li><p>Date        : 2015/12/18
+Recipient   : Tails
+Source      : <a href="https://tails.boum.org/contribute/how/donate/index.en.html">https://tails.boum.org/contribute/how/donate/index.en.html</a>
+Address     : 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2
+Amount      : 0.021
+Transaction : 179c3b282b395ebde1282e5faea23695c3e3deb3eaeb617e1ff65c2720eb60c4
+Message     : &ldquo;I, Joe Ruether, donated $10 to Tails on Dec 18th, 2015&rdquo;</p></li>
+<li><p>Date        : 2015/12/18
+Recipient   : Veracrypt
+Source      : <a href="https://veracrypt.codeplex.com/wikipage?title=Bitcoin%20Donation">https://veracrypt.codeplex.com/wikipage?title=Bitcoin%20Donation</a>
+Address     : 1NRoPQsm8by5iWyMMmHQy3P5takur3kYgG
+Amount      : 0.021
+Transaction : ae1e57806c194a4bd2fd22f9a1c003ec6e82062c0197d18c2c06f5f0a65f2466
+Message     : &ldquo;I, Joe Ruether, donated $10 to Veracrypt on Dec 18th, 2015&rdquo;</p></li>
+<li><p>Date        : 2015/12/18
+Recipient   : KeepassX
+Source      : <a href="https://www.keepassx.org/donate">https://www.keepassx.org/donate</a>
+Address     : 1Lij3AvejBSbP58HM7uRmnuGcUpPWddPGt
+Amount      : 0.021
+Transaction : 727747188f5ac883bb20c3724bef6532b4e0b8663d6ed899ab437c7192d66008
+Message     : &ldquo;I, Joe Ruether, donated $10 to KeepassX on Dec 18th, 2015&rdquo;</p></li>
+<li><p>Date        : 2015/12/18
+Recipient   : Free Software Foundation
+Source      : <a href="https://my.fsf.org/donate">https://my.fsf.org/donate</a>
+Address     : 1PC9aZC4hNX2rmmrt7uHTfYAS3hRbph4UN
+Amount      : 0.021
+Transaction : eb4c3ca8cb2dc255c6e65c97a9528e7140b569b336ddfea190d7a9d8523e26a6
+Message     : &ldquo;I, Joe Ruether, donated $10 to the Free Software Foundation on Dec 18th, 2015&rdquo;</p></li>
+<li><p>Date        : 2015/12/18
+Recipient   : Qubes
+Source      : <a href="https://www.qubes-os.org/donate/">https://www.qubes-os.org/donate/</a>
+Address     : 14zockMSKKp5MK6X2cHJ3mQwm9MwYsJ39j
+Amount      : 0.021
+Transaction : f1eb94f2a14b33bcd33884da7d9eab314a967b9eb514e599604d518195f05140
+Message     : &ldquo;I, Joe Ruether, donated $10 to Qubes on Dec 18th, 2015&rdquo;</p></li>
+</ul>
+
+
+<p>&mdash;&mdash;-BEGIN PGP SIGNATURE&mdash;&mdash;&ndash;
+Version: GnuPG v1</p>
+
+<p>iQEcBAEBAgAGBQJWlbpPAAoJEB7MsgHDevApgdoIAKekXgfkkUdnlV21kgAfSVBp
+6RZmSYhsYwPBK968qPLcHiRXHH4U42mRP4PKXcj4ylwED4KQVW432VKrz6/F7EuA
+Vm9QOjEAesb7gEfLOfI6eoC20aWRR3Y2DOsSOK1tlXm8jK+gv9RshvfBeLVnvF4s
+ZAQ8yUOjHyD77j8TKHF5vNMBf0OVnpJxXjS06/93zTpk16z21O+y2YmFpEOkZdPV
+tK4OmXv25DzlSUKIabhCEkYGfrfn0zbjfX+NEnAKxhdX5kdBMaKiL1vlMUAFptLg
+i6iZQYArzxFD+rGj64DqBLzPXbgEQWztVG8cJ0tKHWRZ9K/xFXBIsmBnAHIsd3s=
+=UnE4
+&mdash;&mdash;-END PGP SIGNATURE&mdash;&mdash;&ndash;
+```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin Donations]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/"/>
+    <updated>2015-12-04T20:37:39-05:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations</id>
+    <content type="html"><![CDATA[<p>Its that time of year again, and I am reminded by the large banner at the top of Wikipedia.
+I have some spare change lying around, and I feel like showing my support to fellow programmers who maintain the software I use every day.</p>
+
+<p>I am a strong supporter of Bitcoin and naturally I wanted to use it for donations.
+I have had my Bitcoin address posted on my blog, and have had a few donations from readers (thank you!).
+One of the best things about Bitcoin is that anyone can send and receive money without needing to sign up for anything.
+It is a great way to quickly and convieniently transfer cash, and you can be sure that your transaction reaches the intended person without needing to interact with any middleman.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p>First, I compiled a list of the major OSS software products I rely on, as well as projects I truely believe in, and found the donation pages for each. I discovered that many of them do provide a way to pay with Bitcoin; however, the methods, formats, and requirements varied greatly. This is a perfect opportunity to provide a review on how easy or difficult it is to donate Bitcoin to websites today. I took my list and trimmed it down to a small subset of different examples. This post will be reviewing the Bitcoin donation methods for the following sites:</p>
+
+<ul>
+<li><a href="https://bitcoinarmory.com/contact/">Armory</a></li>
+<li><a href="http://www.debian.org/donations">Debian</a></li>
+<li><a href="https://www.eclipse.org/donate/">Eclipse</a></li>
+<li><a href="https://supporters.eff.org/donate">Electronic Frontier Foundation</a></li>
+<li><a href="https://freedom.press/donate">Freedom of the Press Foundation</a></li>
+<li><a href="https://my.fsf.org/donate/">Free Software Foundation</a></li>
+<li><a href="https://donate.mozilla.org/en-US/give-bitcoin/">Mozilla</a></li>
+<li><a href="https://www.qubes-os.org/donate/">Qubes</a></li>
+<li><a href="https://www.qubes-os.org/donate/">RiseUp</a></li>
+<li><a href="https://veracrypt.codeplex.com/wikipage?title=Bitcoin%20Donation">Veracrypt</a></li>
+<li><a href="https://wikimediafoundation.org/wiki/Ways_to_Give#bitcoin">Wikipedia</a></li>
+</ul>
+
+
+<hr />
+
+<h1>Doing it the right way</h1>
+
+<p>I must really commend the Free Software Foundation and Qubes. Of all the sites I reviewed, I feel these sites are the only ones who are doing it &ldquo;right&rdquo;.</p>
+
+<ul>
+<li>All additional information is optional</li>
+<li>A static Bitcoin address is displayed on the main donation page</li>
+<li>With a QR code for easy scanning</li>
+<li>And a GPG signed statement verifying ownership of the address</li>
+</ul>
+
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./01.png'><img class='caption' src='./01.png' width='100%' title='Free Software Foundation' alt=''></a><span class='caption-text'>Free Software Foundation</span></span></div></div></p>
+
+<p>I want to bring special attention to this last point. Bitcoin addresses are almost impossible to remember and have no identifying features to link them to the owner. Hackers could exploit a website and change the address server-side, or a MitM attack could allow the address to be spoofed on the client side (the latter is especially true if using Tor, where the exit node can replace webpage content). For these reasons, Bitcoin addresses displayed on webpages should have an accompanying GPG signature to prove ownership and eliminate the risk of tampering.</p>
+
+<p>A special mention to the folks at Armory. They have set up a <a href="https://bitcoinarmory.com/donation-match-list/">donation matching program</a>, where they provide <a href="https://s3.amazonaws.com/bitcoinarmory-simulnotes/signed_donation_addresses.txt">signed addresses</a> and a method for <a href="https://bitcoinarmory.com/donation-matching/#verify-donation-addresses">verifying the signatures</a>. Curiously, they do not sign their <a href="https://bitcoinarmory.com/contact/">own address</a> on their website (even though it can be obtained from their software).</p>
+
+<p>Many sites had a static address displayed, but failed to provide a QR code for scanning. In fact, of all the I sites reviewed, only the following had QR codes for their static addreses:</p>
+
+<ul>
+<li>Free Software Foundation</li>
+<li>Qubes</li>
+<li>Veracrypt</li>
+</ul>
+
+
+<p>Many other sites use Bitpay or Coinbase to do dynamic addresses: temporary addresses that &ldquo;timeout&rdquo; after a short amount of time. Bitpay is an indespensible tool for merchants that also makes things very easy for the user; for example, on a webpage a user could specify how much they want to donate, and Bitpay will create a special QR code that tells Bitcoin clients to make a transaction for that amount. This interaction reduces the chance of mistyping an amount (remember, Bitcoin transactions cannot be revoked). Each transaction is isolated to a single address. Cycling addresses increases privacy for both the sender and receiver. It also makes creating a receipt easier, and helps clear up any confusion. In fact, the Bitcoin developers themselves discourage <a href="https://en.bitcoin.it/wiki/Address_reuse">address reuse</a>. Here is an example from the Freedom of the Press Foundation:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./02.png'><img class='caption' src='./02.png' width='100%' title='Freedom of the Press' alt=''></a><span class='caption-text'>Freedom of the Press</span></span></div></div></p>
+
+<blockquote><p>Note, don&rsquo;t actually use that address, it is expired!</p></blockquote>
+
+<p>Bitpay&rsquo;s temporary addresses are a blessing and a curse; You cannot sign a temporary address. This also means I cannot share that address with anyone else if I want to promote that website or service; users are required to visit the page, fill out the form, and get their own temporary address to send to. I can&rsquo;t build up an &ldquo;address book&rdquo; of websites/services and their payment address.</p>
+
+<p>RiseUp was the only site I could find that did dynamic addresses without using a 3rd party service like BitPay or Coinbase. Furthermore, they claim that they maintain the private key for the dynamically generated address, and that it doesn&rsquo;t expire. While the approach is novel, I think it leads to the worst of both worlds; they lost the ability to sign their addresses while at the same time didn&rsquo;t receive the other benefits of temporary addresses granted by a service like BitPay. Furthermore, anyone is able to cause RiseUp to generate a new address, but they must keep and manage each generated address, which could be troublesome. Finally, if you go with the &ldquo;address-book&rdquo; method, the dynamically generated addresses are <em>per-person</em>, which promotes tracking.</p>
+
+<blockquote><p><strong>Address Reuse</strong><br/>
+By now you may have noticed that I am making some contradictions. I labeled the display of a static address as the &ldquo;right way&rdquo;, then immediately followed up with the Bitcoin Dev&rsquo;s recommendations against address reuse. Remember that this post is in the context of donations. I think the distinction here is that something like Bitpay is perfect (and correct) for sales transactions where I buy a product or service, and displaying a static address is better for donations where I want to ensure the correct recipient gets the money. If I am buying something online, I typically don&rsquo;t care where the money goes as long as I receive what I bought. For example, Amazon heavily utilizes 3rd party merchants, to the point where I rarely notice whether I am paying Amazon directly or some other store. With donations, I am not receiving anything in return other than the reassurance that I am supporting something I believe in, so it becomes more important to verify that the correct entity is receiving my donation. Signatures on static addresses solve this problem. I&rsquo;m interested in hearing other arguments or solutions!</p></blockquote>
+
+<p>Of all the forms I came across, the one for Eclipse was the by far the mosts intuitive and clear:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./03.png'><img class='caption' src='./03.png' width='100%' title='Eclipse' alt=''></a><span class='caption-text'>Eclipse</span></span></div></div></p>
+
+<p>The form is short and 100% optional. There is even a little checkbox to stay anonymous. Preselected donation amounts are available, as well as a box to specify your own number. I especially liked how I didn&rsquo;t have to scroll all over the page looking for the Bitcoin option; many of the sites I looked at hide the Bitcoin address at the bottom or side of their donation page instead of integrating that option in with the others. Well done Eclipse!</p>
+
+<hr />
+
+<h1>Doing it the wrong way</h1>
+
+<p>Don&rsquo;t misunderstand, I am very happy that Bitcoin was an option for donations. However, I feel that some of these sites are missing the point; A Bitcoin transaction doesn&rsquo;t need any other information besides an address. If you want to receive a donation, you shouldn&rsquo;t need a name, address, email, phone number, etc required. Just take the money!</p>
+
+<p>For example, the EFF requires my name, email, and <em>shipping address</em> to receive a Bitcoin donation:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./04.png'><img class='caption' src='./04.png' width='100%' title='Electronic Frontier Foundation' alt=''></a><span class='caption-text'>Electronic Frontier Foundation</span></span></div></div></p>
+
+<p>Wikipedia also requires a shipping address. Why is this information needed? What are they going to send me? Why can&rsquo;t I opt out?</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./05.png'><img class='caption' src='./05.png' width='100%' title='Wikipedia' alt=''></a><span class='caption-text'>Wikipedia</span></span></div></div></p>
+
+<p>Even Mozilla won&rsquo;t let me send them a Bitcoin donation without an email address:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./06.png'><img class='caption' src='./06.png' width='100%' title='Mozilla' alt=''></a><span class='caption-text'>Mozilla</span></span></div></div></p>
+
+<p>What could they need an email address for? A receipt? No need, the blockchain is a public ledger that replaces the need for a receipt. A thank you message? No need, afterall, I&rsquo;m the one thanking <em>you</em> with my donation! Signing me up on an email list? Most likely, and I don&rsquo;t need more spam.</p>
+
+<p>Sorry guys, but you are missing the point. This tells me you are more interested in my information than my support.</p>
+
+<hr />
+
+<h1>Not doing it at all</h1>
+
+<p>Unfortunately, Bitcoin still hasn&rsquo;t hit critical mass. By now, many people have at least heard of it, but the average person doesn&rsquo;t understand how to use it, how it works, or its benefits. There are still many websites that do not have a Bitcoin donation option. Some of the programs I use every day did not accept Bitcoin, however they did take PayPal.</p>
+
+<p>The surprising one here was Debian. Not only do they not take Bitcoin, they don&rsquo;t even take Paypal. Their <a href="https://www.debian.org/donations">preferred methods</a> of payment are credit card or check. Look at how much stuff I need to fill out to donate:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./07.png'><img class='caption' src='./07.png' width='100%' title='Debian' alt=''></a><span class='caption-text'>Debian</span></span></div></div></p>
+
+<p>This right here is a prime example of how amazingly simple Bitcoin is.</p>
+
+<p>However, they do bring up some <a href="https://lists.debian.org/debian-project/2014/08/msg00077.html">very interesting points</a> that offer a unique perspective on why accepting Bitcoin donations can be difficult, especially for a large organization:</p>
+
+<ul>
+<li>Keep donations in Bitcoin or convert to USD?</li>
+<li>If convert, using who? Need a reliable exchange</li>
+<li>If convert, when? Immediately, or try to make profit? Bitcoin is volatile</li>
+<li>Poor choices here can affect public perception</li>
+<li>Regulations on Bitcoin are still not stable</li>
+</ul>
+
+
+<hr />
+
+<p>As you can see, there is a huge disparity in how different websites accept Bitcoin donations. Hopefully this post can give you ideas on how to accept Bitcoin donations on your own website. As a final note, thank you to all my readers for their support, it is appreciated!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[A Simple Bitcoin Analogy]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy/"/>
+    <updated>2015-04-26T12:59:49-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/26/bitcoin-analogy</id>
+    <content type="html"><![CDATA[<p>This is a simplified analogy that can be used to introduce someone to Bitcoin and how it works.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p>Imagine there are a group of lockers in a public place. Each locker has the following:</p>
+
+<ul>
+<li>A lock that requires a key</li>
+<li>A window to see inside</li>
+<li>A slot that money can be put in</li>
+<li>An identifying number</li>
+</ul>
+
+
+<p>A group of these lockers might look like this<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./01.jpg'><img class='caption' src='./01.jpg' width='100%' title='Lockers with Windows' alt=''></a><span class='caption-text'>Lockers with Windows</span></span></div></div></p>
+
+<p>These lockers are secure. The windows are unbreakable, the locks cannot be picked, the metal cannot be cut, and the entire group is bolted to the ground. Furthermore, there is only one copy of the key, and it is in possession of that locker&rsquo;s owner; Nobody else is able to get inside without that key.</p>
+
+<p>Each locker is free of charge. A person may claim any unused locker, upon which they get the only copy of the key. A person may have as many lockers as they choose; there is no shortage of lockers. People use &ldquo;wallets&rdquo; (which are more like keychains in this case) to keep track of all the lockers they own and their associated keys. If anyone loses their wallet, they lose the ability to open any of their lockers, and that money is inaccessible forever.</p>
+
+<p>Because the group of lockers is in a public place, and each locker has a window, anyone is able to see how much money is in each locker. They can see the identifying numbers on the locker, but they do not know who the owner of the locker is.</p>
+
+<p>This group of lockers represents the Blockchain, and the contents of each locker represent Bitcoins.</p>
+
+<p>Alice is selling a chair that Bob wants to buy. Bob calls up Alice to make a deal:</p>
+
+<blockquote><p>Bob: I&rsquo;d like to buy the chair you are selling. How much do you want for it?<br/>
+Alice: I&rsquo;ll give it to you for 0.2 Bitcoins<br/>
+Bob: Sounds great! Which locker number is yours?</p></blockquote>
+
+<p>Alice goes to the group of lockers, sees that #412 is unclaimed, and claims it. She heads home with the key.</p>
+
+<blockquote><p>Alice: Put the money in locker 412 please!</p></blockquote>
+
+<p>Bob goes to the lockers, finds #412 and peeks inside. He can see that it is empty. Bob goes to his locker (#387), pulls out some money, and sticks it in the slot on locker #412. He then goes back home.</p>
+
+<blockquote><p>Bob: I put the money in your locker!</p></blockquote>
+
+<p>Alice goes to the lockers and checks the contents of locker #412 through the window. She sees the 0.2 Bitcoins sitting there. Since Bob is the only person she told about #412, the money must have come from him.</p>
+
+<blockquote><p>Alice: I just checked, and I see the money in my locker. Here is your chair!</p></blockquote>
+
+<p>The entire transaction was done without Alice and Bob ever needing to meet in person. No banks were involved in the transaction, there were no processing delays, there were no fees. Bob is unable to issue a &ldquo;chargeback&rdquo; to void his transaction; the money is already in Alice&rsquo;s locker, and only she can get it back out. Furthermore, anyone checking the contents of the lockers by peeking through the windows could only tell that a transaction was made; they are unable to discover who was involved.</p>
+
+<p>This is the basic premise of Bitcoin. Learn more about Bitcoin <a href="http://www.coindesk.com/information/what-is-bitcoin/">here</a>.</p>
+
+<p><em>This analogy was not my idea, I am paraphrasing Henry Romp<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>.</em></p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p><a href="http://www.storageaspects.co.uk/shop/archive-mobile-shelving-archive-roller-racking/visitor-centre-lockers-with-see-through-doors/">Storage Aspects</a><a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p><a href="http://thebitcoincatalog.com/safe-analogy/">The Bitcoin Safe Analogy</a><a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin Paper Wallets]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/"/>
+    <updated>2015-04-23T19:18:12-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets</id>
+    <content type="html"><![CDATA[<p>Paper wallets are a form of <em>cold storage</em>, meaning that the private key has never touched a computer with internet access.
+This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself.
+For that reason, this is a tutorial to create a paper wallet in a secure fashion.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p>A repository of paper wallet generators can be found <a href="https://github.com/jrruethe/paper_wallet">here</a>. You can choose to use my repository directly if you wish, but I recommend going straight to the source.
+There are many options with different formats and templates, however I highly recommend BitcoinPaperWallet.com.</p>
+
+<p><em>I am in no way affiliated with BitcoinPaperWallet.com, just a satisfied customer.</em></p>
+
+<hr />
+
+<h1><a href="https://bitcoinpaperwallet.com/">BitcoinPaperWallet.com</a> (<a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a>)</h1>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./01.jpg'><img class='caption' src='./01.jpg' width='100%' title='Bitcoin Paper Wallet' alt=''></a><span class='caption-text'>Bitcoin Paper Wallet</span></span></div></div></p>
+
+<p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!</p>
+
+<p>Features:</p>
+
+<ul>
+<li>&ldquo;Butterfly&rdquo; design secures the private key</li>
+<li>Resistant to candling</li>
+<li>Supports <a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a> encryption</li>
+<li>Private key encoded in <a href="https://en.bitcoin.it/wiki/Wallet_import_format">Wallet Import Format</a></li>
+<li>Designed to be printed in landscape mode, but works in portrait mode as well</li>
+<li>Double sided</li>
+<li>2x wallets per sheet</li>
+<li>Notes section on the back</li>
+<li>Public key visible when closed</li>
+</ul>
+
+
+<p>Additional Options:</p>
+
+<ul>
+<li><a href="https://bitcoinpaperwallet.com/">Security Stickers</a> 2in x .5in (<a href="http://www.amazon.com/gp/product/B00MWCCN7C">Alternative</a>)*</li>
+<li><a href="https://bitcoinpaperwallet.com/">Waterproof Bag</a> 6in x 3in (<a href="http://www.amazon.com/Clear-Lock-Bags-Case-1000/dp/B0040003E4">Alternative</a>)</li>
+<li><a href="http://www.amazon.com/dp/B004PX7ZTC">Teslin Paper</a> (Inkjet Printers)</li>
+<li><a href="http://www.amazon.com/gp/product/B004UI335W/">Revlar Paper</a> (Laser Printers)</li>
+<li><a href="http://www.amazon.com/gp/product/B00ENI0NI4">Scratch Off Stickers</a> 1in x 1in</li>
+<li><a href="http://www.amazon.com/gp/product/B00BWU3HNY">Laminating Pouches</a> 8.9in x 11.4in</li>
+<li><a href="http://www.amazon.com/gp/product/B0010JEJPC">Laminator</a></li>
+</ul>
+
+
+<blockquote><p>*The official security stickers from bitcoinpaperwallet.com are serialized in pairs, meaning you get two of each number. This is best because each paper wallet requires two stickers, so the numbers match. The alternative link only provides one sticker for each number.</p></blockquote>
+
+<p>Dimensions:</p>
+
+<ul>
+<li>Landscape: 5.5in x 2.5in (Slightly smaller than a dollar bill)</li>
+<li>Portrait: 4in x 2in (Slightly bigger than a standard business card)</li>
+<li>QR Codes: 1in x 1in (About the size of a quarter)</li>
+</ul>
+
+
+<p>For additional artworks, check out <a href="http://libertywallet.liberty.me/2015/03/18/liberty-wallet/">Liberty Paper Wallet</a> (<a href="https://github.com/SimonBelmond/libertypaperwallet">Github</a>).</p>
+
+<hr />
+
+<h1>Protecting your paper wallet</h1>
+
+<p>Paper wallets are extremely vulnerable to water.
+Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./03.jpg'><img class='caption' src='./03.jpg' width='100%' title='Water is the Enemy' alt=''></a><span class='caption-text'>Water is the Enemy</span></span></div></div></p>
+
+<p>Paper wallets are also extremely vulnerable to fire.
+However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.</p>
+
+<blockquote><p>Remember, if you lose your paper wallet, or it is damaged, you lose all the coins stored at that address!</p></blockquote>
+
+<hr />
+
+<h1>How to properly create a paper wallet</h1>
+
+<p>Paper wallets need to be created offline on a secure machine. For this tutorial, I will be using a <a href="https://tails.boum.org/">Tails</a> Live CD. Grab the ISO and burn it to a disk.</p>
+
+<p>Save a <a href="https://github.com/cantonbecker/bitcoinpaperwallet/archive/master.zip">copy of bitcoinpaperwallet</a> onto a USB drive.</p>
+
+<ol>
+<li>Shutdown your computer and boot from the CD.</li>
+<li>When the Tails welcome box appears, select &ldquo;More Options&rdquo;.</li>
+<li>Enter an administrator password of your choice and login.</li>
+<li>Wait for tor to become ready.</li>
+</ol>
+
+
+<blockquote><p>For this tutorial, in order to get screenshots I am using a virtual machine. Do not use a virtual machine when doing this for real!</p></blockquote>
+
+<p>Before creating the paper wallet, you will want to ensure that your printer works correctly. You need a printer that is directly connected to your machine; don&rsquo;t use a network printer (you shouldn&rsquo;t be connected to any network). If possible, use a dumb printer, and try to ensure that your printer does not save a copy of printouts to internal memory. Use this time to get any drivers you need from the internet.</p>
+
+<p>From the <code>Applications</code> menu, select <code>System Tools -&gt; Administration -&gt; Printing</code>.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./04.png'><img class='caption' src='./04.png' width='100%' title='Printer Settings' alt=''></a><span class='caption-text'>Printer Settings</span></span></div></div></p>
+
+<p>Add your printer. Open up Tor Browser and ensure that you can print a webpage.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./05.png'><img class='caption' src='./05.png' width='100%' title='Add a Printer' alt=''></a><span class='caption-text'>Add a Printer</span></span></div></div></p>
+
+<p>Time to disconnect from the internet. Unplug the ethernet cord, turn off any wireless cards or routers as necessary. Verify that you are not online.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./06.png'><img class='caption' src='./06.png' width='100%' title='Make sure you are offline' alt=''></a><span class='caption-text'>Make sure you are offline</span></span></div></div></p>
+
+<ol>
+<li>Insert your usb drive</li>
+<li>Copy the github zip file to the <code>Tor Browser</code> folder on the filesystem</li>
+<li>Remove the usb drive</li>
+<li>Unpack the zip file</li>
+</ol>
+
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./07.png'><img class='caption' src='./07.png' width='100%' title='Unpack the Zip File' alt=''></a><span class='caption-text'>Unpack the Zip File</span></span></div></div></p>
+
+<p>Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! &ldquo;Brain wallets&rdquo; may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./08.png'><img class='caption' src='./08.png' width='100%' title='Open in Browser' alt=''></a><span class='caption-text'>Open in Browser</span></span></div></div></p>
+
+<blockquote><p><strong>BIP38 Encryption?</strong><br/>
+There are pros and cons to encrypting your paper wallet. Encryption adds an extra layer of security by requiring a passphrase before being able to import the private key again, which is great if the paper wallet ever gets stolen. However if the passphrase is forgotten, the coins are lost forever. The passphrase is one more thing to remember / write down, which means it is one more thing to secure. In addition, some wallet software does not support BIP38, which may make reimporting difficult. Finally, it is important to realize that BIP38 encryption will NOT help if you chose an insecure passphrase for a brain wallet. In general, BIP38 encryption is recommended.</p></blockquote>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./09.png'><img class='caption' src='./09.png' width='100%' title='Generate a Wallet' alt=''></a><span class='caption-text'>Generate a Wallet</span></span></div></div></p>
+
+<p>You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='./10.jpg'><img class='caption' src='./10.jpg' width='400' title='Print the Wallet' alt=''></a><span class='caption-text'>Print the Wallet</span></span></div></div></p>
+
+<p>Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./11.png'><img class='caption' src='./11.png' width='100%' title='Verify the Wallet' alt=''></a><span class='caption-text'>Verify the Wallet</span></span></div></div></p>
+
+<p>Shutdown your Tails environment. It will wipe your ram for you.</p>
+
+<p>Cut out each design by following the lines on the front. Fold the wallets and apply the stickers.</p>
+
+<blockquote><p>If you have a laser printer, you will want to include a small 1in x 1in square of paper between the private key and the candling pattern when folding the paper. Later on, we will be laminating the paper wallet, and the heat can cause the toner on each side of the fold to fuse together.</p></blockquote>
+
+<p>Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='./12.jpg'><img class='caption' src='./12.jpg' width='400' title='Sealed Wallets' alt=''></a><span class='caption-text'>Sealed Wallets</span></span></div></div></p>
+
+<p>Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='./13.jpg'><img class='caption' src='./13.jpg' width='400' title='Laminated Wallets' alt=''></a><span class='caption-text'>Laminated Wallets</span></span></div></div></p>
+
+<hr />
+
+<h1>How to properly use a paper wallet</h1>
+
+<p>You can scan the public key into Electrum or Mycelium as a watch-only wallet to keep track of your funds. Eventually you will want to spend the funds.</p>
+
+<p>First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the &ldquo;Private Key / Withdraw&rdquo; line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./14.jpg'><img class='caption' src='./14.jpg' width='100%' title='Revealing the Private Key' alt=''></a><span class='caption-text'>Revealing the Private Key</span></span></div></div></p>
+
+<p>Now comes the important part. The funds must be &ldquo;swept&rdquo; into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.</p>
+
+<blockquote><p><strong>Change?</strong><br/>
+When spending Bitcoins, <em>ALL</em> coins from that address are moved to new addresses.
+The destination address will get the desired amount, and any remaining amount will be sent to a &ldquo;change&rdquo; address. If no &ldquo;change&rdquo; address is specified, the remaining amount will go to the miner that solves the block. Normally, an electronic wallet manages this for you behind the scenes, however when using a paper wallet directly, you will not have this control. This is why the entire balance of a paper wallet should be &ldquo;swept&rdquo; into an electronic wallet before spending.<br/>
+Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p></blockquote>
+
+<p>Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./15.jpg'><img class='caption' src='./15.jpg' width='100%' title='Bitcoin Paper Wallet' alt=''></a><span class='caption-text'>Bitcoin Paper Wallet</span></span></div></div></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Physical Blockchain Identity Card]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/"/>
+    <updated>2015-03-27T18:28:47-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card</id>
+    <content type="html"><![CDATA[<p>In a <a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">previous post</a>, I walked through the steps to create a digitial Blockchain Identity.
+Now, it is time to turn that into an physical identity card.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p>You will need the following:</p>
+
+<ul>
+<li><a href="http://www.amazon.com/gp/product/B0010JEJPC/ref=od_aui_detailpages00?ie=UTF8&amp;psc=1">Laminator</a></li>
+<li><a href="http://www.amazon.com/gp/product/B004XJC1UQ/ref=od_aui_detailpages00?ie=UTF8&amp;psc=1">10 mil Teslin Paper</a></li>
+<li><a href="http://www.amazon.com/gp/product/B004UJC730/ref=ox_sc_act_title_2?ie=UTF8&amp;psc=1&amp;smid=A1GYMVIZIMSYWM">10 mil Butterfly Pouch Laminates</a></li>
+<li>A color inkjet printer</li>
+</ul>
+
+
+<p>You will also need the following software:</p>
+
+<ul>
+<li>Inkscape</li>
+<li>QtQr</li>
+<li>gLabels</li>
+</ul>
+
+
+<p>There is no standard template for your ID card; you can design it however you wish. The general idea is that it displays the necessary information to be a link between your government issued identification document and your GPG key. It is also a convienient place to put some contact information.</p>
+
+<p>The most important item it must contain is the QR code containing your key.json.asc information. Remember, only the hash of this file is stored in the blockchain, so you need to make the data available for verification. For this reason, it is also recommended to include the hash and the Bitcoin transaction ID on your card. Finally, a link to your Keybase.io account is recommended.</p>
+
+<p>To prove your identity, one would scan the QR code containing your key.json.asc information to obtain the ASCII text, and use your Keybase.io account to verify it&rsquo;s authenticity. Then, the hash of that data can be calculated and compared against the Bitcoin transaction. All the information needed (besides keybase.io and blockchain.info) are stored on your physical card; no need for your personal computer. Furthermore, the information can be validated with a smart phone; no full PC is needed.</p>
+
+<p>Below you will find the template I designed using Inkscape. It isn&rsquo;t very flashy, but it does it&rsquo;s job well.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./01.png'><img class='caption' src='./01.png' width='100%' title='My ID Card Template' alt=''></a><span class='caption-text'>My ID Card Template</span></span></div></div></p>
+
+<p>Do note that I let the edges overlap a little bit to ensure the color covers the entire border.<br/>
+Here is the back, and containing the most important part of the document:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./02.png'><img class='caption' src='./02.png' width='100%' title='Digital ID on the Blockchain' alt=''></a><span class='caption-text'>Digital ID on the Blockchain</span></span></div></div></p>
+
+<p>Scanning that will reveal the key.json.asc data.</p>
+
+<p>Next, this card needs to be layed out on the Teslin paper properly. For this, I used gLabels and created a custom template. It took some trial and error to get everything lined up correctly, but here are the settings I ended up using:</p>
+
+<ol>
+<li>Width: 87.6 mm</li>
+<li>Height: 56.0 mm</li>
+<li>Round: 3.0 mm</li>
+<li>Horizontal Waste: 1.0 mm</li>
+<li>Vertical Waste: 1.0 mm</li>
+<li>Margin: 1.0 mm</li>
+</ol>
+
+
+<p>and:</p>
+
+<ul>
+<li>nx: 2</li>
+<li>ny: 4</li>
+<li>x0: 15.9 mm</li>
+<li>y0: 15.9 mm</li>
+<li>dx: 97.0 mm</li>
+<li>dy: 64.0 mm</li>
+</ul>
+
+
+<p>Here are the steps:</p>
+
+<ol>
+<li>Once you create your card in Inkscape, export it to a png.</li>
+<li>Open gLabels and use your png to create a card.</li>
+<li>Print it onto the Teslin paper at the highest quality your printer allows.</li>
+<li>Let it dry, then pop the card out and place it inside of a butterfly pouch.
+
+<ul>
+<li>Do note that the glossy side goes out, the matte side is glue that should be up against the Teslin paper.</li>
+<li>Also, the folded edge should be at the bottom of the card.</li>
+<li>Be careful not to get fingerprints on the inside of the pouch.</li>
+</ul>
+</li>
+<li>Warm up the laminator and feed the butterfly pouch containing the card folded edge first into the laminator.</li>
+<li>When it comes out, flip it over and run it through again (on the other side).
+
+<ul>
+<li>You may need to run it through each side twice, for a total of four times.</li>
+</ul>
+</li>
+<li>Let it cool, and enjoy your finished product!</li>
+</ol>
+
+
+<p>The result will look and feel like a real ID card. Below is an image of mine, with some stuff blurred out.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./03.jpg'><img class='caption' src='./03.jpg' width='100%' title='Completed Blockchain ID Card' alt=''></a><span class='caption-text'>Completed Blockchain ID Card</span></span></div></div></p>
+]]></content>
+  </entry>
+  
+</feed>

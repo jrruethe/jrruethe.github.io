@@ -9,7 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="The Singleton pattern is a design pattern that restricts the instantiation of a class to one object. It is typically used for solving the problem of &hellip;">
+  <meta name="description" content="The Singleton pattern is a design pattern that restricts the instantiation of a class to one object.
+It is typically used for solving the problem of &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,19 +24,16 @@
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -104,7 +102,15 @@
   </header>
 
 
-<div class="entry-content"><p>The Singleton pattern is a design pattern that restricts the instantiation of a class to one object. It is typically used for solving the problem of resource contention, such that you need to manage a single instance of a resource. Singletons are misunderstood and difficult to implement correctly, hopefully this post can clear things up.</p>
+<div class="entry-content"><p>The Singleton pattern is a design pattern that restricts the instantiation of a class to one object.
+It is typically used for solving the problem of resource contention, such that you need to manage a single instance of a resource.
+Singletons are misunderstood and difficult to implement correctly, hopefully this post can clear things up.</p>
+
+<!--more-->
+
+
+<div class='more'></div>
+
 
 <p>It is known as an anti-pattern in that it is often misused or abused to the point where it can have a negative effect on a code base. Opponents to Singletons compare them to global variables, but that is not entirely true; As an object-oriented pattern, they can implement interfaces and be subclassed, which gives them more useful properties than a normal global. That said, Singletons are considered harmful<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> for a variety of reasons:</p>
 
@@ -158,7 +164,7 @@ Constructor(SingleInstance&amp; instance) :
 
 <p>Configuration is sometimes done with Singletons, however this isn&rsquo;t considered a good practice. Dependency injection is typically a better way to handle passing configuration through your program.</p>
 
-<h2>Creating a Singleton</h2>
+<h1>Creating a Singleton</h1>
 
 <p>Singletons conform to the following conditions<sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup>:</p>
 
@@ -430,7 +436,7 @@ The advantage to returning a reference instead of a pointer is:</p>
 
 <p>This approach is called the Double-Checked Locking Pattern, or DCLP.</p>
 
-<h2>The Double-Checked Locking Pattern is Unsafe</h2>
+<h1>The Double-Checked Locking Pattern is Unsafe</h1>
 
 <p>Scott Meyers and Andrei Alexandrescu have discussed<sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup> the subtle issues with DCLP. Their paper as an interesting read; the problems boil down to the fact that the compiler may reorder instructions or the hardware may reorder memory accesses, and there was no way to express these constraints using the C++ language at the time (C++11 fixes these issues, as we will see later).</p>
 
@@ -718,7 +724,7 @@ In fact, Boost provides a solution in their documentation<sup id="fnref:7"><a hr
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Enhancing the Singleton</h2>
+<h1>Enhancing the Singleton</h1>
 
 <p>We still have the problem that the destructor is never called. The solution to this is to convert the raw pointer into a scoped_ptr. However, the atomics can only be used with primitive types. We need to apply some<sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup> transformations<sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup> to the code to decouple the atomic from the pointer:</p>
 
@@ -996,7 +1002,7 @@ Hello!
 Goodbye!
 </code></pre>
 
-<h2>Boost Pool Method</h2>
+<h1>Boost Pool Method</h1>
 
 <p>As I mentioned, I needed a Singleton for a memory pool. Naturally, I decided to see how Boost handles this for their own pool. I searched for all the boost include files with Singleton in their name:</p>
 
@@ -1257,7 +1263,7 @@ Goodbye!
 
 <p>Notice that this method does not use lazy instantiation, but rather it uses <em>eager instantiation</em>, meaning the Singleton is created before <code>main</code> is called. In addition, it properly calls the destructor and is thread safe without any locks or atomics. Despite the author describing this method as &ldquo;twisted&rdquo;, I think it is rather elegant. Unfortunately, it lacks the ability to do per-thread singletons, and its eager instantiation is a drawback.</p>
 
-<h2>Meyer&rsquo;s Method (C++11)</h2>
+<h1>Meyer&rsquo;s Method (C++11)</h1>
 
 <p>Things get much easier in C++11. Scott Meyers introduced a very simple and elegant Singleton back in 1996<sup id="fnref:11"><a href="#fn:11" rel="footnote">11</a></sup>:</p>
 
@@ -1334,7 +1340,7 @@ Goodbye!
 
 <p>This method is only thread safe with C++11 and up. It uses lazy instantiation, properly calls the destructor, and doesn&rsquo;t use any mutexes or atomics. With C++11, it is now considered the correct way to implement a Singleton.</p>
 
-<h2>Boost Call Once Method</h2>
+<h1>Boost Call Once Method</h1>
 
 <p>Meyer&rsquo;s Singleton cannot be used in C++03, but we can get pretty close to it using Boost&rsquo;s <code>call_once</code> capabilities.</p>
 
@@ -1450,7 +1456,7 @@ Hello!
 Goodbye!
 </code></pre>
 
-<h2>My Method</h2>
+<h1>My Method</h1>
 
 <p>I&rsquo;m a pretty big fan of the <code>call_once</code> method:</p>
 
@@ -1809,9 +1815,17 @@ Goodbye!
 <time datetime="2015-08-02T15:55:58-04:00" pubdate data-updated="true">Aug 2<span>nd</span>, 2015</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/02/singletons/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/02/singletons/" >Tweet</a>
@@ -1820,11 +1834,44 @@ Goodbye!
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -1848,20 +1895,18 @@ Goodbye!
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/02/singletons/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/02/singletons/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -1869,6 +1914,36 @@ Goodbye!
 <a href="http://jrruethe.github.io/blog/2015/08/02/singletons/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/08/02/singletons/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -1895,32 +1970,7 @@ Goodbye!
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/06/30/parameter-forwarding/">Parameter Forwarding</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -2023,6 +2073,43 @@ Goodbye!
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

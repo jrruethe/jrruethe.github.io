@@ -9,7 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Its that time of year again, and I am reminded by the large banner at the top of Wikipedia. I have some spare change lying around, and I feel like &hellip;">
+  <meta name="description" content="Its that time of year again, and I am reminded by the large banner at the top of Wikipedia.
+I have some spare change lying around, and I feel like &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,19 +24,16 @@
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -104,9 +102,19 @@
   </header>
 
 
-<div class="entry-content"><p>Its that time of year again, and I am reminded by the large banner at the top of Wikipedia. I have some spare change lying around, and I feel like showing my support to fellow programmers who maintain the software I use every day.</p>
+<div class="entry-content"><p>Its that time of year again, and I am reminded by the large banner at the top of Wikipedia.
+I have some spare change lying around, and I feel like showing my support to fellow programmers who maintain the software I use every day.</p>
 
-<p>I am a strong supporter of Bitcoin and naturally I wanted to use it for donations. I have had my Bitcoin address posted on my blog, and have had a few donations from readers (thank you!). One of the best things about Bitcoin is that anyone can send and receive money without needing to sign up for anything. It is a great way to quickly and convieniently transfer cash, and you can be sure that your transaction reaches the intended person without needing to interact with any middleman.</p>
+<p>I am a strong supporter of Bitcoin and naturally I wanted to use it for donations.
+I have had my Bitcoin address posted on my blog, and have had a few donations from readers (thank you!).
+One of the best things about Bitcoin is that anyone can send and receive money without needing to sign up for anything.
+It is a great way to quickly and convieniently transfer cash, and you can be sure that your transaction reaches the intended person without needing to interact with any middleman.</p>
+
+<!--more-->
+
+
+<div class='more'></div>
+
 
 <p>First, I compiled a list of the major OSS software products I rely on, as well as projects I truely believe in, and found the donation pages for each. I discovered that many of them do provide a way to pay with Bitcoin; however, the methods, formats, and requirements varied greatly. This is a perfect opportunity to provide a review on how easy or difficult it is to donate Bitcoin to websites today. I took my list and trimmed it down to a small subset of different examples. This post will be reviewing the Bitcoin donation methods for the following sites:</p>
 
@@ -127,7 +135,7 @@
 
 <hr />
 
-<h2>Doing it the right way</h2>
+<h1>Doing it the right way</h1>
 
 <p>I must really commend the Free Software Foundation and Qubes. Of all the sites I reviewed, I feel these sites are the only ones who are doing it &ldquo;right&rdquo;.</p>
 
@@ -139,7 +147,8 @@
 </ul>
 
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/01.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/01.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/01.png' width='100%' title='Free Software Foundation' alt=''></a><span class='caption-text'>Free Software Foundation</span></span></div></div>
+
 
 <p>I want to bring special attention to this last point. Bitcoin addresses are almost impossible to remember and have no identifying features to link them to the owner. Hackers could exploit a website and change the address server-side, or a MitM attack could allow the address to be spoofed on the client side (the latter is especially true if using Tor, where the exit node can replace webpage content). For these reasons, Bitcoin addresses displayed on webpages should have an accompanying GPG signature to prove ownership and eliminate the risk of tampering.</p>
 
@@ -156,8 +165,12 @@
 
 <p>Many other sites use Bitpay or Coinbase to do dynamic addresses: temporary addresses that &ldquo;timeout&rdquo; after a short amount of time. Bitpay is an indespensible tool for merchants that also makes things very easy for the user; for example, on a webpage a user could specify how much they want to donate, and Bitpay will create a special QR code that tells Bitcoin clients to make a transaction for that amount. This interaction reduces the chance of mistyping an amount (remember, Bitcoin transactions cannot be revoked). Each transaction is isolated to a single address. Cycling addresses increases privacy for both the sender and receiver. It also makes creating a receipt easier, and helps clear up any confusion. In fact, the Bitcoin developers themselves discourage <a href="https://en.bitcoin.it/wiki/Address_reuse">address reuse</a>. Here is an example from the Freedom of the Press Foundation:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/02.png"><br/>
-(Note, don&rsquo;t actually use that address, it is expired!)</p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/02.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/02.png' width='100%' title='Freedom of the Press' alt=''></a><span class='caption-text'>Freedom of the Press</span></span></div></div>
+
+
+<p></p>
+
+<blockquote><p>Note, don&rsquo;t actually use that address, it is expired!</p></blockquote>
 
 <p>Bitpay&rsquo;s temporary addresses are a blessing and a curse; You cannot sign a temporary address. This also means I cannot share that address with anyone else if I want to promote that website or service; users are required to visit the page, fill out the form, and get their own temporary address to send to. I can&rsquo;t build up an &ldquo;address book&rdquo; of websites/services and their payment address.</p>
 
@@ -168,27 +181,31 @@ By now you may have noticed that I am making some contradictions. I labeled the 
 
 <p>Of all the forms I came across, the one for Eclipse was the by far the mosts intuitive and clear:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/03.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/03.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/03.png' width='100%' title='Eclipse' alt=''></a><span class='caption-text'>Eclipse</span></span></div></div>
+
 
 <p>The form is short and 100% optional. There is even a little checkbox to stay anonymous. Preselected donation amounts are available, as well as a box to specify your own number. I especially liked how I didn&rsquo;t have to scroll all over the page looking for the Bitcoin option; many of the sites I looked at hide the Bitcoin address at the bottom or side of their donation page instead of integrating that option in with the others. Well done Eclipse!</p>
 
 <hr />
 
-<h2>Doing it the wrong way</h2>
+<h1>Doing it the wrong way</h1>
 
 <p>Don&rsquo;t misunderstand, I am very happy that Bitcoin was an option for donations. However, I feel that some of these sites are missing the point; A Bitcoin transaction doesn&rsquo;t need any other information besides an address. If you want to receive a donation, you shouldn&rsquo;t need a name, address, email, phone number, etc required. Just take the money!</p>
 
 <p>For example, the EFF requires my name, email, and <em>shipping address</em> to receive a Bitcoin donation:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/04.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/04.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/04.png' width='100%' title='Electronic Frontier Foundation' alt=''></a><span class='caption-text'>Electronic Frontier Foundation</span></span></div></div>
+
 
 <p>Wikipedia also requires a shipping address. Why is this information needed? What are they going to send me? Why can&rsquo;t I opt out?</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/05.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/05.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/05.png' width='100%' title='Wikipedia' alt=''></a><span class='caption-text'>Wikipedia</span></span></div></div>
+
 
 <p>Even Mozilla won&rsquo;t let me send them a Bitcoin donation without an email address:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/06.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/06.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/06.png' width='100%' title='Mozilla' alt=''></a><span class='caption-text'>Mozilla</span></span></div></div>
+
 
 <p>What could they need an email address for? A receipt? No need, the blockchain is a public ledger that replaces the need for a receipt. A thank you message? No need, afterall, I&rsquo;m the one thanking <em>you</em> with my donation! Signing me up on an email list? Most likely, and I don&rsquo;t need more spam.</p>
 
@@ -196,13 +213,14 @@ By now you may have noticed that I am making some contradictions. I labeled the 
 
 <hr />
 
-<h2>Not doing it at all</h2>
+<h1>Not doing it at all</h1>
 
 <p>Unfortunately, Bitcoin still hasn&rsquo;t hit critical mass. By now, many people have at least heard of it, but the average person doesn&rsquo;t understand how to use it, how it works, or its benefits. There are still many websites that do not have a Bitcoin donation option. Some of the programs I use every day did not accept Bitcoin, however they did take PayPal.</p>
 
 <p>The surprising one here was Debian. Not only do they not take Bitcoin, they don&rsquo;t even take Paypal. Their <a href="https://www.debian.org/donations">preferred methods</a> of payment are credit card or check. Look at how much stuff I need to fill out to donate:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/07.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/07.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/07.png' width='100%' title='Debian' alt=''></a><span class='caption-text'>Debian</span></span></div></div>
+
 
 <p>This right here is a prime example of how amazingly simple Bitcoin is.</p>
 
@@ -245,9 +263,17 @@ By now you may have noticed that I am making some contradictions. I labeled the 
 <time datetime="2015-12-04T20:37:39-05:00" pubdate data-updated="true">Dec 4<span>th</span>, 2015</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/bitcoin/'>Bitcoin</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/" >Tweet</a>
@@ -256,11 +282,44 @@ By now you may have noticed that I am making some contradictions. I labeled the 
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -284,20 +343,18 @@ By now you may have noticed that I am making some contradictions. I labeled the 
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -305,6 +362,36 @@ By now you may have noticed that I am making some contradictions. I labeled the 
 <a href="http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/12/04/bitcoin-donations/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/12/setting-up-qubes/">Setting up Qubes</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -331,32 +418,7 @@ By now you may have noticed that I am making some contradictions. I labeled the 
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -459,6 +521,43 @@ By now you may have noticed that I am making some contradictions. I labeled the 
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

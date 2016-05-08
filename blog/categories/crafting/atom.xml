@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Crafting | Morning Musings]]></title>
+  <link href="http://jrruethe.github.io/blog/categories/crafting/atom.xml" rel="self"/>
+  <link href="http://jrruethe.github.io/"/>
+  <updated>2016-05-08T18:15:24-04:00</updated>
+  <id>http://jrruethe.github.io/</id>
+  <author>
+    <name><![CDATA[Joe Ruether]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Bitcoin Paper Wallets]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets/"/>
+    <updated>2015-04-23T19:18:12-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/04/23/bitcoin-paper-wallets</id>
+    <content type="html"><![CDATA[<p>Paper wallets are a form of <em>cold storage</em>, meaning that the private key has never touched a computer with internet access.
+This is one of the most secure ways to store Bitcoins when done properly. You should never use a paper wallet you did not create yourself.
+For that reason, this is a tutorial to create a paper wallet in a secure fashion.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p>A repository of paper wallet generators can be found <a href="https://github.com/jrruethe/paper_wallet">here</a>. You can choose to use my repository directly if you wish, but I recommend going straight to the source.
+There are many options with different formats and templates, however I highly recommend BitcoinPaperWallet.com.</p>
+
+<p><em>I am in no way affiliated with BitcoinPaperWallet.com, just a satisfied customer.</em></p>
+
+<hr />
+
+<h1><a href="https://bitcoinpaperwallet.com/">BitcoinPaperWallet.com</a> (<a href="https://github.com/cantonbecker/bitcoinpaperwallet">Github</a>)</h1>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./01.jpg'><img class='caption' src='./01.jpg' width='100%' title='Bitcoin Paper Wallet' alt=''></a><span class='caption-text'>Bitcoin Paper Wallet</span></span></div></div></p>
+
+<p>This is the most secure and well thought out design I have seen. The author has done a great job addressing the various attack vectors. His website is easy to use and provides all the relevant information needed. Furthermore, the generator is based on the popular and trusted <a href="https://www.bitaddress.org">bitaddress.org</a>. This paper wallet is perfect for cold storage and archival, but it takes a little extra work and materials to secure it properly. Fortunately, everything required can be bought right from the website, and you can pay in Bitcoin!</p>
+
+<p>Features:</p>
+
+<ul>
+<li>&ldquo;Butterfly&rdquo; design secures the private key</li>
+<li>Resistant to candling</li>
+<li>Supports <a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">BIP38</a> encryption</li>
+<li>Private key encoded in <a href="https://en.bitcoin.it/wiki/Wallet_import_format">Wallet Import Format</a></li>
+<li>Designed to be printed in landscape mode, but works in portrait mode as well</li>
+<li>Double sided</li>
+<li>2x wallets per sheet</li>
+<li>Notes section on the back</li>
+<li>Public key visible when closed</li>
+</ul>
+
+
+<p>Additional Options:</p>
+
+<ul>
+<li><a href="https://bitcoinpaperwallet.com/">Security Stickers</a> 2in x .5in (<a href="http://www.amazon.com/gp/product/B00MWCCN7C">Alternative</a>)*</li>
+<li><a href="https://bitcoinpaperwallet.com/">Waterproof Bag</a> 6in x 3in (<a href="http://www.amazon.com/Clear-Lock-Bags-Case-1000/dp/B0040003E4">Alternative</a>)</li>
+<li><a href="http://www.amazon.com/dp/B004PX7ZTC">Teslin Paper</a> (Inkjet Printers)</li>
+<li><a href="http://www.amazon.com/gp/product/B004UI335W/">Revlar Paper</a> (Laser Printers)</li>
+<li><a href="http://www.amazon.com/gp/product/B00ENI0NI4">Scratch Off Stickers</a> 1in x 1in</li>
+<li><a href="http://www.amazon.com/gp/product/B00BWU3HNY">Laminating Pouches</a> 8.9in x 11.4in</li>
+<li><a href="http://www.amazon.com/gp/product/B0010JEJPC">Laminator</a></li>
+</ul>
+
+
+<blockquote><p>*The official security stickers from bitcoinpaperwallet.com are serialized in pairs, meaning you get two of each number. This is best because each paper wallet requires two stickers, so the numbers match. The alternative link only provides one sticker for each number.</p></blockquote>
+
+<p>Dimensions:</p>
+
+<ul>
+<li>Landscape: 5.5in x 2.5in (Slightly smaller than a dollar bill)</li>
+<li>Portrait: 4in x 2in (Slightly bigger than a standard business card)</li>
+<li>QR Codes: 1in x 1in (About the size of a quarter)</li>
+</ul>
+
+
+<p>For additional artworks, check out <a href="http://libertywallet.liberty.me/2015/03/18/liberty-wallet/">Liberty Paper Wallet</a> (<a href="https://github.com/SimonBelmond/libertypaperwallet">Github</a>).</p>
+
+<hr />
+
+<h1>Protecting your paper wallet</h1>
+
+<p>Paper wallets are extremely vulnerable to water.
+Consider laminating your paper wallet for extra protection. An alternative could be to vaccuum seal it using a Foodsaver Vaccuum Sealer. At the very least, you should keep the paper wallet in a ziplock bag.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./03.jpg'><img class='caption' src='./03.jpg' width='100%' title='Water is the Enemy' alt=''></a><span class='caption-text'>Water is the Enemy</span></span></div></div></p>
+
+<p>Paper wallets are also extremely vulnerable to fire.
+However, there is not much you can do about this other than keeping multiple backups in different physical locations, such as a safety deposit box.</p>
+
+<blockquote><p>Remember, if you lose your paper wallet, or it is damaged, you lose all the coins stored at that address!</p></blockquote>
+
+<hr />
+
+<h1>How to properly create a paper wallet</h1>
+
+<p>Paper wallets need to be created offline on a secure machine. For this tutorial, I will be using a <a href="https://tails.boum.org/">Tails</a> Live CD. Grab the ISO and burn it to a disk.</p>
+
+<p>Save a <a href="https://github.com/cantonbecker/bitcoinpaperwallet/archive/master.zip">copy of bitcoinpaperwallet</a> onto a USB drive.</p>
+
+<ol>
+<li>Shutdown your computer and boot from the CD.</li>
+<li>When the Tails welcome box appears, select &ldquo;More Options&rdquo;.</li>
+<li>Enter an administrator password of your choice and login.</li>
+<li>Wait for tor to become ready.</li>
+</ol>
+
+
+<blockquote><p>For this tutorial, in order to get screenshots I am using a virtual machine. Do not use a virtual machine when doing this for real!</p></blockquote>
+
+<p>Before creating the paper wallet, you will want to ensure that your printer works correctly. You need a printer that is directly connected to your machine; don&rsquo;t use a network printer (you shouldn&rsquo;t be connected to any network). If possible, use a dumb printer, and try to ensure that your printer does not save a copy of printouts to internal memory. Use this time to get any drivers you need from the internet.</p>
+
+<p>From the <code>Applications</code> menu, select <code>System Tools -&gt; Administration -&gt; Printing</code>.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./04.png'><img class='caption' src='./04.png' width='100%' title='Printer Settings' alt=''></a><span class='caption-text'>Printer Settings</span></span></div></div></p>
+
+<p>Add your printer. Open up Tor Browser and ensure that you can print a webpage.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./05.png'><img class='caption' src='./05.png' width='100%' title='Add a Printer' alt=''></a><span class='caption-text'>Add a Printer</span></span></div></div></p>
+
+<p>Time to disconnect from the internet. Unplug the ethernet cord, turn off any wireless cards or routers as necessary. Verify that you are not online.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./06.png'><img class='caption' src='./06.png' width='100%' title='Make sure you are offline' alt=''></a><span class='caption-text'>Make sure you are offline</span></span></div></div></p>
+
+<ol>
+<li>Insert your usb drive</li>
+<li>Copy the github zip file to the <code>Tor Browser</code> folder on the filesystem</li>
+<li>Remove the usb drive</li>
+<li>Unpack the zip file</li>
+</ol>
+
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./07.png'><img class='caption' src='./07.png' width='100%' title='Unpack the Zip File' alt=''></a><span class='caption-text'>Unpack the Zip File</span></span></div></div></p>
+
+<p>Open up the html file in Tor Browser. Follow the instructions to generate your paper wallet. You have the option of using the built-in random number generator, or supplying your own random numbers using dice or cards. For maximum security, you should use dice or cards. I found that taking a deck of cards, shuffling it seven times, and picking the first 32 cards off the top worked well. Remember to shuffle the cards again after you are done! &ldquo;Brain wallets&rdquo; may seem convenient, however you need to have a very strong passphrase for this to be secure; it is better to use random numbers.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./08.png'><img class='caption' src='./08.png' width='100%' title='Open in Browser' alt=''></a><span class='caption-text'>Open in Browser</span></span></div></div></p>
+
+<blockquote><p><strong>BIP38 Encryption?</strong><br/>
+There are pros and cons to encrypting your paper wallet. Encryption adds an extra layer of security by requiring a passphrase before being able to import the private key again, which is great if the paper wallet ever gets stolen. However if the passphrase is forgotten, the coins are lost forever. The passphrase is one more thing to remember / write down, which means it is one more thing to secure. In addition, some wallet software does not support BIP38, which may make reimporting difficult. Finally, it is important to realize that BIP38 encryption will NOT help if you chose an insecure passphrase for a brain wallet. In general, BIP38 encryption is recommended.</p></blockquote>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./09.png'><img class='caption' src='./09.png' width='100%' title='Generate a Wallet' alt=''></a><span class='caption-text'>Generate a Wallet</span></span></div></div></p>
+
+<p>You will want to print two wallets by spinning the paper after each print. You will end up running the sheet of paper through the printer a total of 4 times.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='./10.jpg'><img class='caption' src='./10.jpg' width='400' title='Print the Wallet' alt=''></a><span class='caption-text'>Print the Wallet</span></span></div></div></p>
+
+<p>Now is your chance to verify the paper wallets. Make sure you can scan the QR codes, make sure the private key and public key match, etc.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./11.png'><img class='caption' src='./11.png' width='100%' title='Verify the Wallet' alt=''></a><span class='caption-text'>Verify the Wallet</span></span></div></div></p>
+
+<p>Shutdown your Tails environment. It will wipe your ram for you.</p>
+
+<p>Cut out each design by following the lines on the front. Fold the wallets and apply the stickers.</p>
+
+<blockquote><p>If you have a laser printer, you will want to include a small 1in x 1in square of paper between the private key and the candling pattern when folding the paper. Later on, we will be laminating the paper wallet, and the heat can cause the toner on each side of the fold to fuse together.</p></blockquote>
+
+<p>Sign the back and write the sticker numbers. This prevents someone from simply replacing the stickers or entire wallet without your knowledge.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='./12.jpg'><img class='caption' src='./12.jpg' width='400' title='Sealed Wallets' alt=''></a><span class='caption-text'>Sealed Wallets</span></span></div></div></p>
+
+<p>Put both paper wallets into a laminating pouch and run it through the laminator. Cut out each wallet, and store them in physically separate, secure locations.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:400;'><a class='fancybox' rel='group' href='./13.jpg'><img class='caption' src='./13.jpg' width='400' title='Laminated Wallets' alt=''></a><span class='caption-text'>Laminated Wallets</span></span></div></div></p>
+
+<hr />
+
+<h1>How to properly use a paper wallet</h1>
+
+<p>You can scan the public key into Electrum or Mycelium as a watch-only wallet to keep track of your funds. Eventually you will want to spend the funds.</p>
+
+<p>First, you need to delaminate the wallet. Cut a line along the edge closest to the paper where there is a tiny line of air, and peel away the laminate. A technique that worked for me was to cut along the &ldquo;Private Key / Withdraw&rdquo; line, then slide my knife underneath each sticker. Unfold the flap to access the private key. As you can see, it is still safe and legible, even after the lamination process.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./14.jpg'><img class='caption' src='./14.jpg' width='100%' title='Revealing the Private Key' alt=''></a><span class='caption-text'>Revealing the Private Key</span></span></div></div></p>
+
+<p>Now comes the important part. The funds must be &ldquo;swept&rdquo; into an electronic wallet. You must take all the funds in one shot; do not attempt to partially spend the funds in a paper wallet. This is due to how Bitcoin Change works.</p>
+
+<blockquote><p><strong>Change?</strong><br/>
+When spending Bitcoins, <em>ALL</em> coins from that address are moved to new addresses.
+The destination address will get the desired amount, and any remaining amount will be sent to a &ldquo;change&rdquo; address. If no &ldquo;change&rdquo; address is specified, the remaining amount will go to the miner that solves the block. Normally, an electronic wallet manages this for you behind the scenes, however when using a paper wallet directly, you will not have this control. This is why the entire balance of a paper wallet should be &ldquo;swept&rdquo; into an electronic wallet before spending.<br/>
+Read more about change <a href="https://en.bitcoin.it/wiki/Change">here</a></p></blockquote>
+
+<p>Once the paper wallet has been swept into the electronic wallet, it should be destroyed and never used again. Shred it or burn it.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./15.jpg'><img class='caption' src='./15.jpg' width='100%' title='Bitcoin Paper Wallet' alt=''></a><span class='caption-text'>Bitcoin Paper Wallet</span></span></div></div></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Physical Blockchain Identity Card]]></title>
+    <link href="http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card/"/>
+    <updated>2015-03-27T18:28:47-04:00</updated>
+    <id>http://jrruethe.github.io/blog/2015/03/27/physical-blockchain-identity-card</id>
+    <content type="html"><![CDATA[<p>In a <a href="http://jrruethe.github.io/blog/2015/02/28/blockchain-identity/">previous post</a>, I walked through the steps to create a digitial Blockchain Identity.
+Now, it is time to turn that into an physical identity card.</p>
+
+<p><!--more--><div class='more'></div></p>
+
+<p>You will need the following:</p>
+
+<ul>
+<li><a href="http://www.amazon.com/gp/product/B0010JEJPC/ref=od_aui_detailpages00?ie=UTF8&amp;psc=1">Laminator</a></li>
+<li><a href="http://www.amazon.com/gp/product/B004XJC1UQ/ref=od_aui_detailpages00?ie=UTF8&amp;psc=1">10 mil Teslin Paper</a></li>
+<li><a href="http://www.amazon.com/gp/product/B004UJC730/ref=ox_sc_act_title_2?ie=UTF8&amp;psc=1&amp;smid=A1GYMVIZIMSYWM">10 mil Butterfly Pouch Laminates</a></li>
+<li>A color inkjet printer</li>
+</ul>
+
+
+<p>You will also need the following software:</p>
+
+<ul>
+<li>Inkscape</li>
+<li>QtQr</li>
+<li>gLabels</li>
+</ul>
+
+
+<p>There is no standard template for your ID card; you can design it however you wish. The general idea is that it displays the necessary information to be a link between your government issued identification document and your GPG key. It is also a convienient place to put some contact information.</p>
+
+<p>The most important item it must contain is the QR code containing your key.json.asc information. Remember, only the hash of this file is stored in the blockchain, so you need to make the data available for verification. For this reason, it is also recommended to include the hash and the Bitcoin transaction ID on your card. Finally, a link to your Keybase.io account is recommended.</p>
+
+<p>To prove your identity, one would scan the QR code containing your key.json.asc information to obtain the ASCII text, and use your Keybase.io account to verify it&rsquo;s authenticity. Then, the hash of that data can be calculated and compared against the Bitcoin transaction. All the information needed (besides keybase.io and blockchain.info) are stored on your physical card; no need for your personal computer. Furthermore, the information can be validated with a smart phone; no full PC is needed.</p>
+
+<p>Below you will find the template I designed using Inkscape. It isn&rsquo;t very flashy, but it does it&rsquo;s job well.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./01.png'><img class='caption' src='./01.png' width='100%' title='My ID Card Template' alt=''></a><span class='caption-text'>My ID Card Template</span></span></div></div></p>
+
+<p>Do note that I let the edges overlap a little bit to ensure the color covers the entire border.<br/>
+Here is the back, and containing the most important part of the document:</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./02.png'><img class='caption' src='./02.png' width='100%' title='Digital ID on the Blockchain' alt=''></a><span class='caption-text'>Digital ID on the Blockchain</span></span></div></div></p>
+
+<p>Scanning that will reveal the key.json.asc data.</p>
+
+<p>Next, this card needs to be layed out on the Teslin paper properly. For this, I used gLabels and created a custom template. It took some trial and error to get everything lined up correctly, but here are the settings I ended up using:</p>
+
+<ol>
+<li>Width: 87.6 mm</li>
+<li>Height: 56.0 mm</li>
+<li>Round: 3.0 mm</li>
+<li>Horizontal Waste: 1.0 mm</li>
+<li>Vertical Waste: 1.0 mm</li>
+<li>Margin: 1.0 mm</li>
+</ol>
+
+
+<p>and:</p>
+
+<ul>
+<li>nx: 2</li>
+<li>ny: 4</li>
+<li>x0: 15.9 mm</li>
+<li>y0: 15.9 mm</li>
+<li>dx: 97.0 mm</li>
+<li>dy: 64.0 mm</li>
+</ul>
+
+
+<p>Here are the steps:</p>
+
+<ol>
+<li>Once you create your card in Inkscape, export it to a png.</li>
+<li>Open gLabels and use your png to create a card.</li>
+<li>Print it onto the Teslin paper at the highest quality your printer allows.</li>
+<li>Let it dry, then pop the card out and place it inside of a butterfly pouch.
+
+<ul>
+<li>Do note that the glossy side goes out, the matte side is glue that should be up against the Teslin paper.</li>
+<li>Also, the folded edge should be at the bottom of the card.</li>
+<li>Be careful not to get fingerprints on the inside of the pouch.</li>
+</ul>
+</li>
+<li>Warm up the laminator and feed the butterfly pouch containing the card folded edge first into the laminator.</li>
+<li>When it comes out, flip it over and run it through again (on the other side).
+
+<ul>
+<li>You may need to run it through each side twice, for a total of four times.</li>
+</ul>
+</li>
+<li>Let it cool, and enjoy your finished product!</li>
+</ol>
+
+
+<p>The result will look and feel like a real ID card. Below is an image of mine, with some stuff blurred out.</p>
+
+<p><div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='./03.jpg'><img class='caption' src='./03.jpg' width='100%' title='Completed Blockchain ID Card' alt=''></a><span class='caption-text'>Completed Blockchain ID Card</span></span></div></div></p>
+]]></content>
+  </entry>
+  
+</feed>

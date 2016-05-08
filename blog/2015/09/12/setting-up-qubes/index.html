@@ -9,7 +9,8 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless. I decided I &hellip;">
+  <meta name="description" content="I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless.
+I decided I &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,19 +24,16 @@
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -104,21 +102,30 @@
   </header>
 
 
-<div class="entry-content"><p>I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless. I decided I wanted to write about my setup and how to fix the minor problems I encountered. As a test, this entire post was written using Qubes, as a way for me to prove to myself that I could still be productive and have an easy-to-use system while remaining secure.</p>
+<div class="entry-content"><p>I have recently switched to Qubes OS and I really like it. It has some very handy tools that make working with a secure system seamless.
+I decided I wanted to write about my setup and how to fix the minor problems I encountered.
+As a test, this entire post was written using Qubes, as a way for me to prove to myself that I could still be productive and have an easy-to-use system while remaining secure.</p>
 
-<h2>Understanding Qubes</h2>
+<!--more-->
+
+
+<div class='more'></div>
+
+
+<h1>Understanding Qubes</h1>
 
 <p>Qubes is not a distribution of Linux. Rather, it is a set of tools built on top of the Xen hypervisor, allowing you to interoperate between multiple isolated virtual machines. Each virtual machine is &ldquo;paravirtualized&rdquo;, meaning they all share a common Linux kernel but have separated filesystems, devices, etc. Furthermore, the filesystems are layered such that multiple separate VMs can share a common underlying template to save storage space. In my mind, this is similar in concept to how Docker works. Unlike Docker, which utilizes Linux kernel namespaces, Qubes utilizes hardware enforced isolation via virtualization capabilities in the CPU, so it is much more secure.</p>
 
 <p>The main interface is called <code>dom0</code>, and acts as an administration panel for Xen, allowing the user to easily manage and manipulate the various virtual machines. Each virtual machine is given a color so the user can visually assess which security domain they are working in at all times. The Qubes tools allow for secure file/clipboard copying between VMs, controlled networking, and seamless application interaction; You will barely even notice that you are working with a series of virtual machines under the hood.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/01.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/01.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/01.png' width='100%' title='Qubes Example Desktop' alt=''></a><span class='caption-text'>Qubes Example Desktop</span></span></div></div>
+
 
 <p>It is important to understand that Qubes grants the ability to easily create a secure computing environment, but it relies heavily on the user to utilize best practices; it will not prevent foolish mistakes. The user must be mindful about keeping data and connections isolated; Qubes helps you do it effectively.</p>
 
 <p>Read more about Qubes <a href="https://www.qubes-os.org/doc/SimpleIntro/">here</a>.</p>
 
-<h2>Considerations before migrating to Qubes</h2>
+<h1>Considerations before migrating to Qubes</h1>
 
 <p>Qubes 3.0 works very well and is very usable. Its VM management and interaction tool are well done, easy to use, and non-intrusive. However, using Qubes comes with a significant drawback:</p>
 
@@ -140,19 +147,20 @@ Airgapping means the machine is never connected to the internet. It is completel
 
 <p>Read more about these considerations <a href="https://www.qubes-os.org/doc/UserFaq/">here</a>.</p>
 
-<h2>Getting Qubes</h2>
+<h1>Getting Qubes</h1>
 
 <p>Simply download <code>Qubes-R3.0-rc2-x86_64-DVD.iso</code> from <a href="https://www.qubes-os.org/doc/QubesDownloads/">here</a>. Be sure to also grab the signature file. Before attempting to burn / install Qubes, you should <a href="https://www.qubes-os.org/doc/VerifyingSignatures/">verify the signatures</a>.</p>
 
-<h2>Installing Qubes</h2>
+<h1>Installing Qubes</h1>
 
 <p>The installer is pretty straightforward. I chose to do manual partitioning, with a <code>boot</code> drive of 2GB using <code>ext4</code> and a <code>root</code> drive taking the remaining space using <code>btrfs</code> and <code>luks</code> encryption. My plan in the future is to have a Tails iso available for booting from the <code>boot</code> drive. My disk has limited space, so I chose <code>btrfs</code> for its compression abilities. Finally, be sure to also install the <code>fedora-21</code> and <code>debian-8</code> templates.</p>
 
-<h2>Creating Domains</h2>
+<h1>Creating Domains</h1>
 
 <p>The first thing I do is clone the standard <code>fedora-21</code> and <code>debian-8</code> templates, such that I always have a fresh working fallback in case something goes wrong when modifying them. I typically use two separate <code>debian-8</code> templates; one for a minimal image that won&rsquo;t change often, and one for an &ldquo;experimental&rdquo; image that I install various software to.</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/02.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/02.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/02.png' width='100%' title='Qubes VM Manager' alt=''></a><span class='caption-text'>Qubes VM Manager</span></span></div></div>
+
 
 <p>I like to have a few primary domains:</p>
 
@@ -180,13 +188,15 @@ Airgapping means the machine is never connected to the internet. It is completel
 
 <p>Here is a diagram of how the VM &ldquo;inheritance&rdquo; is set up:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/03.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/03.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/03.png' width='100%' title='VM Inheritance' alt=''></a><span class='caption-text'>VM Inheritance</span></span></div></div>
+
 
 <p>As you can see, I have multiple domains that I use at a &ldquo;personal&rdquo; level, so they share the same template, which I try to keep minimal and stable. Separate from that is my &ldquo;testing&rdquo; template that I do my work in. This typically involves installing experimental software, or development tools / libraries that I don&rsquo;t want cluttering up my personal domain.</p>
 
 <p>Here is a diagram of how the VM networking is set up:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/04.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/04.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/04.png' width='100%' title='VM Networking' alt=''></a><span class='caption-text'>VM Networking</span></span></div></div>
+
 
 <p>There are a couple things to note here:</p>
 
@@ -196,6 +206,8 @@ Airgapping means the machine is never connected to the internet. It is completel
 <li>The Whonix templates must access the internet through the Whonix gateway, otherwise they won&rsquo;t be able to update.</li>
 </ul>
 
+
+<h1>Fixes</h1>
 
 <p>For the most part, Qubes works great out of the box, however there are a few things that need small fixes, especially after performing the first software update in <code>dom0</code> and the template VMs.</p>
 
@@ -276,17 +288,19 @@ Lets change the Qubes shortcut keys to use the little &ldquo;Windows&rdquo; key 
 secure_paste_sequence = "Mod4-v";
 </code></pre>
 
-<h2>Installing Tor <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></h2>
+<h1>Installing Tor <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></h1>
 
 <p>The instructions from the Qubes website are pretty straightforward, but I will replicate them here by using the GUI instead of the command line.</p>
 
 <p>First create a copy of the standard <code>fedora-21</code> template:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/05.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/05.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/05.png' width='100%' title='Clone Template' alt=''></a><span class='caption-text'>Clone Template</span></span></div></div>
+
 
 <p>Next, create a <code>sys-tor</code> proxy VM from that template:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/06.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/06.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/06.png' width='100%' title='ProxyVM' alt=''></a><span class='caption-text'>ProxyVM</span></span></div></div>
+
 
 <p>In a <code>dom0</code> terminal, enter the following commands:</p>
 
@@ -303,11 +317,12 @@ sudo yum install qubes-tor
 
 <p>Now all you need to do is make a normal VM and use <code>sys-tor</code> as your network:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/07.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/07.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/07.png' width='100%' title='Tor Network' alt=''></a><span class='caption-text'>Tor Network</span></span></div></div>
+
 
 <p>Note that while this gives you access to Tor, it isn&rsquo;t necessarily optimized for privacy. For that you will want Whonix.</p>
 
-<h2>Installing Whonix <sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></h2>
+<h1>Installing Whonix <sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></h1>
 
 <p>The Whonix developers have done a great job making Whonix templates that are super easy to install. Simply run the following in a <code>dom0</code> terminal:</p>
 
@@ -318,33 +333,37 @@ sudo yum install qubes-tor
 
 <p>This is where things get slightly confusing. You need to create a VM that uses the gateway template, and use <em>that</em> as the network for the template itself in order to update it. Set up a VM like this:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/08.png">
-<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/09.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/08.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/08.png' width='100%' title='Whonix Gateway' alt=''></a><span class='caption-text'>Whonix Gateway</span></span></div></div>
+
+
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/09.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/09.png' width='100%' title='Whonix Gateway Firewall' alt=''></a><span class='caption-text'>Whonix Gateway Firewall</span></span></div></div>
+
 
 <p>Then, set up your <code>whonix-gw</code> template like this:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/10.png">
-<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/11.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/10.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/10.png' width='100%' title='Whonix Gateway Template' alt=''></a><span class='caption-text'>Whonix Gateway Template</span></span></div></div>
+
+
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/11.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/11.png' width='100%' title='Whonix Gateway Template Firewall' alt=''></a><span class='caption-text'>Whonix Gateway Template Firewall</span></span></div></div>
+
 
 <p>Finally, set up your <code>whonix-ws</code> template like this:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/12.png">
-<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/13.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/12.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/12.png' width='100%' title='Whonix Workstation Template' alt=''></a><span class='caption-text'>Whonix Workstation Template</span></span></div></div>
+
+
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/13.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/13.png' width='100%' title='Whonix Workstation Template Firewall' alt=''></a><span class='caption-text'>Whonix Workstation Template Firewall</span></span></div></div>
+
 
 <p>After that, you can shutdown those three VMs and create the workstation VM:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/14.png">
-<img class="center" src="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/15.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/14.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/14.png' width='100%' title='Whonix Workstation' alt=''></a><span class='caption-text'>Whonix Workstation</span></span></div></div>
+
+
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/15.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/15.png' width='100%' title='Whonix Workstation Firewall' alt=''></a><span class='caption-text'>Whonix Workstation Firewall</span></span></div></div>
+
 
 <p>Fire it up and it will automatically start the gateway. Both VMs will do their thing and synchronize to the network.</p>
-
-<h2>Split GPG <sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></h2>
-
-<p>In a future blog post I will go through more detail about Qubes&#8217; Split-GPG capability.</p>
-
-<h2>Screenshots <sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></h2>
-
-<p>How did I get all those nifty screenshots? I&rsquo;ll show you in a future blog post.</p>
 <div class="footnotes">
 <hr/>
 <ol>
@@ -360,10 +379,6 @@ sudo yum install qubes-tor
 <p><a href="https://www.qubes-os.org/doc/UserDoc/TorVM/">https://www.qubes-os.org/doc/UserDoc/TorVM/</a><a href="#fnref:5" rev="footnote">&#8617;</a></p></li>
 <li id="fn:6">
 <p><a href="https://www.whonix.org/wiki/Qubes/Binary_Install">https://www.whonix.org/wiki/Qubes/Binary_Install</a><a href="#fnref:6" rev="footnote">&#8617;</a></p></li>
-<li id="fn:7">
-<p><a href="https://www.qubes-os.org/doc/UserDoc/SplitGpg/">https://www.qubes-os.org/doc/UserDoc/SplitGpg/</a><a href="#fnref:7" rev="footnote">&#8617;</a></p></li>
-<li id="fn:8">
-<p><a href="http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh">http://git.zx2c4.com/laurent-tools/tree/tools/qvm-screenshot.sh</a><a href="#fnref:8" rev="footnote">&#8617;</a></p></li>
 </ol>
 </div>
 
@@ -392,9 +407,17 @@ sudo yum install qubes-tor
 <time datetime="2015-09-12T11:35:50-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2015</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/qubes/'>Qubes</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/" >Tweet</a>
@@ -403,11 +426,44 @@ sudo yum install qubes-tor
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -431,20 +487,18 @@ sudo yum install qubes-tor
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -452,6 +506,36 @@ sudo yum install qubes-tor
 <a href="http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/09/12/setting-up-qubes/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/09/20/dockerfile-generator/">Dockerfile Generator</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -478,32 +562,7 @@ sudo yum install qubes-tor
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2014/10/25/cryptography-primer/">Cryptography Primer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/04/23/bitcoin-paper-wallets/">Bitcoin Paper Wallets</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/23/placement-new/">Placement New, Memory Dumps, and Alignment</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -606,6 +665,43 @@ sudo yum install qubes-tor
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 

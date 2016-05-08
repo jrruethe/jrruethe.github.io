@@ -9,9 +9,7 @@
   <meta name="author" content="Joe Ruether">
 
   
-  <meta name="description" content="Generally, in C++ there are three places you can store your data: On the stack (local variables)
-On the heap (new / delete)
-In the static data &hellip;">
+  <meta name="description" content="This is an indepth post about advanced memory topics in C++ such as placement new and alignment. The topics covered here will be used in a future &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -25,19 +23,16 @@ In the static data &hellip;">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Morning Musings" type="application/atom+xml">
   <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script> -->
+  <!-- <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script> -->
+  <!-- For jQuery -->
+  <script src="/javascripts/jquery-1.10.1.min.js" type="text/javascript"></script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script type="text/javascript">
-  jQuery.noConflict();
-  var rootUrl = "";
-</script>
-<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
-<script src="/javascripts/maps.js" type="text/javascript"></script>
+  <!-- Fancybox -->
+<link href="/javascripts/fancybox/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-buttons.css?v=1.0.5" rel="stylesheet" type="text/css" media="screen" />
+<link href="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.css?v=1.0.7" rel="stylesheet" type="text/css" media="screen" />
+
 
   
 
@@ -106,7 +101,17 @@ In the static data &hellip;">
   </header>
 
 
-<div class="entry-content"><p>Generally, in C++ there are three places you can store your data:</p>
+<div class="entry-content"><!--more-->
+
+
+<div class='more'></div>
+
+
+<p>This is an indepth post about advanced memory topics in C++ such as placement new and alignment. The topics covered here will be used in a future post to create a memory pool.</p>
+
+<h1>Memory</h1>
+
+<p>Generally, in C++ there are three places you can store your data:</p>
 
 <ol>
 <li>On the stack (local variables)</li>
@@ -148,7 +153,7 @@ In the static data &hellip;">
 <blockquote><p><strong>New and Malloc</strong><br/>
 You should never <code>delete</code> memory allocated with <code>malloc</code>, and you should never <code>free</code> memory allocated with <code>new</code>. <code>malloc</code> and <code>free</code> do raw memory allocations, while <code>new</code> and <code>delete</code> are also responsible for calling constructors and destructors.</p></blockquote>
 
-<h2>Placement New</h2>
+<h1>Placement New</h1>
 
 <p>C++ offers a different &ldquo;flavor&rdquo; of <code>new</code> called &ldquo;placement new&rdquo;. Placement new gives the user finer control about where the object gets constructed by allowing the object to be &ldquo;placed&rdquo; at a specified memory address; in other words, the heap allocation step is bypassed.</p>
 
@@ -352,7 +357,7 @@ Destructor
 Destructor
 </code></pre>
 
-<h2>Dumping Memory</h2>
+<h1>Dumping Memory</h1>
 
 <p>As I said earlier, placement new requires the developer to manage their own memory even more than usual. When working with memory on a low level like this, it becomes very useful to see a hex dump similar to the one created by GDB. With some inspiration<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>, I created a function that would pretty-print memory to an output stream:</p>
 
@@ -738,7 +743,7 @@ If you are surprised by the output above, you may not be aware of padding. The c
 
 <p>This shows a local context memory dump that includes our object and the memory around it. Our markers can be clearly seen, as well as the object itself. In addition, we see some other garbage from the stack.</p>
 
-<h2>Alignment</h2>
+<h1>Alignment</h1>
 
 <p>In the last section, we constructed an object offset into our memory area, and the result was misaligned in the stack. This situation is not ideal.</p>
 
@@ -1032,7 +1037,8 @@ Unaligned Ptr:   0x00000000006648F8
 
 <p>So what happened here? Here is the output color-coded:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/08/23/placement-new/01.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/08/23/placement-new/01.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/08/23/placement-new/01.png' width='100%' title='Memory Dump' alt=''></a><span class='caption-text'>Memory Dump</span></span></div></div>
+
 
 <ul>
 <li>Red: The debug markers</li>
@@ -1062,13 +1068,15 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
 
 <p>Here is what the memory would look like if we did the alignment without the forced 8 byte offset:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/08/23/placement-new/02.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/08/23/placement-new/02.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/08/23/placement-new/02.png' width='100%' title='Wasted Space' alt=''></a><span class='caption-text'>Wasted Space</span></span></div></div>
+
 
 <p>As you can see, even though the memory was already aligned, 16 bytes were wasted in order to get to the next aligned address. You can also see the original pointer address stored immediately before the aligned address. If we were doing 8 byte alignment, the extra 8 bytes that are wasted to align on the next boundary would contain the original address. Attempting to perform an alignment less than 8 means that there wouldn&rsquo;t be enough space for the original pointer; however, one of the rules of alignment states that the alignment must be greater than or equal to the size of a pointer, so we don&rsquo;t need to worry about that case.</p>
 
 <p>What about larger alignments? Here is what it would look like if we were doing 32-byte alignment with an 8 byte offset:</p>
 
-<p><img class="center" src="http://jrruethe.github.io/blog/2015/08/23/placement-new/03.png"></p>
+<div class='img-outer-div'><div class='img-inner-div'><span class='caption-wrapper' style='width:100%;'><a class='fancybox' rel='group' href='http://jrruethe.github.io/blog/2015/08/23/placement-new/03.png'><img class='caption' src='http://jrruethe.github.io/blog/2015/08/23/placement-new/03.png' width='100%' title='Large Alignment' alt=''></a><span class='caption-text'>Large Alignment</span></span></div></div>
+
 
 <p>Generally, 32-byte alignment is unnecessary. There are cases where 16-byte alignment is needed though, such as when dealing with the SSE instructions on the CPU (for example, matrix multiplication with the Eigen library).</p>
 <div class="footnotes">
@@ -1112,9 +1120,17 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
 <time datetime="2015-08-23T14:11:27-04:00" pubdate data-updated="true">Aug 23<span>rd</span>, 2015</time>
       
 
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/c-plus-plus/'>C++</a>, <a class='category' href='/blog/categories/memory/'>Memory</a>
+  
+</span>
+
 
     </p>
     
+    <!-- This part goes below the "Posted by" line -->
+    <!-- 
       <div class="sharing">
   
   <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/23/placement-new/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/23/placement-new/" >Tweet</a>
@@ -1123,11 +1139,44 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
   
 </div>
 
+     -->
     
-    
-<div class="changetip_tipme_button" data-bid="4w8JumCxV7mYAPA8ahW73N" data-uid="ua8VCts3futd94QTwFQHoa"></div><script>(function(document,script,id){var js,r=document.getElementsByTagName(script)[0],protocol=/^http:/.test(document.location)?'http':'https';if(!document.getElementById(id)){js=document.createElement(script);js.id=id;js.src=protocol+'://widgets.changetip.com/public/js/widgets.js';r.parentNode.insertBefore(js,r)}}(document,'script','changetip_w_0'));</script>
+    <p class="meta">
+    <div class="about">
+     <span class="about-image">
+          <img class="borderless" src="/blog/contact/avatar.png" width="75" alt="Avatar">
+     </span>
+     <span class="about-desc">
+          <span>
+          <p class="about-heading">
+          About The Author
+          </p>
+          Joe Ruether is the lead software engineer for the Multisensor Aircraft Tracking system at SRC Inc.
+          He is an expert in C++ template metaprogramming and is interested in cryptography and open source software.
+          </span>
+          <br/>
+          <hr/>
+          <div class="about-twitter">
+          <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="false" data-size="large">Follow @jrruethe</a>
+          </div>
+     </span>
+</div>
 
-    <br>
+<!--
+ - Third person
+ - Its about the reader, not you
+ - Establish credibility
+ - Explain what you do
+ - Be personal
+ - Focus on value to the readers
+ - Don't be afraid to brag
+ - Avoid writing something obnoxiously long
+ - Customize it
+ - Add an action (follow on twitter)
+ - No "freelance"
+-->
+
+    </p>
 
     <p class="meta">
       
@@ -1151,20 +1200,18 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
 <aside class="sidebar">
   
     <section>
-  <img class="center borderless" src="/blog/contact/avatar.png" width="128" height="128">
   <h1>Contact</h1>
   <p>
   <a href="mailto:jrruethe@gmail.com">jrruethe@gmail.com</a><br>
   <a href="https://keybase.io/jrruethe">keybase.io/jrruethe</a><br>
-  <a href="https://onename.io/jrruethe">onename.io/jrruethe</a><br>
   <br>Public Key:<br>
   <a href="http://jrruethe.github.io/downloads/code/jrruethe-public.asc">4F40 99F8 276B DBA5 475A<br>8446 4630 BEDC 40B9 35FE</a>
   </p>
 </section>
 <section>
 <a href="https://twitter.com/jrruethe" class="twitter-follow-button" data-show-count="true">Follow @jrruethe</a><br>
-<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jrruethe.github.io/blog/2015/08/23/placement-new/" data-via="jrruethe" data-counturl="http://jrruethe.github.io/blog/2015/08/23/placement-new/" >Tweet</a>
 </section>
+
 <section>
 <h1>Link to this page</h1>
 <br>
@@ -1172,6 +1219,36 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
 <a href="http://jrruethe.github.io/blog/2015/08/23/placement-new/"><img src="http://chart.apis.google.com/chart?chs=150x150&cht=qr&chld=|0&chco=000000&chl=http://jrruethe.github.io/blog/2015/08/23/placement-new/" alt="post-qrcode"></a>
 </center>
 </section>
+
+
+<section>
+   <h1>Related Posts</h1>
+   <ul class="posts">
+   
+      <li class="related">
+      <a href="/blog/2015/08/02/singletons/">Singletons</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
+      </li>
+   
+      <li class="related">
+      <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
+      </li>
+   
+   </ul>
+</section>
+
+
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
@@ -1198,32 +1275,7 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
     
   </ul>
 </section>
-<section>
-   <h1>Related Posts</h1>
-   <ul class="posts">
-   
-      <li class="related">
-      <a href="/blog/2015/08/02/singletons/">Singletons</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/08/17/yaml-de-slash-serialization-with-boost-fusion/">Yaml De/Serialization with Boost Fusion</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/05/21/boost-fusion-json-serializer/">Boost Fusion Json Serializer</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/07/01/object-counter/">Object Counter</a>
-      </li>
-   
-      <li class="related">
-      <a href="/blog/2015/11/26/object-pool/">Object Pool</a>
-      </li>
-   
-   </ul>
-</section>
+
 
 <section>
   <h1>GitHub Repos</h1>
@@ -1326,6 +1378,43 @@ Endianness is the ordering of bytes in a word (On a 64-bit machine, there are 8 
   </script>
 
 
+
+<!-- For Fancybox Images -->
+<script src="/javascripts/fancybox/jquery.mousewheel-3.0.6.pack.js" type="text/javascript"></script>
+<script src="/javascripts/fancybox/jquery.fancybox.pack.js?v=2.1.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-buttons.js?v=1.0.5" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-media.js?v=1.0.6" type="text/javascript"></script>
+<script src="/javascripts/fancybox/helpers/jquery.fancybox-thumbs.js?v=1.0.7" type="text/javascript"></script>
+
+<!-- Fancybox -->
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(".fancybox").fancybox();
+	});
+</script>
+
+<!-- For Embedding Openlayers Maps -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  jQuery.noConflict();
+  var rootUrl = "";
+</script>
+<script src="/javascripts/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script src="/javascripts/maps.js" type="text/javascript"></script>
+
+<!-- Table of Contents -->
+<script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
+<script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    // Put a TOC right before the entry content.
+    generateTOC('.entry-content', 'Table of Contents', '.more');
+  });
+  </script>
 
 
 
