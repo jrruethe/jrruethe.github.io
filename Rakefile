@@ -158,6 +158,7 @@ task :new_page, :filename do |t, args|
   else
     puts "Syntax error: #{args.filename} contains unsupported characters"
   end
+  system("gedit #{file}")
 end
 
 # usage rake isolate[my-post]
