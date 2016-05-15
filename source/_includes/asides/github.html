@@ -1,11 +1,15 @@
 {% if site.github_user %}
 <section>
   <h1>GitHub Repos</h1>
+  <div class="github-card" data-github="jrruethe" data-width="260" data-height="150" data-theme="default"></div>
+  <script src="{{ root_url }}/javascripts/github-card.js" type="text/javascript"></script>
   <ul id="gh_repos">
     <li class="loading">Status updating...</li>
   </ul>
   {% if site.github_show_profile_link %}
+  <!--
   <a href="https://github.com/{{site.github_user}}">@{{site.github_user}}</a> on GitHub
+  -->
   {% endif %}
   <script type="text/javascript">
     $(document).ready(function(){
