@@ -488,9 +488,37 @@ The image is refered to by the name after the trailing <code>_</code>. In this c
 
 <hr />
 
-<h2>Tables</h2>
+<h2>Tweet</h2>
 
-<p>Tables can also be embedded into posts like images. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
+<p>It is easy to add a tweet to a post using the Twitter API.</p>
+
+<pre><code>{% twitter oembed https://twitter.com/jrruethe/status/687108060612030465 align='center' %}
+</code></pre>
+
+<p>Results in:</p>
+
+<div class='embed twitter'><blockquote class="twitter-tweet" align="center"><p lang="en" dir="ltr">Thanks to <a href="https://twitter.com/Whonix">@Whonix</a> <a href="https://twitter.com/9B22EB34">@9B22EB34</a> <a href="https://twitter.com/armory">@armory</a> <a href="https://twitter.com/Tails_live">@Tails_live</a> <a href="https://twitter.com/VeraCrypt_IDRIX">@VeraCrypt_IDRIX</a> <a href="https://twitter.com/KeePassX">@KeePassX</a> <a href="https://twitter.com/fsf">@fsf</a> <a href="https://twitter.com/QubesOS">@QubesOS</a> <a href="https://twitter.com/hashtag/bitcoin?src=hash">#bitcoin</a> <a href="https://twitter.com/hashtag/donation?src=hash">#donation</a> <a href="https://t.co/evkk43oTVz">https://t.co/evkk43oTVz</a></p>&mdash; Joe Ruether (@jrruethe) <a href="https://twitter.com/jrruethe/status/687108060612030465">January 13, 2016</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script></div>
+
+
+<p><strong>Note</strong><br/>
+You need to have a file named &ldquo;twitter_credentials.sh&rdquo; in the root to hold the Twitter API credentials.
+<em>Do not check this file into git!</em>
+It should have the following contents:</p>
+
+<pre><code>export TWITTER_CONSUMER_KEY=
+export TWITTER_CONSUMER_SECRET=
+export TWITTER_ACCESS_TOKEN=
+export TWITTER_ACCESS_TOKEN_SECRET=
+</code></pre>
+
+<blockquote><p>Credits to <a href="https://github.com/rob-murray/jekyll-twitter-plugin">Rob Murray</a></p></blockquote>
+
+<hr />
+
+<h2>Table</h2>
+
+<p>Tables can also be embedded into posts. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
 For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the table below has the filename <code>2014-07-05-blogging-with-octopress_table.markdown</code>.
 The table is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>table.markdown</code>.</p>
 
@@ -582,6 +610,20 @@ The description will appear on the index page, with a little &ldquo;Read More&rd
 modified the original table of contents javascript to cause the table of contents to always be placed below the <code>more</code> tag.</p>
 
 <blockquote><p>Credits to <a href="http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/">Brian Clapper</a></p></blockquote>
+
+<hr />
+
+<h2>Github</h2>
+
+<p>Github repository cards can be embedded into posts to allow easy access to open source software.</p>
+
+<pre><code>{% githubrepo jrruethe/dockerfile %}
+</code></pre>
+
+<p>Results in:</p>
+
+<div class="github-widget" data-repo="jrruethe/dockerfile"></div>
+
 
 <hr />
 
@@ -824,11 +866,11 @@ Then, at the bottom of the page, put the actual footnote: <code>[^1]: This is a 
 
 <section>
   <h1>GitHub Repos</h1>
+  <div class="github-card" data-github="jrruethe" data-width="260" data-height="150" data-theme="default"></div>
+  <script src="/javascripts/github-card.js" type="text/javascript"></script>
   <ul id="gh_repos">
     <li class="loading">Status updating...</li>
   </ul>
-  
-  <a href="https://github.com/jrruethe">@jrruethe</a> on GitHub
   
   <script type="text/javascript">
     $(document).ready(function(){
@@ -952,6 +994,9 @@ Then, at the bottom of the page, put the actual footnote: <code>[^1]: This is a 
 <!-- Table of Contents -->
 <script src="/javascripts/jquery.tableofcontents.min.js" type="text/javascript"></script>
 <script src="/javascripts/tableofcontents.js" type="text/javascript"></script>
+
+<!-- Github -->
+<script src="/javascripts/githubrepos.min.js" type="text/javascript"></script>
 
 
   <script type="text/javascript">

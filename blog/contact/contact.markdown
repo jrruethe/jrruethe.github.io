@@ -1,5 +1,9 @@
 
-{% img center borderless /blog/contact/avatar.png 144 144 %}
+<center>
+<div class="github-card" data-github="jrruethe" data-width="400" data-height="150" data-theme="medium"></div>
+<script src="{{ root_url }}/javascripts/github-card.js" type="text/javascript"></script>
+</center>
+<br><br>
 
 <center><p class="title">Contact Info</p></center>
 
@@ -13,6 +17,8 @@
 | GPG:     | [4F40 99F8 276B DBA5 475A](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
 |          | [8446 4630 BEDC 40B9 35FE](http://jrruethe.github.io/downloads/code/jrruethe-public.asc) |
 
+<br>
+
 ---
 
 <center>
@@ -24,6 +30,7 @@
 <a href="http://jrruethe.github.io/downloads/code/bitcoin.txt.asc">Proof</a>
 <br>
 </center>
+<br>
 
 ---
 

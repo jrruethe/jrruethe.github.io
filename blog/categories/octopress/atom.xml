@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Octopress | Morning Musings]]></title>
   <link href="http://jrruethe.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2016-05-08T18:15:24-04:00</updated>
+  <updated>2016-05-15T17:36:39-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -417,9 +417,39 @@ The image is refered to by the name after the trailing <code>_</code>. In this c
 
 <hr />
 
-<h2>Tables</h2>
+<h2>Tweet</h2>
 
-<p>Tables can also be embedded into posts like images. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
+<p>It is easy to add a tweet to a post using the Twitter API.</p>
+
+<p></p>
+
+<pre><code>{% twitter oembed https://twitter.com/jrruethe/status/687108060612030465 align='center' %}
+</code></pre>
+
+<p></p>
+
+<p>Results in:</p>
+
+<p><div class='embed twitter'><p>There was a 'Twitter::Error::NotFound' error fetching Tweet '<a'</p></div></p>
+
+<p><strong>Note</strong><br/>
+You need to have a file named &ldquo;twitter_credentials.sh&rdquo; in the root to hold the Twitter API credentials.
+<em>Do not check this file into git!</em>
+It should have the following contents:</p>
+
+<pre><code>export TWITTER_CONSUMER_KEY=
+export TWITTER_CONSUMER_SECRET=
+export TWITTER_ACCESS_TOKEN=
+export TWITTER_ACCESS_TOKEN_SECRET=
+</code></pre>
+
+<blockquote><p>Credits to <a href="https://github.com/rob-murray/jekyll-twitter-plugin">Rob Murray</a></p></blockquote>
+
+<hr />
+
+<h2>Table</h2>
+
+<p>Tables can also be embedded into posts. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
 For example, the name of this file is <code>2014-07-05-blogging-with-octopress.markdown</code>, and the table below has the filename <code>2014-07-05-blogging-with-octopress_table.markdown</code>.
 The table is refered to by the name after the trailing <code>_</code>. In this case, the name is <code>table.markdown</code>.</p>
 
@@ -473,6 +503,23 @@ The description will appear on the index page, with a little &ldquo;Read More&rd
 modified the original table of contents javascript to cause the table of contents to always be placed below the <code>more</code> tag.</p>
 
 <blockquote><p>Credits to <a href="http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/">Brian Clapper</a></p></blockquote>
+
+<hr />
+
+<h2>Github</h2>
+
+<p>Github repository cards can be embedded into posts to allow easy access to open source software.</p>
+
+<p></p>
+
+<pre><code>{% githubrepo jrruethe/dockerfile %}
+</code></pre>
+
+<p></p>
+
+<p>Results in:</p>
+
+<p><div class="github-widget" data-repo="jrruethe/dockerfile"></div></p>
 
 <hr />
 
