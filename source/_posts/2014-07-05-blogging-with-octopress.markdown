@@ -272,9 +272,34 @@ If you have an image with a transparent background, you can embed it without the
 > Credits to [aycabta](https://github.com/aycabta/octopress-file-binder), [sheva-serg](http://deadunicornz.org/blog/2014/12/27/octopress-image-caption-plugin/), [Charles Beynon](https://eulerpi.io/2014/11/28/the-imgcaption-tag/), and [Erv Walter](https://www.ewal.net/2012/09/08/octopress-customizations/)
 
 ---
-## Tables
+## Tweet
 
-Tables can also be embedded into posts like images. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
+It is easy to add a tweet to a post using the Twitter API.
+
+{% raw %}
+    {% twitter oembed https://twitter.com/jrruethe/status/687108060612030465 align='center' %}
+{% endraw %}
+
+Results in:
+
+{% twitter oembed https://twitter.com/jrruethe/status/687108060612030465 align='center' %}
+
+**Note**  
+You need to have a file named "twitter_credentials.sh" in the root to hold the Twitter API credentials. 
+*Do not check this file into git!*
+It should have the following contents:
+
+    export TWITTER_CONSUMER_KEY=
+    export TWITTER_CONSUMER_SECRET=
+    export TWITTER_ACCESS_TOKEN=
+    export TWITTER_ACCESS_TOKEN_SECRET=
+
+> Credits to [Rob Murray](https://github.com/rob-murray/jekyll-twitter-plugin)
+
+---
+## Table
+
+Tables can also be embedded into posts. Tables are written in markdown format and saved in an external file in the same directory as the post with the same filename prefix.
 For example, the name of this file is `2014-07-05-blogging-with-octopress.markdown`, and the table below has the filename `2014-07-05-blogging-with-octopress_table.markdown`. 
 The table is refered to by the name after the trailing `_`. In this case, the name is `table.markdown`.
 

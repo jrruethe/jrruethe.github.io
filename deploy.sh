@@ -9,6 +9,11 @@ PATH=/home/user/Downloads/bin:$PATH
 # Disable preview mode
 rm -f .preview-mode
 
+# Load Twitter Credentials
+if [ -e twitter_credentials.sh ]; then
+    . twitter_credentials.sh
+fi
+
 # Deploy
 rake generate
 rake deploy

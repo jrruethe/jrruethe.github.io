@@ -7,6 +7,11 @@ PATH=/home/user/Downloads/bin:$PATH
 rm -f .preview-mode
 export OCTOPRESS_ENV='preview'
 
+# Load Twitter Credentials
+if [ -e twitter_credentials.sh ]; then
+    . twitter_credentials.sh
+fi
+
 rake generate
 rake preview
 
