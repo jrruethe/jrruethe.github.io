@@ -350,6 +350,19 @@ modified the original table of contents javascript to cause the table of content
 > Credits to [Brian Clapper](http://brizzled.clapper.org/blog/2012/02/04/generating-a-table-of-contents-in-octopress/)
 
 ---
+## Github
+
+Github repository cards can be embedded into posts to allow easy access to open source software.
+
+{% raw %}
+    {% githubrepo jrruethe/dockerfile %}
+{% endraw %}
+
+Results in:
+
+{% githubrepo jrruethe/dockerfile %}
+
+---
 ## Video
 
 Embedding a youtube video can be done by grabbing the video id from the url:  
