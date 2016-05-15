@@ -74,7 +74,7 @@ default_asides: [asides/about.html,
 # Github repositories
 github_user: jrruethe
 github_repo_count: 5
-github_show_profile_link: true
+github_show_profile_link: false
 github_skip_forks: true
 
 # Twitter
