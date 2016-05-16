@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Docker | Morning Musings]]></title>
   <link href="http://jrruethe.github.io/blog/categories/docker/atom.xml" rel="self"/>
   <link href="http://jrruethe.github.io/"/>
-  <updated>2016-05-15T20:19:05-04:00</updated>
+  <updated>2016-05-15T20:27:43-04:00</updated>
   <id>http://jrruethe.github.io/</id>
   <author>
     <name><![CDATA[Joe Ruether]]></name>
@@ -774,7 +774,7 @@ ExecStart=/usr/bin/docker daemon -H fd:// -g /home/user/docker
 </span><span class='line'>
 </span><span class='line'><span class="sr">&lt;h1&gt;dockerfile-generator.rb&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
 </span><span class='line'>
-</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="no">Copyright</span> <span class="o">&amp;</span><span class="n">copy</span><span class="p">;</span> <span class="mi">2015</span> <span class="no">Joe</span> <span class="no">Ruether</span> <span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;&amp;#109;&amp;#x61;&amp;#x69;&amp;#x6c;&amp;#116;&amp;#111;&amp;#58;&amp;#106;&amp;#114;&amp;#114;&amp;#x75;&amp;#101;&amp;#116;&amp;#x68;&amp;#101;&amp;#x40;&amp;#103;&amp;#x6d;&amp;#97;&amp;#105;&amp;#x6c;&amp;#x2e;&amp;#99;&amp;#111;&amp;#x6d;&quot;</span><span class="o">&gt;&amp;</span><span class="c1">#x6a;&amp;#x72;&amp;#114;&amp;#117;&amp;#x65;&amp;#116;&amp;#104;&amp;#101;&amp;#64;&amp;#x67;&amp;#109;&amp;#97;&amp;#x69;&amp;#108;&amp;#x2e;&amp;#x63;&amp;#x6f;&amp;#x6d;&lt;/a&gt;&lt;/h1&gt;</span>
+</span><span class='line'><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="no">Copyright</span> <span class="o">&amp;</span><span class="n">copy</span><span class="p">;</span> <span class="mi">2015</span> <span class="no">Joe</span> <span class="no">Ruether</span> <span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;&amp;#109;&amp;#97;&amp;#105;&amp;#x6c;&amp;#116;&amp;#x6f;&amp;#58;&amp;#106;&amp;#x72;&amp;#114;&amp;#x75;&amp;#101;&amp;#x74;&amp;#x68;&amp;#x65;&amp;#x40;&amp;#103;&amp;#109;&amp;#x61;&amp;#x69;&amp;#x6c;&amp;#x2e;&amp;#x63;&amp;#x6f;&amp;#109;&quot;</span><span class="o">&gt;&amp;</span><span class="c1">#x6a;&amp;#114;&amp;#x72;&amp;#x75;&amp;#x65;&amp;#x74;&amp;#x68;&amp;#101;&amp;#64;&amp;#x67;&amp;#109;&amp;#x61;&amp;#x69;&amp;#108;&amp;#46;&amp;#x63;&amp;#111;&amp;#109;&lt;/a&gt;&lt;/h1&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="c1">#&lt;/p&gt;</span>
 </span><span class='line'>
