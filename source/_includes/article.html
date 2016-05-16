@@ -18,7 +18,7 @@
       <h1 class="entry-title"><a href="{{ root_url }}{{ post.url }}">{% if site.titlecase %}{{ post.title | titlecase }}{% else %}{{ post.title }}{% endif %}</a></h1>
       <meta name="twitter:description" content="{{ site.subtitle }}">
       <meta name="twitter:card" content="summary">
-      {% twitter_img /blog/contact/avatar.png %}
+      <meta name='twitter:image:src' content="{{ site.url }}/blog/contact/avatar.png">
     {% else %}
       <meta name="twitter:description" content="{{ page.content | strip_html | xml_escape | truncate: 200 }}">
       {% if page.image == true %}
@@ -28,7 +28,7 @@
       {% else %}
         <h1 class="entry-title">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
         <meta name="twitter:card" content="summary">
-        {% twitter_img /blog/contact/avatar.png %}
+        <meta name='twitter:image:src' content="{{ site.url }}/blog/contact/avatar.png">
       {% endif %}
     {% endif %}
     {% unless page.meta == false %}
