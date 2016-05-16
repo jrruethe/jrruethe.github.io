@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Blogging with Octopress"
+image: true
 date: 2014-07-05 20:51:27 -0400
 comments: true
 toc: true

@@ -128,5 +128,24 @@ module Jekyll
     end
   end
 
+  class TwitterImageTag
+    alias_method :old_render_for_file_binder, :render
+    def render(context)
+      if @img['src'] =~ /^\.\/(.*)$/
+        me = context.registers[:site].me
+        if me.class == Jekyll::Post
+          if ENV.has_key?('OCTOPRESS_ENV') && ENV['OCTOPRESS_ENV'] == 'preview'
+            url = 'http://localhost:4000/'
+          else
+            url = context.registers[:site].config['url']
+          end
+          url = url[-1] == '/' ? url[0..-2] : url
+          @img['src'] = url + me.url + $1
+        end
+      end
+      old_render_for_file_binder(context)
+    end
+  end
+
 end
 

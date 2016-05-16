@@ -1,9 +1,35 @@
 {% unless page.no_header %}
   <header>
+  
+    <meta name="twitter:site" content="@jrruethe">
+    <meta name="twitter:creator" content="@jrruethe">
+  
+    {% if page.title %}
+      <meta name="twitter:title" content="{{ page.title }}">
+    {% else %}
+      <meta name="twitter:title" content="{{ site.title }}">
+    {% endif %}
+  
+    {% if page.url %}
+      <meta name="twitter:url" content="{{ site.url }}{{ page.url }}">
+    {% endif %}
+  
     {% if index %}
       <h1 class="entry-title"><a href="{{ root_url }}{{ post.url }}">{% if site.titlecase %}{{ post.title | titlecase }}{% else %}{{ post.title }}{% endif %}</a></h1>
+      <meta name="twitter:description" content="{{ site.subtitle }}">
+      <meta name="twitter:card" content="summary">
+      {% twitter_img /blog/contact/avatar.png %}
     {% else %}
-      <h1 class="entry-title">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
+      <meta name="twitter:description" content="{{ page.content | strip_html | xml_escape | truncate: 200 }}">
+      {% if page.image == true %}
+        {% img borderless ./title.png %}
+        <meta name="twitter:card" content="summary_large_image">
+        {% twitter_img ./title.png %}
+      {% else %}
+        <h1 class="entry-title">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
+        <meta name="twitter:card" content="summary">
+        {% twitter_img /blog/contact/avatar.png %}
+      {% endif %}
     {% endif %}
     {% unless page.meta == false %}
       <p class="meta">
